@@ -1,0 +1,12 @@
+feature:
+  - head-branch: ['^feat/.*']
+bug:
+  - title: ['(?i)fix','bug']
+ui:
+  - files:
+      - 'public/**'
+      - 'index.html'
+      - '**/*.css'
+docs:
+  - files:
+      - '**/*.md'

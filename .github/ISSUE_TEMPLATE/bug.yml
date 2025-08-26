@@ -1,0 +1,10 @@
+name: Bug report
+description: Rapporter en feil
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduser
+      description: Hva gjorde du, hva skjedde?

@@ -1,0 +1,10 @@
+name: Feature request
+description: Foreslå en ny funksjon
+title: "feat: "
+labels: ["feature"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Mål
+      description: Hva skal løses/forbedres?

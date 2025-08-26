@@ -1,6 +1,8 @@
+# OS/editor
 .DS_Store
 Thumbs.db
 .vscode/
-.idea/
-*.zip
-*.tar.gz
+
+# Bygg/runtime
+node_modules/
+dist/

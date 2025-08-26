@@ -1,0 +1,5 @@
+{
+  "version": "demo-1",
+  "user": {"name": "Demo Bruker", "route": "Camino Francés"},
+  "diary": [{"date":"2025-08-22","mood":6,"pain":2,"notes":"Føles bra"}]
+}
