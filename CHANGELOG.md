@@ -1,4 +1,7 @@
 ## vX.Y.Z (2025-08-26)
+- notat
+
+## vX.Y.Z (2025-08-26)
 - kort notat
 
 ## v5.6.3 (2025-08-26)
@@ -15,6 +18,7 @@
 ## v5.6.1
 - Baseline (mest komplette): grafer, skjema, dagbok/etapper, motivasjon, profiler, varsler, import/eksport, NAV-kort, logo.
 - Tale-til-tekst (STT) desktop fungerer stabilt.
+
 
 
 
