@@ -1,0 +1,42 @@
+name: Create/Update Release PR (dev → main)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * 1,4"   # man & tor 07:00 UTC (valgfritt)
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure branches are fresh
+        run: |
+          git fetch origin
+          git checkout main
+          git pull --ff-only origin main
+          git checkout dev
+          git pull --ff-only origin dev
+
+      - name: Open/Update PR dev → main
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: "dev"
+          destination_branch: "main"
+          pr_title: "Release: merge dev → main"
+          pr_body: |
+            Denne PR-en samler alt klart for produksjon fra **dev**.
+            • Sjekk Netlify Deploy Preview
+            • Kryss av i sjekklista før merge
+          pr_draft: false
+          pr_allow_empty: false
+          pr_label: "release,needs-review"
+          github_token: ${{ github.token }}
