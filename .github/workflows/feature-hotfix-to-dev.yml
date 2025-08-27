@@ -1,0 +1,36 @@
+name: Open PR to dev on feature/hotfix pushes
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "feat/**"
+      - "hotfix/**"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  open_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Open/Update PR → dev
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: ${{ github.ref_name }}
+          destination_branch: "dev"
+          pr_title: "PR: ${{ github.ref_name }} → dev"
+          pr_body: |
+            Automatisk PR fra **${{ github.ref_name }}** til **dev**.
+            • Sjekk Netlify Deploy Preview
+            • Merk PR med riktige labels
+          pr_draft: false
+          pr_allow_empty: false
+          pr_label: "needs-review,autopr"
+          github_token: ${{ github.token }}
