@@ -1,19 +1,10 @@
-param(
-  [ValidateSet("dev")]
-  [string]$Branch = "dev",
-  [string]$Message = "chore(auto): scheduled sync"
-)
-$ErrorActionPreference = "Stop"
-$repo = "C:\Dev\my-camino"
-if (!(Test-Path $repo)) { throw "Repo ikke funnet: $repo" }
-Set-Location $repo
+param([string]$Branch="dev")
+Set-Location "C:\Dev\my-camino"
 git fetch --all --prune
-if (-not (git branch --list $Branch)) { git checkout -b $Branch origin/$Branch } else { git checkout $Branch }
+git checkout $Branch
 git pull --ff-only
-# Kun push hvis filer faktisk endret (kode/asset/docs – alt i første omgang)
-$changes = git status --porcelain
-if (-not $changes) { Write-Host "Ingen lokale endringer – ingenting å pushe."; exit 0 }
+if (-not (git status --porcelain)) { Write-Host "Ingen lokale endringer – ingenting å pushe."; exit 0 }
 git add -A
-git commit -m $Message
-git push origin $Branch
-Write-Host "✅ Auto-push til $Branch: $Message"
+$ts = Get-Date -Format "yyyy-MM-dd HH:mm"
+git commit -m "chore(auto): scheduled sync $ts"
+git push
