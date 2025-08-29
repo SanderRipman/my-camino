@@ -1,5 +1,8 @@
-# Endringer
-
 ## v5.6.1
-- Baseline (mest komplette): grafer, skjema, dagbok/etapper, motivasjon, profiler, varsler, import/eksport, NAV-kort, logo.
-- Tale-til-tekst (STT) desktop fungerer stabilt.
+- Mest komplette versjon hittil
+
+## v5.6.2
+- Hotfix STT mobil + små UI-forbedringer
+
+## v5.6.3
+- Ny STT-fiks og UI-forbedringer

@@ -1,0 +1,4 @@
+AidMe Camino Handover v3
+
+Inneholder oppsummering av utvikling, integrasjoner, og målsetninger.
+Denne pakken er laget for å flytte hele konteksten til en ny chat eller maskin.

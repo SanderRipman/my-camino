@@ -1,17 +1,9 @@
-# AidMe • Camino Measures
+# AidMe Camino
 
-Miljøer:
-- Prod (main): https://my.aidme.no
-- Dev  (dev):  https://dev.aidme.no
-- Alle PR-er får egen Netlify “Deploy Preview”-URL.
+Dette repoet inneholder prosjektfiler og scripts.
 
-## Slik jobber du
+## Hurtigstart
+- Bruk `Open-Repo` i PowerShell 7 for å gå til repoet.
+- Opprett ny feature med `New-Feature 'navn'`.
+- Lag release med `Release vX.Y.Z 'notat'`.
 
-### A) Ny endring
-```powershell
-Open-Repo
-New-Feature "kort-navn"   # lager branch feat/kort-navn fra dev
-# gjør endringer, lagre filer
-git add .
-git commit -m "feat: beskriv kort"
-git push                  # konsollen viser PR-lenke → åpne PR mot dev
