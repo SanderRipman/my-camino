@@ -6,3 +6,9 @@ Thumbs.db
 # Bygg/runtime
 node_modules/
 dist/
+
+# AidMe local artifacts
+aidme-handover-v*.zip
+aidme-handover-v*/        # utpakkede handover-mapper
+SCRIPTS/                  # lokale scripts
+*.local.*                 # evt. lokale varianter
