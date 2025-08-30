@@ -14,3 +14,8 @@ temp/
 *.local.json
 node_modules/
 Desktop.ini
+# AidMe local artifacts
+aidme-handover-v*.zip
+aidme-handover-v*/        # utpakkede handover-mapper
+SCRIPTS/                  # lokale scripts
+*.local.*
