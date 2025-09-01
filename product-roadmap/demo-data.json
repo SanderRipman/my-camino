@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "user": { "name": "Demo Bruker", "route": "Camino Francés" },
+  "diary": [
+    { "date": "2025-08-22", "mood": 6, "pain": 2,
+      "route": "Camino Francés", "stage": "Sarria → Arzúa (40 km)",
+      "notes": "Føles bra – litt regn" }
+  ],
+  "metrics": { "phq9": [6,5,4,4], "gad7": [7,6,5,5], "who5": [48,52,56,60] }
+}
