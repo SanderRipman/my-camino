@@ -7,4 +7,4 @@
 | partner-tilskudd | 2025-08-30 23:36 | C:\Dev\my-camino\handover\partner-tilskudd-handover.zip |
 | turplan-camino | 2025-08-30 23:36 | C:\Dev\my-camino\handover\turplan-camino-handover.zip |
 | forskning-studier | 2025-08-30 23:36 | C:\Dev\my-camino\handover\forskning-studier-handover.zip |
-| product-roadmap | 2025-08-31 08:00 | C:\Dev\my-camino\handover\product-roadmap-handover.zip |
+| product-roadmap | 2025-09-01 09:48 | C:\Dev\my-camino\handover\product-roadmap-handover.zip |
