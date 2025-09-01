@@ -1,5 +1,4 @@
-param([Parameter(Mandatory=$true)][string]$Src)
-$OutDir="public"; $Theme="#0F2F2E"; $Bg="#0F2F2E"
+param([Parameter(Mandatory)][string]$Src,[string]$OutDir="public",[string]$Theme="#0F2F2E",[string]$Bg="#0F2F2E")
 if (!(Test-Path $Src)) { throw "Fant ikke kildebildet: $Src" }
 New-Item -ItemType Directory -Path $OutDir -ErrorAction SilentlyContinue | Out-Null
 magick "$Src" -resize 512x512 "$OutDir\favicon-512.png"
