@@ -1,14 +1,7 @@
-# OS/editor
-.DS_Store
-Thumbs.db
-.vscode/
+# AidMe
+handover\*.zip
+handover\logs\
+*-report.json
 
-# Bygg/runtime
+# Node/Netlify osv.
 node_modules/
-dist/
-
-# AidMe local artifacts
-aidme-handover-v*.zip
-aidme-handover-v*/        # utpakkede handover-mapper
-SCRIPTS/                  # lokale scripts
-*.local.*                 # evt. lokale varianter
