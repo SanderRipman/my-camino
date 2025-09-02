@@ -1,0 +1,28 @@
+name: handover-pack
+on:
+  workflow_dispatch:
+  push:
+    branches: [ dev ]
+    paths:
+      - "tools/**"
+      - ".github/workflows/**"
+      - "scripts/**"
+jobs:
+  pack:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PowerShell
+        uses: PowerShell/PowerShell@v1
+        with: { version: "7.4.x" }
+      - name: Build handover zip
+        shell: pwsh
+        run: |
+          if (-not (Test-Path .\handover)) { New-Item -ItemType Directory -Force -Path .\handover | Out-Null }
+          $paths = @('.\tools','.\scripts','.\.github\workflows','.\README.md') | ? { Test-Path $_ }
+          Compress-Archive -Path $paths -DestinationPath .\handover\dev-platform-v1-handover.zip -Force
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-platform-v1-handover
+          path: handover/dev-platform-v1-handover.zip
