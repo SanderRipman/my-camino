@@ -5,3 +5,6 @@ handover\logs\
 
 # Node/Netlify osv.
 node_modules/
+
+# Local Netlify folder
+.netlify

@@ -1,13 +1,10 @@
 function Write-AidNote {
   [CmdletBinding()]
-  param(
-    [Parameter(Mandatory)][string]$Path,
-    [Parameter(Mandatory)][string]$Content
-  )
+  param([Parameter(Mandatory)][string]$Path,[Parameter(Mandatory)][string]$Content)
   $dir = Split-Path -Parent $Path
   if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
   $ts = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
-  $block = "`n`n### $ts`n$Content`n"
+  $block = "`r`n`r`n### $ts`r`n$((Convert-AidNoteContent $Content))`r`n"
   $tmp = "$Path.tmp"
   for($i=1;$i -le 3;$i++){
     try{
@@ -20,6 +17,6 @@ function Write-AidNote {
         Add-Content -LiteralPath $Path -Value $block -Encoding UTF8
       }
       return
-    } catch { Start-Sleep -Milliseconds (150*$i) ; if(Test-Path $tmp){Remove-Item $tmp -Force -ea 0} ; if($i -eq 3){ throw } }
+    } catch { Start-Sleep -Milliseconds (150*$i); if(Test-Path $tmp){Remove-Item $tmp -Force -ea 0}; if($i -eq 3){ throw } }
   }
 }

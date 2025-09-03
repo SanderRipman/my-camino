@@ -1,0 +1,166 @@
+**********************
+PowerShell transcript start
+Start time: 20250902131714
+Username: SANDER360\Sander
+RunAs User: SANDER360\Sander
+Configuration Name: 
+Machine: SANDER360 (Microsoft Windows NT 10.0.26100.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll -WorkingDirectory ~
+Process ID: 22888
+PSVersion: 7.5.2
+PSEdition: Core
+GitCommitId: 7.5.2
+OS: Microsoft Windows 10.0.26100
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+PS C:\Users\Sander> Set-Location $Root
+PS C:\Dev\my-camino> Import-Module 'C:\Dev\my-camino\tools\AidMe.Helpers' -Force
+WARNING: The names of some imported commands from the module 'AidMe.Helpers' include unapproved verbs that might make them less discoverable. To find the commands with unapproved verbs, run the Import-Module command again with the Verbose parameter. For a list of approved verbs, type Get-Verb.
+PS C:\Dev\my-camino> Write-Host "Profil:" -ForegroundColor Cyan
+Profil:
+PS C:\Dev\my-camino> $profileTarget = 'C:\Users\Sander\Documents\PowerShell\Profile.ps1'
+PS C:\Dev\my-camino> $profileTarget
+C:\Users\Sander\Documents\PowerShell\Profile.ps1
+PS C:\Dev\my-camino> if (Test-Path $profileTarget) { Get-Content -Raw $profileTarget | Out-String | Out-Host } else { Write-Warning "Profil mangler" }
+try { Import-Module 'C:\Dev\my-camino\tools\AidMe.Helpers' -Force } catch {}
+if (Get-Module AidMe.Helpers) {
+  Set-PSReadLineKeyHandler -Chord Alt+Q -ScriptBlock { Start-AidControlCenter -Root 'C:\Dev\my-camino' -ChatKey 'dev-platform-v1' }
+}
+PS C:\Dev\my-camino> Write-Host "`nSnarveier:" -ForegroundColor Cyan
+
+Snarveier:
+PS C:\Dev\my-camino> Get-ChildItem 'C:\Users\Sander\Desktop' -Filter '*.lnk' | Select Name,FullName | Format-Table -AutoSize | Out-Host
+
+Name                                         FullName
+----                                         --------
+Aid Control Center.lnk                       C:\Users\Sander\Desktop\Aid Control Center.lnk
+AidMe QuickMenu.lnk                          C:\Users\Sander\Desktop\AidMe QuickMenu.lnk
+Microsoft Outlook.lnk                        C:\Users\Sander\Desktop\Microsoft Outlook.lnk
+Shortcut to Desktop (OneDrive - aimy.no).lnk C:\Users\Sander\Desktop\Shortcut to Desktop (OneDrive - aimy.no).lnk
+SNAPSHOT All.lnk                             C:\Users\Sander\Desktop\SNAPSHOT All.lnk
+
+PS C:\Dev\my-camino> Write-Host "`nStart-AidControlCenter tilgjengelig?" -ForegroundColor Cyan
+
+Start-AidControlCenter tilgjengelig?
+PS C:\Dev\my-camino> (Get-Command Start-AidControlCenter -ErrorAction SilentlyContinue) | Format-List | Out-Host
+
+Name        : Start-AidControlCenter
+CommandType : Function
+Definition  : 
+                [CmdletBinding()]
+                param(
+                  [string]$Root = "C:\Dev\my-camino",
+                  [string]$ChatKey = "dev-platform-v1"
+                )
+                function S($t,$c="Cyan"){ Write-Host $t -ForegroundColor $c }
+                Clear-Host
+                S "=== Aid Control Center ==="
+                S "[1] Snapshot" ; S "[2] Audit ZIP'er" ; S "[3] AutoPush (dev)" ; S "[4] Open PR (dev→main)"
+                S "[5] Deploy Preview (Netlify)" ; S "[6] Write Note" ; S "[7] Repo Health"
+                S "[V] Verify setup" ; S "[Q] Quit`n" "Gray"
+                $sel = Read-Host "Choose"
+                switch($sel.ToUpper()){
+                  '1' { New-AidSnapshot -ChatKey $ChatKey -Root $Root; Start-AidControlCenter -Root $Root -ChatKey $Cha
+              tKey }
+                  '2' { Get-ChildItem "$Root\handover\*-handover.zip" -ea 0 | Format-Table Name,Length,LastWriteTime; S
+              tart-AidControlCenter -Root $Root -ChatKey $ChatKey }
+                  '3' { git add .; git commit -m "chore: autopush ($ChatKey)" ; git push -u origin dev; Start-AidContro
+              lCenter -Root $Root -ChatKey $ChatKey }
+                  '4' { if(Get-Command gh -ea 0){ gh pr create --base main --head dev --fill } else { Write-Warning "gh
+               CLI not installed" } ; Start-AidControlCenter -Root $Root -ChatKey $ChatKey }
+                  '5' { if(Get-Command netlify -ea 0){ netlify open --deploy } else { Write-Warning "netlify CLI not in
+              stalled" } ; Start-AidControlCenter -Root $Root -ChatKey $ChatKey }
+                  '6' { $p = Join-Path $Root "handover\$ChatKey-notes.md"; $note = Read-Host "Note"; Write-AidNote -Pat
+              h $p -Content $note; Start-AidControlCenter -Root $Root -ChatKey $ChatKey }
+                  '7' { git status; git remote -v; git log --oneline -n 5; Start-AidControlCenter -Root $Root -ChatKey
+              $ChatKey }
+                  'V' { Verify-AidSetup -Root $Root -ChatKey $ChatKey; Test-AidModule; Start-AidControlCenter -Root $Ro
+              ot -ChatKey $ChatKey }
+                  'Q' { return }
+                  default { Start-AidControlCenter -Root $Root -ChatKey $ChatKey }
+                }
+
+
+PS C:\Dev\my-camino> Write-Host "`nTest-AidModule:" -ForegroundColor Cyan
+
+Test-AidModule:
+PS C:\Dev\my-camino> try { Test-AidModule } catch { Write-Error $_ }
+
+Function                  Present
+--------                  -------
+Invoke-ZipAudit             False
+Invoke-ZipStage             False
+Invoke-ZipSuggestRefactor   False
+New-AidMeHandover            True
+Write-AidNote                True
+Start-AidControlCenter       True
+Verify-AidSetup              True
+Add-AidIndexEntry            True
+New-AidSnapshot              True
+Invoke-AidReportCleanup      True
+
+PS C:\Dev\my-camino> TerminatingError(): "Manglende funksjoner: Invoke-ZipAudit, Invoke-ZipStage, Invoke-ZipSuggestRefactor"
+>> TerminatingError(): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: Manglende funksjoner: Invoke-ZipAudit, Invoke-ZipStage, Invoke-ZipSuggestRefactor"
+>> TerminatingError(): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: Manglende funksjoner: Invoke-ZipAudit, Invoke-ZipStage, Invoke-ZipSuggestRefactor"
+The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: Manglende funksjoner: Invoke-ZipAudit, Invoke-ZipStage, Invoke-ZipSuggestRefactor
+Exception: Manglende funksjoner: Invoke-ZipAudit, Invoke-ZipStage, Invoke-ZipSuggestRefactor
+PS C:\Dev\my-camino> Write-Host "`nVerify-AidSetup:" -ForegroundColor Cyan
+
+Verify-AidSetup:
+PS C:\Dev\my-camino> Verify-AidSetup -Root $Root -ChatKey $ChatKey
+=== Verify-AidSetup ===
+GitHub CLI: ✅
+Netlify CLI: ❌
+Workflows folder: ✅
+
+Name                      LastWriteTime
+----                      -------------
+feature-hotfix-to-dev.yml 02.09.2025 09:04:32
+health.yml                02.09.2025 09:04:32
+release-pr.yml            02.09.2025 09:04:32
+
+Handover zip: ✅
+AidMe-Index.md: ✅
+WARNING: Noen mangler – se over
+PS C:\Dev\my-camino> function Invoke-AidReport {
+  param([string]$Root,[string]$ChatKey)
+  function Safe([scriptblock]$b){ try { & $b } catch { $_ | Out-String } }
+  $r = [ordered]@{}
+  $r.Root=$Root; $r.ChatKey=$ChatKey; $r.Timestamp=(Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
+  $r.PS = @{ Version=$PSVersionTable.PSVersion.ToString(); Edition=$PSVersionTable.PSEdition }
+  $r.Git = @{
+    Present=[bool](Get-Command git -ea 0)
+    Version=Safe{ git --version }
+    Branch =Safe{ (git rev-parse --abbrev-ref HEAD).Trim() }
+    Remote =Safe{ git remote -v | Out-String }
+    Status =Safe{ git status --porcelain=v1 -b | Out-String }
+    Last   =Safe{ git log --oneline -n 5 | Out-String }
+  }
+  $r.CLI = @{ GH = [bool](Get-Command gh -ea 0); Netlify = [bool](Get-Command netlify -ea 0) }
+  $r.Workflows = @{
+    Present = Test-Path (Join-Path $Root '.github\workflows')
+    Files   = Safe{ Get-ChildItem "$Root\.github\workflows\*.yml" -ea 0 | Select Name,LastWriteTime | Out-String }
+  }
+  $zip = Join-Path $Root "handover\$ChatKey-handover.zip"
+  $idx = @("$Root\AidMe-Index.md","$Root\handover\..\AidMe-Index.md") | ? { Test-Path $_ } | Select-Object -First 1
+  $r.Artifacts = @{
+    ZipExists = Test-Path $zip
+    IndexPath = $idx
+    IndexLine = Safe{ if($idx){ (Select-String -Path $idx -Pattern "^\|\s*$([regex]::Escape($ChatKey))\s*\|.*$").Line } }
+  }
+  $json = $r | ConvertTo-Json -Depth 6
+  $out  = Join-Path $Root "handover\$ChatKey-report.json"
+  $json | Set-Content -Encoding UTF8 $out
+  "Report saved: $out"
+}
+PS C:\Dev\my-camino> Invoke-AidReport -Root $Root -ChatKey $ChatKey | Out-Host
+Report saved: C:\Dev\my-camino\handover\dev-platform-v1-report.json
+PS C:\Dev\my-camino> Stop-Transcript | Out-Null
+**********************
+PowerShell transcript end
+End time: 20250902131715
+**********************
