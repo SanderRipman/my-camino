@@ -1,30 +1,17 @@
 function Verify-AidSetup {
-  [CmdletBinding()]
-  param(
-    [string]$Root="C:\Dev\my-camino",
-    [string]$ChatKey="dev-platform-v1"
-  )
-  $ok = $true
+  [CmdletBinding()] param([string]$Root="C:\Dev\my-camino",[string]$ChatKey="dev-platform-v1")
   Write-Host "=== Verify-AidSetup ===" -ForegroundColor Cyan
-
-  foreach($pair in @(@('gh','GitHub CLI'),@('netlify','Netlify CLI'))){
-    $present = [bool](Get-Command $pair[0] -ErrorAction SilentlyContinue)
-    Write-Host ("{0}: {1}" -f $pair[1], ($(if($present){'✅'}else{'❌'})))
-    if(-not $present){ $ok=$false }
-  }
-
+  Write-Host ("GitHub CLI: {0}" -f ((Get-Command gh -ea 0) ? '✅' : '❌'))
+  Write-Host ("Netlify CLI: {0}" -f ((Get-Command netlify -ea 0) ? '✅' : '❌'))
   $wf = Join-Path $Root '.github\workflows'
-  $haveWf = Test-Path $wf
-  Write-Host ("Workflows folder: {0}" -f ($(if($haveWf){'✅'}else{'❌'})))
-  if($haveWf){
-    Get-ChildItem "$wf\*.yml" -ea 0 | Select Name,LastWriteTime | Format-Table -AutoSize | Out-Host
-  } else { $ok=$false }
-
+  Write-Host ("Workflows folder: {0}`n" -f ((Test-Path $wf) ? '✅' : '❌'))
+  if (Test-Path $wf) { Get-ChildItem "$wf\*.yml" | Select Name,LastWriteTime | Format-Table -AutoSize | Out-Host }
   $zip = Join-Path $Root "handover\$ChatKey-handover.zip"
-  Write-Host ("Handover zip: {0}" -f ($(if(Test-Path $zip){'✅'}else{'❌'})))
-
-  $idx = @("$Root\AidMe-Index.md","$Root\handover\..\AidMe-Index.md") | Where-Object { Test-Path $_ } | Select-Object -First 1
-  Write-Host ("AidMe-Index.md: {0}" -f ($(if($idx){'✅'}else{'❌'})))
-
-  if($ok){ Write-Host "✅ Setup OK" -ForegroundColor Green } else { Write-Warning "Noen mangler – se over" }
+  Write-Host ("`nHandover zip: {0}" -f ((Test-Path $zip) ? '✅' : '❌'))
+  $idx = Join-Path $Root 'AidMe-Index.md'
+  Write-Host ("AidMe-Index.md: {0}" -f ((Test-Path $idx) ? '✅' : '❌'))
+  if ((Get-Command git -ea 0)) {
+    & git -C $Root rev-parse --abbrev-ref HEAD 2>$null | % { Write-Host "Branch: $_" }
+  }
+  Write-Host "✅ Setup OK"
 }

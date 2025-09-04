@@ -33,3 +33,8 @@ Logging → C:\Dev\my-camino\handover\logs\control-20250903-130012.txt
 [K] Keywords help
 [V] Verify setup
 [L] Stop logging (toggle)
+[Q] Quit
+**********************
+PowerShell transcript end
+End time: 20250903180914
+**********************
