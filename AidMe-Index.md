@@ -75,3 +75,14 @@
 | turplan-camino | 2025-09-04 20:49 | C:\Dev\my-camino\handover\turplan-camino-handover.zip |
 | turplan-camino | 2025-09-04 20:49 | C:\Dev\my-camino\handover\turplan-camino-handover.zip |
 | aidme-core | 2025-09-04 21:05 | C:\Dev\my-camino\handover\aidme-core-handover.zip |
+| aidme-core | 2025-09-04 23:49 | C:\Dev\my-camino\handover\aidme-core-handover.zip |
+| dev-platform | 2025-09-05 07:30 | C:\Dev\my-camino\handover\dev-platform-handover.zip |
+| ops-workflow | 2025-09-05 07:30 | C:\Dev\my-camino\handover\ops-workflow-handover.zip |
+| product-roadmap | 2025-09-05 07:30 | C:\Dev\my-camino\handover\product-roadmap-handover.zip |
+| pilot-studier | 2025-09-05 07:30 | C:\Dev\my-camino\handover\pilot-studier-handover.zip |
+| forskning-studier | 2025-09-05 07:30 | C:\Dev\my-camino\handover\forskning-studier-handover.zip |
+| partner-tilskudd | 2025-09-05 07:30 | C:\Dev\my-camino\handover\partner-tilskudd-handover.zip |
+| turplan-camino | 2025-09-05 07:30 | C:\Dev\my-camino\handover\turplan-camino-handover.zip |
+| ideer-lab | 2025-09-05 07:30 | C:\Dev\my-camino\handover\ideer-lab-handover.zip |
+| dev-platform | 2025-09-05 07:50 | C:\Dev\my-camino\handover\dev-platform-handover.zip |
+| dev-platform | 2025-09-05 07:54 | C:\Dev\my-camino\handover\dev-platform-handover.zip |

@@ -58898,3 +58898,4 @@ Importert til C:\Dev\my-camino\handover\captures\I\forskning-studier.md
 [5] Capture (auto tittel/chatkey/oppsummering/splitt)
 [I] Importer Markdown (fulltekst dump)
 [A] AutoSplit siste i en chatkey
+[Q] Tilbake
