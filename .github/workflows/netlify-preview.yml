@@ -1,0 +1,50 @@
+name: Netlify Deploy Preview
+
+on:
+  pull_request:
+    branches: [ "dev" ]
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID_DEV: ${{ secrets.NETLIFY_SITE_ID_DEV }}
+    steps:
+      - name: Guard: skip if secrets missing
+        id: guard
+        run: |
+          if [ -z "${NETLIFY_AUTH_TOKEN}" ] || [ -z "${NETLIFY_SITE_ID_DEV}" ]; then
+            echo "Missing Netlify secrets; skipping preview."
+            echo "run=false" >> $GITHUB_OUTPUT
+          else
+            echo "run=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install (if lockfile exists)
+        if: steps.guard.outputs.run == 'true' && ${{ hashFiles('package-lock.json') != '' }}
+        run: npm ci
+
+      - name: Build (if present)
+        if: steps.guard.outputs.run == 'true'
+        run: npm run build --if-present
+
+      - name: Netlify Deploy Preview
+        if: steps.guard.outputs.run == 'true'
+        uses: netlify/actions/cli@v4
+        with:
+          args: deploy --auth=${NETLIFY_AUTH_TOKEN} --site=${NETLIFY_SITE_ID_DEV} --message="GitHub PR Deploy Preview" --alias="${{ github.event.pull_request.number }}" --build=false
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_DEV }}

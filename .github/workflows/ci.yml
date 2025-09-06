@@ -1,21 +1,43 @@
-name: ci-baseline
+name: CI
 
 on:
-  pull_request:
-    branches: [ "dev" ]
   push:
-    branches: [ "dev" ]
+    branches: [ "dev", "main" ]
+  pull_request:
+    branches: [ "dev", "main" ]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
-      - run: npm ci
-      - run: npm run -s lint || echo "no lint script"
-      - run: npm test --if-present
-      - run: npm run build
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install (if lockfile)
+        if: hashFiles('package-lock.json') != ''
+        run: npm ci
+
+      - name: Lint (if present)
+        run: npm run lint --if-present
+
+      - name: Test (if present)
+        run: npm test --if-present
+
+      - name: Build (if present)
+        run: npm run build --if-present
+
+      - name: Upload build artifact (dist/build if exists)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-build
+          path: |
+            dist
+            build
+          if-no-files-found: ignore
