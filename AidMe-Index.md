@@ -1,28 +1,18 @@
 # AidMe – Handover-oversikt
 | ChatKey       | Sist oppdatert       | ZIP-sti |
 |---------------|----------------------|---------|
-| dev-platform-v1 | 2025-09-02 13:03 | C:\Dev\my-camino\handover\dev-platform-v1-handover.zip |
-| dev-platform-v1 | 2025-09-02 13:28 | C:\Dev\my-camino\handover\dev-platform-v1-handover.zip |
-| dev-platform-v1 | 2025-09-02 13:33 | C:\Dev\my-camino\handover\dev-platform-v1-handover.zip |
-| dev-platform-v1 | 2025-09-02 16:17 | C:\Dev\my-camino\handover\dev-platform-v1-handover.zip |
 | product-roadmap | 2025-09-02 16:17 | C:\Dev\my-camino\handover\product-roadmap-handover.zip |
 | pilot-studier | 2025-09-02 16:17 | C:\Dev\my-camino\handover\pilot-studier-handover.zip |
 | partner-tilskudd | 2025-09-02 16:17 | C:\Dev\my-camino\handover\partner-tilskudd-handover.zip |
 | turplan-camino | 2025-09-02 16:17 | C:\Dev\my-camino\handover\turplan-camino-handover.zip |
 | ideer-lab | 2025-09-02 16:17 | C:\Dev\my-camino\handover\ideer-lab-handover.zip |
 | forskning-studier | 2025-09-02 16:17 | C:\Dev\my-camino\handover\forskning-studier-handover.zip |
-| dev-platform-v1 | 2025-09-02 16:39 | C:\Dev\my-camino\handover\dev-platform-v1-handover.zip |
-| dev-platform-v1 | 2025-09-02 16:45 | C:\Dev\my-camino\handover\dev-platform-v1-handover.zip |
-| dev-platform-v1 | 2025-09-03 18:03 | C:\Dev\my-camino\handover\dev-platform-v1-handover.zip |
-| dev-platform-v1 | 2025-09-03 18:12 | C:\Dev\my-camino\handover\dev-platform-v1-handover.zip |
 | product-roadmap | 2025-09-03 18:12 | C:\Dev\my-camino\handover\product-roadmap-handover.zip |
 | pilot-studier | 2025-09-03 18:12 | C:\Dev\my-camino\handover\pilot-studier-handover.zip |
 | partner-tilskudd | 2025-09-03 18:12 | C:\Dev\my-camino\handover\partner-tilskudd-handover.zip |
 | turplan-camino | 2025-09-03 18:12 | C:\Dev\my-camino\handover\turplan-camino-handover.zip |
 | ideer-lab | 2025-09-03 18:12 | C:\Dev\my-camino\handover\ideer-lab-handover.zip |
 | forskning-studier | 2025-09-03 18:12 | C:\Dev\my-camino\handover\forskning-studier-handover.zip |
-| dev-platform-v1 | 2025-09-04 08:27 | C:\Dev\my-camino\handover\dev-platform-v1-handover.zip |
-| dev-platform-v1 | 2025-09-04 08:36 | C:\Dev\my-camino\handover\dev-platform-v1-handover.zip |
 | product-roadmap | 2025-09-04 08:36 | C:\Dev\my-camino\handover\product-roadmap-handover.zip |
 | pilot-studier | 2025-09-04 08:36 | C:\Dev\my-camino\handover\pilot-studier-handover.zip |
 | partner-tilskudd | 2025-09-04 08:36 | C:\Dev\my-camino\handover\partner-tilskudd-handover.zip |
@@ -172,3 +162,15 @@
 | turplan-camino | 2025-09-06 16:33 | C:\Dev\my-camino\handover\turplan-camino-handover.zip |
 | ops-workflow | 2025-09-06 16:57 | C:\Dev\my-camino\handover\ops-workflow-handover.zip |
 | ops-workflow | 2025-09-06 16:57 | C:\Dev\my-camino\handover\ops-workflow-handover.zip |
+| ops-workflow | 2025-09-06 18:58 | C:\Dev\my-camino\handover\ops-workflow-handover.zip |
+| ops-workflow | 2025-09-06 18:58 | C:\Dev\my-camino\handover\ops-workflow-handover.zip |
+| ops-workflow | 2025-09-06 19:00 | C:\Dev\my-camino\handover\ops-workflow-handover.zip |
+| ops-workflow | 2025-09-06 19:00 | C:\Dev\my-camino\handover\ops-workflow-handover.zip |
+| ops-workflow | 2025-09-06 19:11 | C:\Dev\my-camino\handover\ops-workflow-handover.zip |
+| ops-workflow | 2025-09-06 19:11 | C:\Dev\my-camino\handover\ops-workflow-handover.zip |
+| dev-platform | 2025-09-06 19:13 | C:\Dev\my-camino\handover\dev-platform-handover.zip |
+| ops-workflow | 2025-09-06 19:55 | C:\Dev\my-camino\handover\ops-workflow-handover.zip |
+| ops-workflow | 2025-09-06 20:04 | C:\Dev\my-camino\handover\ops-workflow-handover.zip |
+| ops-workflow | 2025-09-06 20:04 | C:\Dev\my-camino\handover\ops-workflow-handover.zip |
+| ops-workflow | 2025-09-06 20:05 | C:\Dev\my-camino\handover\ops-workflow-handover.zip |
+| ops-workflow | 2025-09-06 20:05 | C:\Dev\my-camino\handover\ops-workflow-handover.zip |
