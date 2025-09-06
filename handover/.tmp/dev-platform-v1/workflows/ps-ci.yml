@@ -1,0 +1,22 @@
+name: ps-ci
+on:
+  push: { branches: [ dev, main ] }
+  pull_request: { branches: [ dev, main ] }
+jobs:
+  ci:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PowerShell
+        uses: PowerShell/PowerShell@v1
+        with: { version: "7.4.x" }
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+          Invoke-ScriptAnalyzer -Path tools/AidMe.Helpers -Recurse -Severity Warning,Error
+      - name: Pester tests
+        shell: pwsh
+        run: |
+          Install-Module Pester -Scope CurrentUser -Force
+          if (Test-Path tests) { Invoke-Pester -CI } else { Write-Host "No tests folder" }
