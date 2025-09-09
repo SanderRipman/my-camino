@@ -1,0 +1,58 @@
+name: netlify-deploy-preview
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  pull-requests: write
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install
+        run: npm ci || npm install
+      - name: Build
+        run: npm run build || echo "no build"
+      - name: Deploy Preview (skip if secrets missing)
+        id: dp
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID:    ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          if [ -z "$NETLIFY_AUTH_TOKEN" ] || [ -z "$NETLIFY_SITE_ID" ]; then
+            echo "Netlify secrets missing; skipping."
+            echo "url=" >> $GITHUB_OUTPUT
+            echo "deploy_url=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          npx netlify-cli deploy --dir=dist --site=$NETLIFY_SITE_ID --message="PR Preview" --auth=$NETLIFY_AUTH_TOKEN --json > dp.json
+          echo "Raw JSON:"
+          cat dp.json
+          URL=$(cat dp.json | node -e "let x='';process.stdin.on('data',d=>x+=d).on('end',()=>{let j=JSON.parse(x);console.log(j.url||'')})")
+          DURL=$(cat dp.json | node -e "let x='';process.stdin.on('data',d=>x+=d).on('end',()=>{let j=JSON.parse(x);console.log(j.deploy_url||'')})")
+          echo "url=$URL"         >> $GITHUB_OUTPUT
+          echo "deploy_url=$DURL" >> $GITHUB_OUTPUT
+      - name: Comment PR with preview link (if any)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url   = core.getInput('url', { required:false }) || '';
+            const durl  = core.getInput('deploy_url', { required:false }) || '';
+            const body  = (url || durl)
+              ? `🚀 Netlify Deploy Preview\n\n- URL: ${url || '(not provided)'}\n- Deploy URL: ${durl || '(not provided)'}\n\n_Auto-comment by workflow._`
+              : `ℹ️ Netlify secrets mangler – forhåndsvisning hoppet over.`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body
+            });
+        env:
+          url:  ${{ steps.dp.outputs.url }}
+          deploy_url: ${{ steps.dp.outputs.deploy_url }}
