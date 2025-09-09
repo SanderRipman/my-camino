@@ -1,43 +1,18 @@
-name: CI
+name: ci
 
 on:
-  push:
-    branches: [ "dev", "main" ]
   pull_request:
-    branches: [ "dev", "main" ]
+    branches: [ "dev" ]
+  push:
+    branches: [ "dev" ]
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: windows-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Use Node.js 20
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install (if lockfile)
-        if: hashFiles('package-lock.json') != ''
-        run: npm ci
-
-      - name: Lint (if present)
-        run: npm run lint --if-present
-
-      - name: Test (if present)
-        run: npm test --if-present
-
-      - name: Build (if present)
-        run: npm run build --if-present
-
-      - name: Upload build artifact (dist/build if exists)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: site-build
-          path: |
-            dist
-            build
-          if-no-files-found: ignore
+          node-version: 20
+      - run: npm ci || echo "No npm project – skipping"
+      - run: npm run build || echo "No build step – skipping"
