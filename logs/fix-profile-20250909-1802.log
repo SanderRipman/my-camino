@@ -1,0 +1,70 @@
+**********************
+PowerShell transcript start
+Start time: 20250909180214
+Username: SANDER360\Sander
+RunAs User: SANDER360\Sander
+Configuration Name: 
+Machine: SANDER360 (Microsoft Windows NT 10.0.26100.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll -WorkingDirectory ~
+Process ID: 4680
+PSVersion: 7.5.2
+PSEdition: Core
+GitCommitId: 7.5.2
+OS: Microsoft Windows 10.0.26100
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+PS C:\Dev\my-camino> # 1) Sikre profiler-mappe + backup
+PS C:\Dev\my-camino> New-Item -ItemType Directory -Force -Path $ProfDir | Out-Null
+PS C:\Dev\my-camino> if(Test-Path $ProfilePs){
+  Copy-Item $ProfilePs "$ProfilePs.bak-$ts" -Force
+}
+PS C:\Dev\my-camino> # 2) Skriv robust profil på nytt (idempotent, norsk kommentar – men rene PowerShell-kommandoer)
+PS C:\Dev\my-camino> $profileContent = @'
+# === AidMe profile (auto-generert) ===
+param()
+
+# Trygg Root
+if(-not $env:AIDME_ROOT){ $env:AIDME_ROOT = 'C:\Dev\my-camino' }
+$global:AidMeRoot = $env:AIDME_ROOT
+
+# Importer hjelpere og ops-moduler (ikke stopp om de mangler – men logg)
+try { Import-Module (Join-Path $env:AIDME_ROOT 'tools\AidMe.Helpers') -ErrorAction SilentlyContinue } catch {}
+$cheat = Join-Path $env:AIDME_ROOT 'tools\ops\Cheatsheet.ps1'
+if(Test-Path $cheat){ . $cheat }
+
+# Korte alias (sos/snap/ctrl) forventes i Cheatsheet.ps1.
+Write-Host "✅ sos/snap/ctrl lastet (hvis definert i Cheatsheet)" -ForegroundColor Green
+'@
+PS C:\Dev\my-camino> Set-Content -LiteralPath $ProfilePs -Value $profileContent -Encoding UTF8
+PS C:\Dev\my-camino> # 3) Verifiser og re-importer
+PS C:\Dev\my-camino> . $ProfilePs
+WARNING: The names of some imported commands from the module 'AidMe.Helpers' include unapproved verbs that might make them less discoverable. To find the commands with unapproved verbs, run the Import-Module command again with the Verbose parameter. For a list of approved verbs, type Get-Verb.
+✅ sos/snap/ctrl lastet (hvis definert i Cheatsheet)
+PS C:\Dev\my-camino> # 4) Reparer/lag snarvei til Aid Control Center (PS7)
+PS C:\Dev\my-camino> $ShortcutDir = [Environment]::GetFolderPath('Desktop')
+PS C:\Dev\my-camino> $LnkPath     = Join-Path $ShortcutDir 'Aid Control Center (PS7).lnk'
+PS C:\Dev\my-camino> $ps7 = (Get-Command pwsh.exe -ErrorAction SilentlyContinue | Select-Object -First 1).Source
+PS C:\Dev\my-camino> if(-not $ps7){ $ps7 = "$env:ProgramFiles\PowerShell\7\pwsh.exe" }
+PS C:\Dev\my-camino> # Kommandolinje som åpner i prosjektroten og kjører ctrl (hvis definert)
+PS C:\Dev\my-camino> $Args = "-NoLogo -NoProfile -NoExit -Command `"Set-Location '$Root'; if(Get-Command ctrl -ErrorAction SilentlyContinue){ ctrl } else { Write-Host 'Hint: ctrl ikke funnet – sjekk Cheatsheet.ps1' -ForegroundColor Yellow }`""
+PS C:\Dev\my-camino> # (Re)Create shortcut
+PS C:\Dev\my-camino> $WScriptShell = New-Object -ComObject WScript.Shell
+PS C:\Dev\my-camino> if(Test-Path $LnkPath){ Remove-Item $LnkPath -Force }
+PS C:\Dev\my-camino> $Shortcut = $WScriptShell.CreateShortcut($LnkPath)
+PS C:\Dev\my-camino> $Shortcut.TargetPath  = $ps7
+PS C:\Dev\my-camino> $Shortcut.Arguments   = $Args
+>> TerminatingError(): "Exception setting "Arguments": Cannot convert the "System.Object[]" value of type "Object[]" to type "string"."
+Exception setting "Arguments": Cannot convert the "System.Object[]" value of type "Object[]" to type "string".
+ParentContainsErrorRecordException: Exception setting "Arguments": Cannot convert the "System.Object[]" value of type "Object[]" to type "string".
+PS C:\Dev\my-camino> $Shortcut.WorkingDirectory = $Root
+PS C:\Dev\my-camino> $Shortcut.IconLocation = "$ps7,0"
+PS C:\Dev\my-camino> $Shortcut.Save()
+PS C:\Dev\my-camino> Stop-Transcript | Out-Null
+**********************
+PowerShell transcript end
+End time: 20250909180215
+**********************

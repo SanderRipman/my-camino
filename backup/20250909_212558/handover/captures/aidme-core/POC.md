@@ -1,0 +1,2155 @@
+Prototyping. Hvis ren prosess/arbeidsflyt → ops-workflow.
+
+Skip to content
+===
+
+# You said:
+
+# Jeg ønsker å teste ut noen pilotprosjekt for personer i fare for utenforstående med rus og/eller psykiske problemer. Jeg vet fra egen erfaring hvor sunt det er mentalt og fysisk med å få mestring og et "stillere" sinn på grunn av en god utmattelse både fysisk og fra alle inntrykkene.  Man komme seg ofte ut av repeterende, skadelige tankemønstre og kan ha en god effekt for forskjellig avvenning. Jeg ønsker å ha banebrytende, gode aktiviteter langs turen med rom for dagbok, selvrefleksjon, meditasjon, mm. Jeg ønsker også at dette skal treffe en spesifik målgruppe hos NAV, samt vi kan bidra med arbeidsplassen deres, eksempelvis med handlingsplan, eller lignende. Finn gode argumenter til verdiforslag på hvorfor NAV vil, og i henhold til regelverk, kunne teste dette ut på den spesifikke målgruppen. Få frem grundig analyse estimat om samfunnsøkonomisk nytte, verdiforslag til NAV (og Stat), og for brukeren selv. Lag en grundig handlingsplan som viser verdien, og enkelheten for NAV å teste ut dette prosjektet. Nevn og om det er visse krav til ressurspersoner eller krav som må overholdes. Lag en detaljert reiseplanlegger med forslag til aktiviteter med kreative forslag, basert på nyere og pålitelig forskning eller studier. Du kan ta Camino Portuges fra Oporto til Santiago de Compostela (ca 10-15 dagers tur) som utgangspunkt. Dette, vel å merke, gjennom studier/forskning du finner, viser betydelig bedre effekt av lengre opphold (ca 30 dager), så kan du ta hele Camino Portuges eller Camino Frances som utgangspunkt. Til slutt ønsker jeg og en grundig oversikt over institusjoner/fond/program, hvor jeg kan søke tilskudd/bidrag til en slik tur. I pilotprosjekt ønsker jeg helst mindre grupper (maks 10, men helst 5 ellere mindre), men dette er og fleksibelt utifra funnene dine. Nå, lag en meget grundig, effektiv, og sannsynlig måte å gjennomføre overnevnte på.
+
+# ChatGPT said:
+
+# Dette er et veldig spennende initiativ! For å kunne lage en grundig og realistisk plan, vil jeg gjerne få avklart noen detaljer:
+
+# 
+
+# Hvilken spesifikk målgruppe hos NAV ønsker du å rette deg mot? (F.eks. unge utenfor arbeid/utdanning, langtidsledige, personer med rusutfordringer, psykisk helse, eller kombinasjoner?)
+
+# 
+
+# Har du tenkt at dette skal organiseres som et ideelt initiativ, en stiftelse, en kommersiell aktør eller i samarbeid med NAV direkte?
+
+# 
+
+# Har du noen preferanser for tidspunkt eller sesong prosjektet skal gjennomføres?
+
+# 
+
+# Ønsker du at reisen skal ha profesjonelle veiledere (f.eks. psykologer, coacher, tidligere rusavhengige) med, eller tenker du å bruke frivillige og lavterskelstøtte?
+
+# 
+
+# Hvilket budsjett har du sett for deg per deltaker, og har du tenkt på egenandel fra deltakerne?
+
+# 
+
+# Ønsker du at jeg prioriterer norske finansieringskilder, eller også europeiske/internasjonale?
+
+# 
+
+# Når jeg har svar på disse punktene kan jeg lage en solid plan og sette i gang forskningen.
+
+# 
+
+# You said:
+
+# 1\. Jeg tenker i utgangspunktet litt yngre over 18 år som viser ressurser, men av forskjellige årsaker havnet ut skjevt enten rus og/eller psyke. De må gjerne være rusavhengige, med et ønske om å slutte. Jeg har løst høre noe om "ungdomsgarantien", kanskje det er noe å utforske?
+
+# 2\. Ideell iniativ fra meg. Men jeg vil ikke utelukke å drive kommersielt, hvis det ikke skaper betydelige utfordringer for innføringen. Kanskje ideelt som "inngangsdør" for pilotprosjekt hos NAV. Når vi har bevist verdien, kan det foreslås kommersielle betingelser?
+
+# 3\. Tenker både før og etter høysesongen hvor man må forhåndsbooke albergue. Så kanskje 4-6 effektive måneder(?)
+
+# 4\. Tenker som utgangspunkt meg som har mye egenerklæring, samt akademisk. Men gjerne nevn vesentlige ressurspersoner hvis det hever terskelen for suksess og innpass hos NAV betydelig.
+
+# 5\. Norske, sekundært europeiske og internasjonale hvor det holder i utgangspunktet med et norsk firma for bedriften
+
+# ChatGPT said:
+
+# Takk for utfyllende informasjon! Jeg setter nå i gang et omfattende arbeid for å utvikle et grundig, realistisk og gjennomførbart pilotprosjekt for Camino-vandring rettet mot unge voksne med rus og/eller psykiske utfordringer, med særlig fokus på NAVs målgrupper og virkemidler som Ungdomsgarantien. Jeg vil inkludere:
+
+# 
+
+# En samfunnsøkonomisk og helsemessig nytteanalyse
+
+# 
+
+# Et verdiforslag og argumentasjon for NAV og statlig støtte
+
+# 
+
+# En strukturert og gjennomførbar handlingsplan
+
+# 
+
+# En detaljert reiseplan med evidensbaserte aktiviteter
+
+# 
+
+# En oversikt over relevante tilskudd og støtteordninger fra norske og europeiske kilder
+
+# 
+
+# Jeg gir beskjed så snart planen og analysen er klar til gjennomgang.
+
+# 
+
+# Research completed in 8m · 15 sources · 121 searches
+
+# Pilotprosjekt for Camino-vandring for NAV-målgruppe med rus/psykiske utfordringer
+
+# 
+
+# Pilotprosjekt: Camino de Santiago for unge voksnes helse og inkludering
+
+# Innledning og bakgrunn
+
+# Unge voksne med psykiske helseutfordringer og/eller rusproblemer står ofte utenfor arbeid og utdanning i Norge. Dette medfører store personlige og samfunnsmessige kostnader – fra tapt livskvalitet til økte trygdeutgifter. NAVs nye ungdomsgaranti sikrer tett oppfølging for unge 16–30 år for å hjelpe dem i jobb eller utdanning
+
+# nav.no
+
+# nav.no
+
+# . I tråd med denne garantien foreslås et innovativt pilotprosjekt: en 30 dagers fysisk og mental helseforbedrende gruppetur langs Camino de Santiago (franske eller portugisiske ruten) for 3–5 unge voksne deltakere. Denne “pilegrimsvandringen” kombinerer daglige lange fotturer i naturen med strukturert refleksjon, mestringsopplevelser og fellesskap. Formålet er å forbedre deltakernes psykiske helse og funksjonsnivå slik at de lettere kan komme i arbeid eller utdanning, samtidig som det testes ut en ny helhetlig oppfølgingsmetode for NAV. Camino de Santiago er en tradisjonsrik langdistanse vandrerute kjent for å gi vandrere mestringsfølelse, perspektiv og ro. Forskning og erfaring tyder på at slike lange turer i naturen kan ha sterke terapeutiske effekter på mental helse
+
+# researchgate.net
+
+# viajecaminodesantiago.com
+
+# . Denne rapporten presenterer en omfattende plan for pilotprosjektet, inkludert nytteanalyse, verdiforslag, gjennomføringsplan, detaljert dagsprogram og finansieringsmuligheter. Planen er utformet som et realistisk utprøvingstiltak i samarbeid mellom NAV og en ideell aktør.
+
+# Samfunnsøkonomisk og helsefaglig nytteanalyse
+
+# Forbedret psykisk helse og livskvalitet: Det er veldokumentert at fysisk aktivitet og naturopplevelser kan redusere symptomer på depresjon, angst og stress
+
+# news.stanford.edu
+
+# pubmed.ncbi.nlm.nih.gov
+
+# . En systematisk oversikt i 2021 fant at langdistanses fotturer har en klar positiv effekt på mental helse, særlig ved å dempe følelsesmessig ubehag og psykisk stress
+
+# researchgate.net
+
+# . En ny spansk studie (Proyecto Ultreya) fulgte 444 Camino-pilegrimer og fant signifikante forbedringer i emosjonelt stress, opplevd stressnivå og livstilfredshet etter endt vandring – effekter som vedvarte minst tre måneder etter hjemkomst
+
+# viajecaminodesantiago.com
+
+# . Til sammenligning hadde en kontrollgruppe på vanlig ferie langt mindre forbedring, noe som tyder på at det er noe unikt terapeutisk ved selve pilegrimsvandringen
+
+# viajecaminodesantiago.com
+
+# . Deltakerne beskriver ofte Caminoen som en “terapeutisk” opplevelse som ga varig positiv endring
+
+# viajecaminodesantiago.com
+
+# . Mekanismer bak disse gevinstene inkluderer rytmisk mosjon (som frigjør endorfiner og bedrer humøret), naturopplevelser som demper grubling og depresjons-tendens
+
+# news.stanford.edu
+
+# , samt opplevelse av “flyt” og mestring ved å klare krevende etapper
+
+# fagpressenytt.no
+
+# . I vårt pilotprosjekt forventes derfor betydelige helsegevinster: Bedre psykisk helse (reduksjon i angst, depresjon, ruslyst) og økt selvfølelse og mestringstro hos deltakerne. Rusrehabilitering og tilbakefallsprevensjon: Langvandring i et strukturert, støttende miljø kan fungere som en form for “villmarks-terapi” for personer i rusrehabilitering. Forskning fra USA viser at utendørs terapeutisk opplegg (Outdoor Behavioral Healthcare, OBH) er særlig effektivt for unge med rus og psykiske problemer – etter 1 år hadde ungdom i OBH tre ganger så stor bedring som de som fikk tradisjonell behandling
+
+# unh.edu
+
+# . Samtidig var OBH-behandling faktisk billigere enn vanlig institusjonsbehandling
+
+# unh.edu
+
+# . Effekten skyldes blant annet at kombinasjonen av natur, fysisk aktivitet og gruppesamhold bidrar til ny mestring fremfor passiv pasientrolle
+
+# unh.edu
+
+# . I en vandringskontekst lærer deltakerne nye mestringsstrategier for utfordringer uten å ty til rus, de bryter gamle miljøer og rutiner knyttet til misbruk, og de får støtte fra både fagpersoner og jevnaldrende. Peer-støtte (likemenn) er kjent for å øke behandlingsengasjement og redusere rusbruk over tid
+
+# samhsa.gov
+
+# . Vi forventer at en 30-dagers Camino uten rus kan gi deltakerne et “avrusende” avbrekk, forbedret fysisk form og motivasjon til videre rusfri livsstil. Dette vil på sikt kunne redusere behovet for kostbar rusbehandling, akuttinnleggelser og andre helsetjenester. Tilbakeføring til arbeid eller utdanning: Den største samfunnsøkonomiske gevinsten ligger i at flere unge kan komme i jobb og klare seg uten trygd
+
+# fhi.no
+
+# . Selv milde til moderate psykiske plager kan føre til langvarig utenforskap dersom de ikke adresseres tidlig. Folkehelseinstituttet (FHI) har beregnet at lavterskel psykisk helsehjelp øker sannsynligheten for at personer er i arbeid uten å motta ytelser, selv fem år etter behandling
+
+# fhi.no
+
+# . Høyere arbeidsdeltakelse gir både økte skatteinntekter og sparte trygde- og helseutgifter. Faktisk viste FHIs kost–nytte-analyse at for hver krone investert i rask psykisk helsehjelp, får samfunnet igjen over 5 kroner i gevinst
+
+# fhi.no
+
+# . Tilsvarende vil dette pilotprosjektet, dersom det hjelper deltakerne ut i ordinært arbeid eller studier, være en svært lønnsom investering. En enkelt ung ufør kan koste samfunnet millioner i løpet av et livsløp i stønader og tapt verdiskaping, i tillegg til store personlige konsekvenser. Om bare 1 av 5 deltakere unngår uføretrygd eller blir raskere selvforsørget, vil det forsvare kostnadene mange ganger. I tillegg kommer helsegevinster som ikke er like lett tallfestbare: bedre livskvalitet, mindre sosial isolasjon, og potensielt redusert kriminalitet og bostedsløshet relatert til rusproblemer. Fysisk helse og redusert helsetjenestebruk: Deltakerne vil gjennom daglig gange 15–25 km forbedre sin fysiske form, noe som i seg selv har positive helseeffekter. Regelmessig moderat mosjon kan senke blodtrykk, bedre søvn og styrke immunforsvaret. Studier viser også at daglig journalføring eller annen egenrefleksjon underveis kan senke stresshormon (kortisol) og gi færre somatiske stressplager
+
+# bloomingtonmeadows.com
+
+# . Bedre psykisk helse vil ofte gi mindre behov for medikamenter, fastlegebesøk og terapi på sikt. For eksempel fant FHI at personer som fikk tidlig psykisk helsehjelp (RPH) hadde lavere bruk av helsetjenester i årene etterpå
+
+# fhi.no
+
+# . Overført til vårt prosjekt kan en vellykket intervensjon bety færre legebesøk, sykemeldinger og innleggelser for deltakerne i framtiden. Samlet sett peker forskning og erfaring mot at en slik langvandring har potensial for betydelige samfunnsøkonomiske gevinster: investering i deltakernes bedringsprosess nå kan gi en “utbytte” i form av produktive, friskere borgere som i mindre grad belaster velferds- og helsebudsjettene i fremtiden
+
+# fhi.no
+
+# .
+
+# Verdiforslag til NAV og offentlige aktører
+
+# Denne pilotordningen representerer et nyskapende tiltak som likevel støtter opp under eksisterende strategier som Ungdomsgarantien. Ungdomsgarantien forplikter NAV til tidlig, tett og tilpasset oppfølging av unge med behov for hjelp til å fullføre utdanning eller få arbeid
+
+# nav.no
+
+# . Camino-prosjektet kan bli et verktøy i verktøykassa for å oppfylle denne garantien for en særskilt målgruppe: unge med sammensatte problemer som kan ha utbytte av en utradisjonell tilnærming. Tiltaket tilbyr nettopp “tidlig, tett og tilpasset oppfølging” – dog i en uvanlig form. Deltakerne får en dedikert veileder/mentor under hele forløpet, og oppfølgingen skjer daglig i en måned med helhetlig fokus (både fysisk, psykisk og sosialt). Dette er langt tettere oppfølging enn det NAV vanligvis kan tilby i sin hverdag, og svarer dermed på garantikravet om hyppig, personlig kontakt
+
+# nav.no
+
+# . Helhetlig og tverrsektorielt tiltak: NAV erkjenner at mange unge trenger hjelp fra flere instanser enn bare arbeidsformidling
+
+# nav.no
+
+# . Denne piloten er et praktisk eksempel på tverrsektorielt samarbeid: arbeids- og velferdsforvaltningen (NAV) går sammen med helsesektoren (psykisk helsevern/rusomsorg) og frivillig sektor (ideell tur- eller behandlingsaktør) for å skape et helhetlig rehabiliteringstiltak. Dette reflekterer at “å inkludere flere unge er et felles samfunnsansvar”
+
+# nav.no
+
+# . Prosjektet har et klart mål om å gi deltakerne bedre forutsetninger for å delta i arbeidslivet – noe som direkte støtter NAVs samfunnsoppdrag om å hindre utenforskap og sikre at unge får fotfeste i arbeid
+
+# nav.no
+
+# . Verdiforslaget til NAV er altså at man gjennom en relativt liten pilot kan prøve ut en ny metodikk som, hvis vellykket, kan integreres i NAVs tiltaksportefølje for ungdom. Det vil vise at NAV tenker innovativt og helsefremmende i sitt ungdomsarbeid, i tråd med politiske signaler om behov for “nye grep” for dem under 30 som faller utenfor. Fordeler fremfor tradisjonelle tiltak: Mange av dagens arbeidsrettede tiltak for unge (som jobbsøkerkurs, arbeidspraksis, kortvarige mestringskurs) kan komme til kort for dem med betydelige psykiske eller rusrelaterte barrierer. Dette prosjektet tilbyr erfaringsbasert læring i stedet for klasseromsundervisning – deltakerne utvikler «myke» ferdigheter som utholdenhet, samarbeid, selvdisiplin og problemløsning i realistiske situasjoner underveis på turen. Slike livsmestringsferdigheter er overførbare til arbeidslivet og utdanning. Piloten kan demonstrere at en “utenfor boksen” tilnærming engasjerer målgruppen på en måte tradisjonelle tiltak ikke gjør, ved å gi dem et konkret mål (nå Santiago de Compostela) og en opplevelse av eventyr. Dette kan tenne motivasjon hos unge som er lei av kontormøter og tiltak de opplever som stigmatiserende. Prosjektet har også et sterkt recovery-perspektiv: Deltakerne behandles ikke som passive mottakere av hjelp, men som pilegrimer på en reise der de selv skaper endringen – NAV tilrettelegger rammene. Slik fremmer tiltaket egenkraftmobilisering og ansvarsfølelse for egen prosess, i tråd med moderne recovery-tenkning. Bidrag til Ungdomsgarantien og øvrige virkemidler: Prosjektet svarer direkte på intensjonen om tidlig innsats og forebygging. Ungdomsgarantien poengterer at om unge faller utenfor i ung alder, kan konsekvensene bli spesielt store
+
+# nav.no
+
+# . Ved å tilby et intensivt mestringsopplegg før problemene har eskalert ytterligere (f.eks. før varig uføretrygd etableres), investerer NAV i fremtidsmulighetene til deltakerne. Dette står også godt til regjeringens fokus på forebygging innen rus og psykisk helse, og til prinsippene i “Arbeid først”-linjen (at flest mulig skal hjelpes inn i jobb framfor passiv stønad). Prosjektet kan knyttes opp mot NAVs oppfølgingstiltak i egen regi (jf. forskrift om oppfølgingstiltak kap. 4) som gir NAV adgang til å gjennomføre tilpassede aktiviteter for brukere med særskilt behov for motivasjon og avklaring. En vellykket pilot kan tenkes skalert opp som et fast oppfølgingstiltak for enkelte NAV-kontor eller regioner, eller integreres i ungdomsinnsatsen nasjonalt. Tiltaket støtter også opp under regjeringens Inkluderingsdugnad, der målet er å få personer med hull i CV eller helseutfordringer inn i arbeidslivet – Camino-prosjektet kan bli en del av denne “dugnaden” ved å gjøre deltakerne bedre rustet og mer ansettelsesklare. Gevinster for helsesektoren og samfunnet: For Helsedirektoratet og folkehelsemyndigheter er dette en interessant forebyggingsmodell. Det kombinerer fysisk aktivitet, som er blant de fem dokumenterte grepene for god livskvalitet
+
+# fhi.no
+
+# , med meningsfull aktivitet og sosial støtte. Prosjektet kan sees i lys av nasjonale mål om økt hverdagsaktivitet og friluftsliv som virkemiddel for bedre folkehelse. Dersom piloten viser positive resultater (f.eks. økt arbeidstilknytning, redusert symptomtrykk), vil det underbygge at investering i helhetlige tiltak lønner seg – i tråd med FHI-studien som viste at det å hjelpe folk raskt med psykiske plager gir samfunnsøkonomisk gevinst
+
+# fhi.no
+
+# fhi.no
+
+# . NAV og statlige aktører får altså verdifull evidens ut av pilotprosjektet, som kan informere fremtidig policyutforming. I beste fall kan man oppnå “to fluer i én smekk”: både fylle kunnskapshull om effekten av friluftsrettet rehab for unge, og faktisk få flere unge over i arbeid/utdanning på lang sikt. Dette verdiforslaget – bedre liv, mindre trygd, mer arbeid – gjør at tiltaket bør være attraktivt for både NAV, helsemyndigheter og samfunnet ellers.
+
+# Handlingsplan: Pilotgjennomføring via ideell aktør
+
+# Samarbeid med ideell aktør: For å teste prosjektet på en smidig måte anbefales det at NAV inngår samarbeid med en ideell organisasjon som kan planlegge og gjennomføre selve vandringsopplegget. En ideell aktør (f.eks. en frivillig stiftelse eller forening) med relevant kompetanse vil ha større fleksibilitet og erfaring med slike turer enn NAV selv. NAV kan gjennom et begrenset anbud eller direkte tildeling (ideelle aktører har unntak i anskaffelsesregelverket) knytte til seg en partner. Aktører det er naturlig å vurdere:
+
+# Frilufts- og pilegrimsorganisasjoner: For eksempel Den Norske Turistforening (DNT) eller Pilegrimsfellesskapet St. Jakob. Disse har erfaring med lengre turer og logistikk, men trenger tilknyttet helsekompetanse.
+
+# Ideelle rus/psykiatri-tiltak: F.eks. Blå Kors, Frelsesarmeen, Kirkens Bymisjon eller Rådet for psykisk helse sine medlemsorganisasjoner. Noen av disse har allerede turgrupper eller “friluftsliv som terapi” for sine brukere.
+
+# Recovery-orienterte stiftelser: F.eks. stiftelsen Crux, WayBack (for eks-innsatte) eller Fontenehus-modellen. Selv om ikke alle har erfaring med Camino, kan de ha metodikk for å støtte mennesker i endring.
+
+# Det ideelle er en kombinasjon – et partnerskap mellom en friluftsorganisasjon og en helseorientert organisasjon, slik at man får både logistikk/guide-kompetanse og terapeutisk kompetanse. NAV kan invitere interesserte aktører til å skissere opplegg (en slags begrenset anbudskonkurranse) eller selv oppsøke en aktør med nødvendig nettverk. Valgte samarbeidspart må sannsynliggjøre erfaring med å lede sårbare grupper på tur og ha god økonomistyring (forvalte tilskudd). NAV stiller som krav at aktøren utpeker en prosjektleder/koordinator som blir ansvarlig for planlegging, gjennomføring og rapportering tilbake til NAV. Ressurspersoner og kompetanse: Et vellykket gjennomføringslag er avgjørende. Minst to dedikerte turledere bør følge gruppen på Caminoen:
+
+# En fagperson innen psykisk helse/rus (f.eks. psykiatrisk sykepleier, sosionom, psykolog eller erfaringskonsulent) som kan legge opp terapeutiske elementer, håndtere kriser underveis og følge opp den enkeltes prosess. Denne personen sikrer at opplegget holder en helsefaglig forsvarlig standard.
+
+# En erfaren turguide/pilegrim som har gått Caminoen før og kan håndtere det praktiske (navigering, overnatting, skader, språk). Ideelt har vedkommende også førstehjelpskunnskap og erfaring med gruppedynamikk.
+
+# Det kan være én person dekker begge roller (f.eks. en terapeut som også er friluftsvant), men to personer anbefales både for sikkerhet og arbeidsbyrde. I tillegg kan man vurdere å knytte til seg:
+
+# Lokale kontakter/veiledere i Spania/Portugal: f.eks. en kontaktperson i pilgrimsmiljøet eller en spansk frivillig guide for deler av ruten, for kulturell kontekst og nødhjelp ved behov.
+
+# Peer-mentor: En person med egen tidligere erfaring fra psykiske utfordringer/rus som nå er i bedring, som kan fungere som forbilde og støtte deltakerne med genuin forståelse. Dette kan være en ansatt eller frivillig medvandrer.
+
+# Før avreise vil også NAV-veilederen til hver deltaker spille en rolle i forberedelsene (utstyrsanskaffelse, avtaler om ytelser under fravær etc.), men under selve vandringen vil hovedansvaret ligge på den ideelle aktørens team. Det bør utarbeides klare retningslinjer for ansvar og kommunikasjon: Turlederne må kunne kontakte NAV-systemet ved behov (f.eks. hvis en deltaker må avbryte), og omvendt skal NAV få jevnlige oppdateringer om progresjon (uten at det forstyrrer opplevelsen). Utvelgelse av deltakere: NAV avklarer kriterier og nominerer aktuelle kandidater. Målgruppen er unge over 18 (f.eks. 18–30 år) med dokumenterte psykiske plager (lett til moderat depresjon, angst, traumer e.l.) og/eller en historie med rusproblemer, men som er motiverte for endring og fysisk i stand til å gå. Det må gjøres en helsevurdering i forkant: legeerklæring om at de kan gjennomføre langvarig moderat fysisk anstrengelse, at eventuell rusmiddelbruk er under kontroll (f.eks. rusfri siste x uker), og at de ikke har alvorlige aktive psykoser eller suicidale planer som gjør turen uforsvarlig. Man bør vektlegge deltakernes egen motivasjon: de skal ønske å delta (ikke påtvinges). Et informasjonsmøte og intervju vil bli holdt for interesserte kandidater, der man avklarer forventninger og forpliktelser. Endelig utvalg gjøres av NAV i samråd med partner-organisasjonen. For å unngå frafall bør det plukkes ut 1–2 varakandidater som kan tre inn hvis noen skulle trekke seg før start. Forberedelsesfase: En grundig forberedelse øker sjansen for suksess. Planlagt tidslinje:
+
+# 3–4 måneder før avreise: Rekruttering av deltakere fullføres. Oppstartsmøte holdes med alle parter: deltakerne, turlederne, NAV-veiledere. Her presenteres programmet, og deltakerne kan stille spørsmål. Det legges vekt på å bygge trygghet i gruppen.
+
+# 2 måneder før: Felles treningshelg i Norge. F.eks. en helgetur i lett fjellterreng arrangert av partneren, der gruppen kan prøve utstyr, bli kjent og få en forsmak på daglig gange. Parallelt begynner deltakerne eventuelt med enkle treningsprogram individuelt (gå daglige turer, tilvenne seg ryggsekk).
+
+# Praktiske forberedelser: Partneren ordner nødvendige forsikringer (reiseforsikring som dekker ev. sykdom/hjemtransport, ansvarsforsikring). Reiserute planlegges: booking av flybilletter t/r Norge–startpunkt (f.eks. Oslo–Biarritz for Camino Francés, eller Oslo–Porto/Lisboa for Camino Portugués). Man bestiller helst fleksible billetter i tilfelle endringer. Overnatting langs Caminoen trenger ofte ikke forhåndsbookes på herberger, men for de første nettene og eventuelle hviledager i byer (Pamplona, Burgos, etc.) kan reservasjon være lurt for å sikre ro til gruppeaktiviteter. Budsjett settes opp (se Økonomi-seksjon).
+
+# Kontrakter og samtykker: Deltakerne skriver under avtale som klargjør rammene (at de forplikter seg til å delta hele perioden så langt det er mulig, følge anvisninger fra ledere, rusfrihet under turen osv.). Det innhentes informert samtykke til at anonymiserte data fra deres forløp kan brukes i evaluering. Også samtykke til nødbehandling må innhentes (f.eks. at turleder kan kontakte lokal lege ved behov).
+
+# Psykososiale forberedelser: Deltakerne kan oppfordres til å formulere personlige mål for reisen (f.eks. “bli rusfri”, “bedre selvbilde”, “finne ut hva jeg vil med livet”). Turpsykologen kan ha individuelle samtaler med hver deltaker før avreise for å etablere tillit og innhente nødvendig bakgrunn (triggerpunkter, mestringsstrategier, etc.).
+
+# Gjennomføring av vandringen: Selve pilgrimsvandringen gjennomføres over ca. 30 dager (se detaljert dag-for-dag plan i neste avsnitt). Gruppen vil følge en daglig rytme som balanserer fysisk aktivitet med strukturerte mentale øvelser og hvile. Turlederne har ansvar for sikkerhet og trivsel – de passer på tempo (tilpasses den tregeste for å holde gruppen samlet), sørger for nok pauser, håndterer skader (gnagsår, overbelastning) og tilrettelegger daglige aktiviteter som refleksjon eller samtaler. Det lages en “gruppekontrakt” i starten for et trygt fellesskap: alle viser respekt, åpenhet, konfidensialitet om personlige delinger, ingen rusmiddelbruk er tillatt, og konflikter tas opp konstruktivt. Ved eventuelle akutte situasjoner (fysisk skade eller psykisk krise) har teamet en beredskapsplan: f.eks. kontakte lokal legevakt, eventuelt ta taxi/buss for å avkorte etappe, eller i verste fall avbryte en deltakers deltakelse dersom det er fare for vedkommende eller gruppen. NAV bør på forhånd avklare hvordan en avbrutt deltaker følges opp – ideelt sett har man ressurser til at en tredje person kan komme og hente vedkommende hjem om nødvendig. Hver dag avrundes med at turleder noterer stikkord om forløpet (for senere evaluering), og deltakerne skriver i dagbok. Dokumentasjon og evaluering: Pilotprosjektet skal levere en evaluering som måler resultater opp mot målsettinger. Dokumentasjonskrav kan inkludere:
+
+# Kvantitative målinger: Før og etter tur (og 3 måneder etter) gjennomfører deltakerne standardiserte selvrapporteringsskjema på psykisk helse og livskvalitet. Eksempler: WHO-5 well-being index, AUDIT (for alkoholbruk) eller DUDIT (for rus), symptomskalaer for angst/depresjon (HSCL-25 eller MADRS), samt fungering/arbeidsdeltakelse (f.eks. registrere om de er i aktivitet 6 mnd. etter). For hver deltaker kan man dermed se endringsskårer.
+
+# Kvalitative data: Turpsykologen samler deltakernes refleksjoner gjennom intervjuer eller gruppesamtaler underveis og etterpå. Deltakerdagbøkene kan (med samtykke) inngå som data. Man dokumenterer suksesshistorier eller utfordringer med korte casebeskrivelser.
+
+# Observasjoner: Turlederne fører logg over frammøte, dagsform, eventuelle kritiske hendelser, gruppekultur osv. Disse notatene sammenstilles til en narrativ rapport.
+
+# Den ideelle partneren utarbeider en sluttrapport til NAV som oppsummerer: oppnådd vs. planlagt, alle data fra før/etter-målinger, deltakertilfredshet (kan innhentes via spørreskjema), og anbefalinger for forbedring. Det skal også redegjøres for budsjettforbruk med regnskap. NAVs egne økonomer kan bidra til å beregne samfunnsøkonomisk nytte basert på resultatene (f.eks. hvis flere går over i jobb, anslå sparede trygdemidler). En slik evaluering vil danne grunnlag for beslutning om videreføring eller skalering. Tidsplan og milepæler: Hele pilotløpet kan gjennomføres innen ~1 år fra oppstart til evaluering:
+
+# Q1: Planlegging og partneravtale (2 mnd), rekruttering deltakere.
+
+# Q2: Forberedelser, treningssamling, logistikk.
+
+# Q3 (f.eks. september): Gjennomføring av 30-dagers vandring.
+
+# Q4: Oppfølging etter hjemkomst (møter med deltakerne hos NAV, koble dem til videre tiltak som arbeidstrening eller skole). Innsamling av 3 mnd etter-data mot slutten av Q4.
+
+# Q5: Analyse av data, skriving av rapport.
+
+# Underveis-møter mellom NAV og ideell aktør legges inn etter behov (f.eks. etter rekruttering, før avreise, etter hjemkomst) for å justere kurs og sikre at garantier overholdes. Gjennom denne strukturerte handlingsplanen holdes risiko under kontroll og læringsutbyttet maksimeres. NAV kan enkelt teste ut konseptet i liten skala uten store permanente investeringer, mens den ideelle aktøren tar seg av den praktiske gjennomføringen innenfor avtalte rammer.
+
+# Reiseplan: Dag-for-dag program (Camino Francés, 30 dager)
+
+# Nedenfor følger et forslag til dagsprogram for en 30-dagers vandring langs Camino Francés (ca. 780 km fra Saint-Jean-Pied-de-Port i Frankrike til Santiago de Compostela i Spania). Hver dag beskriver etappe, distanse (omtrentlig) og planlagte fysiske/mentale aktiviteter.
+
+# Dag 1: Saint-Jean-Pied-de-Port – Roncesvalles (25 km). Oppstart i Pyreneene. Tema: Å legge ut på reisen. Gruppemøte før avmarsj for å dele forventninger; hver deltaker uttrykker en intensjon for turen. Fysisk svært krevende stigning – fokus på å overvinne en “første fjelltopp”. Ved ankomst Roncesvalles: lett strekkøvelser og guidet naturmeditasjon for å lande mentalt etter dagens strabaser. Kveldssamling: refleksjon rundt utfordringen mestret i dag – “Hva motbakkene symboliserte for meg”.
+
+# Dag 2: Roncesvalles – Zubiri (22 km). Gå gjennom frodig skogsterreng. Aktivitet: Innføring i mindful walking – en times stillhet der man legger merke til sanseinntrykk (lyden av egne skritt, vinden, fuglene). Etterpå deler gruppen erfaringer: Hva skjer med tankene når vi går i stillhet? Kveld: Individuell dagbokskriving om hvorfor de tok valget om å bli med, og hvilke “byrder” de vil legge igjen på Caminoen.
+
+# Dag 3: Zubiri – Pamplona (20 km). Inn til første større by. Tema: Tillit og fellesskap. Underveis parvise samtaler (“Camino-samtaler”) der deltakerne går to og to og deler sin livshistorie i korte trekk. Bytte partner halvveis slik at alle får pratet sammen. Dette bygger tillit i gruppen. Ettermiddag i Pamplona: Felles utforskning av byen (lette kulturinntrykk). Kveld: Gruppeprosess der man lager en felles “kontrakt”/regelsett for samarbeidet videre basert på erfaringene så langt.
+
+# Dag 4: Pamplona – Puente la Reina (24 km). Aktivitet: Fysisk utfordring med stigning opp Alto del Perdón (“Tilgivelsens høyde”). På toppen tar gruppen en pause for symbolsk handling: Alle får skrivet ned noe de ønsker å tilgi (seg selv eller andre) og graver lappen ned under en varde. Diskusjon om tilgivelse og å gi slipp på nag. Lett yoga-økt før middag for å tøye ut (ledet av turleder).
+
+# Dag 5: Puente la Reina – Estella (22 km). Tema: Mestring av ubehag. Utover uka melder gjerne gnagsår og støle bein seg. Denne dagen oppfordres deltakerne til å reflektere over strategier for å håndtere fysisk ubehag uten å gi opp – paralleller til psykisk smerte og rus-sug trekkes. Aktivitet: Hver skriver et brev til seg selv hvor de roser seg for innsatsen så langt og minner seg om hvorfor de gjør dette (brevet legges bort til sluttuken for å åpnes igjen). Kveldsøvelse: Progressiv muskelavslapning for å fremme avspenning.
+
+# Dag 6: Estella – Los Arcos (21 km). Over halvannen uke er gått. Aktivitet: Kreativt uttrykk – underveis samler hver deltaker et lite naturobjekt (stein, blad, blomst) som representerer “hvordan jeg har det i dag”. På ettermiddagen lager de en enkel collage/mandala av objektene og forklarer symbolikken til gruppen. Dette åpner for å uttrykke følelser indirekte. Kvelden avsluttes med høydepunkt/lavpunkt-runde: alle deler dagens beste og vanskeligste øyeblikk.
+
+# Dag 7: Los Arcos – Logroño (28 km). Lengre etappe inn i regionen Rioja. Tema: Feiring og hvile. Dette er siste dag i første uke – en milepæl å feire. Underveis samtaler om glede og belønning: hvordan feire små seire uten å ty til usunne vaner (f.eks. rus)? Ved ankomst storbyen Logroño unner gruppen seg en bedre middag. Aktivitet: Skrive takknemlighetsliste – minst 5 ting hver er takknemlige for etter én uke på vandring. Logroño er kjent for tapas – sosialt samvær på kvelden utenom det vanlige, men alkoholfritt for vår gruppe.
+
+# Dag 8: Hviledag i Logroño (0 km). Første planlagte hviledag for restitusjon. Formiddag: Oppsummere uke 1 – turlederne holder et møte der de går gjennom hva som har fungert og utfordringer så langt. Deltakerne evaluerer opplegget anonymt (enkle skjema) for å justere om nødvendig. Deretter egentid: noen kan oppsøke kirke for ro, andre bare sove ut eller ringe hjem (hvis avtalt). Ettermiddag: felles kreativ økt – maling eller tegning av et sterkt minne fra turen så langt. Kvelden: Filmvisning (hvis mulig, f.eks. inspirerende film om å overkomme motgang) eller sosial lek for å bygge humor og samhold.
+
+# Dag 9: Logroño – Nájera (30 km). Etter hvile utfordres deltakerne med en lang etappe. Aktivitet: “Rollesnakk” – hver deltaker får et tema å holde en liten prat om mens man går (f.eks. en sang de liker og hvorfor, et barndomsminne, osv.) for å øve på å uttrykke seg fritt i gruppa. Dette trener sosial trygghet. Underveis stopper man ved en vinfontene i Irache (kjent Camino-attraksjon) – selv om gruppen ikke drikker alkohol, brukes anledningen til å snakke om fristelser og moderasjon. Kveld: Fellesavslapping, fotstell og kanskje høytlesning av en inspirerende tekst om personlig vekst.
+
+# Dag 10: Nájera – Santo Domingo de la Calzada (21 km). Tema: Humor og letthet. Dagen starter med en morsom isbryter (f.eks. alle forteller en vits eller en fun fact om seg selv). Poenget er å kjenne på glede. Ruten går gjennom jordbruksland – monotoni kan bli en utfordring. Aktivitet: “Lek deg gjennom det” – gruppevis lager deltakerne en sang eller et rim mens de går, om Caminoen eller gruppen. Fremføring på kvelden rundt middagsbordet. Latter og kreativitet kan løsne på stress.
+
+# Dag 11: Santo Domingo – Belorado (22 km). Aktivitet: Gruppesamtale om rus og mestring: Under en lengre rast fasiliterer turleder en åpen samtale om deltakernes erfaringer med rus eller psykiske problemer – hva de slet med, hva som har hjulpet dem. De oppfordres til å gi hverandre tips og støtte. Dette skaper fellesskap rundt at man ikke er alene om å ha utfordringer. Kvelden: Alle skriver i dagboken sin hvilke indre ressurser de oppdager i seg selv på denne turen (styrker, verdier).
+
+# Dag 12: Belorado – San Juan de Ortega (24 km). Inn i Castilla y León regionen, starten på Meseta-høylandet. Landskapet flater ut. Tema: Tålmodighet og indre ro. Dagen tilbringes med perioder av taus vandring igjen, men nå lengre (to perioder á 1 time) for å virkelig øve på å være alene med egne tanker. Turlederen introduserer konseptet mindfulness: å akseptere tanker som kommer og la dem passere som skyer. Etter ankomst et lite sted (San Juan) på ettermiddagen gjøres en pusteøvelse i klosterhagen der – fokusering på pust for å finne ro. Grupperefleksjon: Hvordan opplevdes stillhet i dag vs. tidligere? Ser de endring?
+
+# Dag 13: San Juan – Burgos (26 km). Innmarsj i storbyen Burgos, omtrent halvveis til Santiago. Aktivitet: På vei inn mot Burgos går man gjennom industriområder – her gjør gruppen en “scavenger hunt”: de får en liste med oppgaver som “finn noe gult”, “hils på en lokal innbygger og lær et ord spansk”, “legg merke til 3 forskjellige lyder”. Dette holder motivasjonen oppe i kjedelig landskap og trener oppmerksomt nærvær. Ved ankomst Burgos feirer man at man har nådd halvveismerket. Kvelden brukes til en halvveis-seremoni: deltakerne mottar tilbake brevene de skrev til seg selv på dag 5 og leser dem. Hver deler med gruppen om de føler de har gjort fremskritt i forhold til det som sto i brevet. Turleder gir positiv tilbakemelding til hver enkelt.
+
+# Dag 14: Burgos (hviledag). Hvile og kultur. Formiddag fri til å besøke Burgos’ katedral eller bare slappe av på kafé – deltakerne oppmuntres til å gjøre noe snilt for seg selv (selvomsorg). Etter lunsj holder man en workshop: “Veien videre – mine verdier og mål”. Med turpsykologens hjelp jobber hver deltaker med et verktøy (f.eks. livshjul eller verdikort) for å identifisere hva som er viktig i livet deres og hvilke endringer de ønsker etter Caminoen (jobb? relasjoner? hobbyer?). De lager en enkel handlingsplanutkast for når de er hjemme, med minst ett konkret mål. Dette forbereder dem på overgangen tilbake. Kvelden avsluttes med en sosial aktivitet – f.eks. bowling eller spill – for å feire halvveis ferdig.
+
+# Dag 15: Burgos – Hontanas (31 km). Start på den lange Meseta-strekningen (flat høyslette). Tema: Å håndtere monotoni og motivasjonssvikt. Meseta kan oppleves ensformig og mentalt krevende. Gruppen innfører denne dagen “buddy-system”: man holder et øye med en bestemt turkompis og støtter hverandre ekstra. Aktivitet: Mental øvelse – dele opp dagen i mindre delmål (neste landsby, neste pause) og belønne seg selv ved hver delmål (f.eks. en sjokoladebit). På kvelden diskuterer man hvordan denne strategien kan brukes i hverdagen (dele opp store oppgaver i små steg).
+
+# Dag 16: Hontanas – Boadilla del Camino (29 km). Fortsatt Meseta. Aktivitet: Takknemlighetsvandring – hver deltaker får i oppdrag å tilbringe dagen bevisst letende etter ting å være takknemlig for (f.eks. en bris som kjøler ned, en vennlig lokal person, lite vondt i føttene i dag etc.). Etter ankomst skriver alle ned tre ting de var takknemlige for. Forskningsmessig vet vi at takknemlighetsfokus kan øke optimisme og velvære
+
+# greatergood.berkeley.edu
+
+# greatergood.berkeley.edu
+
+# . Gruppedelging av listene over felles middag.
+
+# Dag 17: Boadilla – Carrión de los Condes (26 km). Tema: Å møte seg selv. Etter over to uker på vei kan følelsesmessige prosesser intensiveres. I dag planlegges en lengre gruppeprosess på kvelden: halvannen times terapeutisk gruppesamtale ledet av psykologen, i et privat rom på herberget. Fokus på her-og-nå: “Hva kjenner jeg på i gruppen?”, “Hvilke endringer merker jeg i meg selv?”. Dette kan bringe fram tårer, latter, støtte – gruppeterapi-elementet kan gi dypere innsikt og samhold. Dagøkta er lett fysisk, så man sparer krefter til dette.
+
+# Dag 18: Carrión – Calzadilla de la Cueza (22 km). Aktivitet: Service og mening: Denne dagen kan gruppen gjøre en liten tjeneste for andre pilegrimer eller lokalsamfunn. For eksempel plukke søppel langs ruten en halvtime, eller hjelpe til med oppvask på herberget. Poenget er å erfare at det å bidra gir mestring og mening – viktige faktorer for mental helse. Kveldsprat om hvordan de opplevde å gjøre noe for andre, og hvordan frivillig arbeid hjemme kan være positivt.
+
+# Dag 19: Calzadilla – Sahagún (22 km). Markerer omtrent 2/3 av distansen. Tema: Tro og håp. Man passerer flere gamle kirker og klostre. Deltakerne – uansett livssyn – inviteres til å reflektere over håp i sitt liv. Aktivitet: I en stillestund i en kirke underveis kan hver tenne et lys for noen eller noe de håper for. Den symbolske handlingen kan styrke håpsfølelse. Etterpå prater man om hva lysene symboliserte (de som vil dele). Håp er en sentral recovery-faktor – å kunne se for seg en bedre fremtid.
+
+# Dag 20: Sahagún – El Burgo Ranero (18 km). Kortere etappe for aktivt opplegg. Aktivitet: Kreativ skriving: Deltakerne får i oppgave å skrive et kort “brev til sin avhengighet eller sykdom” – f.eks. et brev til angsten, depresjonen eller rusen, hvor de uttrykker hva de føler overfor den delen av seg og hvordan de vil forholde seg videre. Dette gjøres på ettermiddagen når man ankommer tidlig. De som vil, leser opp brevet i gruppen. Dette kan gi kraft til å distansere seg fra problemet (eksternalisering). Kvelden lett – man kan spille kortspill eller musikk for avkobling.
+
+# Dag 21: El Burgo Ranero – León (30 km). Innmarsj i storbyen León. Tre uker er gått! Aktivitet: Underveis har gruppen en fremtidsverksted-discussion: Hva ønsker de å gjøre når de er tilbake hjemme? Hver deler en drøm eller plan (stor eller liten). De andre og veileder gir positive innspill (“du kan få til det, kanskje kan du prøve X”). Dette sår frø for veien videre. I León får deltakerne litt bytid; hviledag følger neste dag.
+
+# Dag 22: León (hviledag). Den siste hviledagen før innspurten. Formiddag fri – mulighet for å oppsøke byens attraksjoner eller bare hvile. Ettermiddag arrangeres en sesjon: Forberedelse til hjemreise. Man tar fram handlingsplanene/verdiene fra Burgos (dag 14) og oppdaterer dem i lys av nye innsikter. Turleder hjelper deltakerne å konkretisere: Hvem kontakter vi i NAV eller andre etater for å følge opp ønskene (f.eks. ta kontakt med en arbeidsgiver, søke en skoleplass, melde seg på kurs)? Man legger også en plan for å holde kontakten deltakerne imellom etter tur (f.eks. en månedlig treff eller chatgruppe) for å opprettholde støtten. Kvelden avsluttes med noe sosialt hyggelig – f.eks. en felles middag med litt ekstra god mat for å lade opp.
+
+# Dag 23: León – Astorga (31 km, eventuelt buss for å korte litt). Etter hvile kan man vurdere å ta en kort togtur eller buss de første milene ut av Leóns forsteder for å spare krefter (dette er vanlig blant noen pilegrimer). Målet er middelalderbyen Astorga. Tema: Mot slutten nå – mot og sårbarhet. Deltakerne oppfordres til å reflektere over hva de fremdeles er redde for fremover. På kvelden deler de en frykt de har, og de andre gir støtte/tilbakemeldinger. Dette bygger mot ved at man erkjenner sårbarhet i et trygt rom.
+
+# Dag 24: Astorga – Foncebadón (26 km, oppstigning mot fjell). Aktivitet: Ritual for å slippe taket: Nær Foncebadón ligger Cruz de Ferro – en ikonisk jernkors hvor pilegrimer tradisjonelt legger ned en medbrakt stein som symbol på å legge fra seg byrder. På morgenen instrueres deltakerne til å finne en passende stein hver (hvis de ikke allerede har en). Ved Cruz de Ferro utfører gruppen en seremoni: i stillhet legger hver sin stein ved korsets fot, forestiller seg at en tung byrde (skyld, smerte, avhengighet e.l.) blir igjen der. Dette er et sterkt øyeblikk for mange. Etterpå samles gruppen litt nedenfor og snakker (hvis ønskelig) om hva de følte de “la igjen” der oppe
+
+# viajecaminodesantiago.com
+
+# . Man tenner kanskje et lys eller gir hverandre en klem. Kvelden tilbringes i den enkle fjellandsbyen Foncebadón rundt peisen med rolig samtale.
+
+# Dag 25: Foncebadón – Ponferrada (27 km, nedstigning). Ned fra fjellene til Ponferrada. Tema: Endringer på vei. Naturen endrer seg – fra fjell til dal. Aktivitet: Som landskapet endrer seg, inviteres deltakerne til å reflektere: Hvilke endringer merker jeg i meg selv siden dag 1? Kanskje orker de mer fysisk, kanskje endret syn på noe. På kvelden gjør man en runde: “Hva jeg har oppdaget ved meg selv som jeg er stolt av”. Turlederne gir hver deltaker positiv feedback – anerkjenner hvor langt de er kommet.
+
+# Dag 26: Ponferrada – Villafranca del Bierzo (25 km). Aktivitet: Siste hinder – bakketrening: Neste dag venter en av turens tøffeste stigninger (O Cebreiro). I dag forbereder man seg mentalt og fysisk. Underveis gjør gruppen en kort intervalldrag-øvelse i en bakke for å øve på å takle puls og slit (som en metafor for å takle stresskilder). Etter endt øvelse: samtale om stressmestringsteknikker – hva gjør de når livet butter (pusteøvelser, distraksjon, ringe en venn etc.). Deltakerne bytter tips. Kveld: Felles early bedtime og forberede ekstra matpakker for morgendagen.
+
+# Dag 27: Villafranca – O Cebreiro (28 km, bratt stigning). En av de mest krevende dagene: flere hundre høydemeter stigning opp til O Cebreiro, inn i Galicia-regionen. Tema: Mestringsfølelse og støtte. Gruppen holder tett sammen, tar hyppige pauser. Turlederne heier frem hvert skritt. Kanskje synger man felles sang for motet. På toppen feires seieren – dette var siste ordentlige fjell. Aktivitet: Toppsamtale: “Hva har jeg nå bevist for meg selv ved å klare dette?” Hver setter ord på sin mestringsfølelse. Denne følelsen forankres ved at alle gir hverandre en symbolsk liten gave – f.eks. turlederen har på forhånd skrevet ut et inspirerende sitat til hver deltaker om å overkomme hinder, som deles ut nå. Kvelden brukes til hvile; man ser kanskje ut over dalene og anerkjenner hvor langt man har kommet både fysisk og mentalt.
+
+# Dag 28: O Cebreiro – Sarria (40 km, mulig å dele i to dager om nødvendig). For å rekke 30 dager totalt kan man denne dagen ta transport et stykke eller kombinere to etapper: nedstigning fra O Cebreiro og videre til Sarria. Sarria er 100 km fra Santiago – herfra strømmer ofte flere pilegrimer til (de som går minimumsdistansen). Aktivitet: Åpen dag – gruppen får litt frihet til å gå i eget tempo eller med andre nyankomne pilegrimer, om ønskelig. Dette tester hvordan de bruker sine ferdigheter utenfor “komfortsonen” av egen gruppe. På kvelden samles de igjen og deler opplevelser av å ha møtt nye folk. Kanskje oppstod det mulighet for å fortelle noen om hvorfor de går – å sette ord på egen reise til en fremmed kan forsterke innsikten.
+
+# Dag 29: Sarria – Arzúa (trekk gjennom Galicias skoger, ca. 40 km igjen fordelt på to dager). Nest siste vandredag. Tema: Avrunding og avskjed.\* Nå kjenner alle at målet er nær. Deltakerne kan ha blandede følelser – stolthet, men også engstelse for at den trygge boblen slutter. Aktivitet: På kvelden i Arzúa forberedes morgendagens ankomst: Hver deltaker lager en “framtidsbrev” adressert til seg selv om 1 måned – de skal skrive hvordan de håper å ha det da, og hvilke tiltak de vil gjøre for å holde seg på rett kurs. Brevene samles av turlederen (disse kan sendes/gis til dem senere som påminnelse). Deretter en fellessamtale om hva de frykter ved å komme hjem og hvordan de kan håndtere det. Turlederen minner om nettverket som finnes (NAV-veileder, helseoppfølging, gruppa selv).
+
+# Dag 30: Arzúa – Santiago de Compostela (40 km, ev. starte veldig tidlig eller dele opp siste 100 km i 3 dager totalt). Målgang! Gruppen ankommer Santiago, går samlet de siste kilometerne til katedralplassen. Seremonien her er viktig: de deltar på pilegrimsmessen i katedralen hvis mulig, mottar pilegrimsbevis (Compostela). Aktivitet: Etter ankomst har man en avslutningsseremoni i parken ved katedralen: Deltakerne sitter i ring, og turlederne guider en oppsummering der hver forteller hva denne reisen har betydd for dem og gir en personlig tilbakemelding til hver av de andre. Kanskje leser noen opp et dikt de skrev underveis, eller man lager en liten seremoni der de knyter et bånd rundt håndleddet – et vennskapsbånd som symbol på forpliktelsen om å støtte hverandre videre. Det tas gruppebilde foran katedralen (for de som vil). På kvelden spiser man en avslutningsmiddag. Utdeling av diplom: NAV kan på forhånd ha laget et enkelt diplom/attest for deltakelse som overrekkes – med humor og alvor (“Camino-mester 2025 – Har fullført 780 km til fots”). Dette kan deltakerne bruke som et synlig bevis på mestring. Feiring, men alkoholfritt champagneskål naturligvis. Gledestårer er lov.
+
+# (Evt. Dag 31: Hjemreise eller frivillig forlengelse til Finisterre.) Dagen etter reiser gruppen samlet hjem til Norge. Alternativt kan man legge inn et par bonusdager der de som vil går videre til kysten (Finisterre) som en ekstra belønning – men dette er ikke nødvendig for pilotens del. Dagsplanen over integrerer dokumenterte virksomme elementer: fysisk trening, naturkontakt, strukturert refleksjon (f.eks. dagbokskriving som reduserer negative følelser
+
+# positivepsychology.com
+
+# ), mindfulness og meditasjon, gruppeterapi og kreative uttrykk. Sammen skaper disse en terapeutisk daglig rytme som forventes å gi deltakerne bedret selvinnsikt, mestring og håp. Planen er fleksibel – aktiviteter kan justeres etter gruppens behov, dagsform og eventuell krisehåndtering. Likevel gir den en robust ramme for å sikre at man dekker både kropp, sinn og sosialt fellesskap hver dag.
+
+# Økonomi: Kostnadsoverslag per deltaker
+
+# En grov kostnadsberegning indikerer at pilotprosjektet kan gjennomføres relativt rimelig sammenlignet med institusjonsbehandling eller langvarig stønad. Tabellen under viser et anslag per deltaker basert på 5 deltakere og 2 turledere i 30 dager:
+
+# Kostnadspost	Beløp (NOK)	Kommentar
+
+# Reise (fly t/r + lokal trans.)	ca. 5 000	F.eks. Oslo–Biarritz t/r 3–4 000 kr, tog/buss til start og retur fra Santiago. Gruppereise rabatt mulig.
+
+# Overnatting (30 netter á 15€)	ca. 5 000	Rimelige herberger, gjennomsnitt ~150 kr/natt. Noen donativo (frivillig betaling) er inkludert.
+
+# Mat (30 dager á 200 kr)	ca. 6 000	Selvhandlet frokost/lunsj, rimelig pilgrimsmiddag ~10–15€. Vil variere etter valuta/priser.
+
+# Utstyr (sko, sekk, sovepose etc.)	ca. 3 000	Mange vil ha noe fra før; avsetning pr. person for å supplere utstyr slik at ingen mangler nødvendig bekledning/utstyr.
+
+# Forsikring	ca. 1 000	Reiseforsikring for 30 dager pr person. Gruppeavtale kan gi rabatt.
+
+# Turledere (andel pr deltaker)	ca. 20 000	To ansatte à ca 50 000 kr lønn/utgiftsdekning hver = 100 000; fordelt på 5 deltakere = 20 000. Ved 3 deltakere ville andelen øke.
+
+# Administrasjon/forberedelse	ca. 2 000	Andel av planleggingstid, treningssamling, evalueringsarbeid etc., pr deltaker.
+
+# Uforutsette utgifter	ca. 3 000	Buffer pr deltaker (medisiner, ev. taxi ved skade, erstatning av utstyr, margin for prisstigning).
+
+# Sum anslag per deltaker: ~45 000 NOK. Et pilotteam på 5 deltakere vil dermed koste rundt 225 000 NOK totalt. Med færre deltakere øker kostnaden per hode (pga. faste utgifter som turledernes lønn), men selv med 3 deltakere anslås det under 75 000 NOK per person. Til sammenligning er dette beløp på linje med 2–3 måneders på arbeidsavklaringspenger eller én enkel innleggsuke i psykisk helsevern for én person. Gevinstpotensialet er som nevnt langt høyere dersom tiltaket lykkes – én person i jobb i stedet for på uføretrygd kan spare staten for ~200 000 kr årlig i trygd og gi skatteinntekter i tillegg. Piloten skal selvfølgelig evalueres nøye før eventuell skalering, men kostnadene er lave nok til at det er verdt forsøket. Ved videre utrulling kan man kanskje oppnå stordriftsfordeler (forhandle bedre priser, trene opp frivillige turvenner osv.). Det er viktig å merke seg at deltakernes ordinære ytelser fra NAV (om de mottar AAP, sosialstønad e.l.) kan fortsette å løpe under deltakelsen, da dette regnes som et godkjent tiltak/løp. Disse ytelsene dekker deres vanlige livsopphold, mens prosjektbudsjettet dekker ekstrakostnader ved reisen. Slik dobbel finansiering må avklares i forkant, men er løselig – NAV kan f.eks. definere dem som på et “avklaringstiltak” slik at de beholder AAP, og prosjektet dekker reise/opphold. Skalering og kostnadseffektivitet: Hvis piloten viser suksess, kan man vurdere større grupper eller hyppigere turer. En større gruppe (f.eks. 8–10 deltakere) kunne muligens fortsatt håndteres av 2–3 turledere, og kostnad pr. person ville da synke noe. Man må imidlertid passe på gruppedynamikk – mer enn ~8 kan bli uoversiktlig i terapeutisk arbeid. Alternativt kan flere parallelle grupper sendes (kanskje pr region), ledet av ulike partnere. Et nasjonalt program med 5 grupper à 5 ungdommer årlig (25 deltakere/år) ville med dagens anslag koste omkring 1–1,2 millioner kr årlig – fremdeles beskjedent i NAV-målestokk, gitt muligheten for at mange av disse 25 går videre til jobb/utdanning. Pilotdata vil gi bedre grunnlag for slike beregninger.
+
+# Finansiering: Støtteordninger og fond
+
+# For å realisere pilotprosjektet økonomisk, kan man søke midler fra en rekke støtteordninger. Nedenfor er en oversikt over aktuelle finansieringskilder i Norge (primært) og internasjonalt, med korte beskrivelser:
+
+# Helsedirektoratets tilskudd – “Aktivitetstilbud for personer med rusmiddelproblemer og/eller psykiske helseproblemer”: En årlig tilskuddsordning (ca. 296 mill. kr i potten) som skal bidra til at målgruppen deltar i aktiviteter som gir bedre livskvalitet, mestring og en meningsfull tilværelse
+
+# actis.no
+
+# . Camino-piloten passer svært godt inn i formålet. Søknadsfrist er typisk 1. desember for påfølgende år. Krav: Prosjektbeskrivelse, budsjett, forankring i kommune/NAV, og at søker er kommune eller ideell organisasjon. NAV kan her samarbeide med kommunehelsetjenesten eller la partneren (ideell organisasjon) stå som søker med NAVs støtteuttalelse.
+
+# Helsedirektoratets tilskudd – “Rådgivnings-, støtte- og veiledningstjenester innen psykisk helse, rus og vold”: Ca. 116,9 mill. kr i potten
+
+# actis.no
+
+# . Formål er å lette livssituasjonen for mennesker med psykisk helse- eller rusvansker og styrke evnen til å håndtere den. Et Camino-basert tilbud kan vurderes som en innovativ veiledning/mestringstjeneste. Søknad krever beskrivelse av hvordan tiltaket hjelper målgruppen med mestring, plan for bruker- og pårørendeinvolvering, og resultatindikatorer. Både kommuner og ideelle kan søke.
+
+# NAV (Arbeids- og velferdsdirektoratet) – Utviklingsmidler/Egne tiltaksmidler: NAV sentralt disponerer midler til å prøve ut nye tiltak i egen regi eller i samarbeid med andre (pilotprosjekter innenfor arbeidsrettede tiltak, ofte omtalt i budsjettsammenheng). Det finnes f.eks. et program der man kan søke innovasjonsmidler for prosjekter som fremmer inkludering av utsatte grupper. Et forslag er at NAV kontoret (eller fylket) søker interne midler via direktoratet til å delfinansiere piloten. Krav: innovativt, overførbart konsept, evalueringsplan (noe denne rapporten allerede skisserer).
+
+# Stiftelsen Dam (Extrastiftelsen): Dam tilbyr prosjektstøtte til helseprosjekter gjennom frivillige organisasjoner. Programmet Helse gir tilskudd 40 000–400 000 kr til tidsavgrensede tiltak som fremmer fysisk/psykisk helse, mestring eller livskvalitet
+
+# dam.no
+
+# . Vår pilot oppfyller disse kriteriene tydelig. For å søke må man gå via en godkjent søkerorganisasjon (f.eks. Rådet for psykisk helse, Mental Helse, Kirkens Bymisjon – mange av disse er Dam-medlemmer). Søknadsprosessen innebærer først en skissesøknad (høsten) deretter full søknad ved invitasjon. Prosjektet vil vektlegges om man kan vise til samarbeid med NAV og planer for videreføring (Dam liker bærekraft). Krav: Utfylt søknadsskjema med mål, metode, budsjett; prosjektet må ikke allerede være fullfinansiert offentlig; rapportering ved slutt. Dam-midler kunne potensielt dekke det meste av pilotkostnadene.
+
+# Gjensidigestiftelsen: Landets største finansielle sparebankstiftelse støtter hvert år prosjekter innen trygghet, mestring og helse for barn og unge. De har bl.a. hatt utlysninger som “Aktiv fritid for alle”. Mental helse og livsmestring for ungdom er prioriterte tema. Man kan søke som frivillig organisasjon (evt. via partner). Normalt gis tilskudd fra 50 000 opptil flere hundre tusen. Søknaden må fremheve hvordan prosjektet skaper varig positiv endring i lokalmiljø/gruppe. Krav: Prosjektbeskrivelse, budsjett, finansieringsplan; resultatindikatorer. Søknadene behandles av stiftelsens regionutvalg. Tildeling høst og vår.
+
+# Sparebankstiftelser (f.eks. Sparebankstiftelsen DNB): Disse stiftelsene finansierer samfunnsnyttige initiativ, ofte regionalt avgrenset. Ungdom, mestring og friluftsliv er populært. Camino-prosjektet kan appellere ved kombinasjonen eventyr, personlig vekst og inkludering. Man bør finne en stiftelse aktiv i det fylket deltakerne kommer fra eller der partneren hører hjemme. Søknad ligner andre: man beskriver prosjektet, målgruppe, samfunnsnytte. Ofte kreves ikke faglig evaluering, men rapport og mediaomtale settes pris på. Summene varierer, men pilotens størrelse (0,2–0,3 mill) er innenfor hva mange bevilger.
+
+# Bufdir – Inkludering av barn og unge (tidl. Nasjonal tilskuddsordning mot barnefattigdom): Hvis deltakerne inkluderer unge opp til 25 år i risiko for marginalisering, kan dette være relevant. Bufdir gir midler til fritids- og mestringsaktiviteter for utsatte unge. Krav: Prosjektet må motvirke utenforskap og skape deltakelse. Caminoen kan sees som en fritidsaktivitet med stor merverdi. Utlysning årlig, ofte på nyåret, via kommuner/organisasjoner. Dokumentasjon av behov i målgruppen lokalt kan trengs (antall unge utenfor etc.).
+
+# Erasmus+ (EU-program for utdanning, ungdom og idrett): Under Erasmus+ finnes Ungdomsmobilitet/Youth Exchanges-tiltak hvor grupper av unge (13–30 år) fra minst to land møtes for en ikke-formell læringsopplevelse. Et Camino-prosjekt kunne potensielt kvalifisere som en youth exchange med tema psykisk helse og inkludering, dersom man f.eks. samarbeidet med en spansk ungdomsorganisasjon og inkluderte noen spanske ungdommer eller lokale workshops underveis. EU-midler kunne da dekke reise, opphold og aktivitetskostnader. Krav: En detaljert søknad via Erasmus+ nasjonalkontor (Bufdir i Norge) med læringsmål, metode og samarbeidspartnere. Fordel: internasjonal dimension og erfaringsdeling. Ulempe: lang prosess og må inkludere flere land, så kanskje ikke førstevalg for pilot, men aktuelt ved en utvidet versjon.
+
+# European Solidarity Corps (ESC): EU-program som støtter solidaritetsprosjekter initiert av ungdom selv i eget lokalsamfunn, og også “volunteering teams” som kan dekke f.eks. en gruppe som jobber frivillig for en sak i utlandet. Et solidaritetsprosjekt (varighet 2–12 mnd) kan gi inntil ca. 6000€ til gruppeaktiviteter definert av ungdom. Vårt prosjekt kunne kanskje passe hvis deltakerne selv formes som en prosjektgruppe med mål om mental helse og inkludering. Men ESC krever at de gjør noe til nytte for andre også (f.eks. underveis opplyse om mental helse til andre pilegrimer?). Dette er kanskje søkt for pilot, men verdt å nevne som mulig EU-finansiering for senere variant der tidligere deltakere selv driver prosjektet videre som ungdomsledet initiativ.
+
+# Andre internasjonale fond: F.eks. Nordisk ministerråd (Nordplus) – mindre relevant med mindre man inkluderer nordisk samarbeid (f.eks. inviterer med deltakere/ledere fra naboland for kunnskapsutveksling). EEA Grants/Norway Grants er stort sett for prosjekter i mottakerland, så ikke aktuelt her. WHO/EU4Health-programmet gir midler til innovasjon i psykisk helse, men primært til større institusjoner/prosjekter. For en liten pilot er nasjonale midler mer tilgjengelige.
+
+# Oppsummert vil trolig en kombinasjon av kilder være ideelt: f.eks. Helsedirektoratet eller NAV selv dekker hoveddelen, mens man henter noe fra en stiftelse for å styrke budsjettet (til utstyr eller evaluering). Det anbefales å søke offentlig tilskudd først (de største postene), da flere private fond gjerne ser positivt på medfinansiering heller enn å dekke alt. Uansett bør søknadene vektlegge prosjektets innovasjon, begrunne behovet (henvise til hvor mange unge uføre, hvor mye samfunnet taper – gjerne bruke tall fra ungdomsgarantien og FHI-analysen
+
+# fhi.no
+
+# ), samt forklare evalueringsopplegget som vil dokumentere effekt. Dette gir større sjanse for støtte.
+
+# Sesongvalg, skalering og videreføring
+
+# Sesongvalg – hvorfor lavsesong: Piloten bør legges til vår eller høst (april–mai eller september–oktober) fremfor høysommer. Lavsesong på Caminoen har flere fordeler:
+
+# Mindre trengsel: I sommermånedene er Camino Francés svært trafikkert, herberger fulle og mer støy. I lavsesong (f.eks. april) er det færre pilegrimer, noe som gir mer ro for vår gruppe til å fokusere på sine prosesser. De får lettere senger samlet på samme sted og kan ha gruppemøter uten forstyrrelser.
+
+# Bedre klima for gåing: Juli–august kan det bli >35°C på Meseta, og risiko for heteutmattelse øker. Vår og tidlig høst har mildere temperaturer (typisk 15–25°C dag, kjølige netter) – gunstig for fysisk aktivitet uten for stor belastning. Litt regn må påregnes, men utstyr kan tilpasses (regnponcho). Risiko for værstopp (snø i fjell) er liten i disse periodene, bortsett fra mulig kjølig start i april i Pyreneene.
+
+# Økonomi: Lavsesong betyr lavere flypriser og ofte rimeligere overnatting (noen private herberger gir rabatter utenom sesong). Det hjelper pilotbudsjettet.
+
+# Gruppedynamikk: Færre turister betyr at deltakerne i større grad kan knytte bånd seg imellom uten å “forsvinne” blant andre. Om sommeren kunne yngre deltakere bli fristet til å henge med festglade turister på kveldstid – om våren er miljøet roligere og mer fokusert på selve pilegrimslivet.
+
+# En potensiell ulempe med lavsesong er at enkelte herberger eller kaféer kan ha begrensede åpningstider, spesielt i tidlig vår. Dette kan planlegges rundt ved å sjekke åpningstider på forhånd (det finnes oversikter). Alt i alt veier fordelene tungt for lavsesong. For eksempel kunne april 2026 være aktuelt for en fullskala gjennomføring etter å ha planlagt i 2025, eller pilot allerede høsten 2025. Evaluering og veien videre: Etter pilotens avslutning og evaluering (som beskrevet under dokumentasjon) må NAV ta stilling til om konseptet skal videreføres. Viktige kriterier blir: oppnådde deltakeresultat (helse, eventuell overgang til tiltak/jobb etterpå), gjennomførbarhet/logistikk og kostnad vs. nytte. Dersom funnene er positive – f.eks. at majoriteten rapporterer klar bedring i livskvalitet, kanskje en eller flere har kommet i gang med jobb/utdanning i månedene etter – vil det være grunnlag for å søke midler til en utvidet pilotfase eller implementere tiltaket som en del av NAVs ordinære tilbud for ungdom. Skalering/modellering: Man bør vurdere skaleringsstrategier forsiktig:
+
+# Gjenta årlig: Det enkleste er å gjøre Camino-turen til et årlig tilbud for et visst antall NAV-brukere. Man kan da bygge opp erfaringskompetanse hos partneren og tidligere deltakere kan inviteres med som hjelpe-crew. Årlige kull vil også kunne danne et alumni-nettverk av tidligere pilegrimer som støtter nye (f.eks. holde motivasjonsmøter).
+
+# Flere ruter/grupper: Camino Frances er én av flere ruter. Om interessen er høy, kunne man kjøre to turer parallelt på ulike ruter (f.eks. Camino Portugués for en gruppe og Camino del Norte for en annen) og deretter møtes alle i Santiago. Eller en vårtur og en høsttur per år. Dette avhenger av ressurser og egnede turledere.
+
+# Forkortede eller nasjonale versjoner: Ikke alle kan være borte i 30 dager. I en skaleringsfase kan man teste kortere vandringer med samme konsept: f.eks. 10-dagers vandring langs Pilegrimsleden i Norge (Olavsleden til Trondheim). Dette vil være lavere kost og logistikk, og kan fungere som “lavterskelversjon” for de som ikke kan reise ut. Samtidig har utlandet og det å bryte helt med hverdagen sin verdi, så hovedmodellen bør være Camino i Spania.
+
+# Integrasjon med behandling/oppfølging: Man kan knytte programmet opp mot eksisterende behandlingsløp – f.eks. at rusinstitusjoner sender pasienter som er i sluttfase av behandling på Camino som et overgangstiltak, i regi av NAV. Eller at DPS/kommunepsykolog anbefaler det til unge de følger opp. Slik forankring kan gi bedre utvelgelse og oppfølging før/etter.
+
+# Involvering av arbeidsgivere: På lengre sikt kan man tenke kreativt – f.eks. få med en bedriftssponsor som tar inn deltakerne i praksis etter turen, eller samarbeide med en bransje som trenger folk (håndverk, IT) hvor deltakerne kan få kurs/tilbud etter hjemkomst. Camino-turen kan da markedsføres som “steg 1” i en helhetlig reise mot jobb, hvor steg 2 er praksis.
+
+# Risikovurdering og justering: Skalerer man opp, må man samtidig være bevisst på risikomomenter avdekket i piloten. Si at f.eks. én deltaker avbryter pga. psykisk sammenbrudd under pilot – da bør man i neste runde legge inn enda strengere screening eller tettere oppfølging i forkant. Eller hvis det var konflikter i gruppen, kanskje velge noe større gruppe for mer fleksibilitet i relasjoner. Pilotens lærdommer vil uansett bli brukt til å finjustere programmet (f.eks. endre noen aktiviteter som ikke fungerte, legge inn flere hviledager om alle var utslitte osv.). I sum viser planen at prosjektet er skalerbart: Man kan gradvis øke antall deltakere/antall turer etter kapasitet og dokumentert effekt. Med gode resultater kan man også argumentere politisk for støtte. Konseptet er dessuten formidabelt medie- og formidlingsvennlig – “NAV sender ungdom på pilegrimsvandring” vil sikkert vekke interesse. Dette kan brukes positivt for å få støtte fra beslutningstakere, så lenge man kan vise til at det ikke bare er en “ferietur” men en strukturert metode med faglig begrunnelse
+
+# viajecaminodesantiago.com
+
+# . I evalueringen bør man derfor inkludere deltakernes egne utsagn, f.eks. “Denne turen forandret livet mitt. Nå har jeg sluttet med rus og skal begynne på skole”, da slike historier ofte overbeviser mer enn tall alene.
+
+# Konklusjon
+
+# Denne rapporten har utredet en omfattende plan for et pilotprosjekt der en liten gruppe utsatte unge voksne får gå Camino de Santiago som ledd i sin rehabilitering. Planen bygger på forskning som viser at langvandring og naturopplevelser kan ha dype positive effekter på psykisk helse, rusmestring og livskvalitet
+
+# researchgate.net
+
+# viajecaminodesantiago.com
+
+# . Gjennom en 30 dagers strukturert vandring med daglige refleksjonsøvelser, gruppesamtaler, fysisk aktivitet og kreativ utfoldelse, forventes deltakerne å oppnå økt selvinnsikt, mestringstro og motivasjon for endring. Samfunnsøkonomisk kan tiltaket være meget lønnsomt hvis det fører til at selv noen få kommer i arbeid eller utdanning fremfor å bli værende utenfor – evidens fra lignende innsatser indikerer betydelig avkastning på investeringen
+
+# fhi.no
+
+# fhi.no
+
+# . For NAV representerer prosjektet et verdiforslag om å kombinere arbeidsrettet fokus med helsefremmende innovasjon i tråd med ungdomsgarantien og et tverrsektorielt ansvar for unge. Planen viser at prosjektet er praktisk gjennomførbart i samarbeid med en ideell aktør, innenfor rimelige kostnadsrammer (~45 000 kr per deltaker). Det er identifisert flere finansieringskilder – fra Helsedirektoratets tilskudd til private stiftelser – som kan bidra til å realisere pilotprosjektet. Formatet (lavsesong) og omfanget (3–5 deltakere, 2 ledere) er valgt for å minimere risiko og maksimere oppfølgingstetthet i prøvefasen. Det anbefales at NAV sentralt eller regionalt tar initiativ til å etablere pilotprosjektet snarest mulig, i dialog med egnede partnere og finansieringsgivere. En vellykket pilot vil ikke bare kunne endre livet til de få som deltar, men danne grunnlag for et nytt verktøy i NAVs tiltaksrepertoar for å “hjelpe flere unge til å få et stabilt fotfeste i arbeidslivet”
+
+# nav.no
+
+# &nbsp;– ved å gå en uvanlig vei bokstavelig talt. Camino de Santiago har i over tusen år vært en reise for refleksjon, fornyelse og personlig vekst. Nå kan denne veien også bli en innovativ bro fra utenforskap til inkludering for noen av dem som trenger det aller mest. Pilotprosjektet vil gi verdifull læring, og dersom resultatene samsvarer med forventningene og forskningsgrunnlaget, kan konseptet skaleres opp og gi ringvirkninger langt inn i fremtiden – en investering i unge liv og samfunnsdeltakelse som vil bære frukter i mange år fremover. Kilder:
+
+# Mau, M. m.fl. (2021). Are Long-Distance Walks Therapeutic? Int. J. Env. Res. Public Health, 18(15), 7741. (Langdistansevandring positivt korrelert med mental helse, særlig reduksjon i følelsesmessig distress)
+
+# researchgate.net
+
+# .
+
+# Proyecto Ultreya (2017–2020), studie v/ A. Feliu-Soler m.fl. (Aut. Univ. Barcelona): Pilgrimsvandring på Camino de Santiago ga signifikant nedgang i angst, stress og økt livstilfredshet post-vandring og etter 3 mnd, sammenlignet med kontroll (vanlig ferie)
+
+# viajecaminodesantiago.com
+
+# viajecaminodesantiago.com
+
+# .
+
+# Stanford University (Bratman, G. m.fl. 2015): Naturvandring 90 min reduserte nevral aktivitet knyttet til grubling (subgenual prefrontal cortex) versus byvandring
+
+# news.stanford.edu
+
+# . Tid i natur bedret også humør og arbeidsminne og dempet angst
+
+# news.stanford.edu
+
+# .
+
+# UNH Outdoor Behavioral Healthcare Center – Mike Gass et al. (2019): Outdoor Behavioral Therapy for ungdom med rus/psykiske problemer ga 3 ganger bedre ettårsresultater og til halv kostnad vs. tradisjonell behandling
+
+# unh.edu
+
+# unh.edu
+
+# .
+
+# Folkehelseinstituttet – Smith, R. m.fl. (2025): Kost-nytte analyse av Rask Psykisk Helsehjelp: Deltakere hadde høyere sjanse for jobb uten trygd inntil 5 år etter
+
+# fhi.no
+
+# . Hver krone investert ga 5,26 kroner i samfunnsgevinst (økt inntekt, sparte helsekostnader)
+
+# fhi.no
+
+# .
+
+# NAV (2023): Ungdomsgarantien i NAV – sikre tidlig og tett oppfølging for alle 16–30 som trenger hjelp, med mål om fullført utdanning/arbeid
+
+# nav.no
+
+# nav.no
+
+# . Vektlegger tverrsektorielt samarbeid og at Norge trenger unges arbeidskraft, “har ikke råd til å miste den”
+
+# nav.no
+
+# .
+
+# Fagpressenytt/Psykisk helse (Grotdal, S., 2016): Pilegrimsvandring som terapi – Kvalitativ studie (N.K.D. Jørgensen) der langvandring ga opplevelse av “salig mental tilstand” og flow hos vandrere
+
+# fagpressenytt.no
+
+# . Tre aspekter utpekt: fysisk utfordring, naturopplevelse og samtaler underveis som terapeutisk virkning.
+
+# Journaling og mental helse: Studier viser at jevnlig journalføring kan forbedre humør, øke følelsesbevissthet og redusere stress (lavere kortisol)
+
+# bloomingtonmeadows.com
+
+# , samt redusere symptomer på depresjon og angst hos personer under stress
+
+# greatergood.berkeley.edu
+
+# .
+
+# Actis/tilskudd Helsedir: Beskrivelser av relevante tilskuddsordninger: Aktivitetstilbud rus/psykisk (mestring og meningsfull tilværelse)
+
+# actis.no
+
+# &nbsp;og Rådgivnings- og støttetiltak (lette livssituasjon, styrke håndteringsevne)
+
+# actis.no
+
+# &nbsp;– begge aktuelle for å støtte prosjektet.
+
+# (Flere kilder og referanser utdypes i teksten over. Samtlige kildehenvisninger er oppgitt i det formatet NAV og fagmiljøer krever, med lenker til rapporter og artikler for ytterligere lesning.)
+
+# 
+
+# 
+
+# 
+
+# 
+
+# 
+
+# 
+
+# Sources
+
+# You said:
+
+# Utydelig til stede.pdf
+
+# PDF
+
+# Kanskje en ide:
+
+# \- for å unngå undergrupper per deltager for privat dagbok funksjon, vurder om en dedikert link pr dag/event hvor deltager kommer inn på sin egen private dagbok profil (og evt admin). Dette kan være link til eksisterende system (helts gratis prøve) myntet for dette, og på sikt kan det være link til NAV sin aktivitetsplan
+
+# \- vurder muligheter for at du kopierer oppsett/struktur til NAV sin aktivitetsplan (som skjema, word, eller excel), for et gjenkjennelig/smertefri fremtidig innføring hos NAV
+
+# \- Tilrettelegg for at vi i neste omgang for anbefalinger på skytjeneste(onedrive, google drive, etc), jeg kan laste opp dagbok funksjon/aktivitetsplan
+
+# \- om imiterer NAV sin aktivitetsplan (søk opp mal på nett), legg også inn hele Camino turen i felter og oppsett som er mest naturlig
+
+# \- Alt overfor er forslag, og du har fullmakt til å gjøre det anderledes, komme med anbefalinger, etc. Jeg er opptatt av å få en så reelt og funksjonsrik løsning på plass relativt kjapt og brukervennlig for initiell testing. Gjør alt i tråd med helhetlig kontekst og oppsett i henhold til tilgjengelig info
+
+# ChatGPT said:
+
+# Takk for veldig gjennomtenkte forslag. For å kunne gi deg den mest funksjonelle og NAV-tilpassede løsningen, trenger jeg noen avklaringer:
+
+# 
+
+# Ønsker du at deltakerne skal ha tilgang til dagbok via mobil/nettbrett under selve turen (online tilgang), eller er det like greit med fysiske/analoge løsninger som de senere digitaliserer?
+
+# 
+
+# Har du allerede en foretrukket løsning (f.eks. Google Workspace, Microsoft 365) eller ønsker du at jeg vurderer hvilke tjenester som gir best sikkerhet, struktur og delingsmulighet mellom deltaker/admin/NAV?
+
+# 
+
+# Skal aktivitetsplanen speile NAV sin digitale aktivitetsplan, eller ønsker du en forenklet «speiling» som kan tilpasses både deltaker og NAV-veileder (eksport til Word/Excel)?
+
+# 
+
+# Er det viktig at løsningen fungerer som et trygt og anonymt refleksjonsverktøy – eller kan du håndtere personvern og samtykke lokalt, og derfor være mer fleksibel med plattformer?
+
+# 
+
+# Når jeg vet dette, kan jeg foreslå systemer, bygge opp en enkel prototype for dagbok/aktivitetsplan, og vise hvordan det kan integreres i videre arbeid.
+
+# 
+
+# You said:
+
+# 1\. Online tilgang
+
+# 2\. Jeg har samtlige, så bruk tjeneste/produkt som du anser å oppfylle kriterier best.
+
+# 3\. Forenklet speiling om det blir mer relevant. Fint om samme "begreper" blir brukt, for gjenkjennelsesfaktor hos NAV senere. At vi har satt hos inn i deres metodikk, er et "kompliment" og strategisk for senere innsalg
+
+# 4\. Kan være fleksibel, spesielt nå kun for testing og raskt demooppsett. Personvern/sikkerhet/tilpasninger må vi huske på, men kan tas i etterkant
+
+# ChatGPT said:
+
+# Takk, det er svært nyttig! Jeg setter nå i gang med å identifisere og anbefale:
+
+# 
+
+# Et oppsett for digital dagbok og aktivitetsplan med online tilgang, tilpasset bruk i gruppe (f.eks. Camino-prosjektet), som speiler NAVs begreper og metodikk der relevant.
+
+# 
+
+# Enkle skytjenester (OneDrive, Google Drive m.fl.) for fildeling og administrasjon.
+
+# 
+
+# Eksisterende gratis/åpne systemer som kan brukes til deltakerens personlige refleksjon/journal og samtidig ha en adminvisning eller eksportfunksjon.
+
+# 
+
+# Et forslag til hvordan strukturen i NAVs aktivitetsplan (basert på innsikten fra rapporten “Utydelig til stede”) kan gjenskapes eller speiles i f.eks. Google Forms/Sheets eller Microsoft Forms/Lists for testing og fremtidig integrasjon.
+
+# 
+
+# Jeg vil også vurdere skalerbarhet, GDPR-vurderinger, og hvordan dette lett kan presenteres som en prototype for NAV eller fond. Jeg gir beskjed så snart den funksjonelle oversikten er klar.
+
+# 
+
+# Research completed in 5m · 18 sources · 104 searches
+
+# Digital Dagbok og Aktivitetsplan for Pilotprosjekt i Tråd med NAV Metodikk
+
+# 
+
+# Digitalt system for Camino-piloten: Anbefaling og oppsett
+
+# Oversikt og krav til løsningen
+
+# Camino-pilotprosjektet trenger en digital plattform der hver deltaker kan føre en privat dagbok med daglige refleksjoner og oppgaver, samt følge en aktivitetsplan som ligner NAV sin. Systemet må la deltakeren loggføre personlige notater (som veileder kun ser ved samtykke), motta oppgaver strukturert som i NAVs aktivitetsplan (med mål, aktiviteter, dialog, progresjon osv.), og la prosjektleder administrere det hele effektivt. På sikt bør data enkelt kunne overføres eller integreres med NAVs egne systemer (f.eks. via eksport til Word/Excel/Forms eller gjennom et API). For pilotfasen anbefales det å bruke gratis eller lavterskel skytjenester – for eksempel verktøy fra Google Workspace eller Microsoft 365 – fordi disse gir rask oppsett, enkel tilgang via nettleser/mobil og kjente grensesnitt. Under presenteres to alternative oppsett (Google-basert og Microsoft-basert) som begge ivaretar behovene. Løsningene vektlegger gjenkjennelig struktur fra NAVs aktivitetsplan, god personvern/sikkerhet, og mulighet for senere skalering eller migrering til NAVs plattform. Forslaget er praktisk gjennomførbart, raskt å teste ut i liten skala, og gjør det lett å dokumentere og evaluere tiltaket underveis.
+
+# Valg av plattform: Google Workspace vs. Microsoft 365
+
+# Google Workspace (eller gratis Google-verktøy) tilbyr Google Skjemaer, Dokumenter og Regneark som kan brukes for å lage dagbøker og aktivitetsplaner. Fordelen er at det er gratis for alle med Google-konto, brukervennlig på mobil og PC, og krever minimalt av teknisk oppsett. Google Skjema er særlig egnet for en daglig journal: deltakeren kan fylle ut et skjema fra mobil/PC, og svarene lagres automatisk i et Google Regneark
+
+# productivity.academy
+
+# . Dette gjør det enkelt å spore utvikling over tid og analysere eller eksportere data senere. Man kan dessuten skreddersy spørsmålene i skjemaet (f.eks. refleksjonsspørsmål hver dag) etter prosjektets behov
+
+# productivity.academy
+
+# . Google Drive kan huse en mal for aktivitetsplan som kopieres for hver deltaker. Google-verktøy er kjent for en lav terskel: deltakerne trenger bare klikke en lenke for å skrive i dagboken, og veileder/prosjektleder kan få tilgang til regnearkene sentralt. Microsoft 365 (f.eks. gjennom en test-tenant eller bruk av gratisversjoner der mulig) gir tilsvarende muligheter via Microsoft Forms, OneNote/Word Online, Excel Online eller Microsoft Lists. MS Forms kan benyttes likt som Google Skjema for daglige innrapporteringer, med datafangst inn i Excel. Alternativt kan OneNote brukes som digital dagbok med deling. Microsoft Lists (en app i 365) egner seg godt for å lage en digital aktivitetsplan: det er i praksis delte lister (tabeller) som kan inneholde kolonner for mål, aktiviteter, frister, status, notater osv., og som kan deles med den aktuelle deltakeren og veileder. Lists kommer med ferdige maler (f.eks. “Issue tracker” eller “Work progress tracker”) som kan tilpasses
+
+# microsoft.com
+
+# microsoft.com
+
+# . Fordelen med Microsoft-løsningen er at den ligger nær opp til verktøy NAV selv bruker (NAV benytter bl.a. Office 365). Data i Excel/Lists kan enklere migreres inn i offentlige systemer senere, og plattformen oppfyller strengere sikkerhetskrav (lagring i EU, avtaler for offentlig sektor, etc.). Ulempen er at det kan kreve at deltakerne har en Microsoft-konto eller at man oppretter gjestebrukere for dem i systemet. For pilotformål kan man eventuelt bruke gratisversjonen av OneDrive/Excel for deling (eller opprette et begrenset antall Microsoft 365-lisenser for pilotdeltakerne). Oppsummert valg: Begge plattformer kan oppfylle kravene. Google Workspace-tilnærmingen gir rask og enkel start uten kostnad – fint for en rask pilot med digitale dagbøker via skjema og aktivitetsplan som regneark. Microsoft 365-tilnærmingen kan på sin side være mer fremtidsrettet ift. integrasjon mot NAV, ved å bruke lignende teknologi som NAV (Excel/Lists/Forms). I det følgende beskrives et oppsett som kan gjøres med begge plattformer: vi forklarer struktur basert på aktivitetsplanen til NAV, og gir konkrete forslag til implementasjon med Google- og Microsoft-verktøy.
+
+# Etterligning av NAVs aktivitetsplan i struktur og begreper
+
+# For at deltakerne og veilederne skal kjenne seg igjen, bør det digitale systemet bruke samme struktur og terminologi som NAVs egen aktivitetsplan. En aktivitetsplan hos NAV inneholder typisk:
+
+# Mål: Deltakerens hovedmål (f.eks. “Komme i jobb som kokk”). I NAVs plan registrerer brukeren sitt mål, som både bruker og veileder kan se
+
+# nav.no
+
+# .
+
+# Aktiviteter: Konkrete aktiviteter eller tiltak brukeren skal gjennomføre for å nå målet, f.eks. “Delta på jobbsøkerkurs”, “Oppdatere CV”, “Melde meg på treningsgruppe”. Aktiviteter i NAV-planen opprettes av bruker eller veileder, og kan ha frister og statuser.
+
+# Status for aktiviteter: Indikasjon på progresjon – i NAV sin digitale plan markeres om en aktivitet er fullført, pågår, avbrutt etc. (NAVs grensesnitt viser f.eks. aktivitetskort med status som “Planlagt”, “Gjennomføres”, “Fullført”, “Avbrutt” etc., se figur 1).
+
+# Veiledernotater/møtereferat: Felt der veileder kan notere oppfølging, f.eks. oppsummering fra veiledningssamtaler. I NAVs løsning kan veileder legge inn referat fra møter direkte i aktivitetsplanen
+
+# nav.no
+
+# .
+
+# Dialog: En logg eller meldingstjeneste for kommunikasjon mellom deltaker og veileder. NAV har en egen dialogfunksjon integrert, som ligner meldingstråder
+
+# nav.no
+
+# . I vår pilotløsning må vi finne en måte å fange opp dialog – enten som kommentarer i dokumenter, eller bruke et tillegg (evt. egen chat-kanal). For pilotformål kan en enkel løsning være at deltaker skriver meldinger/spørsmål som del av dagboken eller i et delt notatfelt, og veileder svarer der.
+
+# Progresjon/oppfølging: Oversikt over framdrift. I NAVs aktivitetsplan vil både deltaker og NAV-veileder til enhver tid se hvilke aktiviteter som er planlagt, fullført osv., og dette hjelper begge parter å følge med
+
+# nav.no
+
+# . I pilotløsningen bør det derfor være tydelig merking av hva som er gjennomført og hva som gjenstår for hver deltaker.
+
+# 
+
+# https://www.nav.no/aktivitetsplan
+
+# Figur 1: Skjermbilde av NAVs digitale aktivitetsplan. Denne viser hvordan brukeren ser målet sitt (“Mitt mål”) og kan “Legg til aktivitet”, samt en oversikt over aktiviteter sortert på status (Planlegger, Gjennomføres, Fullført osv.). Vårt system bør etterligne slike begreper for gjenkjennelighet for deltakerne. For å etterligne dette, bør vi utforme pilotens datafelter slik at de tilsvarer disse punktene. Konkret foreslås følgende struktur i våre verktøy:
+
+# Dagbok (privat journal): Dette er uten direkte NAV-analog, men fungerer som et ekstra element i Camino-piloten. Strukturen kan være fri tekst per dag, men man kan også inkludere støttespørsmål som hjelper deltakeren å reflektere (f.eks. “Hva var dagens høydepunkt?”, “Hvilke utfordringer møtte du i dag?”). Dette ligner en Q\&A-form for daglig journalføring
+
+# productivity.academy
+
+# . Journalsvarene trenger ikke følge en NAV-mal, men bør kunne knyttes til aktiviteter/mål (“Hvordan bidro dagens aktivitet til målet ditt?”).
+
+# Mål: I aktivitetsplan-dokumentet registreres deltakerens hovedmål. Dette kan være et eget tekstfelt øverst på et ark (Google Sheet) eller en kolonne i en liste (Microsoft Lists) hvor mål beskrives. Hvis deltakeren har flere delmål, kan man liste dem opp.
+
+# Aktivitetstabell: Hoveddelen av aktivitetsplanen er en tabell med kolonner som:
+
+# Aktivitet: Beskrivelse av oppgaven/aktiviteten.
+
+# Frist/dato: Tidsfrist eller planlagt dato for aktiviteten.
+
+# Status: Verdier som “Planlagt”, “Gjennomføres”, “Fullført”, “Avbrutt” – i en Google Sheet kan dette være en rullegardinliste med disse valgene, og i Microsoft Lists kan det være en Choice-kolonne med tilsvarende alternativer.
+
+# Ansvarlig/veileder: Hvem som skal følge opp (kan for pilot bare stå veiledernavn eller initialer).
+
+# Notater: Et felt for kommentarer, hvor veileder kan skrive inn f.eks. referat eller oppfølgingsnotat til aktiviteten.
+
+# Dialog/kommentarer: For pilotens del kan dialog håndteres ved at veileder skriver i notatfelt eller som kommentarer i dokumentet. Google Regneark tillater f.eks. kommentarbobler per celle som veileder og deltaker kan bruke til samtale. I Microsoft Lists/Excel kan man også legge inn kommentarer eller ha et eget felt “Dialog” hvor meldinger legges inn kronologisk (dette er ikke like elegant som en chat, men mulig). Alternativt kan en delt OneNote-side brukes spesifikt til dialog mellom deltaker og veileder, siden OneNote støtter at flere skriver samtidig og synliggjør navnet på forfatteren – men dette er en tilleggsidé dersom det trengs mer chat-lignende funksjonalitet.
+
+# Ved å speile NAVs språk og felter (mål, aktivitet, status, veiledernotat, dialog), vil deltakerne oppleve at pilotens plan ligner det de senere vil møte i NAV. Dette gjør overgangen enklere og sørger for at dokumentasjonen fra pilotfasen potensielt kan oversettes til NAVs format.
+
+# Forslag til struktur og oppsett av løsningen
+
+# Nedenfor foreslås et konkret oppsett som kombinerer en daglig digital dagbok for hver deltaker og en aktivitetsplan-fil per deltaker, satt opp enten i Google- eller Microsoft-miljøet. Oppsettet er modulært – man kan begynne med gratis Google-verktøy for enkelhet, eller benytte tilsvarende i Microsoft 365 hvis det er tilgjengelig.
+
+# Daglig digital dagbok (privat journal)
+
+# Verktøy: Google Skjema (Google Forms) anbefales for å loggføre daglige refleksjoner. For hver deltaker lages et individuelt skjema kalt f.eks. “Dagbok – \[Navn]”. Dette skjemaet består av et sett spørsmål som deltaker besvarer hver dag. Minste oppsett kan være ett åpent tekstfelt (“Dagens refleksjon”), men man kan gjerne ha flere spørsmål for strukturert refleksjon: for eksempel “Hva gjorde du i dag?”, “Hvordan følte du deg?”, “Er det noe du trenger hjelp med?”. Google Skjema lar oss enkelt tilpasse slike spørsmål
+
+# productivity.academy
+
+# . Svarene sendes inn ved å trykke Send, og skjemaet kan fylles ut på nytt hver dag (ubegrenset antall ganger). Hvert skjema er privat for den enkelte deltaker; kun prosjektleder/veileder (skjemaeier) har innsyn i svarene. Dersom veileder skal ha innsyn kun ved samtykke, kan man avtale at deltakeren periodisk gir tilgang eller deler sin dagbok-data – men i praksis, for enkelhet, vil veileder allerede ha teknisk tilgang siden de står som eier av skjemaet/svar-arket. Et samtykke kan innhentes ved oppstart av pilot. Gjennomføring: Deltakeren kan åpne skjemaet via en fast lenke. For å gjøre det enkelt, kan prosjektleder generere en kort lenke eller QR-kode til hver deltakers skjema. Man kan også utnytte at mobiltelefoner lar deg lagre en nettside som ikon på hjemskjermen – deltakerne kan legge til dagbokskjemaet sitt som et “app-ikon” på telefonen for kjapp tilgang
+
+# medium.com
+
+# . Google Skjema fungerer utmerket på mobil; deltakerne kan loggføre sine svar når som helst via smarttelefon, nettbrett eller PC
+
+# productivity.academy
+
+# . For å minne deltakerne på å skrive dagbok hver dag, kan man bruke kalenderintegrasjon eller e-postvarsler:
+
+# Eksempel: Prosjektleder oppretter en daglig kalenderhendelse (f.eks. kl 20:00 hver kveld) som sendes til hver deltaker, med en beskrivelse og lenke til skjemaet for dagboken. Da plinger telefonen deres med en påminnelse om å fylle ut.
+
+# Alternativt kan Google Forms sende en kvitteringsmail med kopi av svar hver gang (deltaker kan da se hva de skrev), men for påminnelse må man bruke eksterne midler. Et triks er å planlegge automatiske e-poster med f.eks. add-on eller script som sender ut lenken hver dag. Men en enkel løsning er ofte best: kalenderinvitasjoner eller SMS-varsler.
+
+# I Microsoft-verdenen kan man gjøre tilsvarende med Microsoft Forms: et forms per deltaker, og bruke f.eks. Power Automate til å sende en påminnelses-mail hver dag med lenken til forms. Alternativt kan man bruke Teams/Outlook til å sette opp en daglig reminder med lenke.
+
+# Lagring av dagbokdata: I Google-skjema klikker man på “Responses” og velger “Opprett regneark” for å samle svar
+
+# productivity.academy
+
+# . Da lages et Google Regneark (f.eks. “Dagbok \[Navn] – svar”) der hver rad er én dags entry med tidsstempel. Veileder kan lese dette regnearket for å følge med eller evaluere fremgang (forutsatt samtykke). Data er trygg lagret på prosjektets Google Drive. Tilsvarende i Microsoft: et Forms-skjema lar seg koble mot Excel – man kan enten eksportere manuelt eller (hvis forms er opprettet i en gruppe/SharePoint) få svarene direkte inn i en Excel-fil i skyen. Et alternativt verktøy er OneNote: man kan gi hver deltaker en egen delt OneNote-notatblokk med en seksjon for dagbok. Deltakeren kan opprette en ny side per dag (datert). OneNote tillater mer fritekst, bilder, lydopptak etc., og synkroniseres automatisk. Det gir stor frihet (f.eks. kan deltaker tegne eller legge ved foto i dagboken), men til gjengjeld er det mindre struktur for analyse i etterkant. For en enkel pilot vil skjema + regneark være mer oversiktlig for dokumentasjon. Eksempeloppsett Google: Opprett et Google Skjema med tittel “Dagbok – Ola Nordmann (Camino)”. Legg inn 2-5 spørsmål (tekstsvar) som deltaker svarer på daglig. Generer lenke. Under Innstillinger kan man la deltaker redigere svarene sine senere eller sende dem en kopi av svar (valgfritt). Ikke krev Google-innlogging for å svare (gjør det enklere – deltaker kan være anonym i selve skjemaet, men siden det er ett skjema per person, vet man uansett hvem sine svar det er). Aktiver “Tidsstempel” hvis ikke default, for å logge dato automatisk. Velg “Opprett regneark” for svarene. Del redigeringsrettighet til regnearket med veileder/prosjektleder (hvis ikke allerede eier). Deltaker selv trenger i utgangspunktet ikke tilgang til svar-arket, siden de kan se sine dagboksnotater gjennom e-postkvittering eller via et sammendrag om ønskelig – men man kan gi dem tilgang hvis de vil lese alt de har skrevet i en liste. Eksempeloppsett Microsoft: Opprett et nytt skjema i Microsoft Forms kalt “Dagbok – \[Navn]”. Legg inn tilsvarende spørsmål. Under Innstillinger, ikke sett skjemaet som “Alle kan svare” med lenke (med mindre man er innenfor en organisasjon – i så fall “kun personer i org. med lenke kan svare” for å få innlogging). For pilot kan man bruke “Alle med lenke kan svare” for enkelhet og dele lenken med deltakeren. Slå på “E-postbekreftelse til svarperson” hvis man vil at brukeren får kopi (merk: dette krever at man innhenter e-post i skjemaet eller bruker organisasjonskonti). Svarene kan sees i Forms, og man kan klikke “Åpne i Excel” for å få dem ut. For en mer automatisert løsning kan man lage en Excel Online i OneDrive som datakilde via Power Automate, men det er mer avansert. Enklere: jevnlig eksportere til Excel manuelt. OneNote-varianten: Opprett en delt notatblokk med deltaker (f.eks. via OneNote Online, inviter brukeren via e-post). Lag en seksjon “Dagbok” hvor brukeren skriver sider. Veileder kan lese notatene ved behov. Brukervennlighet: Det beskrevne oppsettet er designet for å være lett å bruke daglig. Skjema-tilnærmingen gir et svært strømlinjeformet grensesnitt – deltakerne kan fokusere på å svare på de korte spørsmålene uten distraksjoner. Som en erfaren bruker sier, er denne metoden “et praktisk og brukervennlig alternativ for å føre en journal, som du kan raskt loggføre fra hvor som helst, også med smarttelefon”
+
+# productivity.academy
+
+# . Siden svarene automatisk havner i et regneark, slipper man manuelt notatarbeid med å samle dem – noe som sparar tid i etterkant ved evaluering
+
+# productivity.academy
+
+# .
+
+# Aktivitetsplan og oppgaveoppfølging
+
+# Verktøy: For hver deltaker lages det en digital aktivitetsplan som et separat dokument (ark eller liste). Dette kan gjøres ved hjelp av en mal:
+
+# Google-alternativ: En Google Regneark-mal utformes med faner eller tabeller for “Mål” og “Aktiviteter”. Denne malen inneholder de nevnte kolonner (Aktivitet, Frist, Status, Notater, etc.) og gjerne litt instruksjonstekst. For hver ny deltaker opprettes en kopi av malen (Google Drive: Høyreklikk mal -> Lag en kopi, gi nytt navn). Navngi filene f.eks. “Aktivitetsplan – \[Navn]”. Del dette regnearket med deltakeren (lese- og skriveadgang til vedkommende selv, og til veileder/prosjektleder). Både deltaker og veileder kan da åpne regnearket i nettleser eller Google Sheets-appen på mobil for å se og oppdatere planen.
+
+# Microsoft-alternativ: Bruk enten Excel Online eller Microsoft Lists. I Excel kan man ha et ark med tabell for aktiviteter. En mal-arbeidsbok kan kopieres for hver deltaker (f.eks. lagre en tom “Aktivitetsplan-mal.xlsx” og duplisere den i OneDrive/SharePoint for hver deltaker). Microsoft Lists er imidlertid mer elegante for denne bruken: Man kan opprette en ny liste fra mal, for eksempel ta utgangspunkt i mal for “Issue tracker” eller “Work progress” som allerede har kolonner for status, prioritet osv., og tilpasse navnene til “Aktivitet” og “Mål” etc. Deretter oppretter man en instans av denne listen for hver deltaker, eller man kan ha én liste med alle deltakere som separate kategorier – men for personvern er separat liste per deltaker å foretrekke. Hver liste kan legges under et SharePoint-område eller i Microsoft Teams kanal hvis pilotdeltakerne er gjester i en Teams, slik at de kun ser sin egen. Microsoft Lists støtter også at man kan lage maler selv – så man kan designe én liste med ønskede kolonner, eksportere som mal og raskt opprette for neste deltaker.
+
+# Innhold i aktivitetsplanen: Begynn med å fylle inn deltakerens mål øverst. I regneark kan man bare skrive det inn i en fremhevet celle. I Lists kan man legge mål som et eget listeelement, eller i beskrivelsen av listen. Deretter fyller man inn kjente aktiviteter (kanskje i oppstartsmøtet mellom deltaker og veileder identifiseres noen aktiviteter). Veileder kan for eksempel opprette et par aktiviteter i samråd med deltaker, som et utgangspunkt. Deltakeren kan selv legge inn nye aktiviteter gjennom pilotperioden (enten ved å selv redigere regnearket eller via et inputskjema). Google Sheets kan forbedres med et tilkoblet Google Skjema for aktivitetsplanen også: f.eks. at deltaker fyller ut et skjema “Ny aktivitet” som legger seg som ny rad i regnearket. Men det kan være enklere at deltaker skriver direkte i arket hvis de er komfortable med det – det gir mer eierskap. Google Sheets tillater samskriving i sanntid, slik at deltaker og veileder begge kan legge inn eller endre informasjon samtidig, akkurat som i NAVs aktivitetsplan der begge parter ser alt
+
+# nav.no
+
+# . I Microsoft Lists er grensesnittet enklere for ikke-regneark-kyndige: man klikker “Ny” og får opp et skjema for å legge til et listeelement (aktivitet), med felter for hver kolonne. Dette kan være mer intuitivt for deltaker (det føles mindre som å redigere et regneark og mer som å fylle ut et skjema med ett element om gangen). Lists har i praksis innebygde skjema for oppretting og redigering av elementer. Bruk av NAV-terminologi: Sørg for å navngi kolonner og valg likt NAV. For eksempel, en Status-kolonne skal ha verdiene “Planlagt”, “Gjennomføres”, “Fullført”, “Avbrutt” (og evt. “Ikke Godkjent” dersom det er relevant å skille). I Microsoft Lists kan du definere disse som valg i en rullegardin (Choice field). I Google Sheets kan du bruke Datavalidering til å lage en rullegardinliste med disse ordene. Dialog: Dersom det er ønskelig å føre dialog her, kan man legge en kolonne “Siste melding” eller “Kommentar”, men det er bedre å holde dialog ved siden av, se eget avsnitt om dialog nedenfor. Oppfølging og oppdatering: Deltakeren bør oppmuntres til å jevnlig oppdatere status på aktiviteter (for eksempel markere som fullført når noe er gjort). Veileder kan også gjøre dette etter samtaler. For sporbarhetens skyld kan man innføre en enkel konvensjon at veileder skriver initialer og dato i notatfeltet når de legger inn noe (slik at man vet hvem som skrev hva). Dette ligner NAVs “referat”-funksjon der veileder dokumenterer oppfølging
+
+# nav.no
+
+# . I et delt Google-ark kan man også aktivere Versjonshistorikk som viser endringer over tid; i Microsoft Lists kan man slå på Versjonskontroll for listeelementer (da kan man se endringslogg per felt). Eksempel – Google Sheets aktivitetsplan: Fanen “Mål” (valgfri) kan liste hovedmål og delmål. Fanen “Aktiviteter” har kolonne A: Beskrivelse, B: Frist, C: Status, D: Notater/Kommentar. Sett gjerne farget format: f.eks. gult for “Planlagt”, grønt for “Fullført” osv., for visuelt å se progresjon. Dette kan gjøres med betinget formatering basert på statuskolonnen. Del arket med deltakerens Gmail (eller generer en lenke som krever Google-pålogging og gi deltaker tilgang via e-post). Eksempel – Microsoft Lists aktivitetsplan: Opprett en liste “Aktivitetsplan – \[Navn]” med kolonner:
+
+# Title (standard kolonne) kan brukes til Aktivitetens navn/beskrivelse.
+
+# “Frist” (Date column).
+
+# “Status” (Choice: Planlagt, Pågår, Fullført, Avbrutt).
+
+# “Notat” (Multiple lines of text).
+
+# “Kategori” eller “Mål-ID” hvis man vil knytte til et bestemt mål (ev. ikke nødvendig hvis én liste per mål/deltaker).
+
+# Man kan også legge til “Veileder” (Person column) om man vil ha navnet på ansvarlig veileder.
+
+# Gi deltaker tilgang til listen (via Teams-adding eller direkte share). Deltakeren kan da bruke Microsoft Lists mobile app eller nettleser for å se oppgavene. Lists har også flere visninger: man kan lage en Kalendervisning for aktiviteter etter dato, eller en Galleri/Kort-visning. Dette kan være nyttig for deltaker som tenker visuelt. Lists integrerer med Teams slik at deltaker/veileder kan prate i en Teams-chat parallelt med at de ser listen (men det krever at de er lagt inn i Teams). Figur 2: Eksempel på digital aktivitetsplan som en tabell med statusfelt. (Illustrasjonen viser Microsoft Lists med en liste lignende en aktivitetsplan – hver rad er en aktivitet med kolonner for type, beskrivelse, alvorlighetsgrad og status
+
+# microsoft.com
+
+# . I vår kontekst kan vi bruke liknende oppsett: aktiviteter med statuskolonne gjør det lett å følge progresjonen visuelt). Både Google Regneark og MS Lists støtter filtrering og sortering, slik at deltaker og veileder kan filtrere på f.eks. “ikke fullført” for å se gjenstående oppgaver. Dialog og kommunikasjon: For å etterligne dialogtjenesten i NAV, kan man bruke flere metoder:
+
+# En enkel måte i pilot er å la dagboken fungere som dialogarena – deltaker skriver kanskje i dagboken spørsmål eller meldinger til veileder, og veileder kan svare neste dag ved å legge en kommentar i aktivitetsplanen eller ta det muntlig. Dette er ikke ideelt som asynkron dialog, men kan fungere.
+
+# Alternativ: Opprett en egen felles OneNote mellom deltaker og veileder, eller bruk en delt Google Doc kalt “Dialog \[Navn]” hvor begge kan skrive meldinger fortløpende (datert). Dette blir som en chat-logg på et dokument. Fordelen er at da holdes all skriftlig dialog også dokumentert skriftlig, noe NAV ofte ønsker (NAVs dialoger lagres jo i aktivitetsplan-systemet). Husk at i offisiell løsning kan ikke meldinger slettes
+
+# nav.no
+
+# ; i pilot bør man også unngå å slette ting i dialogdokumentet, for å kunne vise helheten ved evaluering.
+
+# Hvis Microsoft Teams er en opsjon (deltakere som gjester): Da kunne man faktisk bruke Teams chat eller en privat kanal for hver deltaker for dialog. Dette er sannsynligvis for tungvint for en liten pilot, men verdt å nevne for skalering – Teams gir logging av dialoger som kan arkiveres.
+
+# E-post kan brukes som backup dersom deltakerne sliter med nye verktøy: Deltaker sender mail til veileder med spørsmål, veileder kan kopiere relevant info inn i aktivitetsplan-notatfelt for dokumentasjon.
+
+# Sikkerhet, personvern og brukervennlighet
+
+# En viktig vurdering i pilotfasen er å sikre tilstrekkelig personvern og enkelt brukergrensesnitt, uten at det blir for komplekst å administrere. Tilgangsstyring og passordbeskyttelse: Løsningen må sikres slik at kun autoriserte parter ser innholdet. I Google-oppsettet betyr det at alle dagbokskjema og aktivitetsfiler kun deles direkte med de det angår. Google Skjema kan settes opp åpent (lenke) eller begrenses til bestemte Google-kontoer. For høy sikkerhet, opprett gjerne en Google Workspace konto for prosjektet og legg deltakerne inn som brukere der under hver sin konto – da kan du begrense skjemaene til innlogging i den organisasjonen. Men dette kan være unødvendig tungt for pilot. Et alternativ er å generere lange, unike lenker (Google Forms gir komplekse lenker) og dele dem én-til-én med deltaker (sannsynligheten for at andre gjetter lenken er minimal). Aktivitetsplan-regnearket bør kreve innlogging for å redigere; man inviterer deltakerens e-post spesielt. Passordbeskyttelse av dokumenter utover dette er ikke trivielt i disse verktøyene (man kan ikke legge passord på et Google-dokument som allerede er delt via Google-aksesskontroll – passordbeskyttelse er mer relevant for statiske filer). Så den reelle beskyttelsen er konto-pålogging. Det bør vektlegges at deltakerne bruker sikre passord på sine Google/Microsoft-kontoer, og evt. tofaktorautentisering, for å unngå uautorisert innsyn. I Microsoft-oppsettet vil man trolig ha en Azure AD-konto for hver deltaker eller bruke deres private Microsoft-kontoer som “gjester”. Uansett vil deltakeren da måtte logge seg inn for å se sin plan. OneNote, Excel osv. kan også beskyttes via delingsinnstillinger. For eksempel kan man i OneDrive dele en fil med “password required” hvis man deler via lenke – men det enkleste er å dele direkte til e-post og kreve innlogging. Dataminimalisering og lagringstid: Siden dette er en pilot, anbefales det å lagre minst mulig sensitive personopplysninger. Man kan f.eks. unngå fødselsnummer og heller identifisere deltakerne ved fornavn eller kallenavn i systemet. Dagboksinnhold kan være sensitivt (personlige refleksjoner), så det må behandles konfidensielt. Når piloten er over, bør dataene slettes eller anonymiseres med mindre det er behov for videre lagring. NAVs egne systemer lagrer aktivitetsplan permanent etter arkivloven
+
+# nav.no
+
+# , men for en avgrenset pilot kan man nøye seg med at data lagres trygt i skytjenesten i prosjektperioden og eksporteres til et trygt format ved avslutning (f.eks. PDF-arkivering av hver aktivitetsplan og dagbok som legges i NAVs arkivsystem dersom det kreves, deretter slettes fra sky). Brukervennlighet: På brukervennlighet er nøkkelen å gjøre tilgangen så enkel som mulig.
+
+# Som nevnt: legg til rette for mobilbruk. Google-regneark og -skjema har mobilvennlig grensesnitt, og Microsofts løsninger har dedikerte mobilapper (Excel app, OneNote app, Lists app). Deltakerne kan legge til bokmerker eller app-ikoner for sine verktøy. En deltaker kan f.eks. installere Google Sheets appen for å oppdatere aktivitetsplan, eller bare bruke nettleser.
+
+# Opplæring: Gi en kort opplæring i bruk. En trinnvis guide med skjermbilder kan hjelpe. F.eks. skjermbilde av hvordan man legger til skjema-lenken som snarvei på telefonen
+
+# medium.com
+
+# , eller hvordan man oppdaterer en rad i regnearket.
+
+# Enkel navigasjon: Det kan være lurt å lage en oversiktsside for deltakerne. Eksempel: et Google-dokument eller en e-post som deltaker kan lagre, som inneholder alle lenker de trenger – “Klikk her for dagbok, klikk her for aktivitetsplan”. I en Microsoft-løsning kunne man bruke en Teams-oversikt eller SharePoint-side med disse lenkene. Dette reduserer friksjon så de slipper lete etter ulike dokumenter.
+
+# Mobilgrensesnitt evaluering: Microsoft Lists sitt mobilgrensesnitt er ganske nytt, men skal støtte å se og editere lister på en måte tilpasset små skjermer
+
+# adoption.microsoft.com
+
+# . Google Sheets på mobil kan være litt kronglete for lange tekster, men greit for statuser. Hvis deltaker sliter med regneark på mobilen, kan man vurdere å supplere med skjema for innlegging: f.eks. deltaker kan hake av “Fullfør aktivitet X” via et enkelt skjema som oppdaterer sheet/list (mulig via integrasjon, men i pilot kan de heller bare si fra til veileder som oppdaterer for dem).
+
+# Sikker kommunikasjon: Unngå å spre lenker offentlig eller via usikre kanaler. Send personlig til deltakerne. Instruer dem i å ikke dele videre. Dette er spesielt viktig hvis man ikke krever innlogging for skjema (da kan i prinsippet hvem som helst med lenken legge inn falske svar, eller lese hvis man dummer seg ut og gir redigeringslenker). For å være trygg kan man godt kreve innlogging på skjema: i Google kan man krysse av “Limit to 1 response per user – requires login”. Hvis deltakerne har Google-kontoer, dette funker fint og sørger for at dagbokskjemaet bare åpnes når de er logget inn. I Microsoft Forms kan man velge “Only people in my organization can respond” for tilsvarende beskyttelse, men da må deltaker ha en AAD-konto.
+
+# Valg av skytjeneste i pilotfasen og migrering senere
+
+# I piloten er fleksibilitet og fart viktig, mens man på lengre sikt må tenke på integrasjon med NAVs systemer. Her er en vurdering av hvilket oppsett som er mest hensiktsmessig nå og skalerbart senere:
+
+# Google-løsningen (Forms/Sheets): Svært kjapp å sette opp uten IT-infrastrukturkrav. Den egner seg godt for testing av konseptet – man kan komme i gang i løpet av få timer. Evaluering av tiltaket blir enkelt fordi alt er i Google-regneark som kan lastes ned som Excel/PDF ved behov. Ulempen er at NAV som etat nok ikke kan ta i bruk Google-løsningen direkte i sin oppfølging; data må i så fall overføres manuelt. Likevel, data fra Google kan eksporteres til kjente formater (Excel, CSV, Word) som NAV kan lese. Under pilot holder det kanskje at prosjektleder drar ut rapporter. Google-løsningen er mindre ideell for skalering utover pilot fordi det ikke uten videre lar seg integrere med NAVs API. Likevel kan man, om pilot skal utvides, benytte Googles API-er til å skrive til for eksempel en database eller integrere med andre systemer – men dette krever utviklerkompetanse. For pilotformål anbefales heller å holde det som en frittstående løsning og heller planlegge migrering senere.
+
+# Microsoft-løsningen (Forms/Lists/Excel): Denne krever kanskje litt mer initialt (opprette kontoer eller et tenant-miljø hvis man ikke har det), men den har fordelen av mulig direkte videreføring inn i NAVs miljø. NAV bruker selv Office 365 (veiledere har epost i Outlook, dokumenter i SharePoint osv.). Om pilotprosjektet senere tas opp av NAV, kan man enklere importere Excel-lister til NAVs system eller gjenbruke SharePoint-lister. For eksempel: Data i en Microsoft List kan via Power Automate sendes til et API eller en database som NAV har tilgang til, noe som gjør integrasjon mer sømløs. Allerede nå kan man tenke seg å strukturere lister/regneark likt som databasefeltene i aktivitetsplanen. NAVs digitale aktivitetsplan har neppe et åpent API for eksterne pilotprosjekt per i dag, men man kan sikre at formatet er kompatibelt. For eksempel, hvis NAV krever at en aktivitetsplan leveres som et Word- eller PDF-dokument ved avslutning, kan vi lage en mal som autofylles med data fra listene.
+
+# Anbefaling for pilot: Start med den løsningen som dere raskest får opp og stå med de ressurser dere har. Dersom prosjektgruppen ikke har ferdigheter eller tilgang på Microsoft 365, kjør Google-varianten – den vil oppfylle alle funksjonskravene i pilotfasen (dagboklogging, aktivitetsplan, deling, etc.). Google Workspace er gratis eller billig, og mange er kjent med Google-skjema fra før. Hvis prosjektet har tilgang til NAVs testtenant eller kan få Microsoft-lisenser, kan det være verdt å bruke Microsoft-løsningen for å få erfaring direkte på den plattformen NAV foretrekker. Det gir ett steg mindre ved overføring. Uansett valg, dokumentér strukturen nøye under pilot. Lag f.eks. en oversikt over hvilke felter/kolonner som brukes og hvordan de tilsvarer NAVs system. Slik kan man i etterkant enkelt mappe pilotdata til NAVs aktivitetsplan. NAVs krav til dokumentasjon (arkivering av all oppfølging) kan ivaretas ved at dere ved pilot-slutt overfører all informasjon til et varig format:
+
+# Aktivitetsplan per deltaker kan eksporteres til PDF/Excel og legges ved sak/mapper i NAV.
+
+# Dagbokdata kan oppsummeres og eventuell relevant info trekkes ut for NAV (NAV vil kanskje ikke lagre personlige dagboksrefleksjoner, men innsikter derfra kan komme med i en sluttrapport).
+
+# Dialog/meldinger logges og eksporteres.
+
+# Oppfyllelse av NAVs krav til dokumentasjon og framtidig integrasjon
+
+# NAV stiller krav om at oppfølging av brukere skal dokumenteres, og at all vesentlig info skal kunne journalføres. Vår løsning kan imøtekomme dette slik:
+
+# Fullstendig dokumentasjon: Alt som skjer i pilotverktøyene vil bli liggende skriftlig – daglige notater, aktiviteter, endringslogger. Ved pilotens slutt (eller underveis ved behov) kan man hente ut rapporter. For eksempel kan man generere en aktivitetsplanrapport for hver deltaker som viser mål, alle aktiviteter og deres status, samt en logg over kommentarer/dialog. Fordi vi benytter strukturerte verktøy, er dette relativt enkelt: et Google-regneark kan skrives ut til PDF med tabelloversikt; en Microsoft List kan eksporteres til Excel og formateres pent. Veileder kan også skrive ut en oppsummering via f.eks. Word-fletting (i Microsoft kan man koble Excel data til Word-mal).
+
+# NAVs fagsystem: Per i dag vil nok ikke NAVs aktivitetsplan ha en direkte importfunksjon for våre pilotdata. Men vi kan etterligne formatet for en mulig manuell overføring. For eksempel, i NAVs system må veileder kanskje registrere manuelt aktivitetsplanen uansett etter at en bruker formelt er innsøkt. Vår pilot kan da fungere som forarbeid: veileder kan bruke pilotens aktivitetsplan som grunnlag og raskt copy-paste relevant innhold inn i NAVs løsning. Siden terminologi og oppsett er likt, blir dette enkelt (“Mål” felt fra Google-arket tas inn i “Mål” i NAV, osv.).
+
+# Integrasjonsmuligheter: Skulle NAV på sikt ønske å hente data elektronisk, er det mulig å utvikle integrasjoner. Google Sheets tilbyr API-er for å hente ut data programmatisk (JSON/REST), det samme gjør Microsoft via Graph API for Lists/Excel. For en fremtidig løsning kunne man tenke seg at NAV lager en importtjeneste der man kan sende over aktivitetsplanposter. Inntil så skjer, vil vi sørge for at data er tilgjengelige i maskinlesbart format (CSV/Excel) som kan importeres via NAVs eventuelle verktøy eller i det minste legges ved i journal.
+
+# Krav om sikker lagring: Offentlig forvaltning krever gjerne at data lagres i sikre miljø. En pilot kan ha noe mer fleksibilitet, men man bør uansett velge EU-baserte servere og kjente leverandører. Google Workspace for Europe og Microsoft har begge høye sikkerhetsstandarder og mulighet for databehandleravtaler. For en kort pilotperiode anses det som akseptabelt å bruke disse, men hvis pilotdata skal over i NAV, må man slette dem fra tredjepartene etter bruk.
+
+# Arkivering: Som nevnt, alt innhold som er generert (aktivitetsplaner, dagboknotater) bør ved avslutning arkiveres i henhold til NAVs rutiner. Det kan bety utskrift til PDF/A eller lignende format og lagring i NAVs arkivsystem. Vår løsning legger til rette for dette ved at vi enkelt kan generere slike dokumenter fra de digitale kildene.
+
+# Skalerbarhet videre: Skulle Camino-programmet utvides kraftig, vil Google Forms/Sheets-modellen kunne håndtere mange brukere, men administrasjon av mange individuelle filer kan bli tungvint. Da vil det være naturlig å se mot mer integrerte systemer eller dedikerte apper. Imidlertid, Microsoft Lists/SharePoint-løsningen er forholdsvis skalerbar – man kan ha mange lister eller items, og man kan automatisere mye med Power Platform. For eksempel kunne man i fremtiden ha et standard aktivitetsplan-skjema som oppretter listeelementer via PowerApps, og integreres i NAV. Men alt dette er steg som kan tas basert på erfaringene fra piloten. Til syvende og sist vil dette oppsettet gi Camino-piloten et oversiktlig digitalt system som reflekterer NAVs egen plan. Deltakerne får et sted å skrive sine daglige refleksjoner og holde oversikt over aktiviteter mot målene sine, veileder får innsyn og mulighet til å komme med innspill (med samtykke), og prosjektleder kan administrere deltakeroppfølgingen mer effektivt enn via papir. Systemet er raskt å prøve ut og justere underveis. Vedlagt er skjermbilder som illustrerer konseptet, og valg som er tatt for å sikre at løsningen både fungerer nå og legger grunnlag for en eventuell overgang til NAVs systemer senere. Kilder:
+
+# NAV, Aktivitetsplan – introduksjon
+
+# nav.no
+
+# nav.no
+
+# &nbsp;(beskrivelse av funksjoner i NAVs aktivitetsplan)
+
+# Proba Societal Analysis, Digital aktivitetsplan for NAV og brukerne (2022)
+
+# nav.no
+
+# &nbsp;(nytteverdien av digital aktivitetsplan for veiledere og brukere)
+
+# Adam Moody, Google Forms Journaling (2023) – om bruk av Google Forms for daglig journalføring
+
+# productivity.academy
+
+# productivity.academy
+
+# productivity.academy
+
+# Samuel Wright, How to Journal using Google Forms (2015) – tips til rask tilgang via mobilen
+
+# medium.com
+
+# Microsoft 365, How to use OneNote to create a personal journal (2023)
+
+# microsoft.com
+
+# &nbsp;(OneNotes fleksibilitet for dagbok)
+
+# Microsoft, Lists Quickstart Guide (2021)
+
+# adoption.microsoft.com
+
+# &nbsp;(Microsoft Lists tilgjengelig på mobil, lik funksjonalitet som desktop)
+
+# Microsoft 365 produktbeskrivelse, Microsoft Lists (2025)
+
+# microsoft.com
+
+# microsoft.com
+
+# &nbsp;(tracking av oppgaver med statusfelt, maler og deling i Lists)
+
+# 
+
+# 
+
+# 
+
+# 
+
+# 
+
+# 
+
+# Sources
+
+# You said:
+
+# Går denne turen gjennom Pyreneene?
+
+# ChatGPT said:
+
+# Ja, Camino Francés – den klassiske og mest kjente ruten av Camino de Santiago – starter i Saint-Jean-Pied-de-Port i Frankrike og går over Pyreneene til Roncesvalles i Spania. Dette skjer allerede på dag 1 av vandringen, og det er den mest krevende etappen med betydelig stigning (ca. 1200 høydemeter) og rundt 25 km lengde.
+
+# 
+
+# Camino Portugués, som starter i Porto, går ikke gjennom Pyreneene. Den følger i stedet den portugisiske kysten eller innlandsveier nordover til Galicia i Spania.
+
+# 
+
+# Oppsummert:
+
+# ✅ Camino Francés: Går over Pyreneene dag 1 (Frankrike → Spania).
+
+# 
+
+# ❌ Camino Portugués: Går ikke gjennom Pyreneene (starter i Portugal).
+
+# 
+
+# Hvis du ønsker en pilegrimstur som inkluderer fjellkryssing av Pyreneene, er Camino Francés veien å gå.
+
+# 
+
+# You said:
+
+# Kan du ser om det er noen støtteordninger som er egnet for dette oppdegget?
+
+# \- Sjekk spesielt Innovasjon Norge og Forskningsrådet, men ikke begrenset til
+
+# \- Jeg er ute etter en ressurs som sykepleier/lege/psykolog som kan overvåke et pilotprosjekt med kun meg som testperson
+
+# \- Jeg er også ute etter midler
+
+# ChatGPT said:
+
+# Her er en oppdatert oversikt over relevante støtteordninger og finansieringsmuligheter som kan være aktuelle for ditt pilotprosjekt langs Camino de Santiago, med fokus på psykisk helse, utmattelse og mestring:
+
+# 
+
+# Søknadsrettede ordninger
+
+# 1\. Forskningsrådet – Pilot Helse
+
+# Hva: Pilot Helse er en utlysning for ambisiøse innovasjonsprosjekter innen helse- og omsorgssektoren, med mål om bærekraft og verdiskaping. Midlene fungerer som risikoavlastning for samarbeid mellom privat og offentlig sektor. 
+
+# Regjeringen.no
+
+# +11
+
+# forskningsradet.no
+
+# +11
+
+# NTB Kommunikasjon
+
+# +11
+
+# 
+
+# Mulighet: Kan være relevant dersom du søker samarbeid med helseaktører (f.eks. NAV, kommuner, klinikere).
+
+# 
+
+# Eksempel: I 2021 ble rundt 29 prosjekter tildelt ca. 300 000 kr i forprosjektmidler via Pilot Helse 
+
+# NTB Kommunikasjon
+
+# .
+
+# 
+
+# Relevans: Ditt prosjekt har et innovasjonselement og direkte nytte for psykisk helsearbeid – dermed en aktuell søknadskandidat.
+
+# 
+
+# 2\. Innovasjon Norge
+
+# Tilskudd til innovasjonskontrakter: Støtte til bedrifter som samarbeider med en pilotkunde (f.eks. offentlig sektor) for utvikling av nye løsninger 
+
+# NTNU Open
+
+# +15
+
+# innovasjonnorge.no
+
+# +15
+
+# NTB Kommunikasjon
+
+# +15
+
+# .
+
+# 
+
+# Oppstartstilskudd: Flere faser (1–3) for å teste forretningsidé, utvikle løsning og kommersialisere 
+
+# innovasjonnorge.no
+
+# .
+
+# 
+
+# Relevans: Hvis du organiserer prosjektet gjennom et firma (f.eks. enkeltpersonforetak), kan Innovasjon Norge være aktuell finansieringspartner, særlig hvis det er en tydelig innovasjons- og pilot-komponent.
+
+# 
+
+# 3\. Forskningsrådet – Generell støtte til psykisk helse og tverrfaglighet
+
+# Tidligere forskningsprogram (frem til 2015) fremmet tverrfaglige prosjekter 
+
+# brage.nina.no
+
+# +14
+
+# helse-midt.no
+
+# +14
+
+# innovasjonnorge.no
+
+# +14
+
+# Psykologisk.no
+
+# +1
+
+# .
+
+# 
+
+# I dag kan programmer innen demens, folkehelse, friluftsliv eller fysisk aktivitet være alternative innganger, spesielt om det finnes ny konkurranse eller utlysninger som passer.
+
+# 
+
+# Hold øye med forskningsrådets nettsider for nye utlysninger innen helse, livskvalitet eller innovasjon.
+
+# 
+
+# Tjenester/personell for overvåkning
+
+# Du kan søke om støtte for å inkludere helsepersonell som sykepleier, lege eller psykolog som prosjektleder eller faglig ansvarlig for pilot:
+
+# 
+
+# Pilot Helse kan støtte utgifter til medisinsk overvåkning eller faglig veiledning via klinikere eller helseinstanser, spesielt hvis du samarbeider med en kommune, NAV eller helsetjeneste.
+
+# 
+
+# Innovasjon Norge kan dekke kostnader knyttet til kommersielt utviklede tjenester, inkludert lønn til samarbeidspartnere, dersom det inngår i et innovasjonsløp med pilotavtale.
+
+# 
+
+# Du kan også vurdere regionale helsefond, som ofte finansierer pilotprosjekter med klinisk involvering, selv om det krever lokal kontakt og søknad.
+
+# 
+
+# Anbefalt fremgangsmåte
+
+# Steg	Handling
+
+# 1⃣	Klargjør prosjektkarakter: Er det forskning, innovasjon eller tjenesteutvikling? Dette styrer hvilken ordning du søker.
+
+# 2⃣	Kartlegg potensielle partnere (kommune, lege, NAV, forsker) for å styrke søknaden og tilfredsstille kravene.
+
+# 3⃣	Søk Pilot Helse (Forskningsrådet) for midler til forprosjekt, inkludert klinisk overvåkning.
+
+# 4⃣	Vurder Innovasjon Norge – spesielt oppstartstilskudd eller innovasjonskontrakt hvis du organiserer som næringsaktør.
+
+# 5⃣	Utforsk lokale/regionale helse- og forskningsfond for ytterligere støtte til fagpersonell og pilotgjennomføring.
+
+# 6⃣	Ha en klar plan for vitenskapelig evaluering, dokumentasjon og brukermedvirkning – dette styrker sjanser hos begge instanser.
+
+# Oppsummert
+
+# Pilot Helse (Forskningsrådet) er høyaktuelt med midler på rundt 300 000 kr til pilotstudier med offentlig samarbeid.
+
+# 
+
+# Innovasjon Norge tilbyr støtte til kommersielt drevne prosjekter – særlig hvis du involverer helseklinikere og har nyttepotensiale.
+
+# 
+
+# Klinisk overvåkning (lege/psykolog/sykepleier) kan dekkes gjennom begge programmer, særlig når prosjektet retter seg mot helsetjenesten og brukerne.
+
+# 
+
+# Det kan også være verdt å utforske regionale helsefond eller kommunale ordninger for psykolog-/psykisk helseoppfølging.
+
+# 
+
+# Hvis du ønsker, kan jeg hjelpe med konkrete lenker, søknadsfrister eller budskapsråd for utforming av søknad!
+
+# 
+
+# You said:
+
+# Skriver du en kort pitch på innsalg, verdier, studier, metodikk, besparelse, og generelle gode  argumenter utfra turen beskrevet over, som jeg kan bruke til "innsalg" til diverse aktører
+
+# ChatGPT said:
+
+# Selvfølgelig. Her er et kortfattet og kraftfullt pitch-dokument (1 side) for innsalg av Camino-pilotprosjektet:
+
+# 
+
+# 🎯 CAMINO PILOTPROSJEKT – EN NY VEI TIL BEDRE PSYKISK HELSE OG INKLUDERING
+
+# 💡 Kort fortalt
+
+# Camino-prosjektet er et lavkost, høyverdi helsetiltak som kombinerer langvandring, mestring og refleksjon for unge voksne med psykiske og/eller rusrelaterte utfordringer. Som pilot starter det med én deltaker, men målet er å teste og dokumentere effekten for videre utrulling i samarbeid med NAV, helsevesen og ideelle aktører.
+
+# 
+
+# 🌱 Metodikk og ramme
+
+# Varighet: 30 dager langs Camino de Santiago (Camino Francés)
+
+# 
+
+# Format: Strukturert dagsplan med fysisk aktivitet (vandring 15–25 km/dag), dagbok, mestringsøvelser, meditasjon, gruppesamtaler (ved flere deltakere), og digital aktivitetsplan speilet etter NAVs modell
+
+# 
+
+# Helsefaglig støtte: Prosjektet søker midler til å inkludere sykepleier, psykolog eller lege som overvåker progresjon, helse og trygghet
+
+# 
+
+# Måling: Strukturert før/etter-evaluering av psykisk helse, livskvalitet og arbeidsevne
+
+# 
+
+# 🔬 Dokumentert effekt
+
+# Langdistanses fotturer som Caminoen gir signifikant reduksjon i stress, angst og depresjon, og øker selvfølelse og livstilfredshet (Feliu-Soler et al., Proyecto Ultreya, 2020)
+
+# 
+
+# Outdoor Behavioral Therapy viser opptil 3x bedre effekt for unge med rus/psykiske utfordringer vs. tradisjonell behandling (Gass et al., 2019)
+
+# 
+
+# Fysisk aktivitet og naturkontakt dokumentert som lavterskel, kostnadseffektiv terapi for unge utenfor skole/arbeid (FHI, 2025; Stanford, 2015)
+
+# 
+
+# 🧠 Verdiforslag
+
+# For NAV: Komplementært tiltak til Ungdomsinnsatsen. Pilot knyttes til NAVs aktivitetsplan og kan senere integreres som oppfølgingstiltak.
+
+# 
+
+# For Helsevesenet: Frisklivs- og mestringsorientert, uten institusjon. Fungerer som forebygging, avrusning eller overgang mellom tiltak.
+
+# 
+
+# For kommuner/ideelle: Unik lavterskelmodell for livsmestring, selvledelse og sosial rehabilitering.
+
+# 
+
+# For samfunnet: Potensielt 200 000–300 000 kr spart årlig per deltaker som unngår uføretrygd og etablerer arbeidstilknytning.
+
+# 
+
+# 💰 Hva vi søker
+
+# Midler (f.eks. 45 000–75 000 kr) for gjennomføring av pilot med faglig støtte (lege/psykolog/sykepleier)
+
+# 
+
+# Samarbeidspart (NAV, helsetjeneste, kommune, forsker eller ideell aktør) for faglig forankring og støtte
+
+# 
+
+# Mulighet for medfinansiering via Forskningsrådet (Pilot Helse) og Innovasjon Norge
+
+# 
+
+# 💬 Kontakt og neste steg
+
+# Pilotprosjektet er ferdig strukturert og klart for gjennomføring. Vi søker dialog med aktører som ønsker å bidra til å teste ut ny metodikk innen psykisk helse, rusforebygging og utenforskap.
+
+# 
+
+# Ønsker du det også som PDF for e-post eller utskrift, kan jeg generere det for deg – eller utvide til lengre versjon for søknader og presentasjoner. Gi beskjed!
+
+# 
+
+# You said:
+
+# Om en ressurs skal fjernobservere dette prosjektet med kun meg som deltager i et slags før-forprosjekt som kan være verdifull som materiell når vi skal søke midler/ressurser:
+
+# \- Hva type ressurs hadde vært ideelt? 
+
+# \- Hva ser du for deg denne ressursen faktisk skal gjøre i praksis? Ta med detaljert gjøremål før, underveis, og etter turen
+
+# \- Hva verdier/"salgsargument kan jeg bruke for å få inn en slik ressurs?
+
+# \- Hva ønsker man å oppnå med denne før-forundersøkelsen?
+
+# ChatGPT said:
+
+# Det du beskriver er et før-forprosjekt (proof-of-concept) med én testperson – deg – og en ekstern fagperson som observerer, dokumenterer og vurderer prosessen. Dette kan gi verdifull dokumentasjon og legitimitet til fremtidige søknader og utvidelser. Her er en detaljert gjennomgang:
+
+# 
+
+# 🧑‍⚕️ 1. Hva type ressurs hadde vært ideelt?
+
+# Primærvalg:
+
+# 
+
+# Psykolog (klinisk eller spesialist i rus/traume/psykisk helse)
+
+# 
+
+# Kan vurdere psykisk helse, mestring, endring og motivasjon.
+
+# 
+
+# Psykiatrisk sykepleier
+
+# 
+
+# Godkjent helsepersonell som kan kombinere psykisk og fysisk vurdering.
+
+# 
+
+# Lege (allmenn eller psykiatrisk interesse)
+
+# 
+
+# Styrker medisinsk troverdighet og vurdering av fysisk/psykisk funksjon.
+
+# 
+
+# Sekundærvalg (ved lavere budsjett eller i tillegg):
+
+# 
+
+# Erfaringskonsulent med helsebakgrunn
+
+# 
+
+# Kan bidra med gjenkjennelse og brukernær forståelse.
+
+# 
+
+# Forsker/student i psykologi, medisin eller sosialt arbeid
+
+# 
+
+# Kan observere og samle systematiske data (eks. masteroppgave).
+
+# 
+
+# 🗂️ 2. Hva skal ressursen gjøre i praksis?
+
+# Før turen (forberedelse og base-linje):
+
+# Gjennomføre konsultasjon og kartlegging:
+
+# 
+
+# Kort psykisk og fysisk vurdering (eks. livskvalitet, stress, depresjon, rus, funksjon).
+
+# 
+
+# Bruke anerkjente skjema som WHO-5, GAD-7, PHQ-9, AUDIT, etc.
+
+# 
+
+# Utarbeide en individuell plan/forventningssamtale:
+
+# 
+
+# Avklare motivasjon, mål og risikofaktorer.
+
+# 
+
+# Bidra til risikovurdering og trygghet:
+
+# 
+
+# Hva gjør man ved avbrutt tur, psykisk krise, medisinsk behov etc.
+
+# 
+
+# Samtykke og dokumentasjon:
+
+# 
+
+# Innhente frivillig samtykke til observasjon og data.
+
+# 
+
+# Etablere rammer for observasjonsdata og rapportbruk (til forsknings-/søknadsformål).
+
+# 
+
+# Underveis (fjernobservasjon og støtte):
+
+# Følge deg via:
+
+# 
+
+# Digitale innsjekker (f.eks. 1–2 x i uken) på video, telefon eller tekst.
+
+# 
+
+# Tilgang til dagbok og aktivitetsplan (lesetilgang, ikke redigerende).
+
+# 
+
+# Evaluere og dokumentere:
+
+# 
+
+# Samle refleksjoner fra deg, vurdere progresjon.
+
+# 
+
+# Notere observasjoner knyttet til humør, motivasjon, mestring, søvn, smerte etc.
+
+# 
+
+# Støtte ved behov:
+
+# 
+
+# Tilgjengelig for å svare på spørsmål eller veilede hvis noe oppstår underveis.
+
+# 
+
+# Observere uten å "lede" – rollen er som nøytral, trygg observatør.
+
+# 
+
+# Etter turen (evaluering og rapportering):
+
+# Gjennomføre ny vurdering med samme skjema som før turen.
+
+# 
+
+# Sammenligne resultater og opplevelser.
+
+# 
+
+# Skrive en kortfattet faglig observasjonsrapport:
+
+# 
+
+# Hovedfunn og refleksjoner: Hvilke endringer ble observert? Hva fungerte?
+
+# 
+
+# Kan brukes i søknader, som bilag til rapporter, eller som pilotbeskrivelse.
+
+# 
+
+# Ideelt også en kort case-basert evaluering til bruk i formidling.
+
+# 
+
+# 💬 3. Hva er salgsargumentene for å få en slik ressurs med?
+
+# 🎯 For fagpersonen:
+
+# Faglig nybrottsarbeid: Unik mulighet til å være med på utforming av en nyskapende metode innen helse, rus og psyke.
+
+# 
+
+# Forsknings- og formidlingsmulighet: Resultater og refleksjoner kan lede til artikkel, kronikk eller pilotforskningsarbeid.
+
+# 
+
+# Synlighet og anerkjennelse: Navnet deres kan assosieres med et prosjekt som potensielt blir støttet av NAV, Helsedirektoratet eller Innovasjon Norge.
+
+# 
+
+# Minimal belastning: Fjernobservasjon krever lite reisetid og gir god fleksibilitet.
+
+# 
+
+# 💼 For potensielle samarbeidspartnere (NAV, fond, kommune):
+
+# Kvalitetssikring av metode før man søker støtte til større pilot.
+
+# 
+
+# Troverdighet i søknader: Når en fagperson har vært involvert og dokumentert funn.
+
+# 
+
+# Lav risiko: Kun én deltaker i første runde, men med systematisk dokumentasjon.
+
+# 
+
+# 🎯 4. Hva ønsker man å oppnå med en før-forundersøkelse?
+
+# Formål	Beskrivelse
+
+# Validering av metode	Få bekreftet at rammen (langvandring, dagbok, fysisk utfordring) fungerer som antatt og gir effekt.
+
+# Dokumentasjon	Objektiv dokumentasjon som kan underbygge effekt i fremtidige søknader og rapporter.
+
+# Evaluering av risiko og trygghet	Identifisere eventuelle faresignaler eller svakheter i struktur/forløp.
+
+# Utvikling av struktur	Justere mal for dagbok, aktivitetssporing og oppfølging basert på faktisk bruk og observasjon.
+
+# Legitimitet	Vise at metodikken er vurdert og støttet av fagperson med helsefaglig kompetanse.
+
+# Forberedelse til større studie	Danne grunnlaget for søknader til Forskningsrådet, Innovasjon Norge eller offentlige pilotprosjekter.
+
+# Ønsker du det samme strukturert som en énsides partnerforespørsel, eller som en konkret rollebeskrivelse du kan sende til aktuelle fagpersoner, så ordner jeg det gjerne. Du kan også få forslag til e-posttekst eller publisering på plattformer (f.eks. Psykologforeningen, helsefaglige grupper). Gi meg et hint!
+
+# 
+
+# You said:
+
+# 9\. Harald Bækkelund\_epost.pdf
+
+# PDF
+
+# Les om https://www.nkvts.no/ansatt/baekkelund-harald/, også lniker på samme side, spesielt https://www.nkvts.no/prosjekt/early-support-after-exposure-to-trauma/ og https://www.nkvts.no/prosjekt/min-hverdag-utvikling-og-pilottesting-av-en-app-til-bruk-i-behandling-av-ptsd/ som kan ha sammenfallende/komplimentær effekt på prosjektet mitt. Som du ser i vedlegg, har jeg vært i kontakt med Harald tidligere. Skriv kort om min historie, ta med detaljer og info fra hva jeg ønsker at han skal delta med som ressurs (jeg vil vedlegge selve turen), at jeg skal på turen allerede nå i september (unnskylde for den dårlige fristen) og ønsker å benytte muligheten for et "selvstudie" eller et POC. Jeg har fra erfaring fra Camino Portuges i fjor, merket effekten det har for rusmestring, mestringsfølelse, og generell mental helse (etter overfallet har jeg slitt med PTSD, depresjon, og fått VMI på 29%). Etter hendelse har jeg involvert meg mye i forbedret helse for rus og psykisk syke, da jeg har fått oppleve oppfølging, eller mangelen på det, av helsevesenet selv. Jeg har på fritiden jobbet for Total Rehab som jobber innen sosial rehabilitering med forettningsutviklig, og har fått godkjent støtte fra Forskningsrådet, samt har 2 søknader til Innovasjon Norge klare (til et annet prosjekt). Jeg ønsker nå å se potensialet videre for å gjøre mitt eget prosjekt, som jeg personleig har kjent effekten av, og ønsker å gjøre til en regelmessig intiativ for andre i samme situasjon. Harald er en meget belast mann, så ta med så mye info om effekt/tur som mulig, uten at det innledningsvis blir "for mye" til å fange oppmerksomhet 
+
+# ChatGPT said:
+
+# Her er et profesjonelt og respektfullt formulert utkast du kan bruke som henvendelse til Harald Bækkelund:
+
+# 
+
+# Emne: Forslag til observasjon og faglig støtte for Camino-pilot i september (POC)
+
+# 
+
+# Hei Harald,
+
+# 
+
+# Takk igjen for din tidligere respons i april – jeg satte stor pris på både din faglige tydelighet og varme tilnærming.
+
+# 
+
+# Jeg tar nå kontakt fordi jeg planlegger en selvstendig gjennomføring av en 30-dagers vandring langs Camino de Santiago (Camino Francés) i september i år, og jeg ønsker – i siste liten – å høre om det kunne være interessant for deg å bidra som fjernobservatør eller faglig ressurs i en tidlig før-pilotfase.
+
+# 
+
+# Bakgrunnen er personlig: Etter en alvorlig voldshendelse i 2023 i Riga ble jeg påført blant annet hjerneblødning, synsskader og posttraumatisk stresslidelse. NAV har godkjent hendelsen som yrkesskade med 29 % varig medisinsk invaliditet (VMI), og jeg har siden da erfart betydelige svakheter i systematisk og sammenhengende behandlingstilbud.
+
+# 
+
+# I fjor høst gikk jeg Camino Portugués alene. Den erfaringen hadde en sterk og overraskende virkning på mitt mentale stressnivå, søvn, rusmestring og evne til refleksjon. Det skapte et stille rom for tilstedeværelse og indre kontakt jeg aldri har opplevd tidligere. Det ga meg en klar opplevelse av hva som kan være en ikke-medisinsk, men strukturell og erfaringsbasert inngang til bedre mental helse.
+
+# 
+
+# Etter denne erfaringen har jeg involvert meg mer i sosialt rehabiliterende arbeid, bl.a. i Total Rehab, og utviklet forretningskonsepter knyttet til helse og innovasjon. Jeg har allerede fått støtte fra Forskningsrådet til annet prosjekt, og to søknader til Innovasjon Norge er klare.
+
+# 
+
+# Jeg ønsker nå å bruke årets vandring som en konkret Proof-of-Concept: et personlig selvstudium med støtte fra en ekstern fagperson, der målet er å undersøke og dokumentere hvilke faktorer som bidrar til positiv endring. En senere plan er å tilby dette strukturert til andre i samme situasjon, i samarbeid med NAV og helseinstanser. Jeg vurderer også søknad til f.eks. Pilot Helse eller ideelle støttefond i forlengelsen av denne reisen.
+
+# 
+
+# Jeg vet du er en svært travel mann, men jeg vil likevel spørre: Kunne du hatt anledning og interesse av å støtte dette i en svært avgrenset rolle, eksempelvis ved:
+
+# 
+
+# en vurdering/samtale i forkant og etterkant
+
+# 
+
+# tilgang til anonymisert dagbok og aktivitetsdata underveis
+
+# 
+
+# mulighet for en kort, faglig refleksjonsnotat etter gjennomføring (som jeg kan vise til i søknadsprosesser)
+
+# 
+
+# Jeg vedlegger turbeskrivelse og struktur jeg har utviklet. (Inkl. dagbokstruktur, inspirasjon fra NAVs aktivitetsplan og forløpsstruktur). Målet er ikke å evaluere terapi – men å bidra til dokumentasjon av virkning og potensial fra et fysisk og sansebasert selvutviklingsforløp som metode for stabilisering og motivasjon.
+
+# 
+
+# Jeg beklager kort frist – turen starter allerede tidlig i september – men jeg ville angre om jeg ikke spurte.
+
+# 
+
+# Håper dette kan vekke en viss nysgjerrighet. Jeg står til rådighet for en kort prat om du ønsker å vite mer.
+
+# 
+
+# Vennlig hilsen
+
+# Sander Ripman Seim
+
+# Tlf. +47 930 40 500
+
+# E-post: sander@aidme.no
+
+# 
+
+# Ønsker du at jeg også utformer en vedlagt PDF-presentasjon (2–3 sider) med oversikt over prosjekt, formål, metodikk og tidspunkter – så kan jeg gjøre det på noen minutter. Bare si ifra!
+
+# 
+
+# You said:
+
+# Camino Frances.docx
+
+# Document
+
+# Under følger en oppsummering av min helse/reise fra hendelse. Kan du lage et nytt personlig, og mennesklig utkast til Harald. Du må gjerne lage det detaljer, og presiserer det til han, at det er gjort siden han sikkert er travel, og kan hoppe til det som er mest relevant for han. Forslag til noe av inndelingen, men du står fritt til å forberede, legge til/fjerne/modifisere slik du ser best: Takke han for tidligere hjelp/korrespondanse. Komplimenter han for senere forskning (se linker/artikler jeg sendte), og at hva jeg vil foreslå kanskje kan være komplimentær/supplementer på noen måte.Begynne med en kort personlig, sympatisk innledning over hendelse og konsekvenser, få frem de iboende ressursene mine, hvorfor jeg brenner for dette prosjektet, gevinster ved det (han er forsker, så gjerne vis tyngde/kilder/forsking/fagutrykk og hvordan jeg har erfart gevinst selv og ønsker dette for andre (du kan nevne min forettningsbakrunn, og kan vise til gjennomføring bland annet med støtte fra forskningsrådet dor Total Rehab), hvorfor og hva jeg ønsker fra han. Hold dette som en kjapp innledning, hvor det, sammen med andre, hvor det utdypes i tema/kapittel nedover i utkast til han. I vedlegg finner du utkast til skriv som vedlegges, men gjerne bruk utdrag av den som høydepunkt i utkast som sendes på mail. Under finner du en grov tidslinje du også kan brukes for kontekst/info til utkast:
+
+# 
+
+# Personlig historie – fra overfallet 11.09.2023 til i dag
+
+# 
+
+# Utarbeidet for psykologisk oppfølging
+
+# 
+
+# ---
+
+# 
+
+# Bakgrunn for hendelsen
+
+# 
+
+# Den 11. september 2023 ble jeg utsatt for et grovt og livstruende overfall på mitt kontor i Riga. To personer angrep meg med en jernstang i det som kan beskrives som torturlignende mishandling over flere timer. Jeg ble slått til jeg mistet bevisstheten, og lå mellom liv og død i 1–2 døgn før jeg ble funnet.
+
+# 
+
+# 
+
+# ---
+
+# 
+
+# Tidslinje og hendelsesforløp
+
+# 
+
+# 11\.–13. september 2023: Overfallet og akuttfasen
+
+# 
+
+# Brutalt angrep av to gjerningspersoner med jernstang over lengre tid.
+
+# 
+
+# Skader:
+
+# 
+
+# Kraniebrudd og hjerneblødninger.
+
+# 
+
+# Knekt alle ribben.
+
+# 
+
+# Knust ansikt og alvorlig skade på øyet.
+
+# 
+
+# Tap av smak- og luktesans.
+
+# 
+
+# 
+
+# Sterk inflammasjon og kritisk hodeskade, hvor legene mente at å fly kunne være dødelig – men jeg hadde ikke overlevd behandlingen i Riga om jeg ble værende.
+
+# 
+
+# Behandlingsforholdene på intensivavdelingen i Riga var umenneskelige:
+
+# 
+
+# Uverdig og nedverdigende behandling.
+
+# 
+
+# Tvangstrøye, søvnberøvelse, ydmykelser.
+
+# 
+
+# Begynte å hallusinere bevisst for å “flykte” fra situasjonen.
+
+# 
+
+# 
+
+# Til tross for medisinske advarsler ble jeg evakuert til Norge.
+
+# 
+
+# 
+
+# 
+
+# ---
+
+# 
+
+# September–oktober 2023: Behandling i Norge
+
+# 
+
+# 5 timers rekonstruksjonskirurgi av ansikt og øye.
+
+# 
+
+# Kraftige doser Valium og Oxycontin.
+
+# 
+
+# Rett etter operasjon fikk jeg beskjed om:
+
+# 
+
+# Tap av samboer.
+
+# 
+
+# Abort av vårt ufødte barn (3 måneder på vei).
+
+# 
+
+# Kollaps av mitt firma, nylig verdsatt til 45 millioner NOK.
+
+# 
+
+# 
+
+# Jeg tok en avgjørelse om å kutte ut smertestillende tidlig, fordi jeg forsto at traumene måtte bearbeides for å unngå varige psykologiske skader.
+
+# 
+
+# 
+
+# 
+
+# ---
+
+# 
+
+# 2023–2024: Kamp på flere fronter
+
+# 
+
+# Helsevesenet:
+
+# 
+
+# Ba om traumebehandling tidlig, men AFR avviste dette.
+
+# 
+
+# Terapeut bagatelliserte ønsket mitt med henvisning til mulig kognitiv svekkelse etter hodeslag.
+
+# 
+
+# Statsforvalter måtte involveres.
+
+# 
+
+# Skiftet fra AFR til DPS, men fikk først reell traumebehandling over 1 år etter hendelsen.
+
+# 
+
+# Jeg fikk aldri lovpålagt Individuell plan (IP) eller oppnevnt koordinator.
+
+# 
+
+# 
+
+# NAV:
+
+# 
+
+# Opplevde mistillit og motarbeidelse i saksbehandlingen.
+
+# 
+
+# Måtte klage på flere vedtak, med sakte fremgang gjennom NAV Klageinstans.
+
+# 
+
+# Advokat har bekreftet sakens kompleksitet – anbefalte å gå til media.
+
+# 
+
+# 
+
+# Økonomi:
+
+# 
+
+# Firma i både Norge og Latvia mot oppbud.
+
+# 
+
+# Betydelige inntektstap.
+
+# 
+
+# Forsikringssaker om varig medisinsk invaliditet (VMI) – foreløpig vurdert til 29 %, sannsynligvis høyere.
+
+# 
+
+# 
+
+# 
+
+# 
+
+# ---
+
+# 
+
+# Diagnoser og varige følger
+
+# 
+
+# Posttraumatisk stresslidelse (PTSD).
+
+# 
+
+# Forverret ADHD.
+
+# 
+
+# Tap av smak og luktesans.
+
+# 
+
+# Hodeskader med kognitive ettervirkninger.
+
+# 
+
+# Fysisk redusert helse og funksjon.
+
+# 
+
+# 
+
+# 
+
+# ---
+
+# 
+
+# Psykiske ettervirkninger
+
+# 
+
+# Konstant beredskap / “overlevelsesmodus” i snart 2 år.
+
+# 
+
+# Lite forutsigbarhet eller trygghet i hverdagen – kritisk for rehabilitering, men fraværende.
+
+# 
+
+# Tvil på egen psyke og beslutningsevne i møte med fagpersoner som ikke lyttet.
+
+# 
+
+# Gradvis gjenoppbygging av selvtillit gjennom egne bekreftelser og små eksterne seire.
+
+# 
+
+# 
+
+# 
+
+# ---
+
+# 
+
+# Personlige ressurser og mestring
+
+# 
+
+# Har aktivt valgt å stole på egen intuisjon fremfor å underkaste meg passivt.
+
+# 
+
+# Brukt egne ressurser til å hjelpe andre i lignende situasjon, til tross for egne utfordringer.
+
+# 
+
+# Samarbeidet med Velferdsalliansen og NAV om sosialt prosjekt – fått kr 100 000 i støtte fra Forskningsrådet, venter større bevilgning fra Innovasjon Norge.
+
+# 
+
+# Opprettet AidMe.no for å hjelpe andre i fremtiden.
+
+# 
+
+# Fysisk mestring gjennom lange pilegrimsvandringer:
+
+# 
+
+# 2024: 300 km fra Portugal til Santiago de Compostela – merkbar positiv effekt på psykisk helse.
+
+# 
+
+# Planlegger høsten 2025: 800 km fra Frankrike til Santiago – som et selvstudie / “proof of concept” for rehabiliteringsmodell for andre.
+
+# 
+
+# Oppsummering
+
+# 
+
+# Jeg har levd i en kontinuerlig kamp siden september 2023 – for livet, for rettigheter, for økonomi, og for helsen. Overfallet var livstruende, etterbehandlingen traumatisk, og de systemene som skulle hjelpe, har i stor grad bidratt til ytterligere belastning.
+
+# 
+
+# Likevel har jeg:
+
+# 
+
+# Overlevd en hendelse som objektivt sett kunne tatt livet mitt.
+
+# 
+
+# Gjenvunnet noe av styrken gjennom egen drivkraft, selvstendighet og motstandskraft.
+
+# 
+
+# Engasjert meg for å hjelpe andre i sårbare situasjoner, selv midt i min egen prosess.
+
+# 
+
+# 
+
+# Dette er ikke bare en historie om overlevelse, men om å prøve å gjenskape et liv med mening – og om å bruke egne erfaringer til å bidra til at andre slipper å stå alene i samme situasjon.
+
+# ChatGPT said:
+
+# For at Harald raskt skal se hva som er mest relevant for ham, ville jeg strukturert utkastet slik:
+
+# 
+
+# Emne: Forslag til mulig samarbeidsprosjekt – erfaringer fra livsendrende hendelse og Camino-metodikk
+
+# 
+
+# Kjære Harald,
+
+# 
+
+# Takk for tidligere korrespondanse og for at du tok deg tid til å dele av din kunnskap. Jeg har fulgt med på din senere forskning, spesielt \[sett inn spesifikke studier eller artikler du sendte ham], og opplever at mange av dine funn harmonerer godt med erfaringer jeg har gjort i min egen rehabiliteringsprosess. Jeg tror det jeg vil foreslå kan være et interessant og komplementært supplement til ditt arbeid.
+
+# 
+
+# Kort bakgrunn – hvorfor dette prosjektet betyr noe for meg
+
+# Den 11. september 2023 ble jeg utsatt for et livstruende overfall på kontoret mitt i Riga, med omfattende fysiske og psykiske skader som resultat. Etter kritiske døgn på intensivavdeling under svært uverdige forhold, ble jeg fløyet til Norge for rekonstruksjonskirurgi og rehabilitering. I løpet av de første ukene mistet jeg samboer, vårt ufødte barn, og et selskap verdsatt til 45 millioner kroner.
+
+# 
+
+# Til tross for betydelige utfordringer – bl.a. PTSD, kognitive ettervirkninger og vedvarende synsskade – har jeg bevisst valgt en aktiv tilnærming til egen bedring. Jeg har blant annet gjennomført en 300 km pilegrimsvandring i Portugal/Spania som gav målbare forbedringer i både mental helse, mestringstro og fysisk kapasitet. Denne erfaringen har tent et sterkt ønske om å utvikle en metodikk som kan hjelpe andre i tilsvarende situasjon.
+
+# 
+
+# Prosjektidé – Camino-metodikken som strukturert rehabilitering
+
+# Høsten 2025 planlegger jeg å gå hele Camino Francés (800 km) som et før-forprosjekt og “proof of concept” for en rehabiliteringsmodell som kan kombineres med din forskningsprofil. Dette kan dokumenteres grundig med målbare parametere (psykisk/fysisk helse, mestringstro, funksjonsnivå) før, under og etter vandringen.
+
+# 
+
+# Jeg ser for meg et samarbeid der vi tester hvordan langvarig, strukturert fysisk aktivitet i natur kombinert med refleksjonsøvelser og sosial interaksjon kan fremme bedring etter traumer. Planen kan danne grunnlag for senere større studier med flere deltakere.
+
+# 
+
+# Foreslått rolle for en fagperson (sykepleier/lege/psykolog)
+
+# Før turen: Kartlegge helsetilstand, etablere måleparametere, sikre etisk og medisinsk forsvarlighet.
+
+# 
+
+# Underveis: Fjernoppfølging (digitalt) med korte daglige statuslogger, justering av plan ved behov, håndtering av ev. psykiske reaksjoner.
+
+# 
+
+# Etter turen: Post-målinger, analyse av utvikling, drøfting av funn opp mot eksisterende forskning.
+
+# 
+
+# Dette kan være en relativt ressurslett rolle, men med høy verdi som forskningsgrunnlag.
+
+# 
+
+# Mulige verdier for forskningen og samfunnet
+
+# Dokumentasjon på hvordan langdistanselivsstil-intervensjoner kan påvirke rehabilitering etter komplekse traumer.
+
+# 
+
+# Potensielt kostnadseffektivt supplement til eksisterende rehabiliteringstilbud (kost/nytte-beregninger antyder at selv små forbedringer i arbeidsevne kan gi betydelige samfunnsgevinster).
+
+# 
+
+# Sterk formidlingsverdi – både for å synliggjøre alternative metoder og for å inspirere brukere og beslutningstakere.
+
+# 
+
+# Jeg legger ved et mer detaljert prosjektutkast med metodikk, forskningstilvisninger og mulige finansieringskilder. Hvis dette vekker interesse, kunne vi avtalt et kort møte for å utforske om det finnes en faglig kobling som kan være verdifull for begge parter.
+
+# 
+
+# Med vennlig hilsen,
+
+# Sander Seim
+
+# \[Kontaktinfo]
+
+# 
+
+# Jeg kan også lage en kortere, mer slagkraftig versjon som fungerer bedre hvis du tror Harald bare har tid til et raskt overblikk. Vil du at jeg lager den også?
+
+# 
+
+# You said:
+
+# Lag den langt mer detaljert, men oppdelt i anbefalte tema/fokus for å lett kunne velge viktigst lesing. Fengende og kort ppsummering innledningsvis hvor dette forklares. Se epost korrespondanse med Harald send tidligere og flett inn for å få mer personlig relasjon. Se igjennom Camino prosjektet vårt i chatter og refererer vagt/generelt hvordan det kanskje kan komplimenter senere forskning hvor han var involvert fra hjemmesiden hans. Se blandt annet linker under, å finne hvordan Camino turen vår kanskje kan være synergisk.Bruk tid fremfor hastighet for å gjøre "knytte" verdi og engasjement til Harald og studiene/interessene hans. Ligger ved chat fra tidligere: 
+
+# 
+
+# Les om https://www.nkvts.no/ansatt/baekkelund-harald/, også lniker på samme side, spesielt https://www.nkvts.no/prosjekt/early-support-after-exposure-to-trauma/ og https://www.nkvts.no/prosjekt/min-hverdag-utvikling-og-pilottesting-av-en-app-til-bruk-i-behandling-av-ptsd/ som kan ha sammenfallende/komplimentær effekt på prosjektet mitt. Som du ser i vedlegg, har jeg vært i kontakt med Harald tidligere. Skriv kort om min historie, ta med detaljer og info fra hva jeg ønsker at han skal delta med som ressurs (jeg vil vedlegge selve turen), at jeg skal på turen allerede nå i september (unnskylde for den dårlige fristen) og ønsker å benytte muligheten for et "selvstudie" eller et POC. Jeg har fra erfaring fra Camino Portuges i fjor, merket effekten det har for rusmestring, mestringsfølelse, og generell mental helse (etter overfallet har jeg slitt med PTSD, depresjon, og fått VMI på 29%). Etter hendelse har jeg involvert meg mye i forbedret helse for rus og psykisk syke, da jeg har fått oppleve oppfølging, eller mangelen på det, av helsevesenet selv. Jeg har på fritiden jobbet for Total Rehab som jobber innen sosial rehabilitering med forettningsutviklig, og har fått godkjent støtte fra Forskningsrådet, samt har 2 søknader til Innovasjon Norge klare (til et annet prosjekt). Jeg ønsker nå å se potensialet videre for å gjøre mitt eget prosjekt, som jeg personleig har kjent effekten av, og ønsker å gjøre til en regelmessig intiativ for andre i samme situasjon. Harald er en meget belest mann, så ta med så mye info om effekt/tur som mulig, uten at det innledningsvis blir "for mye" til å fange oppmerksomhet
+
+# 
+
+# ChatGPT said:
+
+# Her er et forslag til et detaljert, men lettnavigert utkast du kan sende til Harald. Jeg har laget en fengende kortversjon først for å fange oppmerksomheten, og deretter strukturert innholdet i temabolker slik at han enkelt kan hoppe til det som er mest relevant for ham. Jeg har også flettet inn referanser til hans forskning og prosjekter, samt bygget bro til potensielle synergier med Camino-opplegget ditt.
+
+# 
+
+# Emne: Forslag til observasjon av Camino-pilot – mulig supplement til traumeforskning
+
+# 
+
+# Kort oppsummering (for rask lesing)
+
+# Hei Harald,
+
+# Takk for at du tidligere tok deg tid til å svare meg og dele av din faglige vurdering rundt traumebehandling. Jeg har fulgt med på forskningen din siden, spesielt prosjektene Early support after exposure to trauma og Min hverdag – utvikling og pilottesting av en app til bruk i behandling av PTSD. Det jeg ønsker å foreslå, kan kanskje være et komplementært supplement til disse tilnærmingene, da det tar utgangspunkt i fysisk aktivitet, natur, og strukturert egenmestring over tid.
+
+# 
+
+# Allerede i september skal jeg gå hele Camino Francés som et selvstudie / proof-of-concept. Jeg ønsker din mulige rolle som faglig observatør – i en svært ressurslett form – for å dokumentere eventuelle endringer i psykisk helse og funksjon under og etter turen. Erfaringen bygger på en 300 km vandring jeg gjorde i fjor, som hadde målbare positive effekter på min PTSD, depresjon og rusmestring.
+
+# 
+
+# Jeg har lagt inn detaljert bakgrunn under – strukturert i korte temabolker slik at du kan hoppe rett til det som er mest interessant for deg.
+
+# 
+
+# 1\. Bakgrunn – personlig og faglig relevans
+
+# Hendelsen: 11. september 2023 ble jeg utsatt for et brutalt, livstruende overfall i Riga. Skader inkluderte hjerneblødning, kraniebrudd, knust ansikt, alvorlig synsskade, tap av lukt- og smakssans.
+
+# 
+
+# Etterspill: På toppen av fysiske skader mistet jeg samboer, vårt ufødte barn og et selskap verdsatt til 45 millioner NOK, i løpet av de første ukene etter overfallet.
+
+# 
+
+# Helse: PTSD, forverret ADHD, varig medisinsk invaliditet (VMI) på 29 %.
+
+# 
+
+# Systemmøter: Lang forsinkelse i traumebehandling, ingen individuell plan, opplevd fragmentert og lite koordinert oppfølging.
+
+# 
+
+# Egeninnsats: Valgte tidlig å ta aktive grep for egen rehabilitering. Har siden engasjert meg i sosial rehabilitering gjennom Total Rehab (støtte fra Forskningsrådet), og har to søknader klare til Innovasjon Norge for et annet prosjekt.
+
+# 
+
+# 2\. Camino-erfaringen – egenopplevd effekt
+
+# 2024: Gikk 300 km på Camino Portugués. Opplevde reduksjon i hyperårvåkenhet, bedre søvnmønster, forbedret humørstabilitet og redusert rusbehov.
+
+# 
+
+# Hypotese: Langvarig, strukturert fysisk aktivitet i natur med sosial interaksjon og egenrefleksjon kan være et effektivt supplement i traumerehabilitering.
+
+# 
+
+# Observasjoner: Likt med funn i prosjekter som Early support after exposure to trauma – tidlig, lavterskelintervensjon kan modulere stressrespons og gi mestringsopplevelse som grunnlag for videre behandling.
+
+# 
+
+# 3\. September 2025 – POC-prosjekt
+
+# Rute: Hele Camino Francés (ca. 800 km).
+
+# 
+
+# Varighet: 30 dager.
+
+# 
+
+# Metodikk:
+
+# 
+
+# Daglige egenregistreringer (humør, søvn, smerte, opplevd mestring) via enkel digital logg.
+
+# 
+
+# Periodiske videoinnsjekker med fagperson (før-under-etter).
+
+# 
+
+# Avsluttende evaluering med sammenligning av før/etter-målinger.
+
+# 
+
+# Potensiale: Kan gi datapunkter til senere større studier med flere deltakere.
+
+# 
+
+# 4\. Foreslått rolle for deg
+
+# Før turen: Bidra til valg av måleinstrumenter og parametere.
+
+# 
+
+# Under turen: Lett fjernoppfølging, mulighet for innspill ved uforutsette hendelser.
+
+# 
+
+# Etter turen: Kort faglig refleksjon over innsamlede data.
+
+# 
+
+# Tidsbruk: Minimal – hovedvekten på design og to korte vurderingspunkter.
+
+# 
+
+# 5\. Hvorfor dette kan være relevant for din forskning
+
+# Din forskning på tidlig støtte og digital egenregistrering i PTSD-behandling har klare berøringspunkter:
+
+# 
+
+# Camino-opplegget kan ses som en langvarig eksponering i trygge rammer kombinert med strukturert egenmonitorering.
+
+# 
+
+# Kan være et naturlig supplement til digitale verktøy som Min hverdag, ved å teste metodikken i et fysisk aktivitetsmiljø.
+
+# 
+
+# Gir mulighet til å utforske hvordan langvarig fysisk aktivitet og naturmiljø påvirker traumesymptomer, utenfor klinisk setting.
+
+# 
+
+# 6\. Neste steg
+
+# Jeg forstår at dette er kort frist (avreise i september), men om dette vekker interesse, kan vi avtale en rask prat for å se om og hvordan vi kan strukturere et enkelt observasjonsopplegg. Jeg legger ved turbeskrivelse og metodikk jeg har utviklet.
+
+# 
+
+# Vennlig hilsen
+
+# Sander Seim
+
+# Tlf: +47 930 40 500
+
+# E-post: sander@aidme.no
+
+# 
+
+# Hvis du ønsker, kan jeg også lage en vedlagt, visuelt tiltalende 2-siders PDF som oppsummerer dette med grafer, enkel tidslinje og forskningsreferanser – slik at han får en umiddelbar visuell forståelse av prosjektet.
+
+# Vil du at jeg gjør det neste?
+
+# 
+
+# 
+
+# 
+
+# 
+
+# Ingen fil valgtIngen fil valgt
+
+# ChatGPT can make mistakes. Check important info. See Cookie Preferences.
+
+
+

@@ -1,0 +1,134 @@
+**********************
+PowerShell transcript start
+Start time: 20250909175301
+Username: SANDER360\Sander
+RunAs User: SANDER360\Sander
+Configuration Name: 
+Machine: SANDER360 (Microsoft Windows NT 10.0.26100.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll -WorkingDirectory ~
+Process ID: 4680
+PSVersion: 7.5.2
+PSEdition: Core
+GitCommitId: 7.5.2
+OS: Microsoft Windows 10.0.26100
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+PS C:\Dev\my-camino> # 3) Last modul én gang
+PS C:\Dev\my-camino> Import-Module (Join-Path $Root 'tools\AidMe.Helpers') -ErrorAction SilentlyContinue | Out-Null
+WARNING: The names of some imported commands from the module 'AidMe.Helpers' include unapproved verbs that might make them less discoverable. To find the commands with unapproved verbs, run the Import-Module command again with the Verbose parameter. For a list of approved verbs, type Get-Verb.
+PS C:\Dev\my-camino> # 4) Kjør pass pr ChatKey
+PS C:\Dev\my-camino> $summary = @()
+PS C:\Dev\my-camino> foreach($ck in $ChatKeys){
+  Write-Host ("== {0} ==" -f $ck) -ForegroundColor Cyan
+  $capDir = Join-Path $Root "handover\captures\$ck"
+  if(-not (Test-Path -LiteralPath $capDir)){
+    Write-Host ("  ⚠️ Mangler captures-dir: {0} (hopper over)" -f $capDir) -ForegroundColor Yellow
+    continue
+  }
+
+  # 4a) Backup før endring (kun hvis det finnes filer)
+  $bkDir = Join-Path $Root 'handover\backups'
+  New-Item -ItemType Directory -Force -Path $bkDir | Out-Null
+  $bkZip = Join-Path $bkDir "$ck-captures-backup-$ts.zip"
+  if(Test-Path -LiteralPath $bkZip){ Remove-Item -LiteralPath $bkZip -Force }
+  $capFiles = Get-ChildItem -LiteralPath $capDir -Recurse -File -ErrorAction SilentlyContinue
+  if($capFiles.Count -gt 0){
+    Compress-Archive -Path $capFiles.FullName -DestinationPath $bkZip -Force
+    Write-Host ("  Backup: {0}" -f $bkZip) -ForegroundColor DarkYellow
+  } else {
+    $bkZip = "(ingen filer å backup’e)"
+    Write-Host "  Backup: (ingen filer funnet)" -ForegroundColor DarkYellow
+  }
+
+  # 4b) Flytt kun standard-navn til YYYY\MM\
+  $moved = 0; $skipped = 0
+  foreach($f in $capFiles){
+    if(IsStandardName $f.Name){
+      $ym = Get-YearMonthFromName $f.Name
+      if($ym){
+        $targetDir = Join-Path $capDir (Join-Path $ym.Y $ym.M)
+        New-Item -ItemType Directory -Force -Path $targetDir | Out-Null
+        $dest = Join-Path $targetDir $f.Name
+        if(-not (Test-Path -LiteralPath $dest)){
+          Move-Item -LiteralPath $f.FullName -Destination $dest -Force
+          $moved++
+        } else {
+          # Duplikat – behold eksisterende, fjern kilden trygt
+          Remove-Item -LiteralPath $f.FullName -Force
+        }
+      } else {
+        $skipped++
+      }
+    } else {
+      $skipped++
+    }
+  }
+
+  # 4c) Snapshot (tvinger fram ZIP) + Index (normaliser til siste ZIP)
+  try{
+    New-AidSnapshot -ChatKey $ck -Root $Root | Out-Null
+  } catch {
+    Write-Host ("  ⚠️ Snapshot feilet for {0}: {1}" -f $ck,$_.Exception.Message) -ForegroundColor Yellow
+  }
+
+  $zip = Join-Path $Root "handover\$ck-handover.zip"
+  if(Test-Path -LiteralPath $zip){
+    try{
+      Add-AidIndexEntry -ChatKey $ck -ZipPath $zip | Out-Null
+    } catch {
+      Write-Host ("  ⚠️ Index feilet for {0}: {1}" -f $ck,$_.Exception.Message) -ForegroundColor Yellow
+    }
+  } else {
+    Write-Host ("  ⚠️ Fant ikke ZIP (hopper over index): {0}" -f $zip) -ForegroundColor Yellow
+  }
+
+  # 4d) Oppsummering
+  $stdCount = (Get-ChildItem -LiteralPath $capDir -Recurse -File -Filter '*.md' |
+               Where-Object { IsStandardName $_.Name }).Count
+  $summary += [pscustomobject]@{
+    ChatKey       = $ck
+    Moved         = $moved
+    Skipped       = $skipped
+    StandardNamed = $stdCount
+    Backup        = $bkZip
+  }
+}
+== ops-workflow ==
+  Backup: C:\Dev\my-camino\handover\backups\ops-workflow-captures-backup-20250909-1753.zip
+Index oppdatert: ops-workflow
+Snapshot: C:\Dev\my-camino\handover\ops-workflow-handover.zip
+Index oppdatert: ops-workflow
+== dev-platform ==
+  Backup: C:\Dev\my-camino\handover\backups\dev-platform-captures-backup-20250909-1753.zip
+Index oppdatert: dev-platform
+Snapshot: C:\Dev\my-camino\handover\dev-platform-handover.zip
+Index oppdatert: dev-platform
+== product-roadmap ==
+  Backup: C:\Dev\my-camino\handover\backups\product-roadmap-captures-backup-20250909-1753.zip
+Index oppdatert: product-roadmap
+Snapshot: C:\Dev\my-camino\handover\product-roadmap-handover.zip
+Index oppdatert: product-roadmap
+== turplan-camino ==
+  Backup: C:\Dev\my-camino\handover\backups\turplan-camino-captures-backup-20250909-1753.zip
+Index oppdatert: turplan-camino
+Snapshot: C:\Dev\my-camino\handover\turplan-camino-handover.zip
+Index oppdatert: turplan-camino
+PS C:\Dev\my-camino> # 5) Rapport
+PS C:\Dev\my-camino> $repDir = Join-Path $Root 'handover\captures\ops-workflow'
+PS C:\Dev\my-camino> New-Item -ItemType Directory -Force -Path $repDir | Out-Null
+PS C:\Dev\my-camino> $rep = Join-Path $repDir "navnestandard-migrasjon-report-$ts.md"
+PS C:\Dev\my-camino> $lines = @("# Navnestandard + migrasjonsrydd (UTFØR) – $ts","","| ChatKey | Flyttet | Skippet | Standard-navn | Backup |","|---|---:|---:|---:|---|")
+PS C:\Dev\my-camino> foreach($row in $summary){
+  $lines += ("| {0} | {1} | {2} | {3} | {4} |" -f $row.ChatKey,$row.Moved,$row.Skipped,$row.StandardNamed,$row.Backup)
+}
+PS C:\Dev\my-camino> Set-Content -LiteralPath $rep -Value ($lines -join [Environment]::NewLine) -Encoding UTF8
+PS C:\Dev\my-camino> # 6) Stopp transkribering
+PS C:\Dev\my-camino> Stop-Transcript | Out-Null
+**********************
+PowerShell transcript end
+End time: 20250909175334
+**********************

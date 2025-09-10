@@ -1,0 +1,60 @@
+**********************
+PowerShell transcript start
+Start time: 20250904082703
+Username: SANDER360\Sander
+RunAs User: SANDER360\Sander
+Configuration Name: 
+Machine: SANDER360 (Microsoft Windows NT 10.0.26100.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll -WorkingDirectory ~
+Process ID: 18308
+PSVersion: 7.5.2
+PSEdition: Core
+GitCommitId: 7.5.2
+OS: Microsoft Windows 10.0.26100
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+PS C:\Users\Sander> Import-Module "$Root\tools\AidMe.Helpers" -Force
+WARNING: The names of some imported commands from the module 'AidMe.Helpers' include unapproved verbs that might make them less discoverable. To find the commands with unapproved verbs, run the Import-Module command again with the Verbose parameter. For a list of approved verbs, type Get-Verb.
+PS C:\Users\Sander> Show-AidStatus -Root $Root -ChatKey $ChatKey
+=== Status (dev-platform-v1) ===
+fatal: not a git repository (or any of the parent directories): .git
+fatal: not a git repository (or any of the parent directories): .git
+fatal: not a git repository (or any of the parent directories): .git
+ZIP: ✅ present
+Index: ✅ present
+PS C:\Users\Sander> Verify-AidSetup -Root $Root -ChatKey $ChatKey
+=== Verify-AidSetup ===
+GitHub CLI: ✅
+Netlify CLI: ✅
+Workflows folder: ✅
+
+Name                      LastWriteTime
+----                      -------------
+feature-hotfix-to-dev.yml 02.09.2025 09:04:32
+handover-pack.yml         02.09.2025 13:26:29
+health.yml                02.09.2025 09:04:32
+ps-ci.yml                 02.09.2025 13:26:29
+release-pr.yml            02.09.2025 09:04:32
+
+Handover zip: ✅
+AidMe-Index.md: ✅
+✅ Setup OK
+PS C:\Users\Sander> New-AidSnapshot -ChatKey $ChatKey -Root $Root
+Index oppdatert: dev-platform-v1
+Snapshot: C:\Dev\my-camino\handover\dev-platform-v1-handover.zip
+PS C:\Users\Sander> # Valgfritt (kommenter bort hvis du vil): push + PR
+PS C:\Users\Sander> git add .; git commit -m "chore: snapshot after verify ($ChatKey)" ; git push -u origin dev
+
+
+
+PS C:\Users\Sander> if (Get-Command gh -ea 0) { gh pr create --base main --head dev --fill }
+
+PS C:\Users\Sander> Stop-Transcript | Out-Null
+**********************
+PowerShell transcript end
+End time: 20250904082705
+**********************

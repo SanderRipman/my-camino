@@ -1,0 +1,92 @@
+**********************
+PowerShell transcript start
+Start time: 20250902132941
+Username: SANDER360\Sander
+RunAs User: SANDER360\Sander
+Configuration Name: 
+Machine: SANDER360 (Microsoft Windows NT 10.0.26100.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll -WorkingDirectory ~
+Process ID: 22888
+PSVersion: 7.5.2
+PSEdition: Core
+GitCommitId: 7.5.2
+OS: Microsoft Windows 10.0.26100
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+PS C:\Dev\my-camino> Set-Location $Root
+PS C:\Dev\my-camino> Import-Module 'C:\Dev\my-camino\tools\AidMe.Helpers' -Force
+WARNING: The names of some imported commands from the module 'AidMe.Helpers' include unapproved verbs that might make them less discoverable. To find the commands with unapproved verbs, run the Import-Module command again with the Verbose parameter. For a list of approved verbs, type Get-Verb.
+PS C:\Dev\my-camino> Test-AidModule
+
+Function                  Present
+--------                  -------
+Invoke-ZipAudit             False
+Invoke-ZipStage             False
+Invoke-ZipSuggestRefactor   False
+New-AidMeHandover            True
+Write-AidNote                True
+Start-AidControlCenter       True
+Verify-AidSetup              True
+Add-AidIndexEntry            True
+New-AidSnapshot              True
+Invoke-AidReportCleanup      True
+
+PS C:\Dev\my-camino> TerminatingError(): "Manglende funksjoner: Invoke-ZipAudit, Invoke-ZipStage, Invoke-ZipSuggestRefactor"
+>> TerminatingError(): "Manglende funksjoner: Invoke-ZipAudit, Invoke-ZipStage, Invoke-ZipSuggestRefactor"
+Manglende funksjoner: Invoke-ZipAudit, Invoke-ZipStage, Invoke-ZipSuggestRefactor
+Exception: C:\Dev\my-camino\tools\AidMe.Helpers\Public\Test-AidModule.ps1:13
+Line |
+  13 |      throw "Manglende funksjoner: $missing"
+     |      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Manglende funksjoner: Invoke-ZipAudit, Invoke-ZipStage, Invoke-ZipSuggestRefactor
+
+PS C:\Dev\my-camino> Verify-AidSetup -Root $Root -ChatKey $ChatKey
+=== Verify-AidSetup ===
+GitHub CLI: ✅
+Netlify CLI: ✅
+Workflows folder: ✅
+
+Name                      LastWriteTime
+----                      -------------
+feature-hotfix-to-dev.yml 02.09.2025 09:04:32
+handover-pack.yml         02.09.2025 13:26:29
+health.yml                02.09.2025 09:04:32
+ps-ci.yml                 02.09.2025 13:26:29
+release-pr.yml            02.09.2025 09:04:32
+
+Handover zip: ✅
+AidMe-Index.md: ✅
+✅ Setup OK
+PS C:\Dev\my-camino> function Safe([scriptblock]$b){ try { & $b } catch { $_ | Out-String } }
+PS C:\Dev\my-camino> $r=[ordered]@{
+  Root=$Root; ChatKey=$ChatKey; Timestamp=(Get-Date).ToString('yyyy-MM-dd HH:mm:ss');
+  PS=@{ Version=$PSVersionTable.PSVersion.ToString(); Edition=$PSVersionTable.PSEdition };
+  Git=@{
+    Present=[bool](Get-Command git -ea 0);
+    Version=Safe{ git --version };
+    Branch =Safe{ (git rev-parse --abbrev-ref HEAD).Trim() };
+    Remote =Safe{ git remote -v | Out-String };
+    Status =Safe{ git status --porcelain=v1 -b | Out-String };
+    Last   =Safe{ git log --oneline -n 5 | Out-String };
+  };
+  CLI=@{ GH=[bool](Get-Command gh -ea 0); Netlify=[bool](Get-Command netlify -ea 0) };
+  Workflows=@{
+    Present=Test-Path (Join-Path $Root '.github\workflows');
+    Files=Safe{ Get-ChildItem "$Root\.github\workflows\*.yml" -ea 0 | Select Name,LastWriteTime | Out-String };
+  };
+  Artifacts=@{
+    ZipExists=Test-Path (Join-Path $Root "handover\$ChatKey-handover.zip");
+    IndexPath = ( @("$Root\AidMe-Index.md","$Root\handover\..\AidMe-Index.md") | ? { Test-Path $_ } | Select-Object -First 1 );
+    IndexLine = Safe{ if($r.Artifacts.IndexPath){ (Select-String -Path $r.Artifacts.IndexPath -Pattern "^\|\s*$([regex]::Escape($ChatKey))\s*\|.*$").Line } };
+  };
+}
+PS C:\Dev\my-camino> ($r | ConvertTo-Json -Depth 6) | Set-Content -Encoding UTF8 (Join-Path $Root "handover\$ChatKey-report.json")
+PS C:\Dev\my-camino> Stop-Transcript | Out-Null
+**********************
+PowerShell transcript end
+End time: 20250902132941
+**********************

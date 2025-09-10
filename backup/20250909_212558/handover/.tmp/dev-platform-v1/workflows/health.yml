@@ -1,0 +1,28 @@
+name: Repo Health
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required files exist
+        run: |
+          test -f index.html
+          test -d public
+
+      - name: Validate JSON manifests (if any)
+        run: |
+          if compgen -G "public/*.json" > /dev/null; then
+            for f in public/*.json; do
+              cat "$f" | jq . > /dev/null
+            done
+          fi
+
+      - name: Validate YAML (workflows)
+        run: |
+          yamllint -d "{extends: default, rules: {line-length: disable}}" .github/workflows || true

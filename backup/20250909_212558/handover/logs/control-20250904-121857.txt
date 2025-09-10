@@ -1,0 +1,44 @@
+**********************
+PowerShell transcript start
+Start time: 20250904121857
+Username: SANDER360\Sander
+RunAs User: SANDER360\Sander
+Configuration Name: 
+Machine: SANDER360 (Microsoft Windows NT 10.0.26100.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll -NoLogo -NoExit -Command Import-Module 'C:\Dev\my-camino\tools\AidMe.Helpers' -Force; Start-AidControlCenter -Root 'C:\Dev\my-camino' -ChatKey 'dev-platform-v1'
+Process ID: 17692
+PSVersion: 7.5.2
+PSEdition: Core
+GitCommitId: 7.5.2
+OS: Microsoft Windows 10.0.26100
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+Logging → C:\Dev\my-camino\handover\logs\control-20250904-121857.txt
+=== Aid Control Center ===
+[1] Snapshot
+[2] Audit ZIP'er
+[3] AutoPush (dev)
+[4] Open PR (dev→main)
+[5] Netlify (admin/site/deploy)
+[6] Write Note (#handover/#dev-plan/#todo)
+[7] Repo Health (Analyzer + Pester)
+[M] Migration (URL/Bulk/Note/New/Smart/Import MD)
+[F] New Feature (module/script/workflow)
+[G] Generate (.gitignore, .gitattributes, workflows)
+[S] Status (zip/index/git)
+[K] Keywords help
+[V] Verify setup
+[L] Stop logging (toggle)
+[Q] Quit
+== Migration Menu ==
+[1] Importer én offentlig link
+[2] Bulk-import (flere linker)
+[3] Notat m/kodeord (#handover/#dev-plan/#todo)
+[4] Ny ChatKey (+ snapshot)
+[5] Capture (auto tittel/chatkey/oppsummering/splitt)
+[I] Importer Markdown (fulltekst dump)
+[Q] Tilbake

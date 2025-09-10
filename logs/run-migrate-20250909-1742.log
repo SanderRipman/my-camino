@@ -1,0 +1,123 @@
+**********************
+PowerShell transcript start
+Start time: 20250909174225
+Username: SANDER360\Sander
+RunAs User: SANDER360\Sander
+Configuration Name: 
+Machine: SANDER360 (Microsoft Windows NT 10.0.26100.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll -WorkingDirectory ~
+Process ID: 18124
+PSVersion: 7.5.2
+PSEdition: Core
+GitCommitId: 7.5.2
+OS: Microsoft Windows 10.0.26100
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+PS C:\Dev\my-camino> # 3) Kjør pass pr ChatKey
+PS C:\Dev\my-camino> $summary = @()
+PS C:\Dev\my-camino> foreach($ck in $ChatKeys){
+  Write-Host "== $ck ==" -ForegroundColor Cyan
+  $capDir = Join-Path $Root "handover\captures\$ck"
+  if(-not (Test-Path -LiteralPath $capDir)){
+    Write-Host "  ⚠️ Mangler captures-dir: $capDir (hopper over)" -ForegroundColor Yellow
+    continue
+  }
+
+  # 3a) Backup før endring
+  $bkDir = Join-Path $Root 'handover\backups'
+  New-Item -ItemType Directory -Force -Path $bkDir | Out-Null
+  $bkZip = Join-Path $bkDir "$ck-captures-backup-$ts.zip"
+  if(Test-Path -LiteralPath $bkZip){ Remove-Item -LiteralPath $bkZip -Force }
+  Compress-Archive -Path (Join-Path $capDir '*') -DestinationPath $bkZip -Force -ErrorAction SilentlyContinue
+  Write-Host "  Backup: $bkZip" -ForegroundColor DarkYellow
+
+  # 3b) Finn standard-navn og flytt til YYYY\MM\
+  $moved = 0; $skipped = 0
+  $files = Get-ChildItem -LiteralPath $capDir -Recurse -File -Filter '*.md' -ErrorAction SilentlyContinue
+  foreach($f in $files){
+    if(IsStandardName $f.Name){
+      $ym = Get-YearMonthFromName $f.Name
+      if($ym){
+        $targetDir = Join-Path $capDir (Join-Path $ym.Y $ym.M)
+        New-Item -ItemType Directory -Force -Path $targetDir | Out-Null
+        $dest = Join-Path $targetDir $f.Name
+        if(-not (Test-Path -LiteralPath $dest)){
+          Move-Item -LiteralPath $f.FullName -Destination $dest -Force
+          $moved++
+        } else {
+          # Duplikat – behold den eksisterende og fjern kilden trygt
+          Remove-Item -LiteralPath $f.FullName -Force
+        }
+      } else {
+        $skipped++
+      }
+    } else {
+      $skipped++
+    }
+  }
+
+  # 3c) Snapshot + Index
+  Import-Module (Join-Path $Root 'tools\AidMe.Helpers') -ErrorAction SilentlyContinue | Out-Null
+  try{
+    New-AidSnapshot -ChatKey $ck -Root $Root | Out-Null
+  } catch {
+    Write-Host "  ⚠️ Snapshot feilet for $ck: $($_.Exception.Message)" -ForegroundColor Yellow
+  }
+
+  $zip = Join-Path $Root "handover\$ck-handover.zip"
+  if(Test-Path -LiteralPath $zip){
+    try{
+      Add-AidIndexEntry -ChatKey $ck -ZipPath $zip | Out-Null
+    } catch {
+      Write-Host "  ⚠️ Index feilet for $ck: $($_.Exception.Message)" -ForegroundColor Yellow
+    }
+  } else {
+    Write-Host "  ⚠️ Fant ikke ZIP (hopper over index): $zip" -ForegroundColor Yellow
+  }
+
+  # 3d) Oppsummering for $ck
+  $stdCount = (Get-ChildItem -LiteralPath $capDir -Recurse -File -Filter '*.md' |
+               Where-Object { IsStandardName $_.Name }).Count
+  $summary += [pscustomobject]@{
+    ChatKey = $ck
+    Moved   = $moved
+    Skipped = $skipped
+    StandardNamed = $stdCount
+    Backup = $bkZip
+  }
+}
+At line:47 char:42
++     Write-Host "  ⚠️ Snapshot feilet for $ck: $($_.Exception.Message) …
++                                          ~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name character. Consider using ${} to delimit the name.
+
+At line:55 char:41
++       Write-Host "  ⚠️ Index feilet for $ck: $($_.Exception.Message)" …
++                                         ~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name character. Consider using ${} to delimit the name.
+ParserError: 
+Line |
+  47 |      Write-Host "  ⚠️ Snapshot feilet for $ck: $($_.Exception.Message) …
+     |                                           ~~~~
+     | Variable reference is not valid. ':' was not followed by a valid variable name character. Consider using ${} to
+     | delimit the name.
+
+PS C:\Dev\my-camino> # 4) Rapport
+PS C:\Dev\my-camino> $repDir = Join-Path $Root 'handover\captures\ops-workflow'
+PS C:\Dev\my-camino> New-Item -ItemType Directory -Force -Path $repDir | Out-Null
+PS C:\Dev\my-camino> $rep = Join-Path $repDir "navnestandard-migrasjon-report-$ts.md"
+PS C:\Dev\my-camino> $lines = @("# Navnestandard + migrasjonsrydd (UTFØR) – $ts","","| ChatKey | Flyttet | Skippet | Standard-navn | Backup |","|---|---:|---:|---:|---|")
+PS C:\Dev\my-camino> foreach($row in $summary){
+  $lines += "| {0} | {1} | {2} | {3} | {4} |" -f $row.ChatKey,$row.Moved,$row.Skipped,$row.StandardNamed,$row.Backup
+}
+PS C:\Dev\my-camino> Set-Content -LiteralPath $rep -Value ($lines -join [Environment]::NewLine) -Encoding UTF8
+PS C:\Dev\my-camino> # 5) Stopp transkribering
+PS C:\Dev\my-camino> Stop-Transcript | Out-Null
+**********************
+PowerShell transcript end
+End time: 20250909174226
+**********************

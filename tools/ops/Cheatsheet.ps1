@@ -1,113 +1,51 @@
-# =======================
-# AidMe Ops Cheatsheet
-# sos  = send alle draft-* fra outbox\ops-workflow\
-# snap = snapshot + index for ops-workflow (auto)
-# ctrl = kontrollrapport (teller autosplit etc. pr ChatKey)
-# =======================
-$script:Root = if ($env:AIDME_ROOT) { $env:AIDME_ROOT } else { "C:\Dev\my-camino" }
-
-function Get-CapDir([string]$ChatKey){
-  Join-Path $script:Root "handover\captures\$ChatKey"
+# AidMe Cheatsheet – lastes av \C:\Users\Sander\Documents\PowerShell\Microsoft.PowerShell_profile.ps1
+function aid:logpath {
+  param([string] \ = 'C:\Dev\my-camino\handover\logs\ps')
+  Get-ChildItem -LiteralPath \ -Filter 'ps7-*.log' -File -ErrorAction SilentlyContinue |
+    Sort-Object LastWriteTime -Descending | Select-Object -First 1
 }
-
-function Invoke-AidSnapshotIndex([string]$ChatKey){
-  Import-Module (Join-Path $script:Root 'tools\AidMe.Helpers') -Force -ErrorAction SilentlyContinue | Out-Null
-  $zip = Join-Path $script:Root ("handover\{0}-handover.zip" -f $ChatKey)
-
-  $ss = Get-Command New-AidSnapshot   -ErrorAction SilentlyContinue
-  $ix = Get-Command Add-AidIndexEntry -ErrorAction SilentlyContinue
-
-  if ($ss) {
-    try {
-      if ($ss.Parameters.ContainsKey('Root')) { New-AidSnapshot -ChatKey $ChatKey -Root $script:Root | Out-Null }
-      else                                     { New-AidSnapshot -ChatKey $ChatKey                    | Out-Null }
-    } catch { }
-  }
-  if ($ix) {
-    try {
-      if     ($ix.Parameters.ContainsKey('ZipPath')) { Add-AidIndexEntry -ChatKey $ChatKey -ZipPath $zip | Out-Null }
-      elseif ($ix.Parameters.ContainsKey('Root'))    { Add-AidIndexEntry -ChatKey $ChatKey -Root   $script:Root | Out-Null }
-      elseif ($ix.Parameters.ContainsKey('CaptureDir')) { Add-AidIndexEntry -ChatKey $ChatKey -CaptureDir (Get-CapDir $ChatKey) | Out-Null }
-      else { Add-AidIndexEntry -ChatKey $ChatKey | Out-Null }
-    } catch { }
-  }
-}
-
-# Lokal fallback hvis Approve-AidReply ikke finnes i økta
-function Approve-Local([string]$DraftPath,[string]$TargetChatKey,[string]$Title='reply'){
-  if (-not (Test-Path -LiteralPath $DraftPath)) { throw "Finner ikke utkast: $DraftPath" }
-  $dstDir = Get-CapDir $TargetChatKey
-  if (-not (Test-Path $dstDir)) { New-Item -ItemType Directory -Force -Path $dstDir | Out-Null }
-
-  $stamp = (Get-Date).ToString('yyyyMMdd-HHmmss')
-  $safe  = ($Title -replace '[^\p{L}\p{N}\- _]+','').Trim(); if (-not $safe) { $safe = 'reply' }
-  $safe  = ($safe -replace '\s+','-')
-  $dest  = Join-Path $dstDir ("ops-reply-{0}-{1}.md" -f $stamp,$safe)
-
-  Move-Item -LiteralPath $DraftPath -Destination $dest -Force
-  # Oppdater mål-chat snapshot + index (best-effort)
-  Invoke-AidSnapshotIndex $TargetChatKey
-  Write-Host ("✔ Sendt → {0}: {1}" -f $TargetChatKey,$dest)
-  return $dest
-}
-
-function Send-Ops {
-  $out = Join-Path $script:Root 'handover\outbox\ops-workflow'
-  if (-not (Test-Path $out)) { Write-Host "Ingen outbox: $out" -ForegroundColor Yellow; return }
-  $drafts = Get-ChildItem $out -File -Filter 'draft-*.md' -ErrorAction SilentlyContinue
-  if (-not $drafts -or $drafts.Count -eq 0) { Write-Host "Ingen utkast å sende (outbox tom)." -ForegroundColor DarkGray; return }
-
-  $ok = 0; $fail = 0
-  foreach($f in $drafts){
-    $name = $f.Name
-    # Forventer navn som draft-<chatkey>-*.md
-    if ($name -notmatch '^draft-([^-.]+)-') {
-      Write-Host "Hopper over (ukjent mønster): $name" -ForegroundColor DarkGray
-      continue
-    }
-    $target = $matches[1]
-    $title  = ($name -replace '^draft-[^-.]+-','') -replace '\.md$',''
-    try {
-      if (Get-Command Approve-AidReply -ErrorAction SilentlyContinue) {
-        Approve-AidReply -DraftPath $f.FullName -TargetChatKey $target -Title $title | Out-Null
-      } else {
-        Approve-Local -DraftPath $f.FullName -TargetChatKey $target -Title $title | Out-Null
-      }
-      $ok++
-    } catch {
-      $fail++
-      Write-Host ("❌ Feil ved sending av {0} → {1}: {2}" -f $name,$target,($_.Exception.Message)) -ForegroundColor Red
+function aid:lastlog {
+  param(
+    [string] \ = 'C:\Dev\my-camino\handover\logs\ps',
+    [int]    \   = 400
+  )
+  \ = aid:logpath -Folder \
+  if (-not \) { Write-Host 'Ingen ps7-*.log funnet.' -ForegroundColor Yellow; return }
+  \ = Get-Content -LiteralPath \.FullName -Tail \ -ErrorAction SilentlyContinue
+  # Plukk ut feil/varsler og de 3 linjene før (for kontekst)
+  \ = for (\=0; \ -lt \.Count; \++) {
+    if (\[\] -match '(?i)\b(ERROR|Exception|Failed|WARNING)\b') {
+      \ = [Math]::Max(0, \-3); \ = [Math]::Min(\.Count-1, \+2)
+      (\[\..\] + '---')
     }
   }
-  Write-Host ("== Send-Ops: OK={0}, FAIL={1} ==" -f $ok,$fail) -ForegroundColor Cyan
-}
+  if (-not \) { Write-Host "✅ Ingen feil/varsler i siste ~\ linjer av \" -ForegroundColor Green; return }
+  \  = "# AidMe – siste feil/varsler ($(Get-Date -Format 'yyyy-MM-dd HH:mm'))
 
-function Snap-Ops {
-  Invoke-AidSnapshotIndex 'ops-workflow'
-  Write-Host "== Snapshot + index oppdatert (ops-workflow) ==" -ForegroundColor Cyan
-}
+"
+  \ += "**Logg:** \
 
-function Ctrl-Aid {
-  $chatkeys = @('dev-platform','ops-workflow','product-roadmap','pilot-studier','forskning-studier','partner-tilskudd','turplan-camino','ideer-lab')
-  $rows = foreach($ck in $chatkeys){
-    $cap = Get-CapDir $ck
-    if (-not (Test-Path $cap)) {
-      [pscustomobject]@{ ChatKey=$ck; Autosplit=0; LastAutoSplit=$null; Replies=0; LastReply=$null }
-      continue
-    }
-    $auto   = Get-ChildItem $cap -Filter 'autosplit-*.md' -File -ErrorAction SilentlyContinue
-    $reply  = Get-ChildItem $cap -Filter 'ops-reply-*.md' -File -ErrorAction SilentlyContinue
-    [pscustomobject]@{
-      ChatKey      = $ck
-      Autosplit    = ($auto|Measure-Object).Count
-      LastAutoSplit= ($auto|Sort-Object LastWriteTime -Desc|Select-Object -First 1).LastWriteTime
-      Replies      = ($reply|Measure-Object).Count
-      LastReply    = ($reply|Sort-Object LastWriteTime -Desc|Select-Object -First 1).LastWriteTime
-    }
-  }
-  $rows | Sort-Object ChatKey | Format-Table -AutoSize
+```
+" + (\ -join [Environment]::NewLine) + "
+```
+"
+  \ = Join-Path \ 'lastlog-summary.md'
+  Set-Content -LiteralPath \ -Value \ -Encoding UTF8 -Force
+  Write-Host "⚠️ Utdrag skrevet til: \" -ForegroundColor Yellow
+  \
 }
-
-Set-Alias sos  Send-Ops  -Force
-Set-Alias snap Snap-Ops  -Force
-Set-Alias ctrl Ctrl-Aid  -Force
+function aid:kode {
+  Write-Host @'
+  Hurtigkommandoer (AidMe)
+  ------------------------
+  aid:lastlog     -> Oppsummer siste feil/varsler + lagrer lastlog-summary.md
+  aid:logpath     -> Viser sti til siste ps7-*.log
+  sos             -> Åpner målmappe/FAQ (hvis definert i prosjektet)
+  snap            -> Kjapp snapshot/index (hvis definert i prosjektet)
+  ctrl            -> Starter Aid Control Center (PS7)
+'@
+}
+# Alias/forwardere (hvis Cheatsheet ikke har definert dem fra før)
+if (-not (Get-Command ctrl  -ErrorAction SilentlyContinue)) { function ctrl  { & 'C:\Dev\my-camino\tools\ops\AidControlCenter.ps1' } }
+if (-not (Get-Command sos   -ErrorAction SilentlyContinue)) { function sos   { Write-Host 'sos: legg inn i Cheatsheet for prosjektspesifikk navigasjon.' -ForegroundColor Yellow } }
+if (-not (Get-Command snap  -ErrorAction SilentlyContinue)) { function snap  { Write-Host 'snap: legg inn snapshot-kortvei i Cheatsheet.' -ForegroundColor Yellow } }

@@ -1,0 +1,246 @@
+**********************
+PowerShell transcript start
+Start time: 20250909211648
+Username: SANDER360\Sander
+RunAs User: SANDER360\Sander
+Configuration Name: 
+Machine: SANDER360 (Microsoft Windows NT 10.0.26100.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll -WorkingDirectory ~
+Process ID: 10372
+PSVersion: 7.5.2
+PSEdition: Core
+GitCommitId: 7.5.2
+OS: Microsoft Windows 10.0.26100
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+PS C:\Dev\my-camino> Write-Host "▶ Starter one-shot (Index-normalisering + Utkast→Snapshot/Index/Send)" -ForegroundColor Cyan
+▶ Starter one-shot (Index-normalisering + Utkast→Snapshot/Index/Send)
+PS C:\Dev\my-camino> Write-Host "   Root=$Root  DoIt=$script:DoIt  Log=$logF"
+   Root=C:\Dev\my-camino  DoIt=False  Log=C:\Dev\my-camino\logs\one-shot_index-drafts_20250909-211648.log
+PS C:\Dev\my-camino> # Hjelper: trygg mkdir
+PS C:\Dev\my-camino> function _mk ($p) { New-Item -ItemType Directory -Path $p -Force -ErrorAction SilentlyContinue | Out-Null }
+PS C:\Dev\my-camino> # --- 1) Valider prosjektstruktur -----------
+PS C:\Dev\my-camino> $handoverD = Join-Path $Root 'handover'
+PS C:\Dev\my-camino> $capsD     = Join-Path $handoverD 'captures'
+PS C:\Dev\my-camino> $outboxD   = Join-Path $handoverD 'outbox\ops-workflow'
+PS C:\Dev\my-camino> $indexF    = Join-Path $Root 'AidMe-Index.md'
+PS C:\Dev\my-camino> foreach ($p in @($handoverD,$capsD,$outboxD)) { _mk $p }
+PS C:\Dev\my-camino> if (-not (Test-Path $indexF)) {
+  # Om index mangler, lag en tom slik at normalisering kan bygge opp
+  if ($script:DoIt) { '' | Out-File -FilePath $indexF -Encoding UTF8 }
+  Write-Warning "Fant ikke AidMe-Index.md. Lager ny tom ved behov."
+}
+PS C:\Dev\my-camino> # --- 2) Normaliser Index (unik per ChatKey) --------
+PS C:\Dev\my-camino> Write-Host "— Index-normalisering: finn nyeste *-handover.zip pr ChatKey" -ForegroundColor DarkCyan
+— Index-normalisering: finn nyeste *-handover.zip pr ChatKey
+PS C:\Dev\my-camino> $zips = Get-ChildItem -Path $handoverD -Filter '*-handover.zip' -File -ErrorAction SilentlyContinue
+PS C:\Dev\my-camino> # Bygg utvalg pr ChatKey fra zip-navn "<chatkey>-handover.zip"
+PS C:\Dev\my-camino> $byCk = @{}
+PS C:\Dev\my-camino> foreach ($z in $zips) {
+  $m = [regex]::Match($z.Name, '^(?<ck>[^\\\/]+?)-handover\.zip$', 'IgnoreCase')
+  if ($m.Success) {
+    $ck = $m.Groups['ck'].Value
+    if (-not $byCk.ContainsKey($ck)) { $byCk[$ck] = @() }
+    $byCk[$ck] += $z
+  }
+}
+PS C:\Dev\my-camino> # Velg nyeste zip per ck
+PS C:\Dev\my-camino> $latest = @()
+PS C:\Dev\my-camino> foreach ($ck in $byCk.Keys) {
+  $zSel = $byCk[$ck] | Sort-Object LastWriteTimeUtc -Descending | Select-Object -First 1
+  $latest += [pscustomobject]@{ ChatKey=$ck; Zip=$zSel.FullName; When=$zSel.LastWriteTimeUtc }
+}
+PS C:\Dev\my-camino> # Backup gammel index
+PS C:\Dev\my-camino> $indexBackup = Join-Path $Root ("AidMe-Index.backup-{0}.md" -f $ts)
+PS C:\Dev\my-camino> if ((Test-Path $indexF) -and $script:DoIt) {
+  Copy-Item $indexF $indexBackup -Force
+  Clear-Content $indexF
+}
+PS C:\Dev\my-camino> # Funksjon: smart Add-AidIndexEntry (oppdag parametre)
+PS C:\Dev\my-camino> function Invoke-AddIndexSmart {
+  param([string]$ChatKey, [string]$ZipPath, [string]$Root)
+  $cmd = Get-Command -Name Add-AidIndexEntry -ErrorAction SilentlyContinue
+  if (-not $cmd) { throw "Cmdlet Add-AidIndexEntry ikke funnet." }
+
+  $pars = $cmd.Parameters.Keys
+  $args = @{}
+  if ($pars -contains 'ChatKey') { $args['ChatKey'] = $ChatKey }
+  if ($pars -contains 'ZipPath') { $args['ZipPath'] = $ZipPath }
+  if ($pars -contains 'Root')    { $args['Root']    = $Root }
+
+  if ($script:DoIt) {
+    & Add-AidIndexEntry @args | Out-Null
+  } else {
+    Write-Host "DRY: Add-AidIndexEntry $(($args.GetEnumerator() | % { '{0}={1}' -f $_.Key,$_.Value }) -join ' ')"
+  }
+}
+PS C:\Dev\my-camino> # Skriv ny index fra nyeste per ChatKey
+PS C:\Dev\my-camino> foreach ($row in $latest | Sort-Object ChatKey) {
+  if (Test-Path $row.Zip) {
+    Invoke-AddIndexSmart -ChatKey $row.ChatKey -ZipPath $row.Zip -Root $Root
+  } else {
+    Write-Warning "Mangler ZIP for $($row.ChatKey) → hopper over index-linje."
+  }
+}
+DRY: Add-AidIndexEntry ChatKey=aidme-core ZipPath=C:\Dev\my-camino\handover\aidme-core-handover.zip
+DRY: Add-AidIndexEntry ChatKey=aidme-core-v1 ZipPath=C:\Dev\my-camino\handover\aidme-core-v1-handover.zip
+DRY: Add-AidIndexEntry ChatKey=dev ZipPath=C:\Dev\my-camino\handover\dev-handover.zip
+DRY: Add-AidIndexEntry ChatKey=dev-platform ZipPath=C:\Dev\my-camino\handover\dev-platform-handover.zip
+DRY: Add-AidIndexEntry ChatKey=dev-platform-v1 ZipPath=C:\Dev\my-camino\handover\dev-platform-v1-handover.zip
+DRY: Add-AidIndexEntry ChatKey=forskning-studier ZipPath=C:\Dev\my-camino\handover\forskning-studier-handover.zip
+DRY: Add-AidIndexEntry ChatKey=ideer-lab ZipPath=C:\Dev\my-camino\handover\ideer-lab-handover.zip
+DRY: Add-AidIndexEntry ChatKey=ops-workflow ZipPath=C:\Dev\my-camino\handover\ops-workflow-handover.zip
+DRY: Add-AidIndexEntry ChatKey=partner-tilskudd ZipPath=C:\Dev\my-camino\handover\partner-tilskudd-handover.zip
+DRY: Add-AidIndexEntry ChatKey=pilot-studier ZipPath=C:\Dev\my-camino\handover\pilot-studier-handover.zip
+DRY: Add-AidIndexEntry ChatKey=product ZipPath=C:\Dev\my-camino\handover\product-handover.zip
+DRY: Add-AidIndexEntry ChatKey=product-roadmap ZipPath=C:\Dev\my-camino\handover\product-roadmap-handover.zip
+DRY: Add-AidIndexEntry ChatKey=turplan ZipPath=C:\Dev\my-camino\handover\turplan-handover.zip
+DRY: Add-AidIndexEntry ChatKey=turplan-camino ZipPath=C:\Dev\my-camino\handover\turplan-camino-handover.zip
+PS C:\Dev\my-camino> Write-Host "✓ Index-normalisering planlagt for $($latest.Count) ChatKeys" -ForegroundColor Green
+✓ Index-normalisering planlagt for 14 ChatKeys
+PS C:\Dev\my-camino> # --- 3) Prosesser utkast → flytt → snapshot → index → send --------------
+PS C:\Dev\my-camino> Write-Host "— Behandler utkast i $outboxD (draft-<chatkey>-*.md)" -ForegroundColor DarkCyan
+— Behandler utkast i C:\Dev\my-camino\handover\outbox\ops-workflow (draft-<chatkey>-*.md)
+PS C:\Dev\my-camino> $drafts = Get-ChildItem -Path $outboxD -Filter 'draft-*-*.md' -File -ErrorAction SilentlyContinue
+PS C:\Dev\my-camino> # Hjelper: finn dest fra filnavn
+PS C:\Dev\my-camino> function Get-ReplyDestination {
+  param([IO.FileInfo]$Draft)
+  # draft-<chatkey>-<title...>.md
+  $m = [regex]::Match($Draft.Name, '^draft-(?<ck>[^-]+)-(?<title>.+?)\.md$', 'IgnoreCase')
+  if (-not $m.Success) { return $null }
+
+  $ck    = $m.Groups['ck'].Value
+  $title = $m.Groups['title'].Value
+  $y     = (Get-Date).ToString('yyyy')
+  $mo    = (Get-Date).ToString('MM')
+
+  $destDir  = Join-Path $capsD (Join-Path $ck (Join-Path $y $mo))
+  _mk $destDir
+  $stamp    = (Get-Date).ToString('yyyyMMdd-HHmm')
+  $safeTitle= ($title -replace '[^\w\-\. ]','_')
+  $destFile = Join-Path $destDir ("ops-reply-{0}-{1}.md" -f $stamp,$safeTitle)
+  [pscustomobject]@{ ChatKey=$ck; DestDir=$destDir; DestFile=$destFile }
+}
+PS C:\Dev\my-camino> # Hjelper: snapshot + index per chat
+PS C:\Dev\my-camino> function Invoke-SnapshotAndIndex {
+  param([string]$ChatKey)
+
+  $snap = Get-Command -Name New-AidSnapshot -ErrorAction SilentlyContinue
+  if (-not $snap) { throw "Cmdlet New-AidSnapshot ikke funnet." }
+
+  $pars = $snap.Parameters.Keys
+  $args = @{}
+  if ($pars -contains 'ChatKey') { $args['ChatKey'] = $ChatKey }
+  if ($pars -contains 'Root')    { $args['Root']    = $Root }
+
+  if ($script:DoIt) {
+    & New-AidSnapshot @args | Out-Null
+  } else {
+    Write-Host "DRY: New-AidSnapshot $(($args.GetEnumerator() | % { '{0}={1}' -f $_.Key,$_.Value }) -join ' ')"
+  }
+
+  # Finn nyeste zip etter snapshot
+  $zipGuess = Join-Path $handoverD ("{0}-handover.zip" -f $ChatKey)
+  if (-not (Test-Path $zipGuess)) {
+    # fallback: ta nyeste *-handover.zip som matcher ck
+    $cand = Get-ChildItem $handoverD -Filter ("{0}-handover.zip" -f $ChatKey) -File -ErrorAction SilentlyContinue |
+            Sort-Object LastWriteTimeUtc -Descending | Select-Object -First 1
+    if ($cand) { $zipGuess = $cand.FullName }
+  }
+
+  Invoke-AddIndexSmart -ChatKey $ChatKey -ZipPath $zipGuess -Root $Root
+}
+PS C:\Dev\my-camino> # Hjelper: prøv å sende (Approve-AidReply eller Send-AidReply)
+PS C:\Dev\my-camino> function Invoke-SendReply {
+  param([string]$ReplyPath)
+
+  $approved = $false
+  $ap = Get-Command -Name Approve-AidReply -ErrorAction SilentlyContinue
+  if ($ap) {
+    $pars = $ap.Parameters.Keys
+    $args = @{}
+    if ($pars -contains 'Path') { $args['Path'] = $ReplyPath }
+    # Enkel, robust: ikke bruk -Auto/-Send med mindre de finnes
+    if ($pars -contains 'Auto') { $args['Auto'] = $true }
+    if ($pars -contains 'Send') { $args['Send'] = $true }
+
+    if ($script:DoIt) {
+      try { & Approve-AidReply @args | Out-Null; $approved = $true }
+      catch { Write-Warning "Approve-AidReply feilet: $($_.Exception.Message)" }
+    } else {
+      Write-Host "DRY: Approve-AidReply $(($args.GetEnumerator() | % { '{0}={1}' -f $_.Key,$_.Value }) -join ' ')"
+      $approved = $true
+    }
+  }
+
+  if (-not $approved) {
+    $snd = Get-Command -Name Send-AidReply -ErrorAction SilentlyContinue
+    if ($snd) {
+      $args = @{}
+      if ($snd.Parameters.Keys -contains 'Path') { $args['Path'] = $ReplyPath }
+      if ($script:DoIt) {
+        try { & Send-AidReply @args | Out-Null }
+        catch { Write-Warning "Send-AidReply feilet: $($_.Exception.Message)" }
+      } else {
+        Write-Host "DRY: Send-AidReply $(($args.GetEnumerator() | % { '{0}={1}' -f $_.Key,$_.Value }) -join ' ')"
+      }
+    } else {
+      Write-Warning "Verken Approve-AidReply eller Send-AidReply er tilgjengelig. Hopper over sending."
+    }
+  }
+}
+PS C:\Dev\my-camino> $moveCount = 0; $snapCount = 0; $sendCount = 0
+PS C:\Dev\my-camino> foreach ($d in $drafts) {
+  $dest = Get-ReplyDestination -Draft $d
+  if ($null -eq $dest) {
+    Write-Warning "Ugyldig filnavn for utkast: $($d.Name). Forventet 'draft-<chatkey>-<title>.md'."
+    continue
+  }
+
+  Write-Host ("→ {0} → {1}" -f $d.Name,$dest.DestFile)
+
+  if ($script:DoIt) {
+    try {
+      Move-Item -LiteralPath $d.FullName -Destination $dest.DestFile -Force
+      $moveCount++
+    } catch {
+      Write-Warning "Flytt feilet: $($_.Exception.Message)"
+      continue
+    }
+  } else {
+    Write-Host "DRY: Move-Item `"$($d.FullName)`" → `"$($dest.DestFile)`""
+  }
+
+  # Snapshot + Index for mål-chat
+  Invoke-SnapshotAndIndex -ChatKey $dest.ChatKey
+  $snapCount++
+
+  # Send
+  Invoke-SendReply -ReplyPath $dest.DestFile
+  $sendCount++
+}
+→ draft-ops-workflow-perf-health-20250909-2032.md → C:\Dev\my-camino\handover\captures\ops\2025\09\ops-reply-20250909-2116-workflow-perf-health-20250909-2032.md
+DRY: Move-Item "C:\Dev\my-camino\handover\outbox\ops-workflow\draft-ops-workflow-perf-health-20250909-2032.md" → "C:\Dev\my-camino\handover\captures\ops\2025\09\ops-reply-20250909-2116-workflow-perf-health-20250909-2032.md"
+DRY: New-AidSnapshot ChatKey=ops Root=C:\Dev\my-camino
+DRY: Add-AidIndexEntry ChatKey=ops ZipPath=C:\Dev\my-camino\handover\ops-handover.zip
+DRY: Approve-AidReply
+PS C:\Dev\my-camino> # --- 4) Oppsummering og slutt -----------------------
+PS C:\Dev\my-camino> Write-Host "— Oppsummering —" -ForegroundColor Cyan
+— Oppsummering —
+PS C:\Dev\my-camino> Write-Host (" Index-normalisert for: {0} ChatKeys" -f $latest.Count)
+ Index-normalisert for: 14 ChatKeys
+PS C:\Dev\my-camino> Write-Host (" Utkast flyttet      : {0}" -f $moveCount)
+ Utkast flyttet      : 0
+PS C:\Dev\my-camino> Write-Host (" Snap/Index oppdatert: {0}" -f $snapCount)
+ Snap/Index oppdatert: 1
+PS C:\Dev\my-camino> Write-Host (" Send-forsøk         : {0}" -f $sendCount)
+ Send-forsøk         : 1
+PS C:\Dev\my-camino> Stop-Transcript | Out-Null
+**********************
+PowerShell transcript end
+End time: 20250909211650
+**********************

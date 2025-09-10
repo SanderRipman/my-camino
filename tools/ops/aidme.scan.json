@@ -1,0 +1,22 @@
+{
+  "root": "C:\\Dev\\my-camino",
+  "scanDays": 30,
+  "scanSince": "2025-08-10T20:32:06+02:00",
+  "excludeDirs": [
+    ".git",
+    "node_modules",
+    ".cache",
+    ".parcel-cache",
+    ".next",
+    "dist",
+    "build",
+    "tmp",
+    "temp",
+    "__pycache__",
+    ".venv",
+    ".tox",
+    ".gradle",
+    ".idea",
+    ".vscode"
+  ]
+}
