@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#123f3d">
+  <meta name="description" content="AidMe VIDA – digital arbeidsflate for VÍA, SER og VIDA.">
+  <title>AidMe VIDA · Arbeidsflate</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Hovednavigasjon">
+      <div class="brand">
+        <div class="brand-mark">A</div>
+        <div><strong>AidMe VIDA</strong><span>Ve. Sé. Vive.</span></div>
+      </div>
+      <nav id="mainNav">
+        <button class="nav-item active" data-view="overview"><span>01</span><b data-i18n="navOverview">Oversikt</b></button>
+        <button class="nav-item" data-view="participants"><span>02</span><b data-i18n="navParticipants">Deltakere</b></button>
+        <button class="nav-item" data-view="checkin"><span>03</span><b data-i18n="navCheckin">Innsjekk</b></button>
+        <button class="nav-item" data-view="analysis"><span>04</span><b data-i18n="navAnalysis">Analyse</b></button>
+        <button class="nav-item" data-view="forms"><span>05</span><b data-i18n="navForms">Skjema & rutiner</b></button>
+        <button class="nav-item" data-view="settings"><span>06</span><b data-i18n="navSettings">Innstillinger</b></button>
+      </nav>
+      <div class="phase-key">
+        <div><i class="dot via"></i><span>VÍA · Før</span></div>
+        <div><i class="dot ser"></i><span>SER · Under</span></div>
+        <div><i class="dot vida"></i><span>VIDA · Etter</span></div>
+      </div>
+      <p class="demo-note">Demoarbeidsflate. Bruk pseudonym/kodenavn – ikke reelle sensitive personopplysninger.</p>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="viewEyebrow">VÍA → SER → VIDA</p>
+          <h1 id="viewTitle">Operativ oversikt</h1>
+        </div>
+        <div class="top-actions">
+          <button class="ghost" id="langToggle" aria-label="Bytt språk">EN</button>
+          <select id="globalParticipant" aria-label="Aktiv deltaker"></select>
+          <button class="primary" id="quickCheckin" data-i18n="quickCheckin">Ny innsjekk</button>
+        </div>
+      </header>
+
+      <section class="view active" id="view-overview">
+        <div class="hero-panel">
+          <div>
+            <p class="eyebrow">AidMe VIDA · pilotdemo</p>
+            <h2 data-i18n="heroTitle">Frihet innen trygge rammer</h2>
+            <p data-i18n="heroText">Se utvikling uten å gjøre mennesker til datapunkter. Målinger støtter samtalen – de erstatter den ikke.</p>
+          </div>
+          <div class="hero-badge"><strong id="todayDate"></strong><span data-i18n="todayStatus">Dagens situasjonsbilde</span></div>
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric"><span data-i18n="activeParticipants">Aktive deltakere</span><strong id="metricParticipants">0</strong><small id="metricPhaseMix">–</small></article>
+          <article class="metric"><span data-i18n="checkins14">Innsjekker · 14 dager</span><strong id="metricCheckins">0</strong><small data-i18n="selfReported">selvrapportert</small></article>
+          <article class="metric"><span data-i18n="greenToday">Grønn i dag</span><strong id="metricGreen">0</strong><small data-i18n="needsNoAction">ingen ekstra tiltak</small></article>
+          <article class="metric"><span data-i18n="followup">Bør følges opp</span><strong id="metricFollowup">0</strong><small data-i18n="yellowRed">gul/rød vurdering</small></article>
+        </div>
+
+        <div class="two-col">
+          <article class="panel-card">
+            <div class="card-head"><div><p class="eyebrow" data-i18n="groupDevelopment">Gruppeutvikling</p><h3 data-i18n="last30">Siste 30 dager</h3></div><button class="text-btn" data-go="analysis" data-i18n="openAnalysis">Åpne analyse</button></div>
+            <canvas id="overviewChart" height="280"></canvas>
+            <div class="chart-legend" id="overviewLegend"></div>
+          </article>
+          <article class="panel-card">
+            <div class="card-head"><div><p class="eyebrow" data-i18n="today">I dag</p><h3 data-i18n="groupPulse">Gruppens puls</h3></div></div>
+            <div id="groupPulse" class="pulse-list"></div>
+          </article>
+        </div>
+
+        <article class="panel-card process-card">
+          <div class="card-head"><div><p class="eyebrow" data-i18n="process">Prosess</p><h3>VÍA → SER → VIDA → ny VÍA</h3></div></div>
+          <div class="process-flow">
+            <div class="process-step via-step"><b>VÍA</b><span data-i18n="viaDesc">Retning · ressurser · avklaring · GO/NO-GO</span></div>
+            <div class="arrow">→</div>
+            <div class="process-step ser-step"><b>SER</b><span data-i18n="serDesc">Rytme · fellesskap · ansvar · mestring</span></div>
+            <div class="arrow">→</div>
+            <div class="process-step vida-step"><b>VIDA</b><span data-i18n="vidaDesc">Oversett erfaring til handling hjemme</span></div>
+            <div class="arrow">→</div>
+            <div class="process-step next-step"><b>ny VÍA</b><span data-i18n="nextDesc">Neste konkrete retning</span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="view" id="view-participants">
+        <div class="section-head"><div><p class="eyebrow" data-i18n="participants">Deltakere</p><h2 data-i18n="pseudonymProfiles">Pseudonymiserte profiler</h2></div><button class="primary" id="addParticipant" data-i18n="addParticipant">+ Ny deltaker</button></div>
+        <div class="participant-layout">
+          <div class="participant-list" id="participantList"></div>
+          <article class="panel-card participant-detail" id="participantDetail"></article>
+        </div>
+      </section>
+
+      <section class="view" id="view-checkin">
+        <div class="section-head"><div><p class="eyebrow" data-i18n="regularCheckin">Regelmessig avstemning</p><h2 data-i18n="dailyCheckin">Daglig innsjekk</h2><p data-i18n="checkinHelp">Kort nok til å bli brukt. Nyttig nok til å oppdage mønstre.</p></div></div>
+        <form class="panel-card form-card" id="checkinForm">
+          <div class="form-row three">
+            <label><span data-i18n="participant">Deltaker</span><select id="checkParticipant" required></select></label>
+            <label><span data-i18n="date">Dato</span><input type="date" id="checkDate" required></label>
+            <label><span data-i18n="phase">Fase</span><select id="checkPhase"><option>VÍA</option><option>SER</option><option>VIDA</option></select></label>
+          </div>
+          <div class="slider-grid" id="sliderGrid"></div>
+          <div class="form-row two">
+            <label><span data-i18n="dayStatus">Dagsstatus</span><select id="dayStatus"><option value="green">Grønn</option><option value="yellow">Gul</option><option value="red">Rød</option></select><small data-i18n="dayStatusHelp">Operativ vurdering – ikke diagnose.</small></label>
+            <label><span data-i18n="note">Kort notat</span><textarea id="checkNote" rows="4" data-i18n-placeholder="notePlaceholder" placeholder="Bare det som er relevant for oppfølging."></textarea></label>
+          </div>
+          <div class="form-actions"><button type="button" class="ghost" id="fillDemoCheckin" data-i18n="demoValues">Fyll demo</button><button type="submit" class="primary" data-i18n="saveCheckin">Lagre innsjekk</button></div>
+        </form>
+      </section>
+
+      <section class="view" id="view-analysis">
+        <div class="section-head"><div><p class="eyebrow" data-i18n="analysis">Analyse</p><h2 data-i18n="developmentComparison">Utvikling og sammenligning</h2><p data-i18n="analysisHelp">Velg periode, måling og én eller flere deltakere. Gruppegjennomsnitt kan vises som egen serie.</p></div></div>
+        <article class="panel-card analysis-card">
+          <div class="analysis-controls">
+            <label><span data-i18n="metric">Måling</span><select id="analysisMetric"></select></label>
+            <label><span data-i18n="period">Periode</span><select id="analysisPeriod"><option value="14">14 dager</option><option value="30" selected>30 dager</option><option value="60">60 dager</option><option value="90">90 dager</option><option value="3650">Alle</option></select></label>
+            <label class="toggle-label"><input type="checkbox" id="showAverage" checked><span data-i18n="groupAverage">Vis gruppesnitt</span></label>
+          </div>
+          <div class="participant-chips" id="analysisParticipants"></div>
+          <div class="chart-frame"><canvas id="analysisChart" height="360"></canvas></div>
+          <div class="analysis-summary" id="analysisSummary"></div>
+        </article>
+      </section>
+
+      <section class="view" id="view-forms">
+        <div class="section-head"><div><p class="eyebrow" data-i18n="formsAndRoutines">Skjema & rutiner</p><h2 data-i18n="oneJourney">Én deltakerreise – minst mulig dobbelføring</h2></div></div>
+        <div class="form-library" id="formLibrary"></div>
+      </section>
+
+      <section class="view" id="view-settings">
+        <div class="section-head"><div><p class="eyebrow" data-i18n="settings">Innstillinger</p><h2 data-i18n="demoDataManagement">Demo og databehandling</h2></div></div>
+        <div class="two-col">
+          <article class="panel-card">
+            <h3 data-i18n="localStorage">Lokal lagring</h3>
+            <p data-i18n="localStorageText">Denne demoen lagrer data i nettleseren på denne enheten. Pseudonymet blir nøkkelen du ser – bruk ikke fødselsnummer, navn eller helseopplysninger.</p>
+            <div class="form-actions"><button class="ghost" id="exportData" data-i18n="exportJson">Eksporter JSON</button><label class="ghost file-label"><input type="file" id="importData" accept="application/json">Importer JSON</label></div>
+          </article>
+          <article class="panel-card">
+            <h3 data-i18n="resetDemo">Tilbakestill demo</h3><p data-i18n="resetDemoText">Gjenoppretter realistiske, fiktive deltakere og målinger.</p><button class="danger" id="resetDemo" data-i18n="reset">Tilbakestill</button>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="participantDialog">
+    <form method="dialog" id="participantForm">
+      <div class="dialog-head"><div><p class="eyebrow">AidMe VIDA</p><h3 data-i18n="newParticipant">Ny deltaker</h3></div><button value="cancel" class="icon-btn">×</button></div>
+      <label><span data-i18n="pseudonym">Pseudonym / kodenavn</span><input id="newPseudo" maxlength="40" required placeholder="f.eks. Nordlys-07"></label>
+      <div class="form-row two"><label><span data-i18n="phase">Fase</span><select id="newPhase"><option>VÍA</option><option>SER</option><option>VIDA</option></select></label><label><span data-i18n="status">Status</span><select id="newStatus"><option value="green">Grønn</option><option value="yellow">Gul</option><option value="red">Rød</option></select></label></div>
+      <label><span data-i18n="internalNote">Internt, ikke-sensitivt notat</span><textarea id="newNote" rows="3" placeholder="Kort praktisk merknad"></textarea></label>
+      <div class="form-actions"><button value="cancel" class="ghost" data-i18n="cancel">Avbryt</button><button value="default" class="primary" id="saveParticipant" data-i18n="create">Opprett</button></div>
+    </form>
+  </dialog>
+
+  <script src="./app.js"></script>
+</body>
+</html>
