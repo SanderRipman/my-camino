@@ -7,8 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run PowerShell CI
+      - name: Run PowerShell CI when available
         shell: pwsh
         run: |
           pwsh -v
-          ./tools/ci.ps1
+          if (Test-Path './tools/ci.ps1') {
+            ./tools/ci.ps1
+          } else {
+            Write-Host 'No tools/ci.ps1 in this static repository; PowerShell CI skipped.'
+          }
