@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#123f3d">
   <meta name="description" content="AidMe VIDA – sikker arbeidsflate for VÍA, SER og VIDA.">
+  <meta name="robots" content="noindex,nofollow">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -20,15 +21,18 @@
   <main id="authView" class="auth-shell hidden">
     <section class="auth-card">
       <div class="brand"><span class="brand-mark">A</span><div><strong>AidMe VIDA</strong><small>Ve. Sé. Vive.</small></div></div>
-      <p class="eyebrow">Sikker portal</p>
+      <p class="eyebrow">Sikker forhåndsvisning</p>
       <h1>Fortsett reisen din</h1>
       <p>Logg inn for å se bare det som er relevant for deg, rollen din og neste steg.</p>
+      <div class="preview-note"><strong>Utviklingsmiljø</strong><br>Bruk kun fiktive testopplysninger til portalen er eksplisitt åpnet for reelle deltakerdata.</div>
       <form id="loginForm">
-        <label>E-post<input id="email" type="email" autocomplete="email" required placeholder="navn@eksempel.no"></label>
-        <button class="primary" type="submit">Send sikker innloggingslenke</button>
+        <label>E-post<input id="email" type="email" autocomplete="username" required placeholder="navn@eksempel.no"></label>
+        <label>Passord<input id="password" type="password" autocomplete="current-password" placeholder="Midlertidig testpassord"></label>
+        <button class="primary" type="submit">Logg inn</button>
+        <button id="magicLinkButton" class="ghost" type="button">Send sikker innloggingslenke</button>
       </form>
       <p id="authMessage" class="message" aria-live="polite"></p>
-      <small class="privacy-note">Tilgang opprettes normalt ved invitasjon. Ikke skriv helseopplysninger i innloggingsfeltet.</small>
+      <small class="privacy-note">Tilgang opprettes normalt ved invitasjon. Ikke skriv helseopplysninger i innloggingsfeltene.</small>
     </section>
   </main>
 
@@ -40,6 +44,7 @@
         <button class="nav-item" data-view="journey">Min reise</button>
         <button class="nav-item" data-view="tasks">Oppgaver</button>
         <button class="nav-item" data-view="security">Sikkerhet</button>
+        <a id="adminLink" class="nav-item hidden" href="./admin.html">Administrasjon</a>
         <button class="nav-item" data-view="help">Hjelp & kontakt</button>
       </nav>
       <div class="phase-key"><span>VÍA · Før</span><span>SER · Under</span><span>VIDA · Etter</span></div>
@@ -50,6 +55,8 @@
         <div><p class="eyebrow" id="contextLabel">VÍA → SER → VIDA</p><h1 id="pageTitle">Hjem</h1></div>
         <div class="top-actions"><span id="securityPill" class="security-pill">Kontrollerer sikkerhet…</span><span id="userLabel" class="user-pill"></span><button id="logout" class="ghost">Logg ut</button></div>
       </header>
+
+      <article class="preview-strip"><strong>Forhåndsvisning:</strong> Test roller, flyt og UI med fiktive opplysninger. Ingen reelle helse- eller deltakeropplysninger ennå.</article>
 
       <section id="view-home" class="view active">
         <article id="accessPending" class="card warning-card hidden"><p class="eyebrow">Tilgang</p><h2>Kontoen er ikke aktivert ennå</h2><p>Du er innlogget, men ingen deltakerreise eller arbeidsrolle er knyttet til kontoen. Kontakt AidMe dersom du forventet tilgang.</p></article>
@@ -111,6 +118,17 @@
             <button class="primary" type="submit">Bekreft og fortsett</button>
           </form>
           <p id="mfaChallengeMessage" class="message" aria-live="polite"></p>
+        </article>
+
+        <article class="card mfa-panel">
+          <p class="eyebrow">Testkonto</p>
+          <h2>Bytt midlertidig passord</h2>
+          <p>Etter at tofaktor er aktivert kan du erstatte det midlertidige testpassordet. Ikke gjenbruk et passord fra andre tjenester.</p>
+          <form id="changePasswordForm">
+            <label>Nytt passord<input id="newPassword" type="password" autocomplete="new-password" minlength="12" required></label>
+            <button class="primary" type="submit">Bytt passord</button>
+          </form>
+          <p id="passwordMessage" class="message" aria-live="polite"></p>
         </article>
       </section>
 
