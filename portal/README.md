@@ -1,37 +1,44 @@
-# AidMe VIDA – produksjonsportal
+# AidMe VIDA production portal
 
-Dette området er den nye produksjonsretningen for `my.aidme.no`.
+This folder is the controlled production-portal foundation for `my.aidme.no`.
 
-## Beslutning
+## Current preview status – 2026-08-16
 
-Portalen bygges som **Full AidMe-produksjonsportal**, ikke som en videreføring av `localStorage`-demoen som produksjonsløsning.
+- Development branch: `portal-production-foundation-20260816`
+- Draft PR: #22
+- Netlify deploy-preview: `https://deploy-preview-22--mycamino.netlify.app/`
+- Branch root redirects to `/portal/` for owner/user QA.
+- Live `my.aidme.no` is intentionally unchanged until the first owner login + TOTP/AAL2 smoke test is green.
+- A synthetic preview dataset exists for interest, VÍA, SER and VIDA workflow testing. Do not enter real participant or health information.
 
-Den eksisterende `vida/`-demoen beholdes som visuell/faglig referanse og testflate inntil den nye portalen er kontrollert.
+## Product principles
 
-## Teknisk grunnmur
+- participant: **Din neste handling**
+- staff: **Trenger handling nå**
+- VÍA → SER → VIDA → ny VÍA is the operational journey, not decoration
+- information is collected once and reused where lawful and necessary
+- roles and scopes are enforced server-side; UI hiding is never the security boundary
+- staff/admin access requires MFA/AAL2
+- system administration does not automatically grant participant-sensitive access
+- sensitive API/auth/participant data must never be cached by the PWA service worker
+- public interest intake is server-mediated and remains disabled until anti-abuse and privacy gates are closed
 
-- Frontend: Netlify / `my.aidme.no`.
-- Kode: GitHub `SanderRipman/my-camino`.
-- Backend, Auth og PostgreSQL: eksisterende AidMe Supabase-prosjekt i EU-region.
-- Tilgang: server-side/RLS, minst mulig privilegium, scope per organisasjon/pilot/deltaker.
-- Sensitivitet: data som kan kobles tilbake til en deltaker behandles som personopplysninger/pseudonymiserte data, ikke som anonyme data.
-- Klinisk journalføring er ikke automatisk del av portalen. Dersom det faktisk ytes helsehjelp, må journalplikt og ansvarlig helsevirksomhets systemkrav avklares særskilt.
+## Preview login model
 
-## Primær brukeropplevelse
+The owner preview supports a temporary password-based login so the first account can be tested without depending on email redirect configuration. After login, a staff/admin account is forced to the Security view until Authenticator/TOTP is enrolled and the session reaches AAL2. A password-change form is available after AAL2.
 
-Portalen er oppgaveorientert, ikke dokumentorientert.
+Temporary credentials are intentionally **not** stored in Git or SharePoint. They must be rotated before any real-data phase.
 
-Deltaker starter på **Din neste handling**.
-Ansatte starter på **Trenger handling nå**.
+## Security boundary
 
-Reisen følger:
+The browser uses only the Supabase publishable key. Database RLS, restrictive AAL2 policies, scoped role grants and server/Edge Function authorization are the security controls. Backend secret keys never belong in browser code.
 
-`interesse → VÍA → individuell GO/NO-GO → pilot-GO → SER → VIDA → ny VÍA`
+## Before beta merge to live `my.aidme.no`
 
-Se `ARCHITECTURE.md` og `USER_JOURNEY.md`.
+1. Owner login succeeds in deploy preview.
+2. Owner enrolls Authenticator and reaches AAL2.
+3. Core staff queue and administration page load correctly.
+4. Basic negative-access tests are run with separate role accounts.
+5. No real participant data is used during this phase.
 
-## Sikkerhetsstatus 2026-08-16
-
-Supabase-skjema og første RLS-/rollegrunnlag er opprettet. Security Advisor er kjørt etter hardening. Gjenværende INFO-funn er bevisst låste server-only-tabeller uten klientpolicy. Ingen WARN/ERROR fra første hardeningrunde skal aksepteres før videre produksjonskobling.
-
-Offentlig interesseinnsending er fortsatt **ikke åpnet direkte mot databasen**. Den skal gå gjennom kontrollert backend/Edge-funksjon med rate-limit/CAPTCHA eller server-til-server-kobling fra aidme.no.
+Real sensitive data has additional gates: DPIA/privacy/legal basis, retention/deletion, backup/restore, incident response, processor/subprocessor review and final operational authorization.
