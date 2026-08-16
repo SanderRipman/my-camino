@@ -1,6 +1,5 @@
 const SUPABASE_URL='https://ibloovohuhrceivrvhvn.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_JtNmgzTLlepPhKDCVsn6CA_Vk7BCClv';
-const BOOTSTRAP_EMAIL='sander@aidme.no';
 const client=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const stages=['VÍA','SER','VIDA','ny VÍA'];
@@ -9,7 +8,7 @@ let pendingEnrollmentFactorId=null;
 
 function show(name){
   $$('.view').forEach(v=>v.classList.toggle('active',v.id===`view-${name}`));
-  $$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
+  $$('.nav-item[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
   $('#pageTitle').textContent={home:'Hjem',journey:'Min reise',tasks:'Oppgaver',security:'Sikkerhet',help:'Hjelp & kontakt'}[name]||'AidMe VIDA';
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -34,6 +33,9 @@ function activeGrant(g){
   return true;
 }
 function isStaff(){return accessGrants.some(activeGrant)}
+function hasRole(code){return accessGrants.some(g=>activeGrant(g)&&g.role_code===code)}
+function roleLabel(code){return ({system_admin:'Systemadministrator',project_owner:'Prosjekteier',program_lead:'Programleder',via_owner:'VÍA-ansvarlig',clinical_professional:'Relevant fagperson',ser_lead:'SER-/turleder',vida_owner:'VIDA-eier',logistics:'Logistikk / beredskap',observer:'Observatør',evaluator:'Evaluator',break_glass:'Break-glass'})[code]||code}
+function roleSummary(){return accessGrants.filter(activeGrant).map(g=>roleLabel(g.role_code)).filter((v,i,a)=>a.indexOf(v)===i).join(' · ')}
 
 async function getAssurance(){
   const {data,error}=await client.auth.mfa.getAuthenticatorAssuranceLevel();
@@ -111,6 +113,7 @@ function renderEmptyShell(displayName){
   $('#taskList').innerHTML='<p>Ingen oppgaver er tildelt.</p>';
   $('#participantCards').innerHTML='<article class="card"><h3>Ingen aktiv reise ennå</h3><p>Når en reise blir aktivert, vises den her.</p></article>';
   $('#staffQueue').classList.add('hidden');
+  $('#ownerText').textContent='Tildeles når reisen er aktivert.';
 }
 
 async function loadPortal(){
@@ -118,6 +121,7 @@ async function loadPortal(){
   $('#authView').classList.add('hidden');
   $('#appView').classList.add('hidden');
   $('#accessPending').classList.add('hidden');
+  $('#adminLink').classList.add('hidden');
   const {data:{session:s}}=await client.auth.getSession();
   session=s;
   if(!session){$('#loading').classList.add('hidden');$('#authView').classList.remove('hidden');return}
@@ -134,14 +138,17 @@ async function loadPortal(){
   const own=(ownPRes.data||[])[0]||null;
   const displayName=profileRes.data?.display_name||session.user.email||'Innlogget';
   $('#userLabel').textContent=displayName;
+  $('#adminLink').classList.toggle('hidden',!hasRole('system_admin'));
 
   const security=await renderSecurity();
   const staff=isStaff();
   if(staff&&!security.atAal2){
     renderEmptyShell(displayName);
+    $('#adminLink').classList.toggle('hidden',!hasRole('system_admin'));
     $('#homeHeading').textContent='Bekreft tofaktor';
     $('#homeEyebrow').textContent='Arbeidsflate låst';
     $('#homeIntro').textContent='Arbeidsroller åpnes først etter at denne innloggingen er bekreftet med Authenticator.';
+    $('#ownerText').textContent=roleSummary()||'Arbeidsrolle registrert';
     $('#loading').classList.add('hidden');
     $('#appView').classList.remove('hidden');
     show('security');
@@ -174,6 +181,7 @@ async function loadPortal(){
   $('#homeHeading').textContent=isParticipant?'Din neste handling':'Trenger handling nå';
   $('#homeEyebrow').textContent=isParticipant?'Din portal':'Arbeidsflate';
   $('#homeIntro').textContent=isParticipant?'Her ser du det viktigste for din reise først.':'Her vises tildelte oppgaver og deltakere som krever oppfølging.';
+  $('#ownerText').textContent=isParticipant?'Navngitt eier vises her når reisen er aktivert.':(roleSummary()||'Arbeidsrolle registrert');
   const current=own||participants[0];
   const idx=mapStage(current?.stage);
   $('#stageBadge').textContent=stages[idx];
@@ -202,17 +210,39 @@ async function loadPortal(){
 $('#loginForm').addEventListener('submit',async e=>{
   e.preventDefault();
   const email=$('#email').value.trim().toLowerCase();
-  $('#authMessage').textContent='Sender…';
-  const shouldCreateUser=email===BOOTSTRAP_EMAIL;
-  const {error}=await client.auth.signInWithOtp({email,options:{shouldCreateUser,emailRedirectTo:`${location.origin}/portal/`}});
-  $('#authMessage').textContent=error?'Kunne ikke sende lenke. Kontroller at du er invitert, eller kontakt AidMe.':'Sjekk e-posten din for sikker innloggingslenke.';
+  const password=$('#password').value;
+  if(!password){$('#authMessage').textContent='Skriv inn testpassordet, eller bruk sikker innloggingslenke.';return}
+  $('#authMessage').textContent='Logger inn…';
+  const {error}=await client.auth.signInWithPassword({email,password});
+  if(error){$('#authMessage').textContent='Innloggingen ble ikke godkjent. Kontroller e-post og passord.';return}
+  $('#authMessage').textContent='Innlogget. Kontrollerer tilgang…';
+  await loadPortal();
+});
+$('#magicLinkButton').addEventListener('click',async()=>{
+  const email=$('#email').value.trim().toLowerCase();
+  if(!email){$('#authMessage').textContent='Skriv inn e-postadressen først.';return}
+  $('#authMessage').textContent='Sender sikker innloggingslenke…';
+  const {error}=await client.auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:`${location.origin}/portal/`}});
+  $('#authMessage').textContent=error?'Kunne ikke sende lenken i dette miljøet. Bruk testpassordet inntil e-postflyten er ferdig konfigurert.':'Sjekk e-posten din for sikker innloggingslenke.';
+});
+$('#changePasswordForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const value=$('#newPassword').value;
+  const current=await getAssurance();
+  if(current.currentLevel!=='aal2'){$('#passwordMessage').textContent='Bekreft Authenticator først. Passordbytte for arbeidskonto krever AAL2.';show('security');return}
+  if(value.length<12){$('#passwordMessage').textContent='Bruk minst 12 tegn.';return}
+  $('#passwordMessage').textContent='Bytter passord…';
+  const {error}=await client.auth.updateUser({password:value});
+  if(error){$('#passwordMessage').textContent='Passordet kunne ikke endres. Prøv igjen.';return}
+  $('#changePasswordForm').reset();
+  $('#passwordMessage').textContent='Passordet er endret. Det midlertidige testpassordet er nå ugyldig.';
 });
 $('#logout').addEventListener('click',async()=>{await client.auth.signOut();location.replace('/portal/');});
 $('#startMfa').addEventListener('click',startMfaEnrollment);
 $('#startChallenge').addEventListener('click',()=>{$('#mfaChallengePanel').classList.remove('hidden');$('#mfaChallengeCode').focus();});
 $('#mfaEnrollForm').addEventListener('submit',async e=>{e.preventDefault();await verifyEnrollment($('#mfaEnrollCode').value.trim());});
 $('#mfaChallengeForm').addEventListener('submit',async e=>{e.preventDefault();await verifyExistingFactor($('#mfaChallengeCode').value.trim());});
-$$('.nav-item').forEach(b=>b.addEventListener('click',()=>show(b.dataset.view)));
+$$('.nav-item[data-view]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.view)));
 client.auth.onAuthStateChange(()=>setTimeout(loadPortal,0));
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
 loadPortal();
