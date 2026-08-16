@@ -2,247 +2,144 @@ const SUPABASE_URL='https://ibloovohuhrceivrvhvn.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_JtNmgzTLlepPhKDCVsn6CA_Vk7BCClv';
 const client=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const stages=['VÍA','SER','VIDA','ny VÍA'];
-let session=null, participants=[], tasks=[], accessGrants=[], assurance={currentLevel:'aal1',nextLevel:'aal1'};
-let pendingEnrollmentFactorId=null;
+const STAGES=['VÍA','SER','VIDA','ny VÍA'];
+const METRICS={mood:'Stemning',stress:'Stress',energy:'Energi',sleep:'Søvnkvalitet',belonging:'Tilhørighet',agency:'Egenkraft',direction:'Retning'};
+const CHART_COLORS=['#123f3d','#c8a45d','#405f7d','#8f6653','#6e8f88','#7b617d'];
+let session=null,participants=[],tasks=[],accessGrants=[],checkins=[],pilots=[],routeDays=[],pilotParticipants=[],formDefs=[],documents=[],staffProfiles=[],preferences=null;
+let assurance={currentLevel:'aal1',nextLevel:'aal1'},pendingEnrollmentFactorId=null,selectedParticipantId=null,selectedTaskId=null,taskFilter='OPEN',analysisSelected=new Set();
 
+function escapeHtml(v=''){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function activeGrant(g){return !g.revoked_at&&(!g.valid_from||new Date(g.valid_from)<=new Date())&&(!g.valid_until||new Date(g.valid_until)>new Date())}
+function isStaff(){return accessGrants.some(activeGrant)}
+function hasRole(code){return accessGrants.some(g=>activeGrant(g)&&g.role_code===code)}
+function roleLabel(code){return({system_admin:'Systemadministrator',project_owner:'Prosjekteier',program_lead:'Programleder',via_owner:'VÍA-ansvarlig',clinical_professional:'Relevant fagperson',ser_lead:'SER-/turleder',vida_owner:'VIDA-eier',logistics:'Logistikk / beredskap',observer:'Observatør',evaluator:'Evaluator',break_glass:'Break-glass'})[code]||code}
+function roleSummary(){return [...new Set(accessGrants.filter(activeGrant).map(g=>roleLabel(g.role_code)))].join(' · ')}
+function stageIndex(stage='VIA'){if(stage==='SER')return 1;if(stage==='VIDA')return 2;if(stage==='NEW_VIA')return 3;return 0}
+function stageLabel(stage='VIA'){return stage==='VIA'||stage==='INTEREST'||stage==='READY_FOR_GO'||stage==='GO'||stage==='GO_WITH_CONDITIONS'?'VÍA':stage==='NEW_VIA'?'ny VÍA':stage}
+function severity(t){return t.severity||((t.priority||5)<=1?'RED':(t.priority||5)<=3?'YELLOW':'GREEN')}
+function statusText(s){return({OPEN:'Åpen',IN_PROGRESS:'I gang',WAITING:'Venter',DONE:'Ferdig',CANCELLED:'Avsluttet'})[s]||s}
+function formatDate(v){if(!v)return'Ingen frist';return new Intl.DateTimeFormat('nb-NO',{day:'2-digit',month:'short'}).format(new Date(v))}
+function participantById(id){return participants.find(p=>p.id===id)}
+function pilotById(id){return pilots.find(p=>p.id===id)}
+function routeToday(pilotId){return routeDays.find(r=>r.pilot_id===pilotId&&r.route_date===new Date().toISOString().slice(0,10))||routeDays.filter(r=>r.pilot_id===pilotId).sort((a,b)=>(a.day_number||0)-(b.day_number||0))[0]}
+function latestCheckin(participantId){return checkins.filter(c=>c.participant_id===participantId).sort((a,b)=>String(b.checkin_date).localeCompare(String(a.checkin_date)))[0]||null}
+function ownParticipant(){return participants.find(p=>p.user_id===session?.user?.id)||null}
+
+const viewMeta={overview:['VÍA → SER → VIDA','Operativ oversikt'],participants:['Deltakerløp','Deltakere'],tasks:['Arbeidsflyt','Oppgaver'],checkin:['Måling','Daglig innsjekk'],analysis:['Mønstre, ikke diagnoser','Utvikling og sammenligning'],forms:['Arbeidsflyt','Skjema & rutiner'],documents:['Arbeidsarkiv','Mine dokumenter'],settings:['Konto','Personlige innstillinger'],security:['Sikkerhet','Konto og tofaktor'],help:['Beredskap','Hjelp & kontakt']};
 function show(name){
   $$('.view').forEach(v=>v.classList.toggle('active',v.id===`view-${name}`));
   $$('.nav-item[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
-  $('#pageTitle').textContent={home:'Hjem',journey:'Min reise',tasks:'Oppgaver',security:'Sikkerhet',help:'Hjelp & kontakt'}[name]||'AidMe VIDA';
+  const m=viewMeta[name]||['AidMe VIDA','Portal'];$('#contextLabel').textContent=m[0];$('#pageTitle').textContent=m[1];
+  $('#userMenu').classList.add('hidden');
+  if(name==='analysis')setTimeout(renderAnalysis,30);
+  if(name==='overview')setTimeout(renderOverviewChart,30);
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function mapStage(stage='INTEREST'){
-  if(stage==='SER')return 1;
-  if(stage==='VIDA')return 2;
-  if(stage==='NEW_VIA')return 3;
-  return 0;
-}
-function journeyMarkup(idx){
-  return stages.map((s,i)=>`<div class="journey-step ${i<idx?'done':i===idx?'current':''}"><b>${s}</b><small>${['Før · retning og avklaring','Under · erfaring og trygghet','Etter · handling hjemme','Neste retning'][i]}</small></div>`).join('');
-}
-function taskMarkup(t){
-  const due=t.due_at?new Intl.DateTimeFormat('nb-NO',{day:'2-digit',month:'short'}).format(new Date(t.due_at)):'Ingen frist';
-  return `<div class="list-row"><div><b>${escapeHtml(t.title)}</b><small>${escapeHtml(t.description||'')} · ${due}</small></div><span class="status ${t.status}">${escapeHtml(t.status)}</span></div>`;
-}
-function escapeHtml(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-function activeGrant(g){
-  if(g.revoked_at)return false;
-  if(g.valid_from&&new Date(g.valid_from)>new Date())return false;
-  if(g.valid_until&&new Date(g.valid_until)<=new Date())return false;
-  return true;
-}
-function isStaff(){return accessGrants.some(activeGrant)}
-function hasRole(code){return accessGrants.some(g=>activeGrant(g)&&g.role_code===code)}
-function roleLabel(code){return ({system_admin:'Systemadministrator',project_owner:'Prosjekteier',program_lead:'Programleder',via_owner:'VÍA-ansvarlig',clinical_professional:'Relevant fagperson',ser_lead:'SER-/turleder',vida_owner:'VIDA-eier',logistics:'Logistikk / beredskap',observer:'Observatør',evaluator:'Evaluator',break_glass:'Break-glass'})[code]||code}
-function roleSummary(){return accessGrants.filter(activeGrant).map(g=>roleLabel(g.role_code)).filter((v,i,a)=>a.indexOf(v)===i).join(' · ')}
+function processMarkup(idx){return STAGES.map((s,i)=>`<div class="process-step ${i<idx?'done':i===idx?'current':''}"><b>${s}</b><small>${['Før · retning og avklaring','Under · erfaring og trygghet','Etter · handling hjemme','Neste retning'][i]}</small></div>`).join('')}
+function navBadgeMarkup(red,yellow,green=0){let x='';if(red)x+=`<span class="nav-count red">${red}</span>`;if(yellow)x+=`<span class="nav-count yellow">${yellow}</span>`;if(green)x+=`<span class="nav-count green">${green}</span>`;return x}
 
-async function getAssurance(){
-  const {data,error}=await client.auth.mfa.getAuthenticatorAssuranceLevel();
-  if(error){console.warn('aal',error.message);return {currentLevel:'aal1',nextLevel:'aal1'}}
-  return data||{currentLevel:'aal1',nextLevel:'aal1'};
-}
-async function getTotpFactors(){
-  const {data,error}=await client.auth.mfa.listFactors();
-  if(error){console.warn('mfa factors',error.message);return []}
-  return data?.totp||[];
-}
+async function getAssurance(){const {data,error}=await client.auth.mfa.getAuthenticatorAssuranceLevel();if(error)return{currentLevel:'aal1',nextLevel:'aal1'};return data||{currentLevel:'aal1',nextLevel:'aal1'}}
+async function getTotpFactors(){const {data,error}=await client.auth.mfa.listFactors();return error?[]:(data?.totp||[])}
 async function renderSecurity(){
-  assurance=await getAssurance();
-  const factors=await getTotpFactors();
-  const verified=factors.filter(f=>f.status==='verified');
-  const atAal2=assurance.currentLevel==='aal2';
-  const canStepUp=assurance.nextLevel==='aal2'&&!atAal2;
-  $('#securityPill').textContent=atAal2?'AAL2 · bekreftet':'AAL1 · grunnnivå';
-  $('#securityPill').classList.toggle('secure',atAal2);
-  $('#securityPill').classList.toggle('attention',!atAal2);
-  $('#startMfa').classList.toggle('hidden',verified.length>0);
-  $('#startChallenge').classList.toggle('hidden',!canStepUp);
-  if(atAal2)$('#mfaStatus').textContent='Denne innloggingen er bekreftet med tofaktor. Sensitive moduler kan åpnes etter rollen din.';
-  else if(verified.length)$('#mfaStatus').textContent='Tofaktor er satt opp, men denne innloggingen må bekreftes før sensitive eller rollebaserte arbeidsflater åpnes.';
-  else $('#mfaStatus').textContent='Tofaktor er ikke satt opp ennå. Arbeidsroller og sensitive moduler krever Authenticator.';
-  return {factors,verified,atAal2,canStepUp};
+  assurance=await getAssurance();const factors=await getTotpFactors(),verified=factors.filter(f=>f.status==='verified'),aal2=assurance.currentLevel==='aal2',canStep=assurance.nextLevel==='aal2'&&!aal2;
+  $('#securityPill').textContent=aal2?'AAL2 · bekreftet':'AAL1 · grunnnivå';$('#securityPill').classList.toggle('secure',aal2);$('#securityPill').classList.toggle('attention',!aal2);
+  $('#startMfa').classList.toggle('hidden',verified.length>0);$('#startChallenge').classList.toggle('hidden',!canStep);
+  $('#mfaStatus').textContent=aal2?'Denne innloggingen er bekreftet med tofaktor.':verified.length?'Tofaktor er satt opp. Bekreft Authenticator for å åpne arbeidsroller og sensitive moduler.':'Tofaktor er ikke satt opp ennå.';
+  return{verified,aal2,canStep};
 }
-
 async function startMfaEnrollment(){
-  $('#mfaEnrollMessage').textContent='Oppretter sikker faktor…';
-  const {data,error}=await client.auth.mfa.enroll({factorType:'totp'});
-  if(error){$('#mfaEnrollMessage').textContent='Kunne ikke starte oppsettet. Prøv igjen.';return}
-  pendingEnrollmentFactorId=data.id;
-  $('#mfaQr').src=data.totp.qr_code;
-  $('#mfaSecret').value=data.totp.secret||'';
-  $('#mfaEnrollPanel').classList.remove('hidden');
-  $('#mfaEnrollMessage').textContent='Skann koden og bekreft med seks sifre.';
-  $('#mfaEnrollCode').focus();
+  $('#mfaEnrollMessage').textContent='Oppretter sikker faktor…';const {data,error}=await client.auth.mfa.enroll({factorType:'totp'});if(error){$('#mfaEnrollMessage').textContent='Kunne ikke starte oppsettet.';return}
+  pendingEnrollmentFactorId=data.id;$('#mfaQr').src=data.totp.qr_code;$('#mfaSecret').value=data.totp.secret||'';$('#mfaEnrollPanel').classList.remove('hidden');$('#mfaEnrollMessage').textContent='Skann koden og bekreft med seks sifre.';
 }
-async function verifyEnrollment(code){
-  if(!pendingEnrollmentFactorId)return;
-  $('#mfaEnrollMessage').textContent='Bekrefter…';
-  const challenge=await client.auth.mfa.challenge({factorId:pendingEnrollmentFactorId});
-  if(challenge.error){$('#mfaEnrollMessage').textContent='Kunne ikke opprette sikkerhetskontrollen.';return}
-  const verify=await client.auth.mfa.verify({factorId:pendingEnrollmentFactorId,challengeId:challenge.data.id,code});
-  if(verify.error){$('#mfaEnrollMessage').textContent='Koden ble ikke godkjent. Prøv med en ny kode fra Authenticator.';return}
-  pendingEnrollmentFactorId=null;
-  $('#mfaEnrollPanel').classList.add('hidden');
-  $('#mfaEnrollForm').reset();
-  await loadPortal();
+async function verifyEnrollment(code){if(!pendingEnrollmentFactorId)return;const c=await client.auth.mfa.challenge({factorId:pendingEnrollmentFactorId});if(c.error){$('#mfaEnrollMessage').textContent='Kunne ikke opprette kontroll.';return}const v=await client.auth.mfa.verify({factorId:pendingEnrollmentFactorId,challengeId:c.data.id,code});if(v.error){$('#mfaEnrollMessage').textContent='Koden ble ikke godkjent.';return}pendingEnrollmentFactorId=null;$('#mfaEnrollPanel').classList.add('hidden');await loadPortal()}
+async function verifyExistingFactor(code){const factors=await getTotpFactors(),factor=factors.find(f=>f.status==='verified')||factors[0];if(!factor){$('#mfaChallengeMessage').textContent='Ingen aktiv Authenticator-faktor.';return}const c=await client.auth.mfa.challenge({factorId:factor.id});if(c.error){$('#mfaChallengeMessage').textContent='Kunne ikke opprette kontroll.';return}const v=await client.auth.mfa.verify({factorId:factor.id,challengeId:c.data.id,code});if(v.error){$('#mfaChallengeMessage').textContent='Koden ble ikke godkjent.';return}$('#mfaChallengePanel').classList.add('hidden');await loadPortal()}
+
+function taskRow(t){
+  const p=participantById(t.participant_id),pilot=pilotById(t.pilot_id),r=routeToday(t.pilot_id),sev=severity(t);
+  const context=[p?.code_name,pilot?.route_name,r?`Dag ${r.day_number}: ${r.from_place} → ${r.to_place}${r.distance_km?` · ${r.distance_km} km`:''}`:null].filter(Boolean).join(' · ');
+  return `<button class="task-row" data-task-id="${t.id}"><i class="task-dot ${sev}"></i><div><b>${escapeHtml(t.title)}</b><small>${escapeHtml(context||t.description||'')}</small></div><div class="task-meta"><span class="pill ${sev}">${sev==='RED'?'Kritisk':sev==='YELLOW'?'Avklar':'Normal'}</span><span class="pill">${formatDate(t.due_at)}</span></div></button>`;
 }
-async function verifyExistingFactor(code){
-  $('#mfaChallengeMessage').textContent='Bekrefter…';
-  const factors=await getTotpFactors();
-  const factor=factors.find(f=>f.status==='verified')||factors[0];
-  if(!factor){$('#mfaChallengeMessage').textContent='Ingen aktiv Authenticator-faktor ble funnet.';return}
-  const challenge=await client.auth.mfa.challenge({factorId:factor.id});
-  if(challenge.error){$('#mfaChallengeMessage').textContent='Kunne ikke opprette sikkerhetskontrollen.';return}
-  const verify=await client.auth.mfa.verify({factorId:factor.id,challengeId:challenge.data.id,code});
-  if(verify.error){$('#mfaChallengeMessage').textContent='Koden ble ikke godkjent. Prøv igjen med en ny kode.';return}
-  $('#mfaChallengePanel').classList.add('hidden');
-  $('#mfaChallengeForm').reset();
-  await loadPortal();
+function renderTaskLists(){
+  const uid=session.user.id,own=ownParticipant(),staff=isStaff();
+  const visible=staff?tasks:tasks.filter(t=>t.assignee_user_id===uid||(own&&t.participant_id===own.id));
+  const open=visible.filter(t=>['OPEN','IN_PROGRESS','WAITING'].includes(t.status));
+  const ordered=[...open].sort((a,b)=>({RED:0,YELLOW:1,GREEN:2}[severity(a)]-({RED:0,YELLOW:1,GREEN:2}[severity(b)])||new Date(a.due_at||'2999')-new Date(b.due_at||'2999'));
+  $('#priorityQueue').innerHTML=ordered.length?ordered.slice(0,6).map(taskRow).join(''):'<p>Ingen saker krever handling nå.</p>';
+  const all=taskFilter==='ALL'?visible:open;$('#taskList').innerHTML=all.length?all.map(taskRow).join(''):'<p>Ingen oppgaver i dette filteret.</p>';
+  $('#metricOpen').textContent=open.length;$('#metricRed').textContent=open.filter(t=>severity(t)==='RED').length;$('#metricYellow').textContent=open.filter(t=>severity(t)==='YELLOW').length;
+  const red=open.filter(t=>severity(t)==='RED').length,yellow=open.filter(t=>severity(t)==='YELLOW').length,green=open.filter(t=>severity(t)==='GREEN').length;
+  $('#badgeTasks').innerHTML=navBadgeMarkup(red,yellow);$('#badgeOverview').innerHTML=navBadgeMarkup(red,yellow);$('#badgeParticipants').innerHTML=navBadgeMarkup(red,yellow);
+  $$('.task-row').forEach(b=>b.addEventListener('click',()=>openTask(b.dataset.taskId)));
+}
+function openTask(id){
+  const t=tasks.find(x=>x.id===id);if(!t)return;selectedTaskId=id;const p=participantById(t.participant_id),pilot=pilotById(t.pilot_id),r=routeToday(t.pilot_id),sev=severity(t),assignee=staffProfiles.find(s=>s.user_id===t.assignee_user_id);
+  $('#taskDialogEyebrow').textContent=`${sev==='RED'?'RØD':sev==='YELLOW'?'GUL':'GRØNN'} · ${statusText(t.status)}`;$('#taskDialogTitle').textContent=t.title;
+  $('#taskDialogBody').innerHTML=`<p>${escapeHtml(t.description||'')}</p><div class="task-context-grid"><div class="context-cell"><span>Deltaker</span><b>${escapeHtml(p?.code_name||'Ikke knyttet')}</b></div><div class="context-cell"><span>Ansvarlig</span><b>${escapeHtml(assignee?.full_name||(t.assignee_user_id===session.user.id?$('#userLabel').textContent:'Ikke navngitt'))}</b></div><div class="context-cell"><span>Gruppe / pilot</span><b>${escapeHtml(pilot?.name||'Ikke knyttet')}</b></div><div class="context-cell"><span>Rute</span><b>${escapeHtml(pilot?.route_name||'Ikke angitt')}</b></div><div class="context-cell"><span>Dagens etappe</span><b>${escapeHtml(r?`Dag ${r.day_number} · ${r.from_place} → ${r.to_place}`:'Ikke angitt')}</b></div><div class="context-cell"><span>Distanse / frist</span><b>${escapeHtml(`${r?.distance_km?`${r.distance_km} km · `:''}${formatDate(t.due_at)}`)}</b></div></div>`;
+  const canEdit=isStaff();$('#taskStart').classList.toggle('hidden',!canEdit||t.status==='DONE');$('#taskDone').classList.toggle('hidden',!canEdit||t.status==='DONE');$('#taskDialogMessage').textContent='';$('#taskDialog').showModal();
+}
+async function updateTaskStatus(status){
+  const t=tasks.find(x=>x.id===selectedTaskId);if(!t)return;$('#taskDialogMessage').textContent='Lagrer…';const {error}=await client.from('tasks').update({status,updated_at:new Date().toISOString()}).eq('id',t.id);if(error){$('#taskDialogMessage').textContent='Kunne ikke oppdatere oppgaven med din tilgang.';return}t.status=status;$('#taskDialog').close();renderAll();
 }
 
-function renderEmptyShell(displayName){
-  $('#userLabel').textContent=displayName;
-  $('#homeHeading').textContent='Kontoen er klar';
-  $('#homeEyebrow').textContent='Tilgang avventer';
-  $('#homeIntro').textContent='Ingen deltakerreise eller arbeidsrolle er knyttet til kontoen ennå.';
-  $('#accessPending').classList.remove('hidden');
-  $('#stageBadge').textContent='VÍA';
-  $('#journeyMini').innerHTML=journeyMarkup(0);
-  $('#journeyFull').innerHTML=journeyMarkup(0);
-  $('#taskList').innerHTML='<p>Ingen oppgaver er tildelt.</p>';
-  $('#participantCards').innerHTML='<article class="card"><h3>Ingen aktiv reise ennå</h3><p>Når en reise blir aktivert, vises den her.</p></article>';
-  $('#staffQueue').classList.add('hidden');
-  $('#ownerText').textContent='Tildeles når reisen er aktivert.';
+function renderParticipants(){
+  const own=ownParticipant(),staff=isStaff();$('#participantsNavLabel').textContent=staff?'Deltakere':'Min reise';$('#participantsHeading').textContent=staff?'Deltakere':'Min reise';$('#participantsIntro').textContent=staff?'Velg en deltaker for status, rute og neste oppfølging.':'Her ser du din fase, neste handling og det som er relevant for deg.';
+  const list=staff?participants:(own?[own]:[]);if(!selectedParticipantId||!list.some(p=>p.id===selectedParticipantId))selectedParticipantId=list[0]?.id||null;
+  $('#participantList').innerHTML=list.map(p=>{const l=latestCheckin(p.id),s=l?.rag||'GREEN',ptasks=tasks.filter(t=>t.participant_id===p.id&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status)),worst=ptasks.some(t=>severity(t)==='RED')?'RED':ptasks.some(t=>severity(t)==='YELLOW')?'YELLOW':s;return `<button class="participant-card ${p.id===selectedParticipantId?'active':''}" data-participant-id="${p.id}"><i class="status-dot ${worst}"></i><div><b>${escapeHtml(p.code_name)}</b><small>${stageLabel(p.stage)} · ${ptasks.length} åpne oppgaver</small></div><span class="pill ${worst}">${worst==='RED'?'Rød':worst==='YELLOW'?'Gul':'Grønn'}</span></button>`}).join('')||'<p>Ingen aktiv reise ennå.</p>';
+  $$('.participant-card').forEach(b=>b.addEventListener('click',()=>{selectedParticipantId=b.dataset.participantId;renderParticipants()}));renderParticipantDetail();fillParticipantSelect();
+}
+function participantPilot(pId){const pp=pilotParticipants.find(x=>x.participant_id===pId);return pp?pilotById(pp.pilot_id):null}
+function renderParticipantDetail(){
+  const p=participantById(selectedParticipantId);if(!p){$('#participantDetail').innerHTML='<h3>Ingen deltaker valgt</h3>';return}const l=latestCheckin(p.id),pilot=participantPilot(p.id),r=routeToday(pilot?.id),ptasks=tasks.filter(t=>t.participant_id===p.id&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status));const idx=stageIndex(p.stage);
+  $('#participantDetail').innerHTML=`<div class="card-head"><div><p class="eyebrow">${escapeHtml(stageLabel(p.stage))} · ${escapeHtml(l?.rag||'GRØNN')}</p><h2>${escapeHtml(p.code_name)}</h2></div><span class="pill ${l?.rag||'GREEN'}">${escapeHtml(l?.rag||'GREEN')}</span></div><p>${escapeHtml(pilot?.name||'Reise/pilot tildeles når det er avklart.')}</p><div class="detail-grid"><div class="detail-stat"><span>Rute</span><strong>${escapeHtml(pilot?.route_name||'Ikke angitt')}</strong></div><div class="detail-stat"><span>Dagens etappe</span><strong>${escapeHtml(r?`${r.from_place} → ${r.to_place}`:'Ikke angitt')}</strong></div><div class="detail-stat"><span>Distanse</span><strong>${r?.distance_km?`${r.distance_km} km`:'–'}</strong></div><div class="detail-stat"><span>Åpne oppgaver</span><strong>${ptasks.length}</strong></div><div class="detail-stat"><span>Egenkraft</span><strong>${l?.agency??'–'}</strong></div><div class="detail-stat"><span>Stress</span><strong>${l?.stress??'–'}</strong></div></div><h3>Neste handling</h3><div class="task-list">${ptasks.length?ptasks.slice(0,4).map(taskRow).join(''):'<p>Ingen åpne oppgaver.</p>'}</div><h3>Reisefase</h3><div class="process-flow">${processMarkup(idx)}</div>`;
+  $$('#participantDetail .task-row').forEach(b=>b.addEventListener('click',()=>openTask(b.dataset.taskId)));
+}
+
+function renderPulse(){const visible=isStaff()?participants:(ownParticipant()?[ownParticipant()]:[]);$('#groupPulse').innerHTML=visible.slice(0,7).map(p=>{const l=latestCheckin(p.id),s=l?.rag||'GREEN';return `<div class="pulse-row"><i class="status-dot ${s}"></i><div><b>${escapeHtml(p.code_name)}</b><small>${stageLabel(p.stage)} · sist ${l?.checkin_date||'–'}</small></div><small>${s==='RED'?'Rød':s==='YELLOW'?'Gul':'Grønn'}</small></div>`}).join('')||'<p>Ingen innsjekker ennå.</p>'}
+function renderMetrics(){const phases=participants.reduce((a,p)=>(a[stageLabel(p.stage)]=(a[stageLabel(p.stage)]||0)+1,a),{});$('#metricParticipants').textContent=participants.length;$('#metricPhaseMix').textContent=['VÍA','SER','VIDA'].map(x=>`${x} ${phases[x]||0}`).join(' · ')}
+
+function canvasSetup(canvas){const rect=canvas.getBoundingClientRect(),dpr=Math.max(1,window.devicePixelRatio||1);canvas.width=Math.max(600,Math.floor(rect.width*dpr));canvas.height=Math.max(260,Math.floor((parseInt(canvas.getAttribute('height'))||300)*dpr));const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return{ctx,w:rect.width,h:(parseInt(canvas.getAttribute('height'))||300)}}
+function drawChart(canvas,series){if(!canvas)return;const {ctx,w,h}=canvasSetup(canvas);ctx.clearRect(0,0,w,h);const pad={l:40,r:16,t:18,b:30},cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;ctx.strokeStyle='#d8d7d0';ctx.fillStyle='#66737b';ctx.font='11px system-ui';ctx.lineWidth=1;for(let y=0;y<=10;y+=2){const py=pad.t+ch*(1-y/10);ctx.beginPath();ctx.moveTo(pad.l,py);ctx.lineTo(w-pad.r,py);ctx.stroke();ctx.fillText(String(y),8,py+4)}const allDates=[...new Set(series.flatMap(s=>s.values.map(v=>v.date)))].sort();if(!allDates.length){ctx.fillText('Ingen målinger i valgt periode.',pad.l,pad.t+30);return}const x=d=>pad.l+(allDates.length===1?cw/2:cw*allDates.indexOf(d)/(allDates.length-1)),y=v=>pad.t+ch*(1-Number(v)/10);series.forEach((s,i)=>{ctx.strokeStyle=s.color||CHART_COLORS[i%CHART_COLORS.length];ctx.lineWidth=s.dashed?2:2.5;ctx.setLineDash(s.dashed?[6,5]:[]);ctx.beginPath();s.values.forEach((v,j)=>{const px=x(v.date),py=y(v.value);if(j===0)ctx.moveTo(px,py);else ctx.lineTo(px,py)});ctx.stroke();ctx.setLineDash([]);s.values.forEach(v=>{ctx.fillStyle=s.color||CHART_COLORS[i%CHART_COLORS.length];ctx.beginPath();ctx.arc(x(v.date),y(v.value),3,0,Math.PI*2);ctx.fill()})});const first=allDates[0],last=allDates[allDates.length-1];ctx.fillStyle='#66737b';ctx.fillText(first,pad.l,h-7);ctx.fillText(last,w-pad.r-70,h-7)}
+function participantSeries(metric,days){const cutoff=new Date();cutoff.setDate(cutoff.getDate()-days);return participants.map((p,i)=>({id:p.id,label:p.code_name,color:CHART_COLORS[i%CHART_COLORS.length],values:checkins.filter(c=>c.participant_id===p.id&&new Date(c.checkin_date)>=cutoff&&c[metric]!=null).sort((a,b)=>String(a.checkin_date).localeCompare(String(b.checkin_date))).map(c=>({date:c.checkin_date,value:Number(c[metric])}))})).filter(s=>s.values.length)}
+function renderOverviewChart(){const series=participantSeries('agency',30).slice(0,3);drawChart($('#overviewChart'),series);$('#overviewLegend').innerHTML=series.map(s=>`<span class="legend-item"><i class="legend-swatch" style="background:${s.color}"></i>${escapeHtml(s.label)}</span>`).join('')}
+function renderAnalysis(){const metric=$('#analysisMetric').value,days=Number($('#analysisPeriod').value),series=participantSeries(metric,days);if(!analysisSelected.size)series.slice(0,3).forEach(s=>analysisSelected.add(s.id));$('#analysisParticipants').innerHTML=participants.map(p=>`<button class="chip ${analysisSelected.has(p.id)?'active':''}" data-analysis-id="${p.id}">${escapeHtml(p.code_name)}</button>`).join('');$$('[data-analysis-id]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.analysisId;if(analysisSelected.has(id))analysisSelected.delete(id);else analysisSelected.add(id);renderAnalysis()}));let selected=series.filter(s=>analysisSelected.has(s.id));if($('#showAverage').checked&&selected.length){const dates=[...new Set(selected.flatMap(s=>s.values.map(v=>v.date)))].sort(),avg=dates.map(d=>{const vals=selected.flatMap(s=>s.values.filter(v=>v.date===d).map(v=>v.value));return{date:d,value:vals.reduce((a,b)=>a+b,0)/vals.length}}).filter(v=>Number.isFinite(v.value));selected=[...selected,{label:'Gruppesnitt',color:'#14212b',dashed:true,values:avg}]}drawChart($('#analysisChart'),selected)}
+
+function fillParticipantSelect(){const own=ownParticipant(),list=isStaff()?participants:(own?[own]:[]);$('#checkParticipant').innerHTML=list.map(p=>`<option value="${p.id}">${escapeHtml(p.code_name)} · ${escapeHtml(stageLabel(p.stage))}</option>`).join('');if(selectedParticipantId)$('#checkParticipant').value=selectedParticipantId}
+function buildSliders(){const grid=$('#sliderGrid');grid.innerHTML=Object.entries(METRICS).map(([k,label])=>`<div class="slider-card"><div class="slider-title"><b>${label}</b><span class="slider-value" id="val-${k}">5</span></div><input id="metric-${k}" type="range" min="0" max="10" step="1" value="5"><div class="range-labels"><span>0</span><span>10</span></div></div>`).join('');Object.keys(METRICS).forEach(k=>$(`#metric-${k}`).addEventListener('input',e=>$(`#val-${k}`).textContent=e.target.value))}
+async function saveCheckin(e){e.preventDefault();if(assurance.currentLevel!=='aal2'){$('#checkinMessage').textContent='Bekreft tofaktor før innsjekk lagres.';show('security');return}const pId=$('#checkParticipant').value,p=participantById(pId),staff=isStaff(),payload={organization_id:p.organization_id,participant_id:pId,checkin_date:$('#checkDate').value,participant_note:$('#checkNote').value.trim()||null,created_by:session.user.id};Object.keys(METRICS).forEach(k=>payload[k]=Number($(`#metric-${k}`).value));if(staff)payload.rag=$('#dayStatus').value;$('#checkinMessage').textContent='Lagrer…';const {error}=await client.from('ser_checkins').upsert(payload,{onConflict:'participant_id,checkin_date'});if(error){$('#checkinMessage').textContent=`Kunne ikke lagre: ${error.message}`;return}$('#checkinMessage').textContent='Innsjekk lagret.';await loadData();renderAll()}
+
+function renderForms(){const phaseFor={info_before_via:'VÍA',interest_referral:'VÍA',via_roadmap:'VÍA',individual_go_no_go:'VÍA',participant_agreement:'VÍA',pilot_go:'VÍA/SER',ser_daily:'SER',incident:'SER',vida_plan:'VIDA',pilot_evaluation:'VIDA'};$('#formLibrary').innerHTML=formDefs.map((f,i)=>`<article class="form-module"><span class="num">${String(i).padStart(2,'0')}</span><h3>${escapeHtml(f.title_no)}</h3><p>${escapeHtml(f.scope==='staff'?'Arbeidsflate for navngitt rolle/ansvar.':f.scope==='participant_staff'?'Deltaker og ansvarlig medarbeider – etter tilgang.':'Deltakerrettet steg.')}</p><div class="meta"><span>${escapeHtml(phaseFor[f.key]||'VÍA/SER/VIDA')}</span><span>${escapeHtml(f.scope)}</span></div></article>`).join('')}
+function renderDocuments(){$('#documentList').innerHTML=documents.length?documents.map(d=>`<div class="document-row"><div><b>${escapeHtml(d.title)}</b><small>${escapeHtml(d.category)} · ${formatDate(d.created_at)}</small></div><span class="pill">${escapeHtml(d.sensitivity)}</span></div>`).join(''):'<p>Ingen dokumenter i ditt personlige arbeidsarkiv ennå.</p>'}
+function renderProfile(){const sp=staffProfiles.find(s=>s.user_id===session.user.id);$('#profileName').value=sp?.full_name||$('#userLabel').textContent||'';$('#profileEmail').value=session.user.email||'';$('#profileLocale').value=preferences?.locale||'nb';$('#prefEmail').checked=preferences?.email_notifications??true;$('#prefPush').checked=preferences?.push_notifications??false;$('#prefCompact').checked=preferences?.compact_view??true;$('#prefSmsEmergency').checked=preferences?.sms_emergency??false}
+
+function renderAll(){
+  const own=ownParticipant(),staff=isStaff(),idx=stageIndex((own||participants[0])?.stage);$('#homeHeading').textContent=staff?'Trenger handling nå':'Din neste handling';$('#homeEyebrow').textContent=staff?'Arbeidsflate':'Din portal';$('#homeIntro').textContent=staff?'Det viktigste først: prioriterte saker, ansvar og neste handling.':'Her ser du det viktigste for reisen din først.';$('#stageBadge').textContent=STAGES[idx];$('#journeyMini').innerHTML=processMarkup(idx);$('#contextMini').textContent=staff?roleSummary()||'Arbeidsrolle':'Din reisefase';renderMetrics();renderPulse();renderTaskLists();renderParticipants();renderOverviewChart();renderForms();renderDocuments();renderProfile();
+}
+
+async function loadData(){
+  const uid=session.user.id,staff=isStaff(),aal2=assurance.currentLevel==='aal2';
+  const base=[client.from('participants').select('id,organization_id,code_name,stage,user_id,updated_at').order('updated_at',{ascending:false}),client.from('tasks').select('id,organization_id,participant_id,pilot_id,title,description,status,due_at,priority,severity,task_type,assignee_user_id,updated_at').neq('status','CANCELLED').order('due_at',{ascending:true,nullsFirst:false}),client.from('form_definitions').select('id,key,title_no,title_en,scope').order('created_at'),client.from('personal_documents').select('id,title,category,sensitivity,created_at').order('created_at',{ascending:false}),client.from('user_preferences').select('*').eq('user_id',uid).maybeSingle()];
+  const [pRes,tRes,fRes,dRes,prefRes]=await Promise.all(base);participants=pRes.data||[];tasks=tRes.data||[];formDefs=fRes.data||[];documents=dRes.data||[];preferences=prefRes.data||null;
+  if(staff||ownParticipant()){
+    const [pilotRes,ppRes,routeRes,staffRes]=await Promise.all([client.from('pilots').select('id,name,status,start_date,end_date,route_name,route_variant,start_location,end_location'),client.from('pilot_participants').select('pilot_id,participant_id,status'),client.from('pilot_route_days').select('id,pilot_id,day_number,route_date,from_place,to_place,distance_km,route_rag,note').order('day_number'),client.from('staff_profiles').select('user_id,full_name,job_title,phone,work_email,active')]);pilots=pilotRes.data||[];pilotParticipants=ppRes.data||[];routeDays=routeRes.data||[];staffProfiles=staffRes.data||[];
+  }
+  if(aal2){const cRes=await client.from('ser_checkins').select('id,participant_id,checkin_date,mood,stress,energy,sleep,belonging,agency,direction,rag,participant_note,created_by').order('checkin_date');checkins=cRes.data||[]}else checkins=[];
 }
 
 async function loadPortal(){
-  $('#loading').classList.remove('hidden');
-  $('#authView').classList.add('hidden');
-  $('#appView').classList.add('hidden');
-  $('#accessPending').classList.add('hidden');
-  $('#adminLink').classList.add('hidden');
-  const {data:{session:s}}=await client.auth.getSession();
-  session=s;
-  if(!session){$('#loading').classList.add('hidden');$('#authView').classList.remove('hidden');return}
-
-  const uid=session.user.id;
-  const [ownPRes,grantRes,profileRes]=await Promise.all([
-    client.from('participants').select('id,code_name,stage,user_id,updated_at').eq('user_id',uid),
-    client.from('role_grants').select('id,role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at').eq('user_id',uid),
-    client.from('profiles').select('display_name,locale').eq('user_id',uid).maybeSingle()
-  ]);
-  if(ownPRes.error)console.warn('own participant',ownPRes.error.message);
-  if(grantRes.error)console.warn('access grants',grantRes.error.message);
-  accessGrants=grantRes.data||[];
-  const own=(ownPRes.data||[])[0]||null;
-  const displayName=profileRes.data?.display_name||session.user.email||'Innlogget';
-  $('#userLabel').textContent=displayName;
-  $('#adminLink').classList.toggle('hidden',!hasRole('system_admin'));
-
-  const security=await renderSecurity();
-  const staff=isStaff();
-  if(staff&&!security.atAal2){
-    renderEmptyShell(displayName);
-    $('#adminLink').classList.toggle('hidden',!hasRole('system_admin'));
-    $('#homeHeading').textContent='Bekreft tofaktor';
-    $('#homeEyebrow').textContent='Arbeidsflate låst';
-    $('#homeIntro').textContent='Arbeidsroller åpnes først etter at denne innloggingen er bekreftet med Authenticator.';
-    $('#ownerText').textContent=roleSummary()||'Arbeidsrolle registrert';
-    $('#loading').classList.add('hidden');
-    $('#appView').classList.remove('hidden');
-    show('security');
-    if(security.canStepUp){
-      $('#mfaChallengePanel').classList.remove('hidden');
-      $('#mfaChallengeCode').focus();
-    }
-    return;
-  }
-
-  const [pRes,tRes,nRes]=await Promise.all([
-    client.from('participants').select('id,code_name,stage,user_id,updated_at').order('updated_at',{ascending:false}),
-    client.from('tasks').select('id,title,description,status,due_at,priority,task_type,participant_id,assignee_user_id').neq('status','CANCELLED').order('priority',{ascending:true}).order('due_at',{ascending:true,nullsFirst:false}),
-    client.from('notifications').select('id,title,safe_preview,read_at,created_at').order('created_at',{ascending:false}).limit(10)
-  ]);
-  if(pRes.error)console.warn('participants',pRes.error.message);
-  if(tRes.error)console.warn('tasks',tRes.error.message);
-  if(nRes.error)console.warn('notifications',nRes.error.message);
-  participants=pRes.data||[];
-  tasks=tRes.data||[];
-
-  const isParticipant=Boolean(own);
-  if(!isParticipant&&!staff){
-    renderEmptyShell(displayName);
-    $('#loading').classList.add('hidden');
-    $('#appView').classList.remove('hidden');
-    return;
-  }
-
-  $('#homeHeading').textContent=isParticipant?'Din neste handling':'Trenger handling nå';
-  $('#homeEyebrow').textContent=isParticipant?'Din portal':'Arbeidsflate';
-  $('#homeIntro').textContent=isParticipant?'Her ser du det viktigste for din reise først.':'Her vises tildelte oppgaver og deltakere som krever oppfølging.';
-  $('#ownerText').textContent=isParticipant?'Navngitt eier vises her når reisen er aktivert.':(roleSummary()||'Arbeidsrolle registrert');
-  const current=own||participants[0];
-  const idx=mapStage(current?.stage);
-  $('#stageBadge').textContent=stages[idx];
-  $('#journeyMini').innerHTML=journeyMarkup(idx);
-  $('#journeyFull').innerHTML=journeyMarkup(idx);
-
-  const myTasks=tasks.filter(t=>t.assignee_user_id===uid||(own&&t.participant_id===own.id));
-  const next=myTasks.find(t=>['OPEN','IN_PROGRESS','WAITING'].includes(t.status));
-  $('#nextActionTitle').textContent=next?.title||'Ingen åpen oppgave';
-  $('#nextActionText').textContent=next?.description||'Når noe krever handling, vises det her med eier og frist.';
-  $('#taskList').innerHTML=myTasks.length?myTasks.map(taskMarkup).join(''):'<p>Ingen åpne oppgaver akkurat nå.</p>';
-  $('#tasksHeading').textContent=isParticipant?'Mine oppgaver':'Tildelte oppgaver';
-  $('#participantCards').innerHTML=participants.map(p=>`<article class="card"><p class="eyebrow">${escapeHtml(p.stage)}</p><h3>${escapeHtml(p.code_name)}</h3><p>${p.user_id===uid?'Din deltakerprofil':'Tildelt deltaker'}</p></article>`).join('')||'<article class="card"><h3>Ingen aktiv reise ennå</h3><p>Når en reise blir aktivert, vises den her.</p></article>';
-
-  if(staff){
-    $('#staffQueue').classList.remove('hidden');
-    const queue=tasks.filter(t=>['OPEN','IN_PROGRESS','WAITING'].includes(t.status));
-    $('#queueCount').textContent=queue.length;
-    $('#queueList').innerHTML=queue.length?queue.slice(0,8).map(taskMarkup).join(''):'<p>Ingen saker krever handling nå.</p>';
-  } else $('#staffQueue').classList.add('hidden');
-
-  $('#loading').classList.add('hidden');
-  $('#appView').classList.remove('hidden');
+  $('#loading').classList.remove('hidden');$('#authView').classList.add('hidden');$('#appView').classList.add('hidden');const {data:{session:s}}=await client.auth.getSession();session=s;if(!session){$('#loading').classList.add('hidden');$('#authView').classList.remove('hidden');return}
+  const uid=session.user.id;const [grantRes,profileRes]=await Promise.all([client.from('role_grants').select('id,role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at').eq('user_id',uid),client.from('profiles').select('display_name,locale').eq('user_id',uid).maybeSingle()]);accessGrants=grantRes.data||[];$('#userLabel').textContent=profileRes.data?.display_name||session.user.email||'Konto';$('#adminLink').classList.toggle('hidden',!hasRole('system_admin'));
+  const sec=await renderSecurity();if(isStaff()&&!sec.aal2){$('#loading').classList.add('hidden');$('#appView').classList.remove('hidden');$('#homeHeading').textContent='Bekreft tofaktor';show('security');if(sec.canStep){$('#mfaChallengePanel').classList.remove('hidden')}return}
+  await loadData();renderAll();$('#loading').classList.add('hidden');$('#appView').classList.remove('hidden');
 }
 
-$('#loginForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-  const email=$('#email').value.trim().toLowerCase();
-  const password=$('#password').value;
-  if(!password){$('#authMessage').textContent='Skriv inn testpassordet, eller bruk sikker innloggingslenke.';return}
-  $('#authMessage').textContent='Logger inn…';
-  const {error}=await client.auth.signInWithPassword({email,password});
-  if(error){$('#authMessage').textContent='Innloggingen ble ikke godkjent. Kontroller e-post og passord.';return}
-  $('#authMessage').textContent='Innlogget. Kontrollerer tilgang…';
-  await loadPortal();
-});
-$('#magicLinkButton').addEventListener('click',async()=>{
-  const email=$('#email').value.trim().toLowerCase();
-  if(!email){$('#authMessage').textContent='Skriv inn e-postadressen først.';return}
-  $('#authMessage').textContent='Sender sikker innloggingslenke…';
-  const {error}=await client.auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:`${location.origin}/portal/`}});
-  $('#authMessage').textContent=error?'Kunne ikke sende lenken i dette miljøet. Bruk testpassordet inntil e-postflyten er ferdig konfigurert.':'Sjekk e-posten din for sikker innloggingslenke.';
-});
-$('#changePasswordForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-  const value=$('#newPassword').value;
-  const current=await getAssurance();
-  if(current.currentLevel!=='aal2'){$('#passwordMessage').textContent='Bekreft Authenticator først. Passordbytte for arbeidskonto krever AAL2.';show('security');return}
-  if(value.length<12){$('#passwordMessage').textContent='Bruk minst 12 tegn.';return}
-  $('#passwordMessage').textContent='Bytter passord…';
-  const {error}=await client.auth.updateUser({password:value});
-  if(error){$('#passwordMessage').textContent='Passordet kunne ikke endres. Prøv igjen.';return}
-  $('#changePasswordForm').reset();
-  $('#passwordMessage').textContent='Passordet er endret. Det midlertidige testpassordet er nå ugyldig.';
-});
-$('#logout').addEventListener('click',async()=>{await client.auth.signOut();location.replace('/portal/');});
-$('#startMfa').addEventListener('click',startMfaEnrollment);
-$('#startChallenge').addEventListener('click',()=>{$('#mfaChallengePanel').classList.remove('hidden');$('#mfaChallengeCode').focus();});
-$('#mfaEnrollForm').addEventListener('submit',async e=>{e.preventDefault();await verifyEnrollment($('#mfaEnrollCode').value.trim());});
-$('#mfaChallengeForm').addEventListener('submit',async e=>{e.preventDefault();await verifyExistingFactor($('#mfaChallengeCode').value.trim());});
-$$('.nav-item[data-view]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.view)));
-client.auth.onAuthStateChange(()=>setTimeout(loadPortal,0));
-if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
-loadPortal();
+$('#loginForm').addEventListener('submit',async e=>{e.preventDefault();const email=$('#email').value.trim().toLowerCase(),password=$('#password').value;if(!password){$('#authMessage').textContent='Skriv inn passordet eller bruk sikker innloggingslenke.';return}$('#authMessage').textContent='Logger inn…';const {error}=await client.auth.signInWithPassword({email,password});if(error){$('#authMessage').textContent='Innloggingen ble ikke godkjent.';return}await loadPortal()});
+$('#magicLinkButton').addEventListener('click',async()=>{const email=$('#email').value.trim().toLowerCase();if(!email){$('#authMessage').textContent='Skriv inn e-postadressen først.';return}$('#authMessage').textContent='Sender sikker innloggingslenke…';const {error}=await client.auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:`${location.origin}/portal/`}});$('#authMessage').textContent=error?'Kunne ikke sende lenken akkurat nå.':'Sjekk e-posten din.'});
+$('#changePasswordForm').addEventListener('submit',async e=>{e.preventDefault();const a=$('#newPassword').value,b=$('#confirmPassword').value,current=await getAssurance();if(current.currentLevel!=='aal2'){$('#passwordMessage').textContent='Bekreft Authenticator først.';return}if(a!==b){$('#passwordMessage').textContent='Passordene er ikke like.';return}if(a.length<12){$('#passwordMessage').textContent='Bruk minst 12 tegn.';return}$('#passwordMessage').textContent='Bytter passord…';const {error}=await client.auth.updateUser({password:a});if(error){$('#passwordMessage').textContent='Passordet kunne ikke endres.';return}$('#changePasswordForm').reset();$('#passwordMessage').textContent='Passordet er endret.'});
+$('#profileForm').addEventListener('submit',async e=>{e.preventDefault();const display_name=$('#profileName').value.trim(),locale=$('#profileLocale').value;const {error}=await client.from('profiles').update({display_name,locale,updated_at:new Date().toISOString()}).eq('user_id',session.user.id);if(error){$('#profileMessage').textContent='Kunne ikke lagre profilen.';return}$('#userLabel').textContent=display_name||session.user.email;$('#profileMessage').textContent='Profil lagret.'});
+$('#prefsForm').addEventListener('submit',async e=>{e.preventDefault();const row={user_id:session.user.id,locale:$('#profileLocale').value,email_notifications:$('#prefEmail').checked,push_notifications:$('#prefPush').checked,compact_view:$('#prefCompact').checked,sms_emergency:$('#prefSmsEmergency').checked,updated_at:new Date().toISOString()};const {error}=await client.from('user_preferences').upsert(row);$('#prefsMessage').textContent=error?'Kunne ikke lagre innstillingene.':'Innstillinger lagret.';if(!error)preferences=row});
+$('#langToggle').addEventListener('click',()=>{show('settings');$('#profileLocale').focus()});
+$('#userMenuButton').addEventListener('click',()=>$('#userMenu').classList.toggle('hidden'));$$('[data-view-target]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.viewTarget)));$('#logout').addEventListener('click',async()=>{await client.auth.signOut();location.replace('/portal/')});
+$('#startMfa').addEventListener('click',startMfaEnrollment);$('#startChallenge').addEventListener('click',()=>$('#mfaChallengePanel').classList.remove('hidden'));$('#mfaEnrollForm').addEventListener('submit',async e=>{e.preventDefault();await verifyEnrollment($('#mfaEnrollCode').value.trim())});$('#mfaChallengeForm').addEventListener('submit',async e=>{e.preventDefault();await verifyExistingFactor($('#mfaChallengeCode').value.trim())});
+$$('.nav-item[data-view]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.view)));$$('[data-go]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.go)));$$('[data-task-filter]').forEach(b=>b.addEventListener('click',()=>{taskFilter=b.dataset.taskFilter;$$('[data-task-filter]').forEach(x=>x.classList.toggle('active',x===b));renderTaskLists()}));
+$('#taskStart').addEventListener('click',()=>updateTaskStatus('IN_PROGRESS'));$('#taskDone').addEventListener('click',()=>updateTaskStatus('DONE'));$('#checkinForm').addEventListener('submit',saveCheckin);$('#analysisMetric').addEventListener('change',renderAnalysis);$('#analysisPeriod').addEventListener('change',renderAnalysis);$('#showAverage').addEventListener('change',renderAnalysis);
+buildSliders();$('#checkDate').value=new Date().toISOString().slice(0,10);client.auth.onAuthStateChange(()=>setTimeout(loadPortal,0));window.addEventListener('resize',()=>{if($('#view-overview').classList.contains('active'))renderOverviewChart();if($('#view-analysis').classList.contains('active'))renderAnalysis()});if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));loadPortal();
