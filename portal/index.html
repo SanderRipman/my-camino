@@ -8,134 +8,174 @@
   <meta name="robots" content="noindex,nofollow">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="AidMe VIDA">
-  <title>AidMe VIDA · Min side</title>
+  <title>AidMe VIDA · Portal</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./styles.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <div id="loading" class="loading">Laster AidMe VIDA…</div>
+<div id="loading" class="loading">Laster AidMe VIDA…</div>
 
-  <main id="authView" class="auth-shell hidden">
-    <section class="auth-card">
-      <div class="brand"><span class="brand-mark">A</span><div><strong>AidMe VIDA</strong><small>Ve. Sé. Vive.</small></div></div>
-      <p class="eyebrow">Sikker forhåndsvisning</p>
-      <h1>Fortsett reisen din</h1>
-      <p>Logg inn for å se bare det som er relevant for deg, rollen din og neste steg.</p>
-      <div class="preview-note"><strong>Utviklingsmiljø</strong><br>Bruk kun fiktive testopplysninger til portalen er eksplisitt åpnet for reelle deltakerdata.</div>
-      <form id="loginForm">
-        <label>E-post<input id="email" type="email" autocomplete="username" required placeholder="navn@eksempel.no"></label>
-        <label>Passord<input id="password" type="password" autocomplete="current-password" placeholder="Midlertidig testpassord"></label>
-        <button class="primary" type="submit">Logg inn</button>
-        <button id="magicLinkButton" class="ghost" type="button">Send sikker innloggingslenke</button>
+<main id="authView" class="auth-shell hidden">
+  <section class="auth-card">
+    <div class="brand auth-brand"><img src="/vida/assets/AIDME_Logo-original-web.webp" alt="AidMe"><div><strong>AidMe VIDA</strong><span>Ve. Sé. Vive.</span></div></div>
+    <p class="eyebrow">Sikker portal · beta</p>
+    <h1>Fortsett reisen din</h1>
+    <p>Én inngang til VÍA, SER og VIDA. Du ser bare det rollen din og reisen din gir tilgang til.</p>
+    <div class="preview-note"><strong>Betamiljø</strong><br>Bruk fortsatt bare fiktive testopplysninger til vi eksplisitt åpner for reelle deltakerdata.</div>
+    <form id="loginForm">
+      <label><span>E-post</span><input id="email" type="email" autocomplete="username" required placeholder="navn@eksempel.no"></label>
+      <label><span>Passord</span><input id="password" type="password" autocomplete="current-password" placeholder="Passord"></label>
+      <button class="primary" type="submit">Logg inn</button>
+      <button id="magicLinkButton" class="ghost" type="button">Send sikker innloggingslenke</button>
+    </form>
+    <p id="authMessage" class="message" aria-live="polite"></p>
+    <small class="privacy-note">Tilgang opprettes normalt ved invitasjon. Ikke skriv helseopplysninger i innloggingsfeltene.</small>
+  </section>
+</main>
+
+<div id="appView" class="app-shell hidden">
+  <aside class="sidebar" aria-label="Hovednavigasjon">
+    <div class="brand"><img src="/vida/assets/AIDME_Logo-original-web.webp" alt="AidMe"><div><strong>AidMe VIDA</strong><span>Ve. Sé. Vive.</span></div></div>
+    <nav id="mainNav">
+      <button class="nav-item active" data-view="overview"><span class="nav-num">01</span><b>Oversikt</b><i id="badgeOverview" class="nav-badges"></i></button>
+      <button class="nav-item" data-view="participants"><span class="nav-num">02</span><b id="participantsNavLabel">Deltakere</b><i id="badgeParticipants" class="nav-badges"></i></button>
+      <button class="nav-item" data-view="tasks"><span class="nav-num">03</span><b>Oppgaver</b><i id="badgeTasks" class="nav-badges"></i></button>
+      <button class="nav-item" data-view="checkin"><span class="nav-num">04</span><b>Innsjekk</b></button>
+      <button class="nav-item" data-view="analysis"><span class="nav-num">05</span><b>Analyse</b></button>
+      <button class="nav-item" data-view="forms"><span class="nav-num">06</span><b>Skjema & rutiner</b></button>
+      <a id="adminLink" class="nav-item hidden" href="./admin.html"><span class="nav-num">07</span><b>Administrasjon</b></a>
+      <button class="nav-item" data-view="documents"><span class="nav-num">08</span><b>Dokumenter</b></button>
+      <button class="nav-item" data-view="settings"><span class="nav-num">09</span><b>Innstillinger</b></button>
+    </nav>
+    <div class="phase-key"><div><i class="dot via"></i>VÍA · Før</div><div><i class="dot ser"></i>SER · Under</div><div><i class="dot vida"></i>VIDA · Etter</div></div>
+    <p class="demo-note">Beta. Fiktive testdata. Reelle sensitive data er ikke åpnet ennå.</p>
+  </aside>
+
+  <main class="workspace">
+    <header class="topbar">
+      <div><p class="eyebrow" id="contextLabel">VÍA → SER → VIDA</p><h1 id="pageTitle">Operativ oversikt</h1></div>
+      <div class="top-actions">
+        <button id="langToggle" class="ghost compact" type="button" aria-label="Bytt språk">EN</button>
+        <span id="securityPill" class="security-pill">Kontrollerer…</span>
+        <div class="user-menu-wrap">
+          <button id="userMenuButton" class="user-pill" type="button"><span id="userLabel">Konto</span><span aria-hidden="true">▾</span></button>
+          <div id="userMenu" class="user-menu hidden">
+            <button data-view-target="settings">Profil & innstillinger</button>
+            <button data-view-target="documents">Mine dokumenter</button>
+            <button data-view-target="security">Sikkerhet</button>
+            <button id="logout" class="danger-link">Logg ut</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <article class="preview-strip"><strong>Beta:</strong> Flyt, roller og UI testes med fiktive opplysninger. Reelle helse- og deltakeropplysninger er sperret inntil personvern-/produksjonsgatene er lukket.</article>
+
+    <section class="view active" id="view-overview">
+      <article id="accessPending" class="panel-card warning-card hidden"><p class="eyebrow">Tilgang</p><h2>Kontoen er ikke aktivert ennå</h2><p>Du er innlogget, men ingen deltakerreise eller arbeidsrolle er knyttet til kontoen.</p></article>
+      <div class="hero-panel compact-hero">
+        <div><p class="eyebrow" id="homeEyebrow">Arbeidsflate</p><h2 id="homeHeading">Trenger handling nå</h2><p id="homeIntro">Det viktigste først: prioriterte saker, ansvar og neste handling.</p></div>
+        <div class="hero-badge"><strong id="stageBadge">VÍA</strong><span id="contextMini">Dagens situasjonsbilde</span></div>
+      </div>
+
+      <div class="metric-grid">
+        <article class="metric"><span>Åpne oppgaver</span><strong id="metricOpen">0</strong><small>tildelt / tilgjengelig</small></article>
+        <article class="metric"><span>Kritisk</span><strong id="metricRed">0</strong><small>rød status</small></article>
+        <article class="metric"><span>Trenger avklaring</span><strong id="metricYellow">0</strong><small>gul status</small></article>
+        <article class="metric"><span>Aktive deltakere</span><strong id="metricParticipants">0</strong><small id="metricPhaseMix">–</small></article>
+      </div>
+
+      <div class="two-col dashboard-top">
+        <article class="panel-card action-panel">
+          <div class="card-head"><div><p class="eyebrow">Nå</p><h3>Prioritert arbeidskø</h3></div><button class="text-btn" data-go="tasks">Alle oppgaver</button></div>
+          <div id="priorityQueue" class="task-list"></div>
+        </article>
+        <article class="panel-card">
+          <div class="card-head"><div><p class="eyebrow">I dag</p><h3>Gruppens puls</h3></div></div>
+          <div id="groupPulse" class="pulse-list"></div>
+        </article>
+      </div>
+
+      <div class="two-col dashboard-bottom">
+        <article class="panel-card">
+          <div class="card-head"><div><p class="eyebrow">Utvikling</p><h3>Siste 30 dager</h3></div><button class="text-btn" data-go="analysis">Åpne analyse</button></div>
+          <canvas id="overviewChart" height="260"></canvas>
+          <div id="overviewLegend" class="chart-legend"></div>
+        </article>
+        <article class="panel-card compact-process">
+          <p class="eyebrow">Prosess</p><h3>VÍA → SER → VIDA → ny VÍA</h3>
+          <div id="journeyMini" class="process-flow"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" id="view-participants">
+      <div class="section-head"><div><p class="eyebrow">Deltakerløp</p><h2 id="participantsHeading">Deltakere</h2><p id="participantsIntro">Velg en deltaker for status, dagens kontekst og neste oppfølging.</p></div></div>
+      <div class="participant-layout"><div id="participantList" class="participant-list"></div><article id="participantDetail" class="panel-card participant-detail"></article></div>
+    </section>
+
+    <section class="view" id="view-tasks">
+      <div class="section-head"><div><p class="eyebrow">Oppgaver</p><h2 id="tasksHeading">Tildelte oppgaver</h2><p>Trykk på en oppgave for kontekst, ansvar, rute og handling.</p></div></div>
+      <article class="panel-card"><div class="task-filter-row"><button class="chip active" data-task-filter="OPEN">Åpne</button><button class="chip" data-task-filter="ALL">Alle</button></div><div id="taskList" class="task-list"></div></article>
+    </section>
+
+    <section class="view" id="view-checkin">
+      <div class="section-head"><div><p class="eyebrow">Måling</p><h2>Daglig innsjekk</h2><p>Kort nok til å bli brukt. Nyttig nok til å oppdage mønstre. Ingen enkelt skår avgjør sikkerhet eller GO/NO-GO.</p></div></div>
+      <form id="checkinForm" class="panel-card form-card">
+        <div class="form-row three"><label><span>Deltaker</span><select id="checkParticipant" required></select></label><label><span>Dato</span><input id="checkDate" type="date" required></label><label><span>Dagsstatus</span><select id="dayStatus"><option value="GREEN">Grønn</option><option value="YELLOW">Gul</option><option value="RED">Rød</option></select></label></div>
+        <div id="sliderGrid" class="slider-grid"></div>
+        <label><span>Kort notat</span><textarea id="checkNote" rows="3" placeholder="Bare det som er nødvendig for oppfølging."></textarea></label>
+        <div class="form-actions"><button class="primary" type="submit">Lagre innsjekk</button></div><p id="checkinMessage" class="message"></p>
       </form>
-      <p id="authMessage" class="message" aria-live="polite"></p>
-      <small class="privacy-note">Tilgang opprettes normalt ved invitasjon. Ikke skriv helseopplysninger i innloggingsfeltene.</small>
+    </section>
+
+    <section class="view" id="view-analysis">
+      <div class="section-head"><div><p class="eyebrow">Mønstre, ikke diagnoser</p><h2>Utvikling og sammenligning</h2><p>Velg periode, måling og én eller flere deltakere. Grafen er støtte for samtale og faglig vurdering.</p></div></div>
+      <article class="panel-card analysis-card">
+        <div class="analysis-controls"><label><span>Måling</span><select id="analysisMetric"><option value="agency">Egenkraft</option><option value="mood">Stemning</option><option value="stress">Stress</option><option value="energy">Energi</option><option value="sleep">Søvnkvalitet</option><option value="belonging">Tilhørighet</option><option value="direction">Retning</option></select></label><label><span>Periode</span><select id="analysisPeriod"><option value="14">14 dager</option><option value="30" selected>30 dager</option><option value="60">60 dager</option><option value="90">90 dager</option></select></label><label class="toggle-label"><input type="checkbox" id="showAverage" checked> Vis gruppesnitt</label></div>
+        <div id="analysisParticipants" class="participant-chips"></div>
+        <div class="chart-frame"><canvas id="analysisChart" height="360"></canvas></div>
+      </article>
+    </section>
+
+    <section class="view" id="view-forms">
+      <div class="section-head"><div><p class="eyebrow">Skjema & rutiner</p><h2>Én reise · minst mulig dobbelføring</h2><p>Vi gjenbruker den digitaliserte malpakken fra tidligere arbeidsflate, men lagringen flyttes kontrollert til den nye rolle- og sikkerhetsmodellen.</p></div></div>
+      <div id="formLibrary" class="form-library"></div>
+      <article class="panel-card reference-card"><strong>Designreferanse tilgjengelig</strong><p>Den tidligere digitale skjemaflyten beholdes under utviklingen som referanse for felter, interaksjon og flyt. Den gamle lokale lagringen skal ikke brukes til reelle data.</p><a class="ghost link-btn" href="/vida/forms.html" target="_blank" rel="noopener">Åpne tidligere demo</a></article>
+    </section>
+
+    <section class="view" id="view-documents">
+      <div class="section-head"><div><p class="eyebrow">Personlig arbeidsarkiv</p><h2>Mine dokumenter</h2><p>Dokumenter, bilder og arbeidsrelaterte vedlegg skal kunne samles her med riktig tilgang og klassifisering.</p></div><button class="primary" disabled>Opplasting aktiveres etter lagrings-QA</button></div>
+      <article class="panel-card"><div id="documentList" class="document-list"></div><p class="privacy-note">Metadata er klargjort. Filopplasting åpnes først når lagringsområde, sletting, eksport og tilgangslogging er ferdig testet.</p></article>
+    </section>
+
+    <section class="view" id="view-settings">
+      <div class="section-head"><div><p class="eyebrow">Personlige innstillinger</p><h2>Profil, språk og varslinger</h2><p>Standardinnstillinger skal være enkle, frivillige der de kan være det, og uten unødvendig datainnsamling.</p></div></div>
+      <div class="two-col settings-grid">
+        <form id="profileForm" class="panel-card"><h3>Profil</h3><label><span>Navn / visningsnavn</span><input id="profileName" type="text" autocomplete="name"></label><label><span>E-post</span><input id="profileEmail" type="email" readonly></label><label><span>Språk</span><select id="profileLocale"><option value="nb">Norsk</option><option value="en">English</option></select></label><div class="form-actions"><button class="primary" type="submit">Lagre profil</button></div><p id="profileMessage" class="message"></p></form>
+        <form id="prefsForm" class="panel-card"><h3>Varslinger & visning</h3><label class="check-row"><input id="prefEmail" type="checkbox"> E-postvarslinger</label><label class="check-row"><input id="prefPush" type="checkbox"> Pushvarslinger når app-funksjon er aktivert</label><label class="check-row"><input id="prefCompact" type="checkbox"> Kompakt arbeidsflate</label><label class="check-row"><input id="prefSmsEmergency" type="checkbox"> SMS ved definerte beredskapshendelser</label><div class="form-actions"><button class="primary" type="submit">Lagre innstillinger</button></div><p id="prefsMessage" class="message"></p></form>
+      </div>
+      <article class="panel-card"><p class="eyebrow">Kontosikkerhet</p><h3>Passord og tofaktor</h3><button class="ghost" data-go="security">Åpne sikkerhetsinnstillinger</button></article>
+    </section>
+
+    <section class="view" id="view-security">
+      <div class="section-head"><div><p class="eyebrow">Sikkerhet</p><h2>Konto og tofaktor</h2></div></div>
+      <div class="two-col settings-grid"><article class="panel-card"><h3>Tofaktorautentisering</h3><p id="mfaStatus">Kontrollerer…</p><button id="startMfa" class="primary hidden">Sett opp Authenticator</button><button id="startChallenge" class="primary hidden">Bekreft med Authenticator</button><p class="privacy-note">Arbeidsroller og sensitive moduler krever AAL2.</p></article><article class="panel-card"><h3>Tilgangsprinsipp</h3><p>Deltakere ser egne opplysninger. Medarbeidere får tilgang etter rolle, mandat, pilot og/eller deltakeromfang. Systemadministrator er ikke automatisk faglig innsyn.</p></article></div>
+      <article id="mfaEnrollPanel" class="panel-card mfa-panel hidden"><h3>Koble Authenticator</h3><p>Skann QR-koden og bekreft med seks sifre.</p><div class="mfa-grid"><img id="mfaQr" class="mfa-qr" alt="QR-kode"><div><label><span>Manuell nøkkel</span><input id="mfaSecret" readonly></label><form id="mfaEnrollForm"><label><span>Bekreftelseskode</span><input id="mfaEnrollCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label><button class="primary" type="submit">Aktiver tofaktor</button></form></div></div><p id="mfaEnrollMessage" class="message"></p></article>
+      <article id="mfaChallengePanel" class="panel-card mfa-panel hidden"><h3>Bekreft at det er deg</h3><form id="mfaChallengeForm"><label><span>Kode fra Authenticator</span><input id="mfaChallengeCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label><button class="primary" type="submit">Bekreft og fortsett</button></form><p id="mfaChallengeMessage" class="message"></p></article>
+      <article class="panel-card mfa-panel"><h3>Bytt passord</h3><p>Lengde og blokkering av kjente kompromitterte passord er viktigere enn tvungne symbol-/tallmønstre. Begge felt må være identiske.</p><form id="changePasswordForm" class="password-grid"><label><span>Nytt passord</span><input id="newPassword" type="password" autocomplete="new-password" minlength="12" required></label><label><span>Gjenta nytt passord</span><input id="confirmPassword" type="password" autocomplete="new-password" minlength="12" required></label><button class="primary" type="submit">Bytt passord</button></form><p id="passwordMessage" class="message"></p></article>
+    </section>
+
+    <section class="view" id="view-help">
+      <div class="two-col"><article class="panel-card"><p class="eyebrow">Hjelp</p><h2>Be om kontakt</h2><p>Be om hjelp, pause eller avklaring uten å måtte forklare alt i et fritekstfelt.</p><button class="primary" disabled>Kontaktflyt kommer i neste blokk</button></article><article class="panel-card"><p class="eyebrow">Beredskap</p><h2>SOS / lokasjon</h2><p>Deltakerstyrt SOS med eksplisitt lokasjonsdeling er planlagt. Fjernlokalisering fra ansatte aktiveres ikke før egen DPIA, beredskapsprotokoll og tilgangs-/loggregler er godkjent.</p></article></div>
     </section>
   </main>
+</div>
 
-  <div id="appView" class="app-shell hidden">
-    <aside class="sidebar">
-      <div class="brand"><span class="brand-mark">A</span><div><strong>AidMe VIDA</strong><small>Ve. Sé. Vive.</small></div></div>
-      <nav>
-        <button class="nav-item active" data-view="home">Hjem</button>
-        <button class="nav-item" data-view="journey">Min reise</button>
-        <button class="nav-item" data-view="tasks">Oppgaver</button>
-        <button class="nav-item" data-view="security">Sikkerhet</button>
-        <a id="adminLink" class="nav-item hidden" href="./admin.html">Administrasjon</a>
-        <button class="nav-item" data-view="help">Hjelp & kontakt</button>
-      </nav>
-      <div class="phase-key"><span>VÍA · Før</span><span>SER · Under</span><span>VIDA · Etter</span></div>
-    </aside>
+<dialog id="taskDialog" class="task-dialog"><form method="dialog" class="dialog-shell"><div class="dialog-head"><div><p class="eyebrow" id="taskDialogEyebrow">Oppgave</p><h2 id="taskDialogTitle">Oppgave</h2></div><button class="icon-btn" value="cancel" aria-label="Lukk">×</button></div><div id="taskDialogBody"></div><div class="dialog-actions"><button id="taskStart" type="button" class="ghost">Marker i gang</button><button id="taskDone" type="button" class="primary">Marker ferdig</button><button value="cancel" class="ghost">Lukk</button></div><p id="taskDialogMessage" class="message"></p></form></dialog>
 
-    <section class="workspace">
-      <header class="topbar">
-        <div><p class="eyebrow" id="contextLabel">VÍA → SER → VIDA</p><h1 id="pageTitle">Hjem</h1></div>
-        <div class="top-actions"><span id="securityPill" class="security-pill">Kontrollerer sikkerhet…</span><span id="userLabel" class="user-pill"></span><button id="logout" class="ghost">Logg ut</button></div>
-      </header>
-
-      <article class="preview-strip"><strong>Forhåndsvisning:</strong> Test roller, flyt og UI med fiktive opplysninger. Ingen reelle helse- eller deltakeropplysninger ennå.</article>
-
-      <section id="view-home" class="view active">
-        <article id="accessPending" class="card warning-card hidden"><p class="eyebrow">Tilgang</p><h2>Kontoen er ikke aktivert ennå</h2><p>Du er innlogget, men ingen deltakerreise eller arbeidsrolle er knyttet til kontoen. Kontakt AidMe dersom du forventet tilgang.</p></article>
-        <article class="hero-card">
-          <div><p class="eyebrow" id="homeEyebrow">Din portal</p><h2 id="homeHeading">Din neste handling</h2><p id="homeIntro">Her skal du slippe å lete. Portalen viser det viktigste først.</p></div>
-          <div class="stage-badge" id="stageBadge">VÍA</div>
-        </article>
-        <div class="grid two">
-          <article class="card action-card"><p class="eyebrow">Nå</p><h3 id="nextActionTitle">Ingen åpen oppgave</h3><p id="nextActionText">Når noe krever handling, vises det her med eier og frist.</p><button id="nextActionButton" class="primary hidden">Åpne</button></article>
-          <article class="card"><p class="eyebrow">Oppfølging</p><h3>Hvem eier neste steg?</h3><p id="ownerText">Tildeles når reisen er aktivert.</p></article>
-        </div>
-        <article class="card"><div class="card-head"><div><p class="eyebrow">Fremdrift</p><h3>VÍA → SER → VIDA → ny VÍA</h3></div></div><div id="journeyMini" class="journey"></div></article>
-        <article id="staffQueue" class="card hidden"><div class="card-head"><div><p class="eyebrow">Arbeidskø</p><h3>Trenger handling nå</h3></div><span id="queueCount" class="count-pill">0</span></div><div id="queueList" class="list"></div></article>
-      </section>
-
-      <section id="view-journey" class="view"><article class="card"><p class="eyebrow">Deltakerreise</p><h2>Én sammenhengende reise</h2><p>Grunnopplysninger registreres én gang. Deretter spør vi bare om det som faktisk er nytt eller nødvendig.</p><div id="journeyFull" class="journey full"></div></article><div id="participantCards" class="grid two"></div></section>
-
-      <section id="view-tasks" class="view"><article class="card"><div class="card-head"><div><p class="eyebrow">Oppgaver</p><h2 id="tasksHeading">Mine oppgaver</h2></div></div><div id="taskList" class="list"></div></article></section>
-
-      <section id="view-security" class="view">
-        <div class="grid two">
-          <article class="card">
-            <p class="eyebrow">Kontosikkerhet</p>
-            <h2>Tofaktorautentisering</h2>
-            <p id="mfaStatus">Kontrollerer sikkerhetsnivå…</p>
-            <button id="startMfa" class="primary hidden">Sett opp Authenticator</button>
-            <button id="startChallenge" class="primary hidden">Bekreft med Authenticator</button>
-            <p class="privacy-note">Sensitive moduler åpnes bare når denne innloggingen er bekreftet på sikkerhetsnivå AAL2.</p>
-          </article>
-          <article class="card">
-            <p class="eyebrow">Prinsipp</p>
-            <h2>Minst mulig tilgang</h2>
-            <p>Deltakere ser egne opplysninger. Medarbeidere får bare tilgang gjennom navngitt rolle, mandat og omfang. Arbeidsroller krever tofaktor.</p>
-          </article>
-        </div>
-
-        <article id="mfaEnrollPanel" class="card mfa-panel hidden">
-          <p class="eyebrow">Oppsett</p>
-          <h2>Koble Authenticator</h2>
-          <p>Skann QR-koden i Authenticator-appen. Skriv deretter inn den seks-sifrede koden for å bekrefte oppsettet.</p>
-          <div class="mfa-grid">
-            <img id="mfaQr" class="mfa-qr" alt="QR-kode for tofaktorautentisering">
-            <div>
-              <label>Manuell nøkkel<input id="mfaSecret" readonly></label>
-              <form id="mfaEnrollForm">
-                <label>Bekreftelseskode<input id="mfaEnrollCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label>
-                <button class="primary" type="submit">Aktiver tofaktor</button>
-              </form>
-            </div>
-          </div>
-          <p id="mfaEnrollMessage" class="message" aria-live="polite"></p>
-        </article>
-
-        <article id="mfaChallengePanel" class="card mfa-panel hidden">
-          <p class="eyebrow">Sikkerhetskontroll</p>
-          <h2>Bekreft at det er deg</h2>
-          <form id="mfaChallengeForm">
-            <label>Kode fra Authenticator<input id="mfaChallengeCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label>
-            <button class="primary" type="submit">Bekreft og fortsett</button>
-          </form>
-          <p id="mfaChallengeMessage" class="message" aria-live="polite"></p>
-        </article>
-
-        <article class="card mfa-panel">
-          <p class="eyebrow">Testkonto</p>
-          <h2>Bytt midlertidig passord</h2>
-          <p>Etter at tofaktor er aktivert kan du erstatte det midlertidige testpassordet. Ikke gjenbruk et passord fra andre tjenester.</p>
-          <form id="changePasswordForm">
-            <label>Nytt passord<input id="newPassword" type="password" autocomplete="new-password" minlength="12" required></label>
-            <button class="primary" type="submit">Bytt passord</button>
-          </form>
-          <p id="passwordMessage" class="message" aria-live="polite"></p>
-        </article>
-      </section>
-
-      <section id="view-help" class="view"><div class="grid two"><article class="card"><p class="eyebrow">Hjelp</p><h2>Be om kontakt</h2><p>Du skal kunne be om hjelp, pause eller avklaring uten å måtte forklare alt i et fritekstfelt.</p><button class="primary" disabled>Aktiveres i neste API-steg</button></article><article class="card"><p class="eyebrow">Sikkerhet</p><h2>Ved akutt behov</h2><p>Portalen erstatter ikke lokale nødtjenester eller akutt helsehjelp. Operative nødveier skal være tilgjengelige også uten portal.</p></article></div></section>
-    </section>
-  </div>
-
-  <script src="./app.js"></script>
+<script src="./app.js"></script>
 </body>
 </html>
