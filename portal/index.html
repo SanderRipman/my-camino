@@ -5,7 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#123f3d">
   <meta name="description" content="AidMe VIDA – sikker arbeidsflate for VÍA, SER og VIDA.">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="AidMe VIDA">
   <title>AidMe VIDA · Min side</title>
+  <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./styles.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -23,7 +28,7 @@
         <button class="primary" type="submit">Send sikker innloggingslenke</button>
       </form>
       <p id="authMessage" class="message" aria-live="polite"></p>
-      <small class="privacy-note">Ikke skriv helseopplysninger i innloggingsfeltet.</small>
+      <small class="privacy-note">Tilgang opprettes normalt ved invitasjon. Ikke skriv helseopplysninger i innloggingsfeltet.</small>
     </section>
   </main>
 
@@ -34,6 +39,7 @@
         <button class="nav-item active" data-view="home">Hjem</button>
         <button class="nav-item" data-view="journey">Min reise</button>
         <button class="nav-item" data-view="tasks">Oppgaver</button>
+        <button class="nav-item" data-view="security">Sikkerhet</button>
         <button class="nav-item" data-view="help">Hjelp & kontakt</button>
       </nav>
       <div class="phase-key"><span>VÍA · Før</span><span>SER · Under</span><span>VIDA · Etter</span></div>
@@ -42,10 +48,11 @@
     <section class="workspace">
       <header class="topbar">
         <div><p class="eyebrow" id="contextLabel">VÍA → SER → VIDA</p><h1 id="pageTitle">Hjem</h1></div>
-        <div class="top-actions"><span id="userLabel" class="user-pill"></span><button id="logout" class="ghost">Logg ut</button></div>
+        <div class="top-actions"><span id="securityPill" class="security-pill">Kontrollerer sikkerhet…</span><span id="userLabel" class="user-pill"></span><button id="logout" class="ghost">Logg ut</button></div>
       </header>
 
       <section id="view-home" class="view active">
+        <article id="accessPending" class="card warning-card hidden"><p class="eyebrow">Tilgang</p><h2>Kontoen er ikke aktivert ennå</h2><p>Du er innlogget, men ingen deltakerreise eller arbeidsrolle er knyttet til kontoen. Kontakt AidMe dersom du forventet tilgang.</p></article>
         <article class="hero-card">
           <div><p class="eyebrow" id="homeEyebrow">Din portal</p><h2 id="homeHeading">Din neste handling</h2><p id="homeIntro">Her skal du slippe å lete. Portalen viser det viktigste først.</p></div>
           <div class="stage-badge" id="stageBadge">VÍA</div>
@@ -61,6 +68,51 @@
       <section id="view-journey" class="view"><article class="card"><p class="eyebrow">Deltakerreise</p><h2>Én sammenhengende reise</h2><p>Grunnopplysninger registreres én gang. Deretter spør vi bare om det som faktisk er nytt eller nødvendig.</p><div id="journeyFull" class="journey full"></div></article><div id="participantCards" class="grid two"></div></section>
 
       <section id="view-tasks" class="view"><article class="card"><div class="card-head"><div><p class="eyebrow">Oppgaver</p><h2 id="tasksHeading">Mine oppgaver</h2></div></div><div id="taskList" class="list"></div></article></section>
+
+      <section id="view-security" class="view">
+        <div class="grid two">
+          <article class="card">
+            <p class="eyebrow">Kontosikkerhet</p>
+            <h2>Tofaktorautentisering</h2>
+            <p id="mfaStatus">Kontrollerer sikkerhetsnivå…</p>
+            <button id="startMfa" class="primary hidden">Sett opp Authenticator</button>
+            <button id="startChallenge" class="primary hidden">Bekreft med Authenticator</button>
+            <p class="privacy-note">Sensitive moduler åpnes bare når denne innloggingen er bekreftet på sikkerhetsnivå AAL2.</p>
+          </article>
+          <article class="card">
+            <p class="eyebrow">Prinsipp</p>
+            <h2>Minst mulig tilgang</h2>
+            <p>Deltakere ser egne opplysninger. Medarbeidere får bare tilgang gjennom navngitt rolle, mandat og omfang. Arbeidsroller krever tofaktor.</p>
+          </article>
+        </div>
+
+        <article id="mfaEnrollPanel" class="card mfa-panel hidden">
+          <p class="eyebrow">Oppsett</p>
+          <h2>Koble Authenticator</h2>
+          <p>Skann QR-koden i Authenticator-appen. Skriv deretter inn den seks-sifrede koden for å bekrefte oppsettet.</p>
+          <div class="mfa-grid">
+            <img id="mfaQr" class="mfa-qr" alt="QR-kode for tofaktorautentisering">
+            <div>
+              <label>Manuell nøkkel<input id="mfaSecret" readonly></label>
+              <form id="mfaEnrollForm">
+                <label>Bekreftelseskode<input id="mfaEnrollCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label>
+                <button class="primary" type="submit">Aktiver tofaktor</button>
+              </form>
+            </div>
+          </div>
+          <p id="mfaEnrollMessage" class="message" aria-live="polite"></p>
+        </article>
+
+        <article id="mfaChallengePanel" class="card mfa-panel hidden">
+          <p class="eyebrow">Sikkerhetskontroll</p>
+          <h2>Bekreft at det er deg</h2>
+          <form id="mfaChallengeForm">
+            <label>Kode fra Authenticator<input id="mfaChallengeCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label>
+            <button class="primary" type="submit">Bekreft og fortsett</button>
+          </form>
+          <p id="mfaChallengeMessage" class="message" aria-live="polite"></p>
+        </article>
+      </section>
 
       <section id="view-help" class="view"><div class="grid two"><article class="card"><p class="eyebrow">Hjelp</p><h2>Be om kontakt</h2><p>Du skal kunne be om hjelp, pause eller avklaring uten å måtte forklare alt i et fritekstfelt.</p><button class="primary" disabled>Aktiveres i neste API-steg</button></article><article class="card"><p class="eyebrow">Sikkerhet</p><h2>Ved akutt behov</h2><p>Portalen erstatter ikke lokale nødtjenester eller akutt helsehjelp. Operative nødveier skal være tilgjengelige også uten portal.</p></article></div></section>
     </section>
