@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="nb">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#123f3d">
+  <meta name="description" content="AidMe VIDA – sikker arbeidsflate for VÍA, SER og VIDA.">
+  <title>AidMe VIDA · Min side</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div id="loading" class="loading">Laster AidMe VIDA…</div>
+
+  <main id="authView" class="auth-shell hidden">
+    <section class="auth-card">
+      <div class="brand"><span class="brand-mark">A</span><div><strong>AidMe VIDA</strong><small>Ve. Sé. Vive.</small></div></div>
+      <p class="eyebrow">Sikker portal</p>
+      <h1>Fortsett reisen din</h1>
+      <p>Logg inn for å se bare det som er relevant for deg, rollen din og neste steg.</p>
+      <form id="loginForm">
+        <label>E-post<input id="email" type="email" autocomplete="email" required placeholder="navn@eksempel.no"></label>
+        <button class="primary" type="submit">Send sikker innloggingslenke</button>
+      </form>
+      <p id="authMessage" class="message" aria-live="polite"></p>
+      <small class="privacy-note">Ikke skriv helseopplysninger i innloggingsfeltet.</small>
+    </section>
+  </main>
+
+  <div id="appView" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">A</span><div><strong>AidMe VIDA</strong><small>Ve. Sé. Vive.</small></div></div>
+      <nav>
+        <button class="nav-item active" data-view="home">Hjem</button>
+        <button class="nav-item" data-view="journey">Min reise</button>
+        <button class="nav-item" data-view="tasks">Oppgaver</button>
+        <button class="nav-item" data-view="help">Hjelp & kontakt</button>
+      </nav>
+      <div class="phase-key"><span>VÍA · Før</span><span>SER · Under</span><span>VIDA · Etter</span></div>
+    </aside>
+
+    <section class="workspace">
+      <header class="topbar">
+        <div><p class="eyebrow" id="contextLabel">VÍA → SER → VIDA</p><h1 id="pageTitle">Hjem</h1></div>
+        <div class="top-actions"><span id="userLabel" class="user-pill"></span><button id="logout" class="ghost">Logg ut</button></div>
+      </header>
+
+      <section id="view-home" class="view active">
+        <article class="hero-card">
+          <div><p class="eyebrow" id="homeEyebrow">Din portal</p><h2 id="homeHeading">Din neste handling</h2><p id="homeIntro">Her skal du slippe å lete. Portalen viser det viktigste først.</p></div>
+          <div class="stage-badge" id="stageBadge">VÍA</div>
+        </article>
+        <div class="grid two">
+          <article class="card action-card"><p class="eyebrow">Nå</p><h3 id="nextActionTitle">Ingen åpen oppgave</h3><p id="nextActionText">Når noe krever handling, vises det her med eier og frist.</p><button id="nextActionButton" class="primary hidden">Åpne</button></article>
+          <article class="card"><p class="eyebrow">Oppfølging</p><h3>Hvem eier neste steg?</h3><p id="ownerText">Tildeles når reisen er aktivert.</p></article>
+        </div>
+        <article class="card"><div class="card-head"><div><p class="eyebrow">Fremdrift</p><h3>VÍA → SER → VIDA → ny VÍA</h3></div></div><div id="journeyMini" class="journey"></div></article>
+        <article id="staffQueue" class="card hidden"><div class="card-head"><div><p class="eyebrow">Arbeidskø</p><h3>Trenger handling nå</h3></div><span id="queueCount" class="count-pill">0</span></div><div id="queueList" class="list"></div></article>
+      </section>
+
+      <section id="view-journey" class="view"><article class="card"><p class="eyebrow">Deltakerreise</p><h2>Én sammenhengende reise</h2><p>Grunnopplysninger registreres én gang. Deretter spør vi bare om det som faktisk er nytt eller nødvendig.</p><div id="journeyFull" class="journey full"></div></article><div id="participantCards" class="grid two"></div></section>
+
+      <section id="view-tasks" class="view"><article class="card"><div class="card-head"><div><p class="eyebrow">Oppgaver</p><h2 id="tasksHeading">Mine oppgaver</h2></div></div><div id="taskList" class="list"></div></article></section>
+
+      <section id="view-help" class="view"><div class="grid two"><article class="card"><p class="eyebrow">Hjelp</p><h2>Be om kontakt</h2><p>Du skal kunne be om hjelp, pause eller avklaring uten å måtte forklare alt i et fritekstfelt.</p><button class="primary" disabled>Aktiveres i neste API-steg</button></article><article class="card"><p class="eyebrow">Sikkerhet</p><h2>Ved akutt behov</h2><p>Portalen erstatter ikke lokale nødtjenester eller akutt helsehjelp. Operative nødveier skal være tilgjengelige også uten portal.</p></article></div></section>
+    </section>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
