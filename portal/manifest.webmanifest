@@ -1,0 +1,12 @@
+{
+  "name": "AidMe VIDA",
+  "short_name": "AidMe VIDA",
+  "description": "Sikker portal for VÍA, SER og VIDA.",
+  "lang": "nb-NO",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f1e7",
+  "theme_color": "#123f3d",
+  "orientation": "portrait-primary"
+}
