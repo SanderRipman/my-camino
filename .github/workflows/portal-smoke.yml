@@ -1,0 +1,39 @@
+name: Portal smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'portal/**'
+      - '_redirects'
+      - '.github/workflows/portal-smoke.yml'
+  pull_request:
+    paths:
+      - 'portal/**'
+      - '_redirects'
+      - '.github/workflows/portal-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  syntax-and-loader:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check maintained JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in portal/*.js; do
+            case "$f" in
+              portal/app.js|portal/app-core-broken.js) continue ;;
+            esac
+            echo "Checking $f"
+            node --check "$f"
+          done
+      - name: Verify controlled loader repair
+        run: node portal/smoke-test.mjs
