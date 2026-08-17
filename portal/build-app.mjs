@@ -6,10 +6,12 @@ const dir=path.dirname(fileURLToPath(import.meta.url));
 const sourcePath=path.join(dir,'app-core-broken.js');
 const opsPath=path.join(dir,'app-ops.js');
 const uxPath=path.join(dir,'app-ux.js');
+const onboardingPath=path.join(dir,'app-onboarding.js');
 const outPath=path.join(dir,'app.js');
 let code=fs.readFileSync(sourcePath,'utf8');
 const ops=fs.readFileSync(opsPath,'utf8');
 const ux=fs.readFileSync(uxPath,'utf8');
+const onboarding=fs.readFileSync(onboardingPath,'utf8');
 
 function replaceOnce(label,needle,replacement){
  const first=code.indexOf(needle);if(first<0)throw new Error(`${label}: source pattern missing`);if(code.indexOf(needle,first+1)>=0)throw new Error(`${label}: source pattern is not unique`);code=code.replace(needle,replacement);
@@ -49,6 +51,7 @@ if(!renderFormsRe.test(code))throw new Error('renderForms: function missing');
 code=code.replace(renderFormsRe,`function renderForms(){const phaseFor={info_before_via:'VÍA',interest_referral:'VÍA',via_roadmap:'VÍA',individual_go_no_go:'VÍA',participant_agreement:'VÍA',pilot_go:'VÍA/SER',ser_daily:'SER',incident:'SER',vida_plan:'VIDA',pilot_evaluation:'VIDA'},participant=selectedParticipantId||ownParticipant()?.id||'';$('#formLibrary').innerHTML=formDefs.map((f,i)=>\`<a class="form-module" style="text-decoration:none;color:inherit" href="./form-runner.html?key=\${encodeURIComponent(f.key)}\${participant?'&participant='+encodeURIComponent(participant):''}"><span class="num">\${String(i).padStart(2,'0')}</span><h3>\${escapeHtml(f.title_no)}</h3><p>\${escapeHtml(f.scope==='staff'?'Arbeidsflate for navngitt rolle/ansvar.':f.scope==='participant_staff'?'Deltaker og ansvarlig medarbeider – etter tilgang.':'Deltakerrettet steg.')}</p><div class="meta"><span>\${escapeHtml(phaseFor[f.key]||'VÍA/SER/VIDA')}</span><span>Åpne →</span></div></a>\`).join('')}`);
 
 code += '\n\n/* Operational extensions are maintained separately and concatenated at build time. */\n'+ops+'\n';
-code += '\n\n/* UX/auth/mobile hardening is maintained separately and concatenated last. */\n'+ux+'\n';
+code += '\n\n/* UX/auth/mobile hardening is maintained separately and concatenated after operations. */\n'+ux+'\n';
+code += '\n\n/* Role onboarding navigation is maintained separately and concatenated last. */\n'+onboarding+'\n';
 fs.writeFileSync(outPath,code,'utf8');
 console.log(`Built ${path.relative(process.cwd(),outPath)} (${code.length} bytes)`);
