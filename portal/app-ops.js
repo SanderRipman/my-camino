@@ -10,6 +10,7 @@ async function installOpsUi(){
   opsClient=opsClient||supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
   const nav=document.querySelector('#mainNav');
   addNavLink(nav,'guideNav','00','Slik fungerer det','./guide.html');
+  addNavLink(nav,'demoJourneyNav','LAB','Demo-reise','./demo-journey.html');
   addNavLink(nav,'intakeNav','02+','Interesse / VÍA','./intake.html');
   addNavLink(nav,'ownersNav','02A','Ansvar / eiere','./owners.html');
   addNavLink(nav,'pilotOpsNav','SER','Operativ dag','./pilot-ops.html');
@@ -33,6 +34,8 @@ async function installOpsUi(){
   const ownerRole=active.some(g=>['project_owner','via_owner','clinical_professional'].includes(g.role_code));
   const serOpsRole=active.some(g=>['ser_lead','logistics','program_lead'].includes(g.role_code));
   const isAdmin=active.some(g=>g.role_code==='system_admin');
+  const canDemo=isAdmin||active.some(g=>g.role_code==='program_lead');
+  document.querySelector('#demoJourneyNav')?.classList.toggle('hidden',!canDemo);
   document.querySelector('#intakeNav')?.classList.toggle('hidden',!intakeRole);
   document.querySelector('#ownersNav')?.classList.toggle('hidden',!ownerRole);
   document.querySelector('#pilotOpsNav')?.classList.toggle('hidden',!serOpsRole);
