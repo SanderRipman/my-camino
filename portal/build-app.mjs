@@ -18,6 +18,11 @@ replaceOnce('task sort',
  "const rank={RED:0,YELLOW:1,GREEN:2};const ordered=[...open].sort((a,b)=>(rank[severity(a)]-rank[severity(b)])||(new Date(a.due_at||'2999')-new Date(b.due_at||'2999')));"
 );
 
+replaceOnce('navigation priority counts',
+ "const red=open.filter(t=>severity(t)==='RED').length,yellow=open.filter(t=>severity(t)==='YELLOW').length,green=open.filter(t=>severity(t)==='GREEN').length;",
+ "const overdue=t=>!!t.due_at&&new Date(t.due_at)<new Date();const red=open.filter(t=>severity(t)==='RED'||overdue(t)).length,yellow=open.filter(t=>severity(t)==='YELLOW'&&!overdue(t)).length,green=open.filter(t=>severity(t)==='GREEN'&&!overdue(t)).length;"
+);
+
 const taskRowRe=/function taskRow\(t\)\{[\s\S]*?\n\}/;
 if(!taskRowRe.test(code))throw new Error('taskRow: function missing');
 code=code.replace(taskRowRe,`function taskRow(t){
