@@ -1,83 +1,86 @@
 <!doctype html>
 <html lang="nb">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#123f3d">
-  <meta name="robots" content="noindex,nofollow">
-  <title>AidMe VIDA · Administrasjon</title>
-  <link rel="stylesheet" href="./styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#123f3d">
+<meta name="robots" content="noindex,nofollow">
+<title>AidMe VIDA · Administrasjon</title>
+<link rel="stylesheet" href="./styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <main class="workspace" style="max-width:920px;margin:0 auto;padding:24px">
-    <header class="topbar">
-      <div><p class="eyebrow">Sikker administrasjon</p><h1>Brukere og roller</h1></div>
-      <div class="top-actions"><span id="securityPill" class="security-pill">Kontrollerer…</span><a class="ghost" href="./">Til portal</a><button id="logout" class="ghost">Logg ut</button></div>
-    </header>
+<div class="app-shell">
+  <aside class="sidebar" aria-label="Hovednavigasjon">
+    <div class="brand"><img src="/vida/assets/AIDME_Logo-original-web.webp" alt="AidMe"><div><strong>AidMe VIDA</strong><span>Ve. Sé. Vive.</span></div></div>
+    <nav>
+      <a class="nav-item" href="./#overview"><span class="nav-num">01</span><b>Oversikt</b></a>
+      <a class="nav-item" href="./#participants"><span class="nav-num">02</span><b>Deltakere</b></a>
+      <a class="nav-item" href="./#tasks"><span class="nav-num">03</span><b>Oppgaver</b></a>
+      <a class="nav-item" href="./#checkin"><span class="nav-num">04</span><b>Innsjekk</b></a>
+      <a class="nav-item" href="./#analysis"><span class="nav-num">05</span><b>Analyse</b></a>
+      <a class="nav-item" href="./#forms"><span class="nav-num">06</span><b>Skjema & rutiner</b></a>
+      <a class="nav-item active" href="./admin.html"><span class="nav-num">07</span><b>Administrasjon</b></a>
+      <a class="nav-item" href="./#documents"><span class="nav-num">08</span><b>Dokumenter</b></a>
+      <a class="nav-item" href="./#settings"><span class="nav-num">09</span><b>Innstillinger</b></a>
+    </nav>
+    <div class="phase-key"><div><i class="dot via"></i>VÍA · Før</div><div><i class="dot ser"></i>SER · Under</div><div><i class="dot vida"></i>VIDA · Etter</div></div>
+    <p class="demo-note">Administrasjon krever AAL2 og aktiv systemadministratorrolle.</p>
+  </aside>
 
-    <article id="blocked" class="card warning-card hidden">
-      <p class="eyebrow">Tilgang stoppet</p><h2 id="blockedTitle">Administrasjon er låst</h2><p id="blockedText"></p>
-    </article>
+  <main class="workspace">
+    <header class="topbar"><div><p class="eyebrow">Sikker administrasjon</p><h1>Brukere, roller og ansvar</h1></div><div class="top-actions"><span id="securityPill" class="security-pill">Kontrollerer…</span><a class="ghost" href="./">Til portal</a><button id="logout" class="ghost">Logg ut</button></div></header>
+    <article class="preview-strip"><strong>Prinsipp:</strong> Gi bare tilgang personen faktisk trenger. Deltakerkonto og arbeidsrolle er to forskjellige ting.</article>
+
+    <article id="blocked" class="panel-card warning-card hidden"><p class="eyebrow">Tilgang stoppet</p><h2 id="blockedTitle">Administrasjon er låst</h2><p id="blockedText"></p></article>
 
     <section id="adminWorkspace" class="hidden">
-      <div class="grid two">
-        <article class="card">
+      <div class="admin-grid">
+        <article class="panel-card admin-card">
           <p class="eyebrow">1 · Inviter</p><h2>Ny bruker</h2>
-          <form id="inviteForm">
-            <label>E-post<input id="inviteEmail" type="email" autocomplete="off" required></label>
+          <p>Velg om personen skal inn som deltaker eller medarbeider. En deltaker får kun sin egen reise; medarbeidere får ingen arbeidsrettigheter før en rolle er tildelt.</p>
+          <form id="inviteForm" class="admin-form">
+            <label><span>Kontotype</span><select id="inviteType"><option value="participant">Deltaker</option><option value="staff">Medarbeider / partner</option></select></label>
+            <label><span>E-post</span><input id="inviteEmail" type="email" autocomplete="off" required placeholder="navn@eksempel.no"></label>
+            <div id="participantInviteFields" class="admin-subgrid">
+              <label><span>Kodenavn i operativ arbeidsflate</span><input id="inviteCodeName" maxlength="40" placeholder="f.eks. Nordlys-07"><small>Navn/identitet holdes separat. Kodenavnet brukes i operative deltakeroversikter.</small></label>
+              <label><span>Pilot / gruppe (valgfritt)</span><select id="invitePilot"><option value="">Ikke tildel ennå</option></select></label>
+            </div>
             <button class="primary" type="submit">Send invitasjon</button>
           </form>
           <p id="inviteMessage" class="message" aria-live="polite"></p>
-          <label>Ny bruker-ID<input id="targetUserId" autocomplete="off" placeholder="Fylles automatisk etter invitasjon"></label>
+          <input id="targetUserId" type="hidden">
         </article>
 
-        <article class="card">
-          <p class="eyebrow">2 · Rolle</p><h2>Tildel avgrenset tilgang</h2>
-          <form id="grantForm">
-            <label>Rolle
-              <select id="roleCode" required>
-                <option value="">Velg rolle</option>
-                <option value="project_owner">Prosjekteier</option>
-                <option value="program_lead">Programleder</option>
-                <option value="via_owner">VÍA-ansvarlig</option>
-                <option value="clinical_professional">Relevant fagperson</option>
-                <option value="ser_lead">SER-/turleder</option>
-                <option value="vida_owner">VIDA-eier</option>
-                <option value="logistics">Logistikk / beredskap</option>
-                <option value="observer">Observatør</option>
-                <option value="evaluator">Evaluator</option>
-                <option value="system_admin">Systemadministrator</option>
-                <option value="break_glass">Break-glass (midlertidig)</option>
-              </select>
-            </label>
-            <label>Deltaker-ID, hvis rollen skal avgrenses<input id="participantId" autocomplete="off"></label>
-            <label>Pilot-ID, hvis rollen skal avgrenses<input id="pilotId" autocomplete="off"></label>
-            <label>Begrunnelse<input id="reason" autocomplete="off" placeholder="Påkrevd for break-glass"></label>
-            <label>Gyldig til<input id="validUntil" type="datetime-local"></label>
-            <button class="primary" type="submit">Tildel rolle</button>
+        <article class="panel-card admin-card">
+          <p class="eyebrow">2 · Arbeidsrolle</p><h2>Hva skal personen kunne gjøre?</h2>
+          <p>Velg rolle først. Beskrivelsen under viser hovedansvar og tydelig grense før du lagrer.</p>
+          <form id="grantForm" class="admin-form">
+            <label><span>Bruker</span><select id="targetUserSelect" required><option value="">Velg invitert/eksisterende medarbeider</option></select></label>
+            <label><span>Rolle</span><select id="roleCode" required>
+              <option value="">Velg rolle</option><option value="project_owner">Prosjekteier</option><option value="program_lead">Programleder</option><option value="via_owner">VÍA-ansvarlig</option><option value="clinical_professional">Relevant fagperson</option><option value="ser_lead">SER-/turleder</option><option value="vida_owner">VIDA-eier</option><option value="logistics">Logistikk / beredskap</option><option value="observer">Observatør</option><option value="evaluator">Evaluator</option><option value="system_admin">Systemadministrator</option><option value="break_glass">Midlertidig nødtilgang (break-glass)</option>
+            </select></label>
+            <div id="roleDescription" class="role-description"><strong>Velg en rolle</strong><p>Her vises hva rollen er ment å gjøre – og hva den ikke skal gjøre alene.</p></div>
+            <fieldset class="scope-box"><legend>Tilgangsomfang</legend><p>La begge stå på «hele relevant arbeidsflate» dersom rollen er generell. Velg deltaker eller pilot bare når tilgangen faktisk skal begrenses.</p>
+              <div class="admin-subgrid"><label><span>Kun denne deltakeren</span><select id="participantId"><option value="">Hele relevant arbeidsflate</option></select></label><label><span>Kun denne piloten/gruppen</span><select id="pilotId"><option value="">Hele relevant arbeidsflate</option></select></label></div>
+            </fieldset>
+            <div class="admin-subgrid"><label><span>Begrunnelse / mandat (valgfritt)</span><input id="reason" autocomplete="off" placeholder="Kort hvorfor tilgangen gis"></label><label><span>Utløper (valgfritt)</span><input id="validUntil" type="datetime-local"><small>Påkrevd ved midlertidig nødtilgang.</small></label></div>
+            <button class="primary" type="submit">Tildel arbeidsrolle</button>
           </form>
           <p id="grantMessage" class="message" aria-live="polite"></p>
         </article>
       </div>
 
-      <article class="card">
-        <p class="eyebrow">3 · Tilbakekall</p><h2>Fjern tilgang umiddelbart</h2>
-        <p>Bruk grant-ID fra revisjons-/brukeroversikten. Tilbakekalling beholder historikken og setter revokeringstidspunkt.</p>
-        <form id="revokeForm" class="grid two">
-          <label>Grant-ID<input id="grantId" required autocomplete="off"></label>
-          <label>Begrunnelse<input id="revokeReason" required autocomplete="off"></label>
-          <button class="primary" type="submit">Tilbakekall rolle</button>
-        </form>
-        <p id="revokeMessage" class="message" aria-live="polite"></p>
+      <article class="panel-card access-list-card">
+        <div class="card-head"><div><p class="eyebrow">Aktive brukere</p><h2>Tilgang og ansvar</h2></div><button id="refreshAccess" class="ghost">Oppdater</button></div>
+        <p>Navn brukes for medarbeidere når det er relevant for tydelig ansvar. Deltakerens operative visning bruker kodenavn.</p>
+        <div id="accessList" class="access-list"><p>Laster…</p></div>
       </article>
 
-      <article class="card">
-        <p class="eyebrow">Sikkerhetsregel</p><h2>Ingen administrasjon på AAL1</h2>
-        <p>Denne siden er bare et brukergrensesnitt. Edge Functions krever både gyldig AAL2-økt og aktiv <code>system_admin</code>-rolle på serveren. Å skjule eller manipulere knapper i nettleseren gir derfor ikke ekstra tilgang.</p>
-      </article>
+      <article class="panel-card"><p class="eyebrow">Sikkerhetsregel</p><h2>Ingen skjult adminmakt i nettleseren</h2><p>Serverfunksjonene kontrollerer gyldig innlogging, AAL2 og aktiv <code>system_admin</code> før invitasjon, deltakerkobling, rolleendring eller tilbakekalling. Manipulerte knapper i nettleseren gir derfor ikke ekstra rettigheter.</p></article>
     </section>
   </main>
-  <script src="./admin.js"></script>
+</div>
+<script src="./admin.js"></script>
 </body>
 </html>
