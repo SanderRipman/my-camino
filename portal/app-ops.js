@@ -15,10 +15,12 @@ async function installOpsUi(){
   addNavLink(nav,'pilotOpsNav','SER','Operativ dag','./pilot-ops.html');
   addNavLink(nav,'notificationsNav','N','Varsler','./notifications.html');
   addNavLink(nav,'auditNav','07A','Revisjon','./audit.html');
+  addNavLink(nav,'documentsCenterNav','08A','Mine filer','./documents.html');
   addNavLink(nav,'sosNav','10','Hjelp & SOS','./sos.html');
   const menu=document.querySelector('#userMenu');
   addMenuLink(menu,'userGuideLink','Slik fungerer reisen','./guide.html');
   addMenuLink(menu,'userNotificationLink','Varsler','./notifications.html');
+  addMenuLink(menu,'userDocumentsLink','Sikkert dokumentarkiv','./documents.html');
   addMenuLink(menu,'userSosLink','Hjelp & SOS','./sos.html',true);
   const admin=document.querySelector('#adminLink');
   const {data:{session}}=await opsClient.auth.getSession();if(!session)return;
