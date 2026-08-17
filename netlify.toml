@@ -1,6 +1,6 @@
 [build]
   publish = "."
-  command = ""
+  command = "node portal/build-app.mjs"
 
 [[redirects]]
   from = "/*"
