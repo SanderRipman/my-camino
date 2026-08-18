@@ -29,8 +29,6 @@ jobs:
           grep -q 'shellPresentation' /tmp/candidate-site.js
           grep -q 'aidme-shell' /tmp/candidate-site.js
 
-          # Use the exact production shell logic, swapping only its source/trusted
-          # host to the isolated candidate for pre-live visual validation.
           sed 's/aidme-public-preview\.netlify\.app/aidme-public-candidate-20260817.netlify.app/g' \
             ops/wix/aidme-public-shell.js > /tmp/aidme-shell-test/shell.js
           {
@@ -46,17 +44,23 @@ jobs:
           timeout 30s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
             --window-size=390,900 --virtual-time-budget=9000 --dump-dom \
             'http://127.0.0.1:8765/' > visual-qa/shell-dom.html || test -s visual-qa/shell-dom.html
-          grep -q 'id="aidme-public-git-shell"' visual-qa/shell-dom.html
+
+          root_tag=$(grep -o '<div id="aidme-public-git-shell"[^>]*>' visual-qa/shell-dom.html | head -1 || true)
+          echo "ROOT_TAG=$root_tag"
+          height=$(printf '%s' "$root_tag" | grep -o 'data-height="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*' || true)
+          host_width=$(printf '%s' "$root_tag" | grep -o 'data-host-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*' || true)
+          state=$(printf '%s' "$root_tag" | grep -o 'data-state="[^"]*"' | head -1 || true)
+          echo "DIAG state=${state:-missing} height=${height:-missing} host_width=${host_width:-missing}"
+          printf 'state=%s\nheight=%s\nhost_width=%s\n' "${state:-missing}" "${height:-missing}" "${host_width:-missing}" > visual-qa/result.txt
+
+          test -n "$root_tag"
           grep -q 'data-state="active"' visual-qa/shell-dom.html
           grep -q 'data-aidme-legacy-hidden="1"' visual-qa/shell-dom.html
-          height=$(grep -o 'data-height="[0-9][0-9]*"' visual-qa/shell-dom.html | head -1 | grep -o '[0-9][0-9]*')
-          host_width=$(grep -o 'data-host-width="[0-9][0-9]*"' visual-qa/shell-dom.html | head -1 | grep -o '[0-9][0-9]*')
           test -n "$height"
           test "$height" -gt 3000
           test -n "$host_width"
           test "$host_width" -ge 380
           test "$host_width" -le 400
-          echo "shell_reported_height=$height host_width=$host_width"
 
           capture() {
             local name="$1" width="$2" height="$3" url="$4"
@@ -71,9 +75,9 @@ jobs:
           capture shell-desktop 1440 1800 'http://127.0.0.1:8765/'
           capture direct-360 360 2200 'https://aidme-public-candidate-20260817.netlify.app/?aidme-shell=1'
           capture direct-desktop 1440 1800 'https://aidme-public-candidate-20260817.netlify.app/?aidme-shell=1'
-          printf 'shell_reported_height=%s\nhost_width=%s\n' "$height" "$host_width" > visual-qa/result.txt
           sha256sum visual-qa/*.png > visual-qa/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: aidme-public-visual-qa
           path: visual-qa/
