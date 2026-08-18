@@ -1,0 +1,20 @@
+/* AidMe VIDA – mobile parity additions. Loaded after ux.css. */
+@media(max-width:780px){
+  .sidebar{
+    transition:transform .2s ease,opacity .16s ease,box-shadow .16s ease;
+    will-change:transform;
+  }
+  .sidebar.mobile-nav-hidden{
+    transform:translateY(calc(-100% - env(safe-area-inset-top,0px)));
+    opacity:0;
+    pointer-events:none;
+    box-shadow:none;
+  }
+  .sidebar.mobile-nav-hidden + .workspace{
+    /* Sticky sidebar leaves normal document flow behind at the top only; once scrolled,
+       translating it away frees the reading viewport without a layout jump. */
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .sidebar{transition:none!important}
+}
