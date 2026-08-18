@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const FLOW_UX_VERSION='2026-08-18a';
+const FLOW_UX_VERSION='2026-08-18b';
 
 function addFlowStyles(){
   if(document.querySelector('link[data-aidme-flow]'))return;
@@ -27,12 +27,26 @@ function visibleOpenTasks(){
   return open.filter(t=>t.assignee_user_id===session?.user?.id||(own&&t.participant_id===own.id));
 }
 
-function bestVisibleTask(){
+function orderedVisibleTasks(){
   const rank={RED:0,YELLOW:1,GREEN:2};
   return [...visibleOpenTasks()].sort((a,b)=>
     (rank[flowLevel(a)]-rank[flowLevel(b)])||
     (new Date(a.due_at||'2999-12-31')-new Date(b.due_at||'2999-12-31'))
-  )[0]||null;
+  );
+}
+
+function taskAction(t){
+  if(!t)return null;
+  const p=participantById(t.participant_id),pilot=pilotById(t.pilot_id),level=flowLevel(t);
+  const context=[p?.code_name,pilot?.name,t.due_at?formatDate(t.due_at):null].filter(Boolean);
+  return{
+    level,
+    kicker:level==='RED'?'Neste handling · Kritisk/forfalt':level==='YELLOW'?'Neste handling · Trenger avklaring':'Neste handling · Oppgave',
+    title:t.title,
+    body:t.description||'Åpne oppgaven for ansvar, kontekst og riktig neste steg.',
+    taskId:t.id,
+    meta:context
+  };
 }
 
 function phaseActionForParticipant(p){
@@ -48,29 +62,27 @@ function phaseActionForParticipant(p){
 }
 
 function nextActionModel(){
-  const t=bestVisibleTask();
-  if(t){
-    const p=participantById(t.participant_id),pilot=pilotById(t.pilot_id),level=flowLevel(t);
-    const context=[p?.code_name,pilot?.name,t.due_at?formatDate(t.due_at):null].filter(Boolean);
-    return{
-      level,
-      kicker:level==='RED'?'Neste handling · Kritisk/forfalt':level==='YELLOW'?'Neste handling · Trenger avklaring':'Neste handling · Oppgave',
-      title:t.title,
-      body:t.description||'Åpne oppgaven for ansvar, kontekst og riktig neste steg.',
-      taskId:t.id,
-      meta:context
-    };
-  }
+  const ordered=orderedVisibleTasks();
+  const attention=ordered.find(t=>['RED','YELLOW'].includes(flowLevel(t)))||null;
+  if(attention)return taskAction(attention);
 
-  const p=participantById(selectedParticipantId)||ownParticipant()||(participants||[])[0]||null;
-  const phase=phaseActionForParticipant(p);
+  // A phase/gate must be contextual, never inferred from an arbitrary "first participant".
+  // Staff gets a gate only after choosing a participant; participant-only gets their own phase.
+  const selected=selectedParticipantId?participantById(selectedParticipantId):null;
+  const contextualParticipant=selected||(!isStaff()?ownParticipant():null);
+  const phase=phaseActionForParticipant(contextualParticipant);
   if(phase)return phase;
+
+  const normal=ordered.find(t=>flowLevel(t)==='GREEN')||null;
+  if(normal)return taskAction(normal);
 
   return{
     level:'GREEN',
     kicker:'Neste handling',
     title:'Ingen saker krever handling nå',
-    body:'Arbeidskøen er ryddig. Du kan gå til deltakere eller oppgaver for å kontrollere status.',
+    body:isStaff()
+      ?'Arbeidskøen er ryddig. Velg en deltaker for å se riktig fasegate, eller gå til deltakeroversikten.'
+      :'Arbeidskøen er ryddig. Du kan kontrollere egne oppgaver og avtalt neste steg.',
     view:isStaff()?'participants':'tasks',
     meta:isStaff()&&typeof roleSummary==='function'&&roleSummary()?[roleSummary()]:[]
   };
