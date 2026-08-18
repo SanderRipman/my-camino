@@ -2,7 +2,7 @@
   'use strict';
 
   const ROOT_ID = 'aidme-public-git-shell';
-  const SOURCE = 'https://aidme-public-preview.netlify.app/';
+  const SOURCE = 'https://aidme-public-preview.netlify.app/?aidme-shell=1';
   const TRUSTED_HOST = 'aidme-public-preview.netlify.app';
   const SAFE_BOOT_HEIGHT = 12000;
   const MIN_HEIGHT = 500;
@@ -33,6 +33,7 @@
   frame.style.cssText = [
     'display:block',
     'width:100%',
+    'min-width:0',
     `height:${SAFE_BOOT_HEIGHT}px`,
     'border:0',
     'margin:0',
