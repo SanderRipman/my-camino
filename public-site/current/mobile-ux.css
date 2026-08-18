@@ -27,6 +27,13 @@
 .mobile-process-nav { display: none; }
 
 @media (max-width: 650px) {
+  /* refine.css is loaded after site.css and otherwise restores the desktop
+     two-column hero on small screens. Keep the first impression readable. */
+  .hero-grid,
+  .page-hero-shell {
+    grid-template-columns: 1fr;
+  }
+
   .lang-toggle,
   .menu-toggle,
   .mobile-nav .nav-link,
