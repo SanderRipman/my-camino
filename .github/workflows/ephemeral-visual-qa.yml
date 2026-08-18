@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/ephemeral-visual-qa.yml'
       - 'ops/wix/aidme-public-shell.js'
+      - 'public-site/current/**'
 
 permissions:
   contents: read
@@ -14,16 +15,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate fail-safe shell against approved Netlify alias
+      - name: Validate fail-safe shell against isolated candidate
         shell: bash
         run: |
           set -euo pipefail
           CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
           test -n "$CHROME"
           mkdir -p visual-qa /tmp/aidme-shell-test
+
+          # Use the exact production shell logic, swapping only its source/trusted
+          # host to the isolated candidate for pre-live visual validation.
+          sed 's/aidme-public-preview\.netlify\.app/aidme-public-candidate-20260817.netlify.app/g' \
+            ops/wix/aidme-public-shell.js > /tmp/aidme-shell-test/shell.js
           {
             printf '%s\n' '<!doctype html><html><body style="margin:0"><div id="SITE_CONTAINER" style="height:420px;background:#ddd">LEGACY-FALLBACK</div><script>'
-            cat ops/wix/aidme-public-shell.js
+            cat /tmp/aidme-shell-test/shell.js
             printf '%s\n' '</script></body></html>'
           } > /tmp/aidme-shell-test/index.html
           python3 -m http.server 8765 --directory /tmp/aidme-shell-test >/tmp/aidme-shell-test.log 2>&1 &
@@ -42,11 +48,21 @@ jobs:
           test "$height" -gt 3000
           echo "shell_reported_height=$height"
 
-          timeout 30s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --hide-scrollbars --window-size=390,2200 --virtual-time-budget=9000 \
-            --screenshot=visual-qa/shell-mobile.png 'http://127.0.0.1:8765/'
-          test -s visual-qa/shell-mobile.png
+          capture() {
+            local name="$1" width="$2" height="$3" url="$4"
+            timeout 30s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+              --hide-scrollbars --force-device-scale-factor=1 \
+              --window-size="${width},${height}" --virtual-time-budget=9000 \
+              --screenshot="visual-qa/${name}.png" "$url"
+            test -s "visual-qa/${name}.png"
+          }
+          capture shell-360 360 2200 'http://127.0.0.1:8765/'
+          capture shell-412 412 2200 'http://127.0.0.1:8765/'
+          capture shell-desktop 1440 1800 'http://127.0.0.1:8765/'
+          capture direct-360 360 2200 'https://aidme-public-candidate-20260817.netlify.app/?aidme-shell=1'
+          capture direct-desktop 1440 1800 'https://aidme-public-candidate-20260817.netlify.app/?aidme-shell=1'
           printf 'shell_reported_height=%s\n' "$height" > visual-qa/result.txt
+          sha256sum visual-qa/*.png > visual-qa/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
           name: aidme-public-visual-qa
