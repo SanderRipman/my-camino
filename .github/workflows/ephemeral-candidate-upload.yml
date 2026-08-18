@@ -1,10 +1,10 @@
 name: Ephemeral public candidate upload
 
 on:
-  push:
-    branches: [public-mobile-ux-20260818]
+  pull_request:
     paths:
       - '.github/workflows/ephemeral-candidate-upload.yml'
+      - 'public-site/current/**'
 
 permissions:
   contents: read
@@ -40,4 +40,3 @@ jobs:
           build_id=$(printf '%s' "$response" | python -c 'import json,sys; x=json.load(sys.stdin); x=x[0] if isinstance(x,list) else x; print(x.get("id", ""))')
           test -n "$deploy_id"
           printf 'Candidate deploy ID: `%s`\n\nBuild ID: `%s`\n' "$deploy_id" "$build_id" >> "$GITHUB_STEP_SUMMARY"
-          echo "deploy_id=$deploy_id" >> "$GITHUB_OUTPUT"
