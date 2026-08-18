@@ -1,0 +1,45 @@
+name: Public site smoke
+
+on:
+  pull_request:
+    paths:
+      - 'public-site/current/**'
+      - '.github/workflows/public-site-smoke.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'public-site/current/**'
+      - '.github/workflows/public-site-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  static-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate public source parity
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='public-site/current'
+          pages=(index via ser vida deltakere partnere ruter om kontakt)
+          for page in "${pages[@]}"; do
+            test -f "$ROOT/$page.html"
+            grep -q '<meta name="viewport"' "$ROOT/$page.html"
+            grep -q '<footer class="site-footer"' "$ROOT/$page.html"
+            grep -q 'site.js?v=20260818a' "$ROOT/$page.html"
+            count=$(grep -o '<h1' "$ROOT/$page.html" | wc -l | tr -d ' ')
+            test "$count" = '1'
+          done
+          test -f "$ROOT/site.css"
+          test -f "$ROOT/refine.css"
+          test -f "$ROOT/site.js"
+          test -f "$ROOT/SOURCE_PARITY_MANIFEST_2026-08-18.json"
+          grep -q 'naturalContentHeight' "$ROOT/site.js"
+          ! grep -q 'document.documentElement.scrollHeight' "$ROOT/site.js"
+          grep -q 'Gå videre til VIDA' "$ROOT/ser.html"
+          grep -q 'Under lading' "$ROOT/via.html"
+          grep -q 'aidme-logo.webp' "$ROOT/SOURCE_PARITY_MANIFEST_2026-08-18.json"
+          echo 'Public static parity checks passed.'
