@@ -13,18 +13,20 @@
   const root = document.createElement('div');
   root.id = ROOT_ID;
   root.dataset.state = 'booting';
+  root.setAttribute('aria-hidden', 'true');
   root.style.cssText = [
     'position:absolute',
-    'left:-200vw',
+    'left:0',
     'top:0',
     'width:100vw',
     'max-width:100vw',
     'min-width:0',
     'box-sizing:border-box',
     `height:${SAFE_BOOT_HEIGHT}px`,
-    'visibility:hidden',
+    'opacity:0',
+    'pointer-events:none',
     'overflow:hidden',
-    'background:#f5f0e6',
+    'background:transparent',
     'z-index:2147483000'
   ].join(';');
 
@@ -66,10 +68,13 @@
     if (activated) return;
     activated = true;
     root.dataset.state = 'active';
+    root.removeAttribute('aria-hidden');
     root.style.setProperty('position', 'relative', 'important');
     root.style.setProperty('left', 'auto', 'important');
     root.style.setProperty('top', 'auto', 'important');
-    root.style.setProperty('visibility', 'visible', 'important');
+    root.style.setProperty('opacity', '1', 'important');
+    root.style.setProperty('pointer-events', 'auto', 'important');
+    root.style.setProperty('background', '#f5f0e6', 'important');
 
     const legacy = document.getElementById('SITE_CONTAINER');
     if (legacy) {
