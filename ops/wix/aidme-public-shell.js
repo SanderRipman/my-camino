@@ -17,7 +17,10 @@
     'position:absolute',
     'left:-200vw',
     'top:0',
-    'width:100%',
+    'width:100vw',
+    'max-width:100vw',
+    'min-width:0',
+    'box-sizing:border-box',
     `height:${SAFE_BOOT_HEIGHT}px`,
     'visibility:hidden',
     'overflow:hidden',
@@ -32,8 +35,10 @@
   frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
   frame.style.cssText = [
     'display:block',
-    'width:100%',
+    'width:100vw',
+    'max-width:100vw',
     'min-width:0',
+    'box-sizing:border-box',
     `height:${SAFE_BOOT_HEIGHT}px`,
     'border:0',
     'margin:0',
@@ -73,6 +78,7 @@
     }
 
     document.documentElement.style.setProperty('background', '#f5f0e6', 'important');
+    document.documentElement.style.setProperty('overflow-x', 'hidden', 'important');
     document.body.style.setProperty('margin', '0', 'important');
     document.body.style.setProperty('padding', '0', 'important');
     document.body.style.setProperty('background', '#f5f0e6', 'important');
