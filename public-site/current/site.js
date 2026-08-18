@@ -2,8 +2,9 @@
   const root = document.documentElement;
   const storedLanguage = localStorage.getItem("aidme_public_lang");
   let language = storedLanguage === "en" ? "en" : "no";
+  const shellPresentation = new URLSearchParams(window.location.search).get("aidme-shell") === "1";
 
-  if (window.self !== window.top) {
+  if (window.self !== window.top && !shellPresentation) {
     root.classList.add("is-embedded");
   }
 
