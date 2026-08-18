@@ -77,7 +77,7 @@
       workspace.href = "https://my.aidme.no/";
       workspace.target = "_blank";
       workspace.rel = "noopener";
-      workspace.innerHTML = '<span class="lang-no">my.AidMe</span><span class="lang-en">my.AidMe</span>';
+      workspace.innerHTML = '<span class="lang-no">my.Aidme</span><span class="lang-en">my.Aidme</span>';
       nav.appendChild(workspace);
     }
   });
@@ -177,24 +177,11 @@
   style.dataset.aidmeMobileUx = "1";
   document.head.appendChild(style);
 
+  // Keep one semantic anchor per phase card. CSS stretches that anchor across
+  // the full card for pointer users, while keyboard/screen-reader users retain
+  // the original link instead of a nested synthetic role=link container.
   document.querySelectorAll(".step").forEach((card) => {
-    const link = card.querySelector("a.step-link");
-    if (!link) return;
-    card.dataset.cardLink = link.href;
-    card.tabIndex = 0;
-    card.setAttribute("role", "link");
-    card.setAttribute("aria-label", (card.querySelector("h3")?.textContent || "Neste fase").trim());
-    const open = () => { window.location.href = link.href; };
-    card.addEventListener("click", (event) => {
-      if (event.target.closest("a,button,input,select,textarea,summary")) return;
-      open();
-    });
-    card.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        open();
-      }
-    });
+    if (card.querySelector("a.step-link")) card.classList.add("has-card-link");
   });
 
   const mobileNav = document.querySelector(".mobile-nav");
