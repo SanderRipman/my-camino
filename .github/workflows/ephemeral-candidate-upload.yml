@@ -1,0 +1,43 @@
+name: Ephemeral public candidate upload
+
+on:
+  push:
+    branches: [public-mobile-ux-20260818]
+    paths:
+      - '.github/workflows/ephemeral-candidate-upload.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  upload-candidate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify final UI bytes before upload
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='public-site/current'
+          test "$(git hash-object "$ROOT/site.js")" = '22eee3cea3159dd7a8aa2311e597e90fd0e667df'
+          test "$(git hash-object "$ROOT/mobile-ux.css")" = 'd446b5214d9ee1f5d9c588d8cd89e8187e7f49b5'
+          test -f "$ROOT/index.html"
+          test -f "$ROOT/assets/hero-group.webp"
+          node --check "$ROOT/site.js"
+      - name: Upload exact public directory to isolated candidate
+        shell: bash
+        env:
+          NETLIFY_SCOPED_PROXY: 'https://netlify-mcp.netlify.app/proxy/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..nc4k5VL4_rFl2_FY.GogQu0mE47dPfwCTg54oHszhA6DGLfRqmb3uJS8eCFZBe_ghR3yR_hAdimKYNfRykerIh1qChwFHzpx0zjvahzr4uFWtgHSRc2ePmLoXY2p1ETOriISdCcKODyuoqUUPrNlonWW-oPNuwoj6hmog4fWSmrpX_Rel_QJBcFYlMKmAZgx-Z-c-bk8tzglgS64o2ii3H95i5vlnniaINz76mzUbTGSu0xypmlI9CnNqENzzkJChq7CHdlK6ppZeUL1ZSmnboVhrF7bpRaxAXhsgLwysszo_TeOMCN60SAFDnLuwDE1e71et4N-6nqV9YvB6pqPeaJIVuZ-LmAwzypKl9sw_861IrQJVzt_rNBUMzanS0qPnIRAv5WVelZ20inZijrBdNSIO.3NPdFZA1KGobYjr8T_5T2Q'
+        run: |
+          set -euo pipefail
+          cd public-site/current
+          zip -qr /tmp/aidme-public-candidate.zip . -x '.DS_Store'
+          response=$(curl --fail-with-body --silent --show-error \
+            -H 'user-agent: netlify-mcp' \
+            -F 'zip=@/tmp/aidme-public-candidate.zip;type=application/zip' \
+            "$NETLIFY_SCOPED_PROXY")
+          deploy_id=$(printf '%s' "$response" | python -c 'import json,sys; x=json.load(sys.stdin); x=x[0] if isinstance(x,list) else x; print(x.get("deploy_id", ""))')
+          build_id=$(printf '%s' "$response" | python -c 'import json,sys; x=json.load(sys.stdin); x=x[0] if isinstance(x,list) else x; print(x.get("id", ""))')
+          test -n "$deploy_id"
+          printf 'Candidate deploy ID: `%s`\n\nBuild ID: `%s`\n' "$deploy_id" "$build_id" >> "$GITHUB_STEP_SUMMARY"
+          echo "deploy_id=$deploy_id" >> "$GITHUB_OUTPUT"
