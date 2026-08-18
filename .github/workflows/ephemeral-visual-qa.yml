@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Capture candidate and current live in real Chrome
+      - name: Capture visual state and previous-live runtime
         shell: bash
         run: |
           set -euo pipefail
@@ -34,11 +34,18 @@ jobs:
               "$url"
             test -s "visual-qa/${name}.png"
           }
+          curl --fail --silent --show-error \
+            'https://6a818fb0563075817cf6ffdd--aidme-public-preview.netlify.app/site.js' \
+            -o visual-qa/previous-live-site.js
+          curl --fail --silent --show-error \
+            'https://aidme-public-preview.netlify.app/site.js' \
+            -o visual-qa/current-live-site.js
+          diff -u visual-qa/previous-live-site.js visual-qa/current-live-site.js > visual-qa/site-js.diff || true
           capture candidate-mobile 360 2200 'https://aidme-public-candidate-20260817.netlify.app/'
           capture candidate-desktop 1440 1800 'https://aidme-public-candidate-20260817.netlify.app/'
           capture live-mobile 360 2200 'https://www.aidme.no/'
           capture live-desktop 1440 1800 'https://www.aidme.no/'
-          sha256sum visual-qa/*.png > visual-qa/SHA256SUMS.txt
+          sha256sum visual-qa/* > visual-qa/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
           name: aidme-public-visual-qa
