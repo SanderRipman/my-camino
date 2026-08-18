@@ -13,13 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Capture visual state and previous-live runtime
+      - name: Measure iframe protocol and capture visual state
         shell: bash
         run: |
           set -euo pipefail
           CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
           test -n "$CHROME"
-          mkdir -p visual-qa
+          mkdir -p visual-qa /tmp/aidme-harness
           capture() {
             local name="$1" width="$2" height="$3" url="$4"
             "$CHROME" \
@@ -34,13 +34,34 @@ jobs:
               "$url"
             test -s "visual-qa/${name}.png"
           }
-          curl --fail --silent --show-error \
-            'https://6a818fb0563075817cf6ffdd--aidme-public-preview.netlify.app/site.js' \
-            -o visual-qa/previous-live-site.js
-          curl --fail --silent --show-error \
-            'https://aidme-public-preview.netlify.app/site.js' \
-            -o visual-qa/current-live-site.js
-          diff -u visual-qa/previous-live-site.js visual-qa/current-live-site.js > visual-qa/site-js.diff || true
+          cat > /tmp/aidme-harness/index.html <<'HTML'
+          <!doctype html><html><body style="margin:0">
+          <div id="result">WAITING</div>
+          <iframe id="frame" src="https://aidme-public-candidate-20260817.netlify.app/" style="width:360px;height:420px;border:0"></iframe>
+          <script>
+          const result=document.getElementById('result');
+          const frame=document.getElementById('frame');
+          window.addEventListener('message',e=>{
+            const d=e.data||{};
+            if(d.type!=='aidme-vida:content-height')return;
+            result.textContent='HEIGHT='+d.height+' PATH='+d.path+' ORIGIN='+e.origin;
+            result.dataset.height=String(d.height);
+            frame.style.height=Math.ceil(Number(d.height)||420)+'px';
+          });
+          </script></body></html>
+          HTML
+          python3 -m http.server 8765 --directory /tmp/aidme-harness >/tmp/aidme-harness.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          sleep 1
+          "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --window-size=390,900 --virtual-time-budget=8000 --dump-dom \
+            'http://127.0.0.1:8765/' > visual-qa/iframe-protocol.html
+          grep -o 'HEIGHT=[0-9][0-9]*[^<]*' visual-qa/iframe-protocol.html | head -1 > visual-qa/iframe-height.txt
+          height=$(grep -o 'data-height="[0-9][0-9]*"' visual-qa/iframe-protocol.html | head -1 | grep -o '[0-9][0-9]*')
+          test -n "$height"
+          echo "reported_height=$height"
+          test "$height" -gt 3000
           capture candidate-mobile 360 2200 'https://aidme-public-candidate-20260817.netlify.app/'
           capture candidate-desktop 1440 1800 'https://aidme-public-candidate-20260817.netlify.app/'
           capture live-mobile 360 2200 'https://www.aidme.no/'
