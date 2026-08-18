@@ -18,8 +18,6 @@
     'position:absolute',
     'left:0',
     'top:0',
-    'width:100vw',
-    'max-width:100vw',
     'min-width:0',
     'box-sizing:border-box',
     `height:${SAFE_BOOT_HEIGHT}px`,
@@ -37,8 +35,6 @@
   frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
   frame.style.cssText = [
     'display:block',
-    'width:100vw',
-    'max-width:100vw',
     'min-width:0',
     'box-sizing:border-box',
     `height:${SAFE_BOOT_HEIGHT}px`,
@@ -52,6 +48,23 @@
   document.body.insertBefore(root, document.body.firstChild);
 
   let activated = false;
+
+  function hostWidth() {
+    const docWidth = Number(document.documentElement && document.documentElement.clientWidth) || 0;
+    const winWidth = Number(window.innerWidth) || 0;
+    return Math.max(320, Math.ceil(docWidth || winWidth || 320));
+  }
+
+  function syncWidth() {
+    const width = hostWidth();
+    const px = `${width}px`;
+    root.dataset.hostWidth = String(width);
+    root.style.setProperty('width', px, 'important');
+    root.style.setProperty('max-width', px, 'important');
+    frame.style.setProperty('width', px, 'important');
+    frame.style.setProperty('max-width', px, 'important');
+    frame.setAttribute('width', String(width));
+  }
 
   function setHeight(value) {
     const numeric = Number(value);
@@ -113,6 +126,10 @@
     root.dataset.state = 'failed';
     // Fail safe: the legacy Wix page remains visible because activate() has not run.
   });
+
+  syncWidth();
+  window.addEventListener('resize', syncWidth, { passive: true });
+  window.addEventListener('orientationchange', syncWidth, { passive: true });
 
   // Do not hide the legacy Wix page on a timer. A valid message from the
   // trusted Netlify frame is the release gate for switching the presentation.
