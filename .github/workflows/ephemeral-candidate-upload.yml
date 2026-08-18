@@ -27,15 +27,17 @@ jobs:
       - name: Upload exact public directory to isolated candidate
         shell: bash
         env:
-          NETLIFY_SCOPED_PROXY: 'https://netlify-mcp.netlify.app/proxy/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..nc4k5VL4_rFl2_FY.GogQu0mE47dPfwCTg54oHszhA6DGLfRqmb3uJS8eCFZBe_ghR3yR_hAdimKYNfRykerIh1qChwFHzpx0zjvahzr4uFWtgHSRc2ePmLoXY2p1ETOriISdCcKODyuoqUUPrNlonWW-oPNuwoj6hmog4fWSmrpX_Rel_QJBcFYlMKmAZgx-Z-c-bk8tzglgS64o2ii3H95i5vlnniaINz76mzUbTGSu0xypmlI9CnNqENzzkJChq7CHdlK6ppZeUL1ZSmnboVhrF7bpRaxAXhsgLwysszo_TeOMCN60SAFDnLuwDE1e71et4N-6nqV9YvB6pqPeaJIVuZ-LmAwzypKl9sw_861IrQJVzt_rNBUMzanS0qPnIRAv5WVelZ20inZijrBdNSIO.3NPdFZA1KGobYjr8T_5T2Q'
+          NETLIFY_SCOPED_PROXY_BASE: 'https://netlify-mcp.netlify.app/proxy/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..nc4k5VL4_rFl2_FY.GogQu0mE47dPfwCTg54oHszhA6DGLfRqmb3uJS8eCFZBe_ghR3yR_hAdimKYNfRykerIh1qChwFHzpx0zjvahzr4uFWtgHSRc2ePmLoXY2p1ETOriISdCcKODyuoqUUPrNlonWW-oPNuwoj6hmog4fWSmrpX_Rel_QJBcFYlMKmAZgx-Z-c-bk8tzglgS64o2ii3H95i5vlnniaINz76mzUbTGSu0xypmlI9CnNqENzzkJChq7CHdlK6ppZeUL1ZSmnboVhrF7bpRaxAXhsgLwysszo_TeOMCN60SAFDnLuwDE1e71et4N-6nqV9YvB6pqPeaJIVuZ-LmAwzypKl9sw_861IrQJVzt_rNBUMzanS0qPnIRAv5WVelZ20inZijrBdNSIO.3NPdFZA1KGobYjr8T_5T2Q'
+          CANDIDATE_SITE_ID: '1b763521-f8c0-462a-a0cc-915c1ae56d08'
         run: |
           set -euo pipefail
           cd public-site/current
           zip -qr /tmp/aidme-public-candidate.zip . -x '.DS_Store'
+          upload_url="${NETLIFY_SCOPED_PROXY_BASE}/api/v1/sites/${CANDIDATE_SITE_ID}/builds"
           response=$(curl --fail-with-body --silent --show-error \
             -H 'user-agent: netlify-mcp' \
             -F 'zip=@/tmp/aidme-public-candidate.zip;type=application/zip' \
-            "$NETLIFY_SCOPED_PROXY")
+            "$upload_url")
           deploy_id=$(printf '%s' "$response" | python -c 'import json,sys; x=json.load(sys.stdin); x=x[0] if isinstance(x,list) else x; print(x.get("deploy_id", ""))')
           build_id=$(printf '%s' "$response" | python -c 'import json,sys; x=json.load(sys.stdin); x=x[0] if isinstance(x,list) else x; print(x.get("id", ""))')
           test -n "$deploy_id"
