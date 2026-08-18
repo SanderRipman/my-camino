@@ -50,9 +50,13 @@ jobs:
           grep -q 'data-state="active"' visual-qa/shell-dom.html
           grep -q 'data-aidme-legacy-hidden="1"' visual-qa/shell-dom.html
           height=$(grep -o 'data-height="[0-9][0-9]*"' visual-qa/shell-dom.html | head -1 | grep -o '[0-9][0-9]*')
+          host_width=$(grep -o 'data-host-width="[0-9][0-9]*"' visual-qa/shell-dom.html | head -1 | grep -o '[0-9][0-9]*')
           test -n "$height"
           test "$height" -gt 3000
-          echo "shell_reported_height=$height"
+          test -n "$host_width"
+          test "$host_width" -ge 380
+          test "$host_width" -le 400
+          echo "shell_reported_height=$height host_width=$host_width"
 
           capture() {
             local name="$1" width="$2" height="$3" url="$4"
@@ -67,7 +71,7 @@ jobs:
           capture shell-desktop 1440 1800 'http://127.0.0.1:8765/'
           capture direct-360 360 2200 'https://aidme-public-candidate-20260817.netlify.app/?aidme-shell=1'
           capture direct-desktop 1440 1800 'https://aidme-public-candidate-20260817.netlify.app/?aidme-shell=1'
-          printf 'shell_reported_height=%s\n' "$height" > visual-qa/result.txt
+          printf 'shell_reported_height=%s\nhost_width=%s\n' "$height" "$host_width" > visual-qa/result.txt
           sha256sum visual-qa/*.png > visual-qa/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
