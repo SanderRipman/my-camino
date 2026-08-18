@@ -1,0 +1,31 @@
+{
+  "date": "2026-08-16",
+  "purpose": "Wix implementation reference / static prototype for aidme.no",
+  "status": "Local prototype complete; desktop visual QA complete for Home and Routes; final mobile/browser QA pending Work/Wix runtime.",
+  "pages": [
+    "deltakere.html",
+    "index.html",
+    "kontakt.html",
+    "om.html",
+    "partnere.html",
+    "ruter.html",
+    "ser.html",
+    "via.html",
+    "vida.html"
+  ],
+  "assets": [
+    "aidme-logo.webp",
+    "alone-trail.webp",
+    "arrival-expectation.webp",
+    "border-bridge.webp",
+    "compostela.webp",
+    "credential.webp",
+    "cruz-de-ferro.webp",
+    "dawn.webp",
+    "hero-group.webp",
+    "journal.webp",
+    "santiago-team.webp",
+    "social-meal.webp",
+    "zero-km.webp"
+  ]
+}
