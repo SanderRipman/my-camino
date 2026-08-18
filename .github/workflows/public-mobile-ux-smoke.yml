@@ -7,6 +7,11 @@ on:
       - 'public-site/current/site.js'
       - 'public-site/current/mobile-ux.css'
       - '.github/workflows/public-mobile-ux-smoke.yml'
+  pull_request:
+    paths:
+      - 'public-site/current/site.js'
+      - 'public-site/current/mobile-ux.css'
+      - '.github/workflows/public-mobile-ux-smoke.yml'
   workflow_dispatch:
 
 permissions:
