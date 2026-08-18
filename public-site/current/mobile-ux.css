@@ -1,0 +1,130 @@
+/* AidMe VIDA public mobile/interaction delta — 2026-08-18
+   Reversible UI layer. Source-parity baseline remains PR #39. */
+
+.step[data-card-link] {
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+.step[data-card-link]:hover,
+.step[data-card-link]:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: inset 0 0 0 2px rgba(200,164,93,.45), 0 12px 30px rgba(20,33,43,.08);
+  outline: none;
+}
+.step[data-card-link] .step-link {
+  min-height: 44px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.mobile-process-nav { display: none; }
+
+@media (max-width: 650px) {
+  .lang-toggle,
+  .menu-toggle,
+  .mobile-nav .nav-link,
+  .mobile-process-nav > summary,
+  .mobile-process-nav a {
+    min-height: 44px;
+  }
+
+  .lang-toggle,
+  .menu-toggle {
+    min-width: 44px;
+    padding-inline: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-process-nav {
+    display: block;
+    grid-column: 1 / -1;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(255,255,255,.55);
+    overflow: hidden;
+  }
+  .mobile-process-nav > summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    color: var(--teal);
+    font-size: 12px;
+    font-weight: 800;
+  }
+  .mobile-process-nav > summary::-webkit-details-marker { display: none; }
+  .mobile-process-nav > summary::after {
+    content: '+';
+    color: var(--gold);
+    font-size: 20px;
+    line-height: 1;
+  }
+  .mobile-process-nav[open] > summary::after { content: '–'; }
+  .mobile-process-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 1px solid var(--line);
+  }
+  .mobile-process-links a {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    text-decoration: none;
+    color: #405057;
+    font-size: 12px;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(217,210,196,.72);
+  }
+  .mobile-process-links a:nth-child(odd) { border-right: 1px solid rgba(217,210,196,.72); }
+
+  .why-card .caption {
+    inset: auto 9px 9px;
+    padding: 9px 10px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, rgba(20,33,43,.74), rgba(18,63,61,.68));
+    backdrop-filter: blur(4px);
+  }
+  .why-card .caption b { font-size: 17px; }
+  .why-card .caption span { font-size: 11px; line-height: 1.35; }
+
+  .step { padding: 22px 20px; }
+  .step h3 { margin-top: 12px; }
+  .step-link { display: flex; width: fit-content; }
+
+  .cta-row .btn { min-height: 46px; }
+}
+
+@media (max-width: 380px) {
+  .hero h1,
+  .page-hero h1 {
+    font-size: clamp(35px, 10.6vw, 43px);
+    line-height: 1.02;
+  }
+  .hero-copy,
+  .page-hero-copy { padding-top: 27px; padding-bottom: 29px; }
+  .hero .cta-row,
+  .page-hero .cta-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .hero .cta-row .btn,
+  .page-hero .cta-row .btn { width: 100%; }
+  .hero-photo { min-height: 330px; }
+  .mobile-process-links { grid-template-columns: 1fr; }
+  .mobile-process-links a:nth-child(odd) { border-right: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step[data-card-link],
+  .btn,
+  .why-card img { transition: none !important; }
+  .step[data-card-link]:hover,
+  .step[data-card-link]:focus-visible,
+  .btn:hover { transform: none; }
+}
