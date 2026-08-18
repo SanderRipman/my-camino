@@ -41,13 +41,15 @@ jobs:
           grep -q 'naturalContentHeight' "$ROOT/site.js"
           ! grep -q 'document.documentElement.scrollHeight' "$ROOT/site.js"
           grep -q 'mobile-process-nav' "$ROOT/site.js"
+          grep -q 'has-card-link' "$ROOT/site.js"
+          grep -q 'my.AidMe' "$ROOT/site.js"
           grep -q 'Gå videre til VIDA' "$ROOT/ser.html"
           grep -q 'Under lading' "$ROOT/via.html"
 
           # Exact byte identity for the intentional UI delta. PR #39 remains the
           # authority for the original source-parity site.js blob.
-          test "$(git hash-object "$ROOT/site.js")" = '25917e515e9f89c63a4450654a54daf745d19085'
-          test "$(git hash-object "$ROOT/mobile-ux.css")" = 'fa7a859e7046b2ae8c4982dddafc648db8fb541f'
+          test "$(git hash-object "$ROOT/site.js")" = '22eee3cea3159dd7a8aa2311e597e90fd0e667df'
+          test "$(git hash-object "$ROOT/mobile-ux.css")" = 'd446b5214d9ee1f5d9c588d8cd89e8187e7f49b5'
 
           python - <<'PY'
           from pathlib import Path
