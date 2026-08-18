@@ -1,0 +1,32 @@
+name: Public mobile UX smoke
+
+on:
+  push:
+    branches: [public-mobile-ux-20260818]
+    paths:
+      - 'public-site/current/site.js'
+      - 'public-site/current/mobile-ux.css'
+      - '.github/workflows/public-mobile-ux-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-ux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate reversible mobile UX layer
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='public-site/current'
+          node --check "$ROOT/site.js"
+          test -s "$ROOT/mobile-ux.css"
+          grep -q 'mobile-process-nav' "$ROOT/site.js"
+          grep -q 'data-card-link' "$ROOT/mobile-ux.css"
+          grep -q 'min-height: 44px' "$ROOT/mobile-ux.css"
+          grep -q 'prefers-reduced-motion' "$ROOT/mobile-ux.css"
+          grep -q '320' "$ROOT/QA_REPORT_2026-08-18.md"
+          echo 'Public mobile UX static checks passed.'
