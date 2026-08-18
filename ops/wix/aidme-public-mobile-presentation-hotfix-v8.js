@@ -68,7 +68,7 @@
     if(!isTarget(f)) return;
     if(!bound.has(f)){
       bound.add(f);
-      new MutationObserver(()=>stabilize(f)).observe(f,{attributes:true,attributeFilter:['srcdoc','src','style','width']});
+      new MutationObserver(()=>stabilize(f)).observe(f,{attributes:true,attributeFilter:['srcdoc','src']});
       f.addEventListener('load',()=>stabilize(f));
     }
     stabilize(f);
@@ -85,10 +85,17 @@
 
   scan();
   new MutationObserver(scan).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['src','srcdoc']});
+  window.addEventListener('message',e=>{
+    const d=e.data||{};
+    if(d.type!=='aidme-vida:content-height') return;
+    document.querySelectorAll('iframe').forEach(f=>{
+      if(isTarget(f) && (!f.contentWindow || e.source===f.contentWindow)) requestAnimationFrame(()=>expandMobile(f));
+    });
+  });
   window.addEventListener('resize',()=>{
     clearTimeout(resizeTimer);
     resizeTimer=setTimeout(resetWidth,80);
   },{passive:true});
   window.addEventListener('orientationchange',()=>setTimeout(resetWidth,120),{passive:true});
-  setInterval(scan,1200);
+  setInterval(scan,1500);
 })();
