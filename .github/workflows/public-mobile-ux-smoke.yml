@@ -36,6 +36,7 @@ jobs:
           ! grep -q 'card.setAttribute("role", "link")' "$ROOT/site.js"
           grep -q 'my.AidMe' "$ROOT/site.js"
           grep -q 'min-height: 44px' "$ROOT/mobile-ux.css"
+          grep -q 'grid-template-columns: 1fr' "$ROOT/mobile-ux.css"
           grep -q 'prefers-reduced-motion' "$ROOT/mobile-ux.css"
           grep -q '320' "$ROOT/QA_REPORT_2026-08-18.md"
           echo 'Public mobile UX static checks passed.'
