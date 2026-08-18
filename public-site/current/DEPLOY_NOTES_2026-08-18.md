@@ -15,3 +15,9 @@ Wix custom embed `8862699b-b4ba-4a55-b43e-f7e81715f719` is an ESSENTIAL, reversi
 The corrected child source is not yet public because the available Netlify deploy connector currently hands off to `npx @netlify/mcp`, while the execution container has no external DNS/network access to npm or the Netlify MCP proxy. Do not treat repeated CLI timeouts as a source-code failure.
 
 Preferred next deployment path: finish Git source parity (including assets), connect/reconcile the public Netlify project to that controlled Git source, validate preview on mobile + desktop, then switch production atomically with the existing deploy retained as rollback.
+
+## Source-parity delta – 2026-08-18
+
+Git source parity is now complete for the archived candidate. The 12 previously missing WebP assets were rehydrated from the immutable Netlify deploy `6a818fb0563075817cf6ffdd` by GitHub Actions and were accepted only after exact byte-size and SHA-256 verification against `SOURCE_PARITY_MANIFEST_2026-08-18.json`. Independent Git read-back confirms the expected asset blob identities and sizes.
+
+The next public gate is therefore no longer source recovery. It is a controlled non-production preview from Git, followed by mobile QA at 320/360/390/412 px, tablet and desktop, with rollback to deploy `6a818fb0563075817cf6ffdd` retained. New UX work is isolated in stacked draft PR #42 and must not be confused with the source-parity baseline in PR #39.
