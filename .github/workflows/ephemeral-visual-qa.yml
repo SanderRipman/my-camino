@@ -28,7 +28,7 @@ jobs:
           sed 's/aidme-public-preview\.netlify\.app/aidme-public-candidate-20260817.netlify.app/g' \
             ops/wix/aidme-public-shell.js > /tmp/aidme-shell-test/shell.js
           {
-            printf '%s\n' '<!doctype html><html><body style="margin:0"><div id="SITE_CONTAINER" style="height:420px;background:#ddd">LEGACY-FALLBACK</div><script>'
+            printf '%s\n' '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0"><div id="SITE_CONTAINER" style="height:420px;background:#ddd">LEGACY-FALLBACK</div><script>'
             cat /tmp/aidme-shell-test/shell.js
             printf '%s\n' '</script></body></html>'
           } > /tmp/aidme-shell-test/index.html
