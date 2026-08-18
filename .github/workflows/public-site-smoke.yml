@@ -43,13 +43,14 @@ jobs:
           grep -q 'mobile-process-nav' "$ROOT/site.js"
           grep -q 'has-card-link' "$ROOT/site.js"
           grep -q 'my.AidMe' "$ROOT/site.js"
+          grep -q 'grid-template-columns: 1fr' "$ROOT/mobile-ux.css"
           grep -q 'Gå videre til VIDA' "$ROOT/ser.html"
           grep -q 'Under lading' "$ROOT/via.html"
 
           # Exact byte identity for the intentional UI delta. PR #39 remains the
           # authority for the original source-parity site.js blob.
           test "$(git hash-object "$ROOT/site.js")" = '22eee3cea3159dd7a8aa2311e597e90fd0e667df'
-          test "$(git hash-object "$ROOT/mobile-ux.css")" = 'd446b5214d9ee1f5d9c588d8cd89e8187e7f49b5'
+          test "$(git hash-object "$ROOT/mobile-ux.css")" = '9512227a22ba281f94644887c5e723bedb8b02dd'
 
           python - <<'PY'
           from pathlib import Path
