@@ -1,0 +1,47 @@
+name: Ephemeral public visual QA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ephemeral-visual-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  chrome-capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture candidate and current live in real Chrome
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME"
+          mkdir -p visual-qa
+          capture() {
+            local name="$1" width="$2" height="$3" url="$4"
+            "$CHROME" \
+              --headless=new \
+              --no-sandbox \
+              --disable-dev-shm-usage \
+              --hide-scrollbars \
+              --force-device-scale-factor=1 \
+              --window-size="${width},${height}" \
+              --virtual-time-budget=8000 \
+              --screenshot="visual-qa/${name}.png" \
+              "$url"
+            test -s "visual-qa/${name}.png"
+          }
+          capture candidate-mobile 360 2200 'https://aidme-public-candidate-20260817.netlify.app/'
+          capture candidate-desktop 1440 1800 'https://aidme-public-candidate-20260817.netlify.app/'
+          capture live-mobile 360 2200 'https://www.aidme.no/'
+          capture live-desktop 1440 1800 'https://www.aidme.no/'
+          sha256sum visual-qa/*.png > visual-qa/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aidme-public-visual-qa
+          path: visual-qa/
+          if-no-files-found: error
+          retention-days: 1
