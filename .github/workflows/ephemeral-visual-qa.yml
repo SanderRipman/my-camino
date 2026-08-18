@@ -23,6 +23,12 @@ jobs:
           test -n "$CHROME"
           mkdir -p visual-qa /tmp/aidme-shell-test
 
+          curl --fail --silent --show-error \
+            "https://aidme-public-candidate-20260817.netlify.app/site.js?qa=${GITHUB_SHA}" \
+            -o /tmp/candidate-site.js
+          grep -q 'shellPresentation' /tmp/candidate-site.js
+          grep -q 'aidme-shell' /tmp/candidate-site.js
+
           # Use the exact production shell logic, swapping only its source/trusted
           # host to the isolated candidate for pre-live visual validation.
           sed 's/aidme-public-preview\.netlify\.app/aidme-public-candidate-20260817.netlify.app/g' \
