@@ -1,20 +1,27 @@
 /* AidMe VIDA public mobile/interaction delta — 2026-08-18
    Reversible UI layer. Source-parity baseline remains PR #39. */
 
-.step[data-card-link] {
+.step.has-card-link {
+  position: relative;
   cursor: pointer;
   transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
 }
-.step[data-card-link]:hover,
-.step[data-card-link]:focus-visible {
+.step.has-card-link:hover,
+.step.has-card-link:focus-within {
   transform: translateY(-2px);
   box-shadow: inset 0 0 0 2px rgba(200,164,93,.45), 0 12px 30px rgba(20,33,43,.08);
-  outline: none;
 }
-.step[data-card-link] .step-link {
+.step.has-card-link .step-link {
   min-height: 44px;
   align-items: center;
   margin-top: 12px;
+  position: static;
+}
+.step.has-card-link .step-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
 }
 
 .mobile-process-nav { display: none; }
@@ -121,10 +128,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .step[data-card-link],
+  .step.has-card-link,
   .btn,
   .why-card img { transition: none !important; }
-  .step[data-card-link]:hover,
-  .step[data-card-link]:focus-visible,
+  .step.has-card-link:hover,
+  .step.has-card-link:focus-within,
   .btn:hover { transform: none; }
 }
