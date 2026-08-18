@@ -13,40 +13,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Measure first iframe height report
+      - name: Inspect rendered Wix iframe hierarchy
         shell: bash
         run: |
           set -euo pipefail
           CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
           test -n "$CHROME"
-          mkdir -p visual-qa /tmp/aidme-harness
-          cat > /tmp/aidme-harness/index.html <<'HTML'
-          <!doctype html><html><body style="margin:0">
-          <div id="result">WAITING</div>
-          <iframe id="frame" src="https://aidme-public-candidate-20260817.netlify.app/" style="width:360px;height:420px;border:0"></iframe>
-          <script>
-          const result=document.getElementById('result');
-          window.addEventListener('message',e=>{
-            if(result.dataset.height)return;
-            const d=e.data||{};
-            if(d.type!=='aidme-vida:content-height')return;
-            result.textContent='HEIGHT='+d.height+' PATH='+d.path+' ORIGIN='+e.origin;
-            result.dataset.height=String(d.height);
-          });
-          </script></body></html>
-          HTML
-          python3 -m http.server 8765 --directory /tmp/aidme-harness >/tmp/aidme-harness.log 2>&1 &
-          SERVER_PID=$!
-          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
-          sleep 1
-          timeout 25s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --window-size=390,900 --virtual-time-budget=5000 --dump-dom \
-            'http://127.0.0.1:8765/' > visual-qa/iframe-protocol.html || test -s visual-qa/iframe-protocol.html
-          grep -o 'HEIGHT=[0-9][0-9]*[^<]*' visual-qa/iframe-protocol.html | head -1 > visual-qa/iframe-height.txt
-          height=$(grep -o 'data-height="[0-9][0-9]*"' visual-qa/iframe-protocol.html | head -1 | grep -o '[0-9][0-9]*')
-          test -n "$height"
-          echo "reported_height=$height"
-          printf 'reported_height=%s\n' "$height" > visual-qa/result.txt
+          mkdir -p visual-qa
+          timeout 30s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --window-size=1440,1200 --virtual-time-budget=10000 --dump-dom \
+            'https://www.aidme.no/' > visual-qa/live-dom.html || test -s visual-qa/live-dom.html
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          class P(HTMLParser):
+              def __init__(self): super().__init__(); self.rows=[]
+              def handle_starttag(self, tag, attrs):
+                  if tag.lower()=='iframe':
+                      a=dict(attrs); self.rows.append(a)
+          p=P(); p.feed(Path('visual-qa/live-dom.html').read_text(errors='ignore'))
+          lines=[]
+          for i,a in enumerate(p.rows,1):
+              lines.append(f"{i}: src={a.get('src','')} height={a.get('height','')} style={a.get('style','')} title={a.get('title','')} id={a.get('id','')}")
+          Path('visual-qa/iframes.txt').write_text('\n'.join(lines))
+          print('\n'.join(lines))
+          PY
+          grep -n -i 'aidme-public-preview' visual-qa/live-dom.html | head -20 > visual-qa/preview-context.txt || true
+          test -s visual-qa/iframes.txt
       - uses: actions/upload-artifact@v4
         with:
           name: aidme-public-visual-qa
