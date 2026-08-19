@@ -20,7 +20,7 @@ Første versjon bruker én additiv tabell: `public.crm_contacts`.
 
 ## Tilgang og sikkerhet
 - eksisterende Sander/AidMe-login gjenbrukes;
-- CRM krever AAL2 i UI;
+- CRM krever AAL2 både i UI og server-side RLS;
 - RLS håndhever `owner_user_id = auth.uid()`;
 - brukeren må samtidig ha en aktiv `project_owner`-grant i samme `organization_id`;
 - `anon` har ingen tabelltilgang;
@@ -32,6 +32,12 @@ Første versjon bruker én additiv tabell: `public.crm_contacts`.
 Supabase migration history:
 - `20260819193201_aidme_mini_crm_owner_workspace_v1`
 - `20260819193237_aidme_mini_crm_fk_index_v1`
+- `20260819193753_aidme_mini_crm_require_aal2_v1`
+
+Negativ tilgangstest:
+- owner + AAL1 → 0 synlige CRM-rader;
+- owner + AAL2 → syntetiske testdata synlige;
+- annen bruker + AAL2 → 0 synlige CRM-rader.
 
 ## Oppgaver
 Automatisk kobling til portalens `tasks` er **ikke** med i v1. Prosjekteierrollen har ikke generell `manage_tasks`, og vi utvider ikke rettigheter bare for CRM. Task-bro vurderes senere etter negativ tilgangs-QA.
