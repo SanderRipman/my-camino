@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#123f3d">
+<title>AidMe VIDA · Velkommen</title>
+<link rel="stylesheet" href="./styles.css?v=20260817b"><link rel="stylesheet" href="./welcome.css?v=20260819a">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<main class="welcome-shell">
+  <header class="welcome-head"><div class="brand"><img src="/vida/assets/AIDME_Logo-original-web.webp" alt="AidMe"><div><strong>AidMe VIDA</strong><span>Ve. Sé. Vive.</span></div></div><span id="sessionPill" class="security-pill">Kontrollerer invitasjon…</span></header>
+  <section class="welcome-hero"><p class="eyebrow">Velkommen til AidMe VIDA</p><h1>Fra invitasjon til riktig neste steg</h1><p>Vi ber bare om opplysninger som trengs for å opprette arbeidsflaten din. Rolle, sikkerhet og videre skjema kommer i riktig rekkefølge.</p></section>
+  <article id="message" class="panel-card hidden"></article>
+  <section id="setup" class="welcome-grid hidden">
+    <form id="profileForm" class="panel-card welcome-card">
+      <p class="eyebrow">1 · Din profil</p><h2 id="profileHeading">Grunnopplysninger</h2>
+      <div id="accountContext" class="context-box"></div>
+      <label><span>Navn</span><input id="displayName" type="text" autocomplete="name" required></label>
+      <label><span>Telefon</span><input id="phone" type="tel" autocomplete="tel" placeholder="Valgfritt"></label>
+      <div id="participantFields" class="hidden"><label><span>Fødselsår</span><input id="birthYear" type="number" min="1900" max="2100" inputmode="numeric"></label><label><span>Foretrukket kontakt</span><select id="preferredContact"><option value="EMAIL">E-post</option><option value="PHONE">Telefon</option><option value="SMS">SMS</option></select></label></div>
+      <div id="staffFields" class="hidden"><label><span>Rolle / stillingstittel</span><input id="jobTitle" type="text" autocomplete="organization-title" placeholder="Valgfritt – f.eks. turleder, rådgiver"></label></div>
+      <label><span>Språk</span><select id="locale"><option value="nb">Norsk</option><option value="en">English</option></select></label>
+      <button class="primary" type="submit">Lagre og fortsett</button><p id="profileMessage" class="message" aria-live="polite"></p>
+      <p class="privacy-note">Sensitive helse- og sikkerhetsopplysninger samles ikke inn her. De hører hjemme i riktig VÍA-/sikkerhetssteg.</p>
+    </form>
+    <article id="nextCard" class="panel-card welcome-card muted-card"><p class="eyebrow">2 · Neste steg</p><h2>Etter grunnprofilen</h2><p id="nextText">Vi finner riktig vei basert på deltakerreise eller tildelt arbeidsrolle.</p><div id="roleList" class="role-list"></div><div id="mfaArea" class="hidden"></div><a id="continueButton" class="primary link-btn hidden" href="./">Fortsett</a></article>
+  </section>
+</main>
+<script src="./welcome.js?v=20260819a"></script>
+</body></html>
