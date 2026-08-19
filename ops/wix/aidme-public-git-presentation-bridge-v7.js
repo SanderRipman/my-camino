@@ -10,7 +10,7 @@
   const cache=new Map();
   let bridgeReady=false, bridgeStarted=false, currentPage='index.html';
 
-  function isAidmeFrame(f){const src=(f.getAttribute('src')||'').toLowerCase();const h=Number(f.getAttribute('height')||0);return src.includes('aidme-public-preview')||h>=1800||f.dataset.aidmeGitBridge==='1';}
+  function isAidmeFrame(f){if(f.dataset.aidmeTopShell==='1')return false;const src=(f.getAttribute('src')||'').toLowerCase();const h=Number(f.getAttribute('height')||0);return src.includes('aidme-public-preview')||h>=1800||f.dataset.aidmeGitBridge==='1';}
   function frame(){return [...document.querySelectorAll('iframe')].find(isAidmeFrame)||null;}
   function topOf(f){return Math.max(0,Math.round(f.getBoundingClientRect().top+window.scrollY));}
   function px(el,k,v){el.style.setProperty(k,v+'px','important');}
