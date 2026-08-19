@@ -1,0 +1,20 @@
+name: Portal invite and onboarding smoke
+on:
+  pull_request:
+    paths:
+      - 'portal/welcome.*'
+      - 'portal/invite-stress-smoke.mjs'
+      - 'supabase/functions/admin-invite-user/**'
+      - 'supabase/functions/account-setup-command/**'
+      - '.github/workflows/portal-invite-onboarding-smoke.yml'
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate first-login chain
+        run: node portal/invite-stress-smoke.mjs
