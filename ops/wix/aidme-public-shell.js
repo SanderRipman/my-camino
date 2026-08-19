@@ -36,8 +36,6 @@
     'position:absolute',
     'left:0',
     'top:0',
-    'width:100vw',
-    'max-width:100vw',
     'min-width:0',
     'box-sizing:border-box',
     `height:${SAFE_BOOT_HEIGHT}px`,
@@ -55,8 +53,6 @@
   frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
   frame.style.cssText = [
     'display:block',
-    'width:100%',
-    'max-width:100%',
     'min-width:0',
     'box-sizing:border-box',
     `height:${SAFE_BOOT_HEIGHT}px`,
@@ -73,11 +69,14 @@
 
   function syncWidth() {
     const measuredViewport = viewportWidth();
+    if (!measuredViewport) return;
+    const px = `${measuredViewport}px`;
     root.dataset.viewportWidth = String(measuredViewport);
-    root.style.setProperty('width', '100vw', 'important');
-    root.style.setProperty('max-width', '100vw', 'important');
-    frame.style.setProperty('width', '100%', 'important');
-    frame.style.setProperty('max-width', '100%', 'important');
+    root.style.setProperty('width', px, 'important');
+    root.style.setProperty('max-width', px, 'important');
+    frame.style.setProperty('width', px, 'important');
+    frame.style.setProperty('max-width', px, 'important');
+    frame.setAttribute('width', String(measuredViewport));
     requestAnimationFrame(() => {
       root.dataset.hostWidth = String(Math.round(root.getBoundingClientRect().width));
     });
