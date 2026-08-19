@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#123f3d">
+<meta name="robots" content="noindex,nofollow">
+<title>AidMe VIDA · Mini CRM</title>
+<link rel="stylesheet" href="./styles.css?v=20260819crm1">
+<link rel="stylesheet" href="./crm.css?v=20260819crm1">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" aria-label="Hovednavigasjon">
+    <div class="brand"><img src="/vida/assets/AIDME_Logo-original-web.webp" alt="AidMe"><div><strong>AidMe VIDA</strong><span>Ve. Sé. Vive.</span></div></div>
+    <nav>
+      <a class="nav-item" href="./#overview"><span class="nav-num">01</span><b>Oversikt</b></a>
+      <a class="nav-item" href="./#participants"><span class="nav-num">02</span><b>Deltakere</b></a>
+      <a class="nav-item" href="./#tasks"><span class="nav-num">03</span><b>Oppgaver</b></a>
+      <a class="nav-item" href="./#analysis"><span class="nav-num">05</span><b>Analyse</b></a>
+      <a class="nav-item active" href="./crm.html"><span class="nav-num">CRM</span><b>Mini CRM</b></a>
+      <a class="nav-item" href="./#documents"><span class="nav-num">08</span><b>Dokumenter</b></a>
+      <a class="nav-item" href="./#settings"><span class="nav-num">09</span><b>Innstillinger</b></a>
+    </nav>
+    <div class="phase-key"><div><i class="dot via"></i>VÍA · Før</div><div><i class="dot ser"></i>SER · Under</div><div><i class="dot vida"></i>VIDA · Etter</div></div>
+    <p class="demo-note">CRM er en privat prosjekteierflate. Ikke lagre deltaker-, helse- eller sikkerhetsopplysninger her.</p>
+  </aside>
+
+  <main class="workspace">
+    <header class="topbar">
+      <div><p class="eyebrow">Relasjoner og oppfølging</p><h1>CRM – Sander</h1></div>
+      <div class="top-actions"><span id="securityPill" class="security-pill">Kontrollerer…</span><a class="ghost" href="./">Til portal</a><button id="logout" class="ghost">Logg ut</button></div>
+    </header>
+
+    <article class="preview-strip crm-privacy"><strong>Formål</strong><span>Husk og følg opp relevante profesjonelle relasjoner, partnerdialoger, finansieringskontakter og nettverk. Ingen deltaker-/helse-/sikkerhetsdata og ingen kopiering av hele e-posttekster.</span></article>
+
+    <article id="blocked" class="panel-card warning-card hidden"><p class="eyebrow">Tilgang stoppet</p><h2 id="blockedTitle">Mini CRM er låst</h2><p id="blockedText"></p></article>
+
+    <section id="crmWorkspace" class="crm-shell hidden">
+      <div class="metric-grid">
+        <article class="metric"><span>Trenger oppfølging</span><strong id="metricDue">0</strong><small>forfalt / i dag</small></article>
+        <article class="metric"><span>Denne uken</span><strong id="metricWeek">0</strong><small>planlagt oppfølging</small></article>
+        <article class="metric"><span>Venter</span><strong id="metricWaiting">0</strong><small>ballen hos andre</small></article>
+        <article class="metric"><span>Aktive kontakter</span><strong id="metricActive">0</strong><small>ikke arkivert</small></article>
+      </div>
+
+      <article class="panel-card">
+        <div class="crm-toolbar">
+          <label><span>Søk</span><input id="crmSearch" type="search" placeholder="Navn, virksomhet, rolle eller e-post"></label>
+          <label><span>Status</span><select id="crmStatusFilter"><option value="ALL">Alle aktive</option><option value="NEW">Ny</option><option value="ACTIVE">Aktiv</option><option value="WAITING">Venter</option><option value="PAUSED">Pause</option><option value="CLOSED">Lukket</option></select></label>
+          <label class="check-row"><input id="crmShowArchived" type="checkbox"> Vis arkiv</label>
+          <div class="toolbar-actions"><button id="refreshCrm" class="ghost" type="button">Oppdater</button><button id="newCrmContact" class="primary" type="button">Ny kontakt</button></div>
+        </div>
+      </article>
+
+      <div class="crm-grid">
+        <article class="panel-card"><div class="card-head"><div><p class="eyebrow">Kontakter</p><h2>Relasjoner</h2></div><span id="crmCount" class="pill">0</span></div><div id="crmList" class="crm-list"><p>Laster…</p></div></article>
+        <article id="crmDetail" class="panel-card crm-detail"><div class="crm-empty">Velg en kontakt – eller opprett en ny.</div></article>
+      </div>
+
+      <article class="panel-card">
+        <p class="eyebrow">Neste utviklingsgate</p><h2>Outlook → CRM holdes bevisst av</h2>
+        <p>Når denne arbeidsflaten er QA-grønn kan relevante e-postnotater analyseres read-only, filtreres for profesjonell relevans og presenteres som <strong>importkandidater</strong>. Ingenting skal masseimporteres automatisk.</p>
+        <p class="privacy-note">Oppgavekobling aktiveres heller ikke før eksisterende task-permissions er kontrollert. CRM får derfor egen oppfølgingsdato i første versjon.</p>
+      </article>
+    </section>
+  </main>
+</div>
+
+<dialog id="crmDialog" class="crm-dialog">
+  <form id="crmForm" class="dialog-shell crm-form">
+    <div class="dialog-head"><div><p class="eyebrow" id="crmDialogEyebrow">Mini CRM</p><h2 id="crmDialogTitle">Ny kontakt</h2></div><button id="crmDialogClose" class="icon-btn" type="button" aria-label="Lukk">×</button></div>
+    <input id="crmId" type="hidden">
+    <div class="crm-form-grid">
+      <label><span>Kontaktperson *</span><input id="crmName" maxlength="160" required autocomplete="off"></label>
+      <label><span>Virksomhet</span><input id="crmOrganization" maxlength="200" autocomplete="organization"></label>
+      <label><span>Rolle / tittel</span><input id="crmRole" maxlength="160" autocomplete="organization-title"></label>
+      <label><span>Relasjon</span><select id="crmRelationship"><option value="PARTNER">Partner</option><option value="FINANCIER">Finansiør</option><option value="PROFESSIONAL">Fagperson</option><option value="PUBLIC_SECTOR">Offentlig / NAV / kommune</option><option value="NETWORK" selected>Nettverk</option><option value="MEDIA">Media</option><option value="SUPPLIER">Leverandør</option><option value="OTHER">Annet</option></select></label>
+      <label><span>E-post</span><input id="crmEmail" type="email" maxlength="320" autocomplete="email"></label>
+      <label><span>Telefon</span><input id="crmPhone" maxlength="80" autocomplete="tel"></label>
+      <label><span>Status</span><select id="crmStatus"><option value="NEW">Ny</option><option value="ACTIVE">Aktiv</option><option value="WAITING">Venter</option><option value="PAUSED">Pause</option><option value="CLOSED">Lukket</option></select></label>
+      <label><span>Prioritet</span><select id="crmPriority"><option value="1">1 · Høy</option><option value="2">2</option><option value="3" selected>3 · Normal</option><option value="4">4</option><option value="5">5 · Lav</option></select></label>
+      <label><span>Neste oppfølging</span><input id="crmFollowUp" type="date"></label>
+      <label><span>Sist kontakt</span><input id="crmLastContact" type="date"></label>
+    </div>
+    <label><span>Kort arbeidsnotat</span><textarea id="crmNote" maxlength="4000" rows="5" placeholder="Bare det som er nødvendig for profesjonell oppfølging. Ikke lim inn hele e-poster eller sensitive deltakeropplysninger."></textarea></label>
+    <div id="crmDuplicateHint" class="crm-danger-note hidden"></div>
+    <p class="crm-readonly">Kilde: manuell. Senere Outlook-import skal kun lagre et kort sammendrag + sporbar kildepeker.</p>
+    <div class="dialog-actions"><button id="crmArchive" class="ghost hidden" type="button">Arkiver</button><button class="primary" type="submit">Lagre</button><button id="crmCancel" class="ghost" type="button">Avbryt</button></div>
+    <p id="crmMessage" class="message" aria-live="polite"></p>
+  </form>
+</dialog>
+
+<script src="./crm.js?v=20260819crm1"></script><script src="./app-mobile.js"></script>
+</body>
+</html>
