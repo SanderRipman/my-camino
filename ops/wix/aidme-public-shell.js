@@ -2,13 +2,31 @@
   'use strict';
 
   const ROOT_ID = 'aidme-public-git-shell';
-  const SOURCE = 'https://aidme-public-preview.netlify.app/?aidme-shell=1';
-  const TRUSTED_HOST = 'aidme-public-preview.netlify.app';
+  const SOURCE = 'https://6a84e458653a15b76ca8f95e--aidme-public-candidate-20260817.netlify.app/?aidme-shell=1';
+  const TRUSTED_HOST = 'aidme-public-candidate-20260817.netlify.app';
   const SAFE_BOOT_HEIGHT = 12000;
   const MIN_HEIGHT = 500;
   const MAX_HEIGHT = 20000;
+  const MOBILE_MAX = 650;
 
   if (document.getElementById(ROOT_ID)) return;
+
+  function viewportWidth() {
+    const vv = Number(window.visualViewport && window.visualViewport.width) || 0;
+    const doc = Number(document.documentElement && document.documentElement.clientWidth) || 0;
+    const win = Number(window.innerWidth) || 0;
+    const candidates = [vv, doc, win].filter((v) => Number.isFinite(v) && v > 0);
+    return Math.max(1, Math.round(candidates.length ? Math.min(...candidates) : 0));
+  }
+
+  function shouldUseMobileShell() {
+    const width = viewportWidth();
+    return width > 0 && width <= MOBILE_MAX;
+  }
+
+  // Presentation bridge is intentionally mobile-only. The owner-approved
+  // desktop Wix revision 7 remains untouched on wider viewports.
+  if (!shouldUseMobileShell()) return;
 
   const root = document.createElement('div');
   root.id = ROOT_ID;
@@ -18,6 +36,8 @@
     'position:absolute',
     'left:0',
     'top:0',
+    'width:100vw',
+    'max-width:100vw',
     'min-width:0',
     'box-sizing:border-box',
     `height:${SAFE_BOOT_HEIGHT}px`,
@@ -35,6 +55,8 @@
   frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
   frame.style.cssText = [
     'display:block',
+    'width:100%',
+    'max-width:100%',
     'min-width:0',
     'box-sizing:border-box',
     `height:${SAFE_BOOT_HEIGHT}px`,
@@ -49,21 +71,16 @@
 
   let activated = false;
 
-  function hostWidth() {
-    const docWidth = Number(document.documentElement && document.documentElement.clientWidth) || 0;
-    const winWidth = Number(window.innerWidth) || 0;
-    return Math.max(320, Math.ceil(docWidth || winWidth || 320));
-  }
-
   function syncWidth() {
-    const width = hostWidth();
-    const px = `${width}px`;
-    root.dataset.hostWidth = String(width);
-    root.style.setProperty('width', px, 'important');
-    root.style.setProperty('max-width', px, 'important');
-    frame.style.setProperty('width', px, 'important');
-    frame.style.setProperty('max-width', px, 'important');
-    frame.setAttribute('width', String(width));
+    const measuredViewport = viewportWidth();
+    root.dataset.viewportWidth = String(measuredViewport);
+    root.style.setProperty('width', '100vw', 'important');
+    root.style.setProperty('max-width', '100vw', 'important');
+    frame.style.setProperty('width', '100%', 'important');
+    frame.style.setProperty('max-width', '100%', 'important');
+    requestAnimationFrame(() => {
+      root.dataset.hostWidth = String(Math.round(root.getBoundingClientRect().width));
+    });
   }
 
   function setHeight(value) {
@@ -101,6 +118,7 @@
     document.body.style.setProperty('padding', '0', 'important');
     document.body.style.setProperty('background', '#f5f0e6', 'important');
     document.body.style.setProperty('overflow-x', 'hidden', 'important');
+    syncWidth();
   }
 
   window.addEventListener('message', (event) => {
@@ -124,13 +142,13 @@
 
   frame.addEventListener('error', () => {
     root.dataset.state = 'failed';
-    // Fail safe: the legacy Wix page remains visible because activate() has not run.
+    // Fail safe: legacy Wix remains visible because activate() has not run.
   });
 
   syncWidth();
   window.addEventListener('resize', syncWidth, { passive: true });
   window.addEventListener('orientationchange', syncWidth, { passive: true });
 
-  // Do not hide the legacy Wix page on a timer. A valid message from the
-  // trusted Netlify frame is the release gate for switching the presentation.
+  // Never hide legacy Wix on a timer. A valid height message from the
+  // immutable trusted Netlify frame is the only release gate.
 })();
