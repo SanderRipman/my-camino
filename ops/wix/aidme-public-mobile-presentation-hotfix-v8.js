@@ -1,3 +1,8 @@
+/* SUPERSEDED FOR LIVE MOBILE PRESENTATION 2026-08-19.
+   Historical v8 attempt retained for traceability.
+   Active mobile presentation fallback is ops/wix/aidme-public-mobile-hard-fallback-v9.js.
+   Do not reactivate v8 without a new physical mobile QA decision. */
+
 (function(){
   'use strict';
   const RAW_BASE='https://raw.githubusercontent.com/SanderRipman/my-camino/ccc7646a98a134833072292a84db099c977c04b7/public-site/current/';
@@ -89,7 +94,7 @@
     const d=e.data||{};
     if(d.type!=='aidme-vida:content-height') return;
     document.querySelectorAll('iframe').forEach(f=>{
-      if(isTarget(f) && (!f.contentWindow || e.source===f.contentWindow)) requestAnimationFrame(()=>expandMobile(f));
+      if(isTarget(f)&&(!f.contentWindow||e.source===f.contentWindow)) requestAnimationFrame(()=>expandMobile(f));
     });
   });
   window.addEventListener('resize',()=>{
