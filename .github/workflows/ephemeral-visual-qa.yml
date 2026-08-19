@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate mobile-only fail-safe shell against immutable candidate
+      - name: Validate mobile-only fail-safe shell against immutable candidate and live Wix
         shell: bash
         run: |
           set -euo pipefail
@@ -24,6 +24,7 @@ jobs:
           mkdir -p visual-qa /tmp/aidme-shell-test /tmp/aidme-assets
 
           CANDIDATE='https://6a84e458653a15b76ca8f95e--aidme-public-candidate-20260817.netlify.app'
+          LIVE="https://www.aidme.no/?qa=${GITHUB_SHA}"
           curl --fail --silent --show-error "${CANDIDATE}/site.js?qa=${GITHUB_SHA}" -o /tmp/candidate-site.js
           grep -q 'shellPresentation' /tmp/candidate-site.js
           grep -q 'aidme-shell' /tmp/candidate-site.js
@@ -65,7 +66,7 @@ jobs:
           host_width=$(printf '%s' "$root_tag" | grep -o 'data-host-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*' || true)
           viewport_width=$(printf '%s' "$root_tag" | grep -o 'data-viewport-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*' || true)
           state=$(printf '%s' "$root_tag" | grep -o 'data-state="[^"]*"' | head -1 || true)
-          echo "DIAG state=${state:-missing} height=${height:-missing} host_width=${host_width:-missing} viewport_width=${viewport_width:-missing}"
+          echo "LOCAL DIAG state=${state:-missing} height=${height:-missing} host_width=${host_width:-missing} viewport_width=${viewport_width:-missing}"
           printf 'state=%s\nheight=%s\nhost_width=%s\nviewport_width=%s\n' "${state:-missing}" "${height:-missing}" "${host_width:-missing}" "${viewport_width:-missing}" > visual-qa/result.txt
 
           test -n "$root_tag"
@@ -83,20 +84,43 @@ jobs:
           timeout 30s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
             --window-size=1440,900 --virtual-time-budget=3000 --dump-dom \
             'http://127.0.0.1:8765/' > visual-qa/desktop-dom.html || test -s visual-qa/desktop-dom.html
-          ! grep -q 'id="aidme-public-git-shell"' visual-qa/desktop-dom.html
+          ! grep -q '<div id="aidme-public-git-shell"' visual-qa/desktop-dom.html
           grep -q 'LEGACY-FALLBACK' visual-qa/desktop-dom.html
+
+          # End-to-end live Wix gate: prove the actual public site activates the
+          # mobile top-level shell and that its measured width matches the live viewport.
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --window-size=500,900 --virtual-time-budget=15000 --dump-dom \
+            "$LIVE" > visual-qa/live-mobile-dom.html || test -s visual-qa/live-mobile-dom.html
+          live_root=$(grep -o '<div id="aidme-public-git-shell"[^>]*>' visual-qa/live-mobile-dom.html | head -1 || true)
+          echo "LIVE_ROOT_TAG=$live_root"
+          test -n "$live_root"
+          printf '%s' "$live_root" | grep -q 'data-state="active"'
+          live_host=$(printf '%s' "$live_root" | grep -o 'data-host-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*' || true)
+          live_viewport=$(printf '%s' "$live_root" | grep -o 'data-viewport-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*' || true)
+          test -n "$live_host"
+          test -n "$live_viewport"
+          live_delta=$(( live_host > live_viewport ? live_host - live_viewport : live_viewport - live_host ))
+          test "$live_delta" -le 2
+
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --window-size=1440,900 --virtual-time-budget=12000 --dump-dom \
+            "$LIVE" > visual-qa/live-desktop-dom.html || test -s visual-qa/live-desktop-dom.html
+          ! grep -q '<div id="aidme-public-git-shell"' visual-qa/live-desktop-dom.html
 
           capture() {
             local name="$1" width="$2" height="$3" url="$4"
-            timeout 30s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
               --hide-scrollbars --force-device-scale-factor=1 \
-              --window-size="${width},${height}" --virtual-time-budget=9000 \
+              --window-size="${width},${height}" --virtual-time-budget=15000 \
               --screenshot="visual-qa/${name}.png" "$url"
             test -s "visual-qa/${name}.png"
           }
           capture shell-mobile 500 2200 'http://127.0.0.1:8765/'
           capture direct-mobile 500 2200 "${CANDIDATE}/?aidme-shell=1"
           capture direct-desktop 1440 1800 "${CANDIDATE}/?aidme-shell=1"
+          capture live-mobile 500 2200 "$LIVE"
+          capture live-desktop 1440 1800 "$LIVE"
           sha256sum visual-qa/*.png > visual-qa/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         if: always()
