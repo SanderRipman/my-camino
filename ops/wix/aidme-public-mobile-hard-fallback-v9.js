@@ -5,7 +5,7 @@
   const seen=new WeakSet();
   let resizeTimer=0;
   function mobile(){return Math.min(window.innerWidth||9999,document.documentElement.clientWidth||9999)<=MOBILE_MAX;}
-  function target(f){const s=(f.getAttribute('src')||'').toLowerCase();return s.includes('aidme-public-preview.netlify.app')||f.dataset.aidmeGitBridge==='1'||!!f.getAttribute('srcdoc');}
+  function target(f){const s=(f.getAttribute('src')||'').toLowerCase();return s.includes('aidme-public-preview.netlify.app')||f.dataset.aidmeGitBridge==='1';}
   function fullWidth(f){
     if(!mobile()) return;
     const vw=Math.max(document.documentElement.clientWidth||0,window.innerWidth||0); if(!vw)return;
