@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate fail-safe shell against isolated candidate
+      - name: Validate mobile-only fail-safe shell against immutable candidate
         shell: bash
         run: |
           set -euo pipefail
@@ -23,14 +23,12 @@ jobs:
           test -n "$CHROME"
           mkdir -p visual-qa /tmp/aidme-shell-test
 
-          curl --fail --silent --show-error \
-            "https://aidme-public-candidate-20260817.netlify.app/site.js?qa=${GITHUB_SHA}" \
-            -o /tmp/candidate-site.js
+          CANDIDATE='https://6a84e458653a15b76ca8f95e--aidme-public-candidate-20260817.netlify.app'
+          curl --fail --silent --show-error "${CANDIDATE}/site.js?qa=${GITHUB_SHA}" -o /tmp/candidate-site.js
           grep -q 'shellPresentation' /tmp/candidate-site.js
           grep -q 'aidme-shell' /tmp/candidate-site.js
 
-          sed 's/aidme-public-preview\.netlify\.app/aidme-public-candidate-20260817.netlify.app/g' \
-            ops/wix/aidme-public-shell.js > /tmp/aidme-shell-test/shell.js
+          cp ops/wix/aidme-public-shell.js /tmp/aidme-shell-test/shell.js
           {
             printf '%s\n' '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0"><div id="SITE_CONTAINER" style="height:420px;background:#ddd">LEGACY-FALLBACK</div><script>'
             cat /tmp/aidme-shell-test/shell.js
@@ -41,17 +39,20 @@ jobs:
           trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
           sleep 1
 
+          # Chrome headless enforces a minimum internal width on some runners.
+          # Validate against the browser's measured CSS viewport, not the requested outer window width.
           timeout 30s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
-            --window-size=390,900 --virtual-time-budget=9000 --dump-dom \
+            --window-size=500,900 --virtual-time-budget=9000 --dump-dom \
             'http://127.0.0.1:8765/' > visual-qa/shell-dom.html || test -s visual-qa/shell-dom.html
 
           root_tag=$(grep -o '<div id="aidme-public-git-shell"[^>]*>' visual-qa/shell-dom.html | head -1 || true)
           echo "ROOT_TAG=$root_tag"
           height=$(printf '%s' "$root_tag" | grep -o 'data-height="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*' || true)
           host_width=$(printf '%s' "$root_tag" | grep -o 'data-host-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*' || true)
+          viewport_width=$(printf '%s' "$root_tag" | grep -o 'data-viewport-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*' || true)
           state=$(printf '%s' "$root_tag" | grep -o 'data-state="[^"]*"' | head -1 || true)
-          echo "DIAG state=${state:-missing} height=${height:-missing} host_width=${host_width:-missing}"
-          printf 'state=%s\nheight=%s\nhost_width=%s\n' "${state:-missing}" "${height:-missing}" "${host_width:-missing}" > visual-qa/result.txt
+          echo "DIAG state=${state:-missing} height=${height:-missing} host_width=${host_width:-missing} viewport_width=${viewport_width:-missing}"
+          printf 'state=%s\nheight=%s\nhost_width=%s\nviewport_width=%s\n' "${state:-missing}" "${height:-missing}" "${host_width:-missing}" "${viewport_width:-missing}" > visual-qa/result.txt
 
           test -n "$root_tag"
           grep -q 'data-state="active"' visual-qa/shell-dom.html
@@ -59,8 +60,17 @@ jobs:
           test -n "$height"
           test "$height" -gt 3000
           test -n "$host_width"
-          test "$host_width" -ge 380
-          test "$host_width" -le 400
+          test -n "$viewport_width"
+          test "$viewport_width" -le 650
+          delta=$(( host_width > viewport_width ? host_width - viewport_width : viewport_width - host_width ))
+          test "$delta" -le 2
+
+          # Desktop must not create the presentation shell at all; revision 7 remains the desktop authority.
+          timeout 30s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --window-size=1440,900 --virtual-time-budget=3000 --dump-dom \
+            'http://127.0.0.1:8765/' > visual-qa/desktop-dom.html || test -s visual-qa/desktop-dom.html
+          ! grep -q 'id="aidme-public-git-shell"' visual-qa/desktop-dom.html
+          grep -q 'LEGACY-FALLBACK' visual-qa/desktop-dom.html
 
           capture() {
             local name="$1" width="$2" height="$3" url="$4"
@@ -70,11 +80,9 @@ jobs:
               --screenshot="visual-qa/${name}.png" "$url"
             test -s "visual-qa/${name}.png"
           }
-          capture shell-360 360 2200 'http://127.0.0.1:8765/'
-          capture shell-412 412 2200 'http://127.0.0.1:8765/'
-          capture shell-desktop 1440 1800 'http://127.0.0.1:8765/'
-          capture direct-360 360 2200 'https://aidme-public-candidate-20260817.netlify.app/?aidme-shell=1'
-          capture direct-desktop 1440 1800 'https://aidme-public-candidate-20260817.netlify.app/?aidme-shell=1'
+          capture shell-mobile 500 2200 'http://127.0.0.1:8765/'
+          capture direct-mobile 500 2200 "${CANDIDATE}/?aidme-shell=1"
+          capture direct-desktop 1440 1800 "${CANDIDATE}/?aidme-shell=1"
           sha256sum visual-qa/*.png > visual-qa/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         if: always()
