@@ -21,12 +21,26 @@ jobs:
           set -euo pipefail
           CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
           test -n "$CHROME"
-          mkdir -p visual-qa /tmp/aidme-shell-test
+          mkdir -p visual-qa /tmp/aidme-shell-test /tmp/aidme-assets
 
           CANDIDATE='https://6a84e458653a15b76ca8f95e--aidme-public-candidate-20260817.netlify.app'
           curl --fail --silent --show-error "${CANDIDATE}/site.js?qa=${GITHUB_SHA}" -o /tmp/candidate-site.js
           grep -q 'shellPresentation' /tmp/candidate-site.js
           grep -q 'aidme-shell' /tmp/candidate-site.js
+
+          # Presentation-critical asset gate: every canonical Camino WebP must be
+          # downloadable from the immutable candidate and decode as WebP bytes.
+          assets=(
+            aidme-logo.webp alone-trail.webp arrival-expectation.webp border-bridge.webp
+            compostela.webp credential.webp cruz-de-ferro.webp dawn.webp hero-group.webp
+            journal.webp santiago-team.webp social-meal.webp zero-km.webp
+          )
+          for asset in "${assets[@]}"; do
+            curl --fail --silent --show-error "${CANDIDATE}/assets/${asset}?qa=${GITHUB_SHA}" -o "/tmp/aidme-assets/${asset}"
+            test -s "/tmp/aidme-assets/${asset}"
+            test "$(stat -c%s "/tmp/aidme-assets/${asset}")" -gt 5000
+            file "/tmp/aidme-assets/${asset}" | grep -qi 'Web/P\|WebP'
+          done
 
           cp ops/wix/aidme-public-shell.js /tmp/aidme-shell-test/shell.js
           {
