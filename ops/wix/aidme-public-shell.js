@@ -31,6 +31,7 @@
   const root = document.createElement('div');
   root.id = ROOT_ID;
   root.dataset.state = 'booting';
+  root.dataset.aidmeTopShell = '1';
   root.setAttribute('aria-hidden', 'true');
   root.style.cssText = [
     'position:absolute',
@@ -49,6 +50,7 @@
   const frame = document.createElement('iframe');
   frame.src = SOURCE;
   frame.title = 'AidMe VIDA';
+  frame.dataset.aidmeTopShell = '1';
   frame.setAttribute('loading', 'eager');
   frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
   frame.style.cssText = [
@@ -82,13 +84,25 @@
     });
   }
 
+  function lockHeight(el, height) {
+    const px = `${height}px`;
+    ['height','min-height','max-height','block-size','min-block-size','max-block-size'].forEach((prop) => {
+      el.style.setProperty(prop, px, 'important');
+    });
+  }
+
   function setHeight(value) {
     const numeric = Number(value);
     if (!Number.isFinite(numeric) || numeric <= 0) return false;
     const height = Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, Math.ceil(numeric)));
-    root.style.setProperty('height', `${height}px`, 'important');
-    frame.style.setProperty('height', `${height}px`, 'important');
-    frame.setAttribute('height', String(height));
+    lockHeight(root, height);
+    lockHeight(frame, height);
+    // Deliberately do NOT set iframe's HTML height attribute. The legacy
+    // revision-7 detector uses a large height attribute as a matching signal;
+    // leaving it absent keeps the top-level mobile shell isolated from it.
+    frame.removeAttribute('height');
+    root.style.removeProperty('--height');
+    frame.style.removeProperty('--height');
     root.dataset.height = String(height);
     return true;
   }
