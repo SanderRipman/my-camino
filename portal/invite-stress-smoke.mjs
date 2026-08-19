@@ -1,0 +1,22 @@
+import fs from 'node:fs';
+const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8');
+const welcome=read('./welcome.html'), js=read('./welcome.js'), css=read('./welcome.css');
+const invite=fs.readFileSync(new URL('../supabase/functions/admin-invite-user/index.ts',import.meta.url),'utf8');
+const setup=fs.readFileSync(new URL('../supabase/functions/account-setup-command/index.ts',import.meta.url),'utf8');
+const errors=[];
+const must=(ok,msg)=>{if(!ok)errors.push(msg)};
+must(welcome.includes('viewport-fit=cover'),'welcome viewport missing');
+must(welcome.includes('Grunnopplysninger'),'profile flow missing');
+must(js.includes("account-setup-command"),'account setup function not wired');
+must(js.includes('mfa.enroll')&&js.includes('mfa.challenge')&&js.includes('mfa.verify'),'staff MFA onboarding incomplete');
+must(js.includes('Sensitive helse-')===false,'sensitive health copy should remain HTML-only');
+must(css.includes('@media(max-width:760px)'),'mobile welcome layout missing');
+must(invite.includes("https://my.aidme.no/welcome.html"),'production invite redirect missing');
+must(!invite.includes("inviteUserByEmail(email)\n"),'invite still relies on default Site URL');
+must(invite.includes('redirectTo:INVITE_REDIRECT'),'invite redirect option missing');
+must(setup.includes("basic_profile_only:true"),'participant first-login scope not explicit');
+must(setup.includes("sensitiveSafetyDeferred:true"),'sensitive safety deferral missing');
+must(!setup.includes("claims(token).aal!=='aal2'"),'first-login profile unexpectedly requires AAL2');
+must(setup.includes("role_grants")&&setup.includes("staff_profiles")&&setup.includes("participant_identity"),'account type/profile routing incomplete');
+if(errors.length){console.error(errors.map(x=>'FAIL: '+x).join('\n'));process.exit(1)}
+console.log('Invite/onboarding smoke: PASS');
