@@ -1,15 +1,17 @@
 import fs from 'node:fs';
 const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8');
-const welcome=read('./welcome.html'), js=read('./welcome.js'), css=read('./welcome.css');
+const welcome=read('./welcome.html'), welcomeJs=read('./welcome.js'), css=read('./welcome.css');
+const admin=read('./admin.js'), intake=read('./intake.js');
 const invite=fs.readFileSync(new URL('../supabase/functions/admin-invite-user/index.ts',import.meta.url),'utf8');
 const setup=fs.readFileSync(new URL('../supabase/functions/account-setup-command/index.ts',import.meta.url),'utf8');
+const participant=fs.readFileSync(new URL('../supabase/functions/admin-create-participant/index.ts',import.meta.url),'utf8');
 const errors=[];
 const must=(ok,msg)=>{if(!ok)errors.push(msg)};
 must(welcome.includes('viewport-fit=cover'),'welcome viewport missing');
 must(welcome.includes('Grunnopplysninger'),'profile flow missing');
-must(js.includes("account-setup-command"),'account setup function not wired');
-must(js.includes('mfa.enroll')&&js.includes('mfa.challenge')&&js.includes('mfa.verify'),'staff MFA onboarding incomplete');
-must(js.includes('Sensitive helse-')===false,'sensitive health copy should remain HTML-only');
+must(welcomeJs.includes("account-setup-command"),'account setup function not wired');
+must(welcomeJs.includes('mfa.enroll')&&welcomeJs.includes('mfa.challenge')&&welcomeJs.includes('mfa.verify'),'staff MFA onboarding incomplete');
+must(welcomeJs.includes('Sensitive helse-')===false,'sensitive health copy should remain HTML-only');
 must(css.includes('@media(max-width:760px)'),'mobile welcome layout missing');
 must(invite.includes("https://my.aidme.no/welcome.html"),'production invite redirect missing');
 must(!invite.includes("inviteUserByEmail(email)\n"),'invite still relies on default Site URL');
@@ -18,5 +20,17 @@ must(setup.includes("basic_profile_only:true"),'participant first-login scope no
 must(setup.includes("sensitiveSafetyDeferred:true"),'sensitive safety deferral missing');
 must(!setup.includes("claims(token).aal!=='aal2'"),'first-login profile unexpectedly requires AAL2');
 must(setup.includes("role_grants")&&setup.includes("staff_profiles")&&setup.includes("participant_identity"),'account type/profile routing incomplete');
+// N2 -> N3 invariant: create VÍA first, then link secure account to the SAME participant.
+must(intake.includes("from:'n2'")&&intake.includes('participantId'),'N2 does not hand existing participant to N3');
+must(intake.includes('sikker kontoinvitasjon'),'N2 does not explain separate secure invitation step');
+must(admin.includes("p.get('from')!=='n2'")&&admin.includes('existingParticipantId'),'admin does not recognize N2 journey handoff');
+must(admin.includes("participantId,codeName,pilotId"),'admin invite does not pass existing participant id to server');
+must(admin.includes('ingen ny deltaker ble opprettet'),'admin confirmation does not preserve single-journey invariant');
+must(participant.includes("participantId=body?.participantId"),'server cannot receive existing participant id');
+must(participant.includes(".update({user_id:targetUserId,active:true,updated_at:now})"),'server does not link invited account to existing participant');
+must(participant.includes("PARTICIPANT_ALREADY_LINKED")&&participant.includes("USER_ALREADY_PARTICIPANT"),'duplicate/cross-link guards missing');
+must(participant.includes("PARTICIPANT_ACCOUNT_LINKED"),'account linkage is not audited/workflow logged');
+must(participant.includes(".eq('status','INVITED')")&&participant.includes("VIA_STARTED"),'intake state does not advance when account is linked');
+must(participant.includes("role_code','system_admin'")&&participant.includes("MFA_REQUIRED"),'participant-link mutation lacks AAL2/system-admin gate');
 if(errors.length){console.error(errors.map(x=>'FAIL: '+x).join('\n'));process.exit(1)}
-console.log('Invite/onboarding smoke: PASS');
+console.log('Invite/onboarding + N2→N3 smoke: PASS');
