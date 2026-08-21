@@ -1,0 +1,70 @@
+name: Public N1 Live Release Gate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify live Wix N1 on mobile and desktop
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME"
+          mkdir -p live-gate
+          PIN="$(sed -nE "s/^const AIDME_N1_COMMIT = '([0-9a-f]{40})';$/\1/p" ops/wix/aidme-public-n1-mobile-shell.js)"
+          test -n "$PIN"
+          CACHE_KEY="${GITHUB_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          LIVE="https://www.aidme.no/?n1qa=${CACHE_KEY}"
+
+          timeout 50s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --window-size=500,1000 --virtual-time-budget=20000 --dump-dom \
+            "$LIVE" > live-gate/mobile.html || test -s live-gate/mobile.html
+
+          root=$(grep -o '<div id="aidme-public-git-shell"[^>]*>' live-gate/mobile.html | head -1 || true)
+          echo "LIVE_MOBILE_ROOT=$root"
+          test -n "$root"
+          printf '%s' "$root" | grep -q 'data-state="active"'
+          printf '%s' "$root" | grep -q "data-aidme-n1-commit=\"${PIN}\""
+          printf '%s' "$root" | grep -q 'data-preflight="ok"'
+          printf '%s' "$root" | grep -Eq 'data-activation="(post-message|srcdoc-load|srcdoc-load-delayed|srcdoc-load-delayed-2|live-first-measured|live-first-provisional)"'
+          grep -q 'data-aidme-legacy-hidden="1"' live-gate/mobile.html
+          grep -q 'Portugal → Spania' live-gate/mobile.html
+          ! grep -q '<strong>Preview:</strong>' live-gate/mobile.html
+
+          mobile_host=$(printf '%s' "$root" | grep -o 'data-host-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*')
+          mobile_viewport=$(printf '%s' "$root" | grep -o 'data-viewport-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*')
+          delta=$(( mobile_host > mobile_viewport ? mobile_host - mobile_viewport : mobile_viewport - mobile_host ))
+          test "$delta" -le 2
+
+          timeout 50s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --window-size=1440,1000 --virtual-time-budget=16000 --dump-dom \
+            "$LIVE" > live-gate/desktop.html || test -s live-gate/desktop.html
+          ! grep -q 'id="aidme-public-git-shell"' live-gate/desktop.html
+          grep -q 'data-aidme-git-bridge="1"' live-gate/desktop.html
+          grep -q "data-aidme-n1-commit=\"${PIN}\"" live-gate/desktop.html
+          grep -q 'Portugal → Spania' live-gate/desktop.html
+          ! grep -q '<strong>Preview:</strong>' live-gate/desktop.html
+
+          timeout 50s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --hide-scrollbars --window-size=500,2200 --virtual-time-budget=20000 \
+            --screenshot=live-gate/mobile.png "$LIVE"
+          timeout 50s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --hide-scrollbars --window-size=1440,1800 --virtual-time-budget=16000 \
+            --screenshot=live-gate/desktop.png "$LIVE"
+          test -s live-gate/mobile.png
+          test -s live-gate/desktop.png
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aidme-n1-live-release-gate
+          path: live-gate/
+          if-no-files-found: error
+          retention-days: 2

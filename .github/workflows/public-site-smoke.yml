@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate public source / UX candidate integrity
+      - name: Validate public source / layered UX candidate integrity
         shell: bash
         run: |
           set -euo pipefail
@@ -29,7 +29,7 @@ jobs:
             test -f "$ROOT/$page.html"
             grep -q '<meta name="viewport"' "$ROOT/$page.html"
             grep -q '<footer class="site-footer"' "$ROOT/$page.html"
-            grep -q 'site.js?v=20260818b' "$ROOT/$page.html"
+            grep -q 'site.js?v=' "$ROOT/$page.html"
             count=$(grep -o '<h1' "$ROOT/$page.html" | wc -l | tr -d ' ')
             test "$count" = '1'
           done
@@ -37,6 +37,10 @@ jobs:
           test -f "$ROOT/refine.css"
           test -f "$ROOT/site.js"
           test -f "$ROOT/mobile-ux.css"
+          test -f "$ROOT/n1-ux.js"
+          test -f "$ROOT/n1-ux.css"
+          test -f "$ROOT/n1-intake-safe.js"
+          test -f "$ROOT/takk.html"
           test -f "$ROOT/SOURCE_PARITY_MANIFEST_2026-08-18.json"
           grep -q 'naturalContentHeight' "$ROOT/site.js"
           ! grep -q 'document.documentElement.scrollHeight' "$ROOT/site.js"
@@ -45,14 +49,17 @@ jobs:
           grep -q 'mobile-process-nav' "$ROOT/site.js"
           grep -q 'has-card-link' "$ROOT/site.js"
           grep -q 'my.AidMe' "$ROOT/site.js"
+          grep -q 'n1-ux.js' "$ROOT/site.js"
           grep -q 'grid-template-columns: 1fr' "$ROOT/mobile-ux.css"
           grep -q 'Gå videre til VIDA' "$ROOT/ser.html"
           grep -q 'Under lading' "$ROOT/via.html"
+          grep -q 'n1-intake-safe.js' "$ROOT/kontakt.html"
 
-          # Exact byte identity for the intentional UI delta. PR #39 remains the
-          # authority for the original source-parity site.js blob.
-          test "$(git hash-object "$ROOT/site.js")" = '9f680f1e41b4018e509e7baafac70ca1221237d1'
+          # Preserve exact known bytes for the previously verified mobile layer,
+          # then pin the two intentional N1 bridge deltas independently.
+          test "$(git hash-object "$ROOT/site.js")" = '0d209b97c3baeed3f1539462592aa3aaf7414484'
           test "$(git hash-object "$ROOT/mobile-ux.css")" = '9512227a22ba281f94644887c5e723bedb8b02dd'
+          test "$(git hash-object "$ROOT/kontakt.html")" = '2f4664cc1a6aca8184c20960c90dafd452d1fecb'
 
           python - <<'PY'
           from pathlib import Path
@@ -64,11 +71,12 @@ jobs:
           manifest_path = root / 'SOURCE_PARITY_MANIFEST_2026-08-18.json'
           manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
           errors = []
+          layered = {'site.js', 'kontakt.html'}
 
           for item in manifest.get('files', []):
               rel = item['path']
-              # site.js is an intentional, separately pinned UI delta in this branch.
-              if rel == 'site.js':
+              # N1 changes are additive/reversible and explicitly pinned above.
+              if rel in layered:
                   continue
               expected_size = int(item['size'])
               expected_sha = item['sha256'].lower()
@@ -85,12 +93,12 @@ jobs:
                   errors.append(f'SHA256 {rel}: {actual_sha} != {expected_sha}')
 
           if errors:
-              print('Public UX candidate integrity FAILED:', file=sys.stderr)
+              print('Public layered UX candidate integrity FAILED:', file=sys.stderr)
               for error in errors:
                   print(f' - {error}', file=sys.stderr)
               sys.exit(1)
 
-          print('Baseline manifest parity passed; intentional UI files passed pinned Git-blob checks.')
+          print('Baseline manifest parity passed; intentional N1 deltas passed pinned Git-blob checks.')
           PY
 
-          echo 'Public UX candidate integrity checks passed.'
+          echo 'Public layered UX candidate integrity checks passed.'

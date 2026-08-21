@@ -1,0 +1,84 @@
+name: Public N1 Runtime QA
+
+on:
+  pull_request:
+    paths:
+      - 'public-site/current/**'
+      - '.github/workflows/public-n1-runtime-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Render N1 locally at mobile and desktop widths
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME"
+          mkdir -p n1-runtime-qa
+          python3 -m http.server 8766 --directory public-site/current >/tmp/aidme-n1-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          sleep 1
+
+          dump() {
+            local name="$1" url="$2" width="$3"
+            timeout 35s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+              --window-size="${width},1000" --virtual-time-budget=5000 --dump-dom "$url" \
+              > "n1-runtime-qa/${name}.html" || test -s "n1-runtime-qa/${name}.html"
+          }
+          shot() {
+            local name="$1" url="$2" width="$3" height="$4"
+            timeout 35s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+              --hide-scrollbars --window-size="${width},${height}" --virtual-time-budget=5000 \
+              --screenshot="n1-runtime-qa/${name}.png" "$url"
+            test -s "n1-runtime-qa/${name}.png"
+          }
+
+          BASE='http://127.0.0.1:8766'
+          dump home-mobile "$BASE/index.html" 390
+          dump participant-mobile "$BASE/deltakere.html" 390
+          dump route-mobile "$BASE/ruter.html" 390
+          dump contact-mobile "$BASE/kontakt.html?spor=deltaker&fra=qa#deltaker-interesse" 390
+          dump home-desktop "$BASE/index.html" 1440
+
+          grep -q 'Camino Portugués · Portugal → Spania' n1-runtime-qa/home-mobile.html
+          grep -q 'Målgang, mestring – og en ny begynnelse' n1-runtime-qa/home-mobile.html
+          grep -q 'Tre steg er hele løpet' <(curl -fsS "$BASE/n1-ux.js")
+          grep -q 'n1-route-map' n1-runtime-qa/route-mobile.html
+          grep -q 'deltaker-interesse' n1-runtime-qa/contact-mobile.html
+          grep -qi 'ingen persondata lagres' n1-runtime-qa/contact-mobile.html
+          ! grep -q 'data-netlify="true"' n1-runtime-qa/contact-mobile.html
+          ! grep -q 'name="interest_note"' n1-runtime-qa/contact-mobile.html
+          ! grep -q 'Første pilot er tenkt' n1-runtime-qa/participant-mobile.html
+          ! grep -q 'første pilot' n1-runtime-qa/participant-mobile.html
+
+          python3 - <<'PY'
+          from pathlib import Path
+          html = Path('n1-runtime-qa/participant-mobile.html').read_text(encoding='utf-8')
+          phrase = 'Aktiv alvorlig rus, akutt psykisk risiko'
+          count = html.count(phrase)
+          print('participant safety phrase count:', count)
+          if count != 1:
+              raise SystemExit(f'Expected safety sentence exactly once, got {count}')
+          PY
+
+          shot home-mobile "$BASE/index.html" 390 2200
+          shot participant-mobile "$BASE/deltakere.html" 390 2200
+          shot route-mobile "$BASE/ruter.html" 390 2200
+          shot contact-mobile "$BASE/kontakt.html?spor=deltaker&fra=qa#deltaker-interesse" 390 2200
+          shot home-desktop "$BASE/index.html" 1440 1800
+          sha256sum n1-runtime-qa/*.png > n1-runtime-qa/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aidme-n1-runtime-qa
+          path: n1-runtime-qa/
+          if-no-files-found: error
+          retention-days: 2

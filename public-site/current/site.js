@@ -216,3 +216,11 @@
     }, { once: true });
   }
 })();
+
+/* 2026-08-21 owner-approved N1 public journey layer. */
+(() => {
+  const script = document.createElement("script");
+  script.src = "n1-ux.js?v=20260821a";
+  script.dataset.aidmeN1 = "1";
+  document.body.appendChild(script);
+})();
