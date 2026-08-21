@@ -1,4 +1,16 @@
-# AidMe VIDA – reell brukerreise v1
+# AidMe VIDA – reell brukerreise v2
+
+Dette dokumentet er implementeringsspeil for portalens flyt. Faglig autoritet ligger i aktiv SharePoint-malpakke og styringsfiler.
+
+## Gjennomgående regel
+
+Den offentlige deltakerreisen er **tre steg**:
+
+**VÍA · FØR → SER · UNDER → VIDA · ETTER**
+
+**Trygghet følger alle tre steg.** Trygghet er et fundament – frivillighet, individuell vurdering, tilpasning, ansvar og tydelige sikkerhetsgater – og skal ikke fremstilles som et fjerde programsteg.
+
+`ny VÍA` kan brukes senere når retning må justeres. Det er et nytt startpunkt, ikke et obligatorisk fjerde steg.
 
 ## 0. Før interesse – aidme.no
 
@@ -8,15 +20,18 @@ Besøkeren skal forstå tre ting uten å kjenne interne begreper:
 2. Hvem det kan passe for.
 3. Hva som skjer hvis man viser interesse.
 
-CTA: **«Jeg vil vite mer»** eller **«Start en uforpliktende VÍA-avklaring»**.
+Primær deltaker-CTA: **«Se om dette kan passe for meg»**.
 
-Tidlig skjema samler bare minimum: navn, kontakt, hva personen ønsker mer av/retning, foretrukket kontakt og bekreftelse på lest personverninformasjon. Ikke detaljert helsehistorikk.
+Overgangen skal forklare: **«Første steg er en kort interesse – ikke en påmelding.»**
+
+Tidlig skjema samler bare minimum: navn/kontakt, foretrukket kontakt og nødvendig kildekontekst. Ikke detaljert helsehistorikk eller risikovurdering. Dypere VÍA-informasjon samles først når personen faktisk går videre i riktig, tilgangskontrollert flyt.
 
 Etter innsending:
 - tydelig kvittering;
-- forventet responstid;
-- ingen lovnad om SER-plass;
-- intern oppgave opprettes hos mottak/koordinator.
+- forventet videre kontakt;
+- ingen lovnad om SER-plass eller effekt;
+- intern oppgave opprettes hos mottak/koordinator;
+- samme interesse følger videre som én sak dersom personen går til VÍA.
 
 ## 1. Mottak
 
@@ -26,16 +41,16 @@ Ny interesse vises som ett kort med:
 - mottatt tidspunkt;
 - kilde;
 - kontakt;
-- kort interesse;
+- kort interesse der det er nødvendig;
 - neste beslutning.
 
 Handlinger:
-- Invitér til VÍA
+- Gå videre til VÍA
 - Trenger avklaring
 - Anbefal annen vei
 - Avslutt
 
-Ingen må lete i dokumentbibliotek for å finne neste steg.
+Ingen må lete i dokumentbibliotek for å finne neste steg. Interesse er ikke godkjenning, og konto opprettes først når personen faktisk skal videre i VÍA.
 
 ## 2. Konto og første VÍA-opplevelse
 
@@ -80,10 +95,10 @@ Den viser:
 - obligatoriske kontrollpunkter;
 - ulukkede vilkår;
 - ansvarlig beslutningseier;
-- fire mulige utfall: GO, GO med vilkår, UTSETT, NO-GO nå;
+- fire formelle interne utfall: GO, GO med vilkår, UTSETT, NO-GO nå;
 - forståelig deltakersammendrag separat fra intern begrunnelse.
 
-Ved vilkår opprettes oppgaver med eier og frist automatisk/logisk.
+Deltakerrettet språk skal være mindre dømmende enn den formelle interne statusen. Ved vilkår opprettes oppgaver med eier og frist automatisk/logisk.
 
 ## 5. Før SER / samlet pilot-GO
 
@@ -97,6 +112,8 @@ Staff:
 - pilotboard viser gruppeberedskap, ikke bare individer;
 - bemanning, rute, logistikk, forsikring, avbruddsplan, partner, system og VIDA må være lukket før samlet pilot-GO.
 
+`pilot` er primært operativt/partnerrettet språk. Deltakeren skal oppleve en tydelig og trygg reise, ikke unødvendig usikkerhet om at programmet «bare testes».
+
 ## 6. SER – deltaker
 
 Mobil først.
@@ -109,7 +126,7 @@ Hjemskjermen skal normalt vise:
 - møtested/beredskapsinfo;
 - neste felles tidspunkt.
 
-Ingen krav om personlig deling. Deltaker kan bruke løsningen på under ett minutt når alt er normalt.
+Ingen krav om personlig deling. Pause, transport, tilpasning og avbrudd er legitime sikkerhetstiltak. Deltaker kan bruke løsningen på under ett minutt når alt er normalt.
 
 ## 7. SER – operativt team
 
@@ -146,6 +163,8 @@ Portalen skifter hovedfokus før reisen er over:
 - bekreftet VIDA-eier
 - konkret tidspunkt for første oppfølging.
 
+Santiago kan være et sterkt anker for målgang og mestring, men skal ikke bli et prestasjonskrav eller effektløfte.
+
 ## 10. VIDA
 
 Deltaker og VIDA-eier arbeider i **én levende plan**.
@@ -164,11 +183,13 @@ Startside viser:
 Partner skal ikke få en kopi av «alt».
 
 Partnerrolle får:
-- tildelte personer;
+- tildelte personer når formål/mandat tilsier det;
 - avtalt overføringssammendrag;
 - egne oppgaver og VIDA-ansvar;
 - status som trengs for avtalt formål;
 - sikker kanal for nødvendig informasjon.
+
+Mini CRM er partner-/relasjonsarbeid og skal ikke brukes som parallelt deltakerregister.
 
 ## 12. Systemansvarlig
 
@@ -178,7 +199,7 @@ Systemansvarlig arbeider med:
 - konfigurasjon;
 - audit og systemhelse.
 
-Teknisk admin betyr ikke automatisk full tilgang til deltakerinnhold. Nødtilgang er særskilt og logget.
+Teknisk admin betyr ikke automatisk full tilgang til deltakerinnhold. Nødtilgang er særskilt, midlertidig, begrunnet og logget.
 
 ## 13. UX-barnesykdommer som skal bort
 
@@ -192,3 +213,18 @@ Teknisk admin betyr ikke automatisk full tilgang til deltakerinnhold. Nødtilgan
 - Ikke la mobilbruk kreve horisontal lesing eller store luftmarger.
 - Ikke la bildeforklaringer konkurrere med hovedinnhold.
 - Ikke send sensitive detaljer i e-post/push.
+- Ikke la klikkbare felt antyde redigeringsrettighet når handlingen egentlig er detalj, eier, forespørsel eller gate.
+- Ikke la manglende tilgang bli en blindvei når en sikker neste handling kan forklares.
+
+## 14. QA-regel
+
+Før ekte sensitive data åpnes bredere skal hver relevant rolle testes med syntetiske data for:
+- positiv in-scope tilgang;
+- negativ out-of-scope tilgang;
+- AAL1-avslag og AAL2-suksess;
+- direkte URL/API-bypass;
+- riktig write-path og audit;
+- utløp/tilbakekalling;
+- mobilflyt uten hover-avhengighet.
+
+Bruk `/portal/qa-role-pack.html` som realistisk rolle-lab og `END_TO_END_ROLE_JOURNEY.md` som operativ ende-til-ende-matrise.
