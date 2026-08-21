@@ -12,7 +12,7 @@ Denne kontrollen ble utført mot aktivt Supabase-prosjekt `ibloovohuhrceivrvhvn`
 | public-intake | 2 | false, custom fail-closed gates | `d49b6f8249aaa10d197648061b96463367eb0b7bf4f57dcbdab3a07544bb2c87` |
 | bootstrap-owner-once | 3 | false, permanently closed/410 | `75c9c1714d56ffe504db80858b477beabd718ba54d4d6b6b7f141707e5a6c37a` |
 | rls-preview-selftest | 2 | false, permanently closed/410 | `a68e2a49987a7cef8232f492bfbe5827e60c9218accd6501a4f2603783f2cc1f` |
-| admin-create-participant | 2 | true | `0d7822e47193cf68eb747a19f35be0c0758402edb9cb5f9a8198bebe59590250` |
+| admin-create-participant | 3 | true | `3a9afdec37b1dc0a7b0fe5e7ac696b1e49477ace68a0f5c7d4a77b4c5547a41d` |
 | admin-list-access | 1 | true | `9404da12a4425a83f3b614c9d774fdcb550b7221483d977f0241785708a3c4b0` |
 | task-command | 2 | true | `d20b9d7b883e10188162e19203b812e759033305317d61e0b82f2ed5cd5848a3` |
 | workflow-command | 2 | true | `b612c7ac15adaa19d309c43287634afd2c657121c2f1fdd64a72e9701a691ee4` |
@@ -30,7 +30,7 @@ Denne kontrollen ble utført mot aktivt Supabase-prosjekt `ibloovohuhrceivrvhvn`
 ## Viktige funn
 
 - `public-intake` i Git var eldre enn aktiv Supabase-kode og er korrigert til live-versjonen. Ingen backend-redeploy ble gjort i parity-arbeidet.
-- `intake-command` og `admin-create-participant` ble gjenopprettet tidligere i N2→N3-pakken.
+- `intake-command` og `admin-create-participant` ble gjenopprettet tidligere i N2→N3-pakken; `admin-create-participant` ble deretter oppgradert til v3 i N3 for å sikre at konto-link også gir deltakeren én konkret første VÍA-handling.
 - `form-command` ble opprettet kilde-før-deploy i P0 form-write-pakken.
 - `bootstrap-owner-once` og `rls-preview-selftest` er fortsatt deployet, men returnerer permanent `410` og er ikke operative bakdører.
 - CI forventer nå eksplisitt hele 20-funksjonssettet. Ny funksjon eller slettet kilde krever en bevisst parity-oppdatering.
