@@ -11,6 +11,7 @@ const mobilePath=path.join(dir,'app-mobile.js');
 const contextPath=path.join(dir,'app-context.js');
 const participantPath=path.join(dir,'app-participant.js');
 const participantNextPath=path.join(dir,'app-participant-next.js');
+const viaHandoffPath=path.join(dir,'app-via-handoff.js');
 const outPath=path.join(dir,'app.js');
 let code=fs.readFileSync(sourcePath,'utf8');
 const ops=fs.readFileSync(opsPath,'utf8');
@@ -20,6 +21,7 @@ const mobile=fs.readFileSync(mobilePath,'utf8');
 const context=fs.readFileSync(contextPath,'utf8');
 const participant=fs.readFileSync(participantPath,'utf8');
 const participantNext=fs.readFileSync(participantNextPath,'utf8');
+const viaHandoff=fs.readFileSync(viaHandoffPath,'utf8');
 
 function replaceOnce(label,needle,replacement){
  const first=code.indexOf(needle);if(first<0)throw new Error(`${label}: source pattern missing`);if(code.indexOf(needle,first+1)>=0)throw new Error(`${label}: source pattern is not unique`);code=code.replace(needle,replacement);
@@ -65,5 +67,6 @@ code += '\n\n/* Mobile parity and navigation behavior are maintained separately.
 code += '\n\n/* Role-aware context drill-down / action resolver is concatenated last so it wraps the final task dialog behavior. */\n'+context+'\n';
 code += '\n\n/* Participant-first presentation is concatenated after shared role-aware behavior. */\n'+participant+'\n';
 code += '\n\n/* Participant next-action routing is last so shared staff gates cannot leak into the participant task dialog. */\n'+participantNext+'\n';
+code += '\n\n/* Staff VÍA review handoff is final for staff tasks and is a no-op for participants. */\n'+viaHandoff+'\n';
 fs.writeFileSync(outPath,code,'utf8');
 console.log(`Built ${path.relative(process.cwd(),outPath)} (${code.length} bytes)`);
