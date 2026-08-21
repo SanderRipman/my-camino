@@ -8,6 +8,7 @@ const e2e=read('./END_TO_END_ROLE_JOURNEY.md');
 const intakeHtml=read('./intake.html');
 const intakeJs=read('./intake.js');
 const participantJs=read('./app-participant.js');
+const participantNextJs=read('./app-participant-next.js');
 const roleMatrix=read('./ROLE_SCOPE_QA_MATRIX.md');
 const qaHtml=read('./qa-role-pack.html');
 const qaJs=read('./qa-role-pack.js');
@@ -17,6 +18,7 @@ const crmJs=read('./crm.js');
 const publicN1=read('../public-site/current/n1-ux.js');
 const qaFunction=read('../supabase/functions/qa-create-role-pack/index.ts');
 const intakeFunction=read('../supabase/functions/intake-command/index.ts');
+const adminCreateParticipant=read('../supabase/functions/admin-create-participant/index.ts');
 const formCommand=read('../supabase/functions/form-command/index.ts');
 
 // Public N1: exactly three stages; safety is cross-cutting, not stage 4.
@@ -45,6 +47,15 @@ assert(participantJs.includes("$('#showAverage')")&&participantJs.includes('anal
 for(const text of ['Mine åpne steg','Viktig nå','Min fase','Din neste handling','Dine steg og skjemaer'])assert(participantJs.includes(text),`Participant-first copy missing: ${text}`);
 assert(!participantJs.includes("'Kritisk'"),'Participant-first layer must not label own tasks with internal critical wording');
 assert(participantJs.includes("if(isStaff())return staffRenderParticipants()"),'Staff participant workspace must remain unchanged by participant-first layer');
+
+// N3 must end in one concrete VÍA participant action, not merely a linked account.
+assert(adminCreateParticipant.includes("workflow_key:'participant_via_start'"),'Account linking must create/reuse the participant VÍA start task');
+assert(adminCreateParticipant.includes("eq('workflow_key','participant_via_start')")&&adminCreateParticipant.includes("eq('assignee_user_id',targetUserId)"),'VÍA start task must be duplicate-guarded for the linked participant account');
+assert(adminCreateParticipant.includes("title:'Din VÍA er klar'"),'The linked participant must receive a safe notification for the first VÍA step');
+assert(participantNextJs.includes('participant_via_start')&&participantNextJs.includes('Start mitt VÍA-veikart'),'Participant task dialog must expose the VÍA roadmap as the first action');
+assert(participantNextJs.includes('key=via_roadmap'),'Participant VÍA action must route to the participant-facing roadmap, not staff GO/NO-GO');
+assert(participantNextJs.includes('Dette er ikke en GO/NO-GO-beslutning'),'Participant copy must separate VÍA clarification from the formal staff decision gate');
+assert(participantNextJs.includes("if(isStaff())return"),'Participant next-action layer must not alter staff task-gate behavior');
 
 // Canonical forms must be represented in the portal and holistic journey.
 const formKeys=['info_before_via','interest_referral','via_roadmap','individual_go_no_go','participant_agreement','pilot_go','ser_daily','incident','vida_plan','pilot_evaluation'];
