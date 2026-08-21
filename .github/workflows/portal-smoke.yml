@@ -6,8 +6,7 @@ on:
     paths:
       - 'portal/**'
       - 'public-site/current/**'
-      - 'supabase/functions/qa-create-role-pack/**'
-      - 'supabase/functions/form-command/**'
+      - 'supabase/functions/**'
       - '_redirects'
       - 'netlify.toml'
       - '.github/workflows/portal-smoke.yml'
@@ -15,8 +14,7 @@ on:
     paths:
       - 'portal/**'
       - 'public-site/current/**'
-      - 'supabase/functions/qa-create-role-pack/**'
-      - 'supabase/functions/form-command/**'
+      - 'supabase/functions/**'
       - '_redirects'
       - 'netlify.toml'
       - '.github/workflows/portal-smoke.yml'
@@ -32,6 +30,37 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Verify expected active Supabase function source set
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected=(
+            account-setup-command
+            admin-create-participant
+            admin-grant-role
+            admin-invite-user
+            admin-list-access
+            admin-revoke-role
+            bootstrap-owner-once
+            case-command
+            demo-create-interest
+            form-command
+            intake-command
+            onboarding-command
+            participant-profile-command
+            public-intake
+            qa-cleanup-role-pack
+            qa-create-role-pack
+            rls-preview-selftest
+            sos-command
+            task-command
+            workflow-command
+          )
+          for slug in "${expected[@]}"; do
+            test -s "supabase/functions/${slug}/index.ts" || { echo "Missing version-controlled Edge Function source: ${slug}"; exit 1; }
+          done
+          count=$(find supabase/functions -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
+          test "$count" -eq "${#expected[@]}" || { echo "Function source set changed (${count} dirs vs ${#expected[@]} expected). Update live/Git parity explicitly."; exit 1; }
       - name: Check maintained JavaScript syntax
         shell: bash
         run: |
