@@ -65,6 +65,21 @@ Deno.serve(async(req:Request)=>{
   }
 
   if(pilotId){const {data:existingPilotLink,error:pilotLookupError}=await admin.from('pilot_participants').select('pilot_id,participant_id').eq('pilot_id',pilotId).eq('participant_id',participant.id).maybeSingle();if(pilotLookupError)throw pilotLookupError;if(!existingPilotLink){const {error:linkError}=await admin.from('pilot_participants').insert({pilot_id:pilotId,participant_id:participant.id,status:'ACTIVE'});if(linkError)throw linkError}}
-  return new Response(JSON.stringify({ok:true,participant,linkedExisting}),{status:200,headers})
+
+  // N3 must end in a real participant action, not merely an account link. Reuse any open
+  // participant_via_start task so repeated admin operations cannot create duplicate starts.
+  let startTask:any=null
+  const {data:existingStart,error:startLookupError}=await admin.from('tasks').select('id,status,due_at').eq('participant_id',participant.id).eq('assignee_user_id',targetUserId).eq('workflow_key','participant_via_start').in('status',['OPEN','IN_PROGRESS','WAITING']).order('created_at',{ascending:false}).limit(1).maybeSingle()
+  if(startLookupError)throw startLookupError
+  if(existingStart)startTask=existingStart
+  else{
+   const {data:createdStart,error:startError}=await admin.from('tasks').insert({organization_id:org.id,participant_id:participant.id,title:'Min VÍA – start her',description:'Start med VÍA-veikartet: retning, ressurser og det som må avklares før neste beslutning.',status:'OPEN',assignee_user_id:targetUserId,due_at:new Date(Date.now()+3*86400000).toISOString(),priority:3,severity:'GREEN',task_type:'WORKFLOW',created_by:userData.user.id,audience:'PARTICIPANT',workflow_key:'participant_via_start',source_type:'participant_account',source_id:participant.id}).select('id,status,due_at').single()
+   if(startError)throw startError
+   startTask=createdStart
+   await admin.from('notifications').insert({user_id:targetUserId,task_id:createdStart.id,kind:'TASK',title:'Din VÍA er klar',safe_preview:'Du har et nytt steg i AidMe VIDA.'})
+   await admin.from('workflow_events').insert({organization_id:org.id,participant_id:participant.id,actor_user_id:userData.user.id,event_type:'PARTICIPANT_VIA_START_READY',from_stage:'VIA',to_stage:'VIA',source_type:'task',source_id:createdStart.id,metadata:{account_linked:true}})
+  }
+
+  return new Response(JSON.stringify({ok:true,participant,linkedExisting,startTask}),{status:200,headers})
  }catch(error){console.error(error);return new Response(JSON.stringify({error:'CREATE_PARTICIPANT_FAILED'}),{status:500,headers})}
 })
