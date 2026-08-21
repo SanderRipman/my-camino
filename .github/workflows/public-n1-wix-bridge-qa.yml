@@ -16,10 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Syntax and pinned-source checks
+      - name: Syntax, pinned-source and fail-safe checks
         shell: bash
         run: |
           set -euo pipefail
+          test ! -e ops/wix/aidme-public-n1-live-first-override.js
           node --check ops/wix/aidme-public-n1-desktop-bridge.js
           node --check ops/wix/aidme-public-n1-mobile-shell.js
           DESKTOP_PIN="$(sed -nE "s/^const AIDME_N1_COMMIT = '([0-9a-f]{40})';$/\1/p" ops/wix/aidme-public-n1-desktop-bridge.js)"
@@ -30,6 +31,9 @@ jobs:
           grep -q "enabled: false" /tmp/n1-intake-safe.js
           grep -q "Digital interessehenvendelse åpnes snart" /tmp/n1-intake-safe.js
           grep -q "legacy Wix remains visible" ops/wix/aidme-public-n1-mobile-shell.js
+          grep -q "if(!Number.isFinite(height)||height<1200||height>MAX_HEIGHT)return false" ops/wix/aidme-public-n1-mobile-shell.js
+          grep -q "if(!text.includes('Portugal → Spania'))return 0" ops/wix/aidme-public-n1-mobile-shell.js
+          ! grep -R -q "live-first-provisional" ops/wix
       - name: Render both bridges together with external pinned Git source
         shell: bash
         run: |
@@ -64,10 +68,12 @@ jobs:
           timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage --window-size=500,1000 --virtual-time-budget=12000 --dump-dom http://127.0.0.1:8771/mobile.html > qa-wix/mobile-dom.html || test -s qa-wix/mobile-dom.html
           grep -q 'id="aidme-public-git-shell"' qa-wix/mobile-dom.html
           grep -q 'data-state="active"' qa-wix/mobile-dom.html
+          grep -q 'data-preflight="ok"' qa-wix/mobile-dom.html
           grep -q 'data-aidme-legacy-hidden="1"' qa-wix/mobile-dom.html
           grep -q "data-aidme-n1-commit=\"${PIN}\"" qa-wix/mobile-dom.html
           grep -q 'Portugal → Spania' qa-wix/mobile-dom.html
           grep -q 'Digital interessehenvendelse åpnes snart' qa-wix/mobile-dom.html
+          ! grep -q 'live-first-provisional' qa-wix/mobile-dom.html
           ! grep -q '<strong>Preview:</strong>' qa-wix/mobile-dom.html
 
           timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage --window-size=1440,1000 --virtual-time-budget=12000 --dump-dom http://127.0.0.1:8771/desktop.html > qa-wix/desktop-dom.html || test -s qa-wix/desktop-dom.html
