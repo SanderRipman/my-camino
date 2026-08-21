@@ -1,0 +1,114 @@
+/* N1 public journey refinement — 2026-08-21
+   Additive/reversible layer on top of the approved public mobile candidate. */
+
+/* Compact the brand shell without reducing touch targets. */
+.nav-shell{height:64px}
+.brand img{width:42px;height:42px}
+.nav-actions button,.workspace-link{min-height:44px}
+
+.camino-clarifier{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;
+  margin:18px 0 0;padding:12px 14px;border:1px solid rgba(200,164,93,.42);
+  border-radius:14px;background:rgba(255,255,255,.62);color:var(--navy)
+}
+.camino-clarifier strong{font-family:Georgia,serif;font-size:17px;font-weight:500;color:var(--teal)}
+.camino-clarifier span{font-size:13px;line-height:1.45;color:#536166}
+
+.journey-ribbon.n1-three{grid-template-columns:repeat(3,1fr);padding-bottom:8px}
+.n1-safety-foundation{
+  max-width:var(--max);margin:0 auto 18px;padding:0 18px;
+  color:#58666a;font-size:12px;text-align:center;letter-spacing:.01em
+}
+.n1-safety-foundation strong{color:var(--teal)}
+
+.n1-step-verb{
+  display:inline-flex;margin:7px 0 0;padding:4px 9px;border:1px solid rgba(200,164,93,.38);
+  border-radius:999px;color:var(--teal);background:rgba(245,240,230,.72);
+  font-family:Georgia,serif;font-size:14px;font-style:italic
+}
+.step-link{
+  padding:8px 10px;margin-left:-10px;border-radius:10px;background:rgba(27,85,81,.055)
+}
+.step-link:hover{background:rgba(27,85,81,.1)}
+
+.n1-route-facts{display:flex;flex-wrap:wrap;gap:7px;margin:16px 0 10px}
+.n1-route-facts span{padding:7px 10px;border-radius:999px;background:rgba(245,240,230,.12);border:1px solid rgba(255,255,255,.17);font-size:12px}
+.route-shell .n1-route-facts span,.route-intro .n1-route-facts span{background:rgba(255,255,255,.72);border-color:var(--line);color:var(--navy)}
+
+.n1-route-map{
+  margin:22px 0 20px;padding:16px 16px 13px;border-radius:18px;
+  background:linear-gradient(135deg,rgba(245,240,230,.96),rgba(255,255,255,.88));
+  border:1px solid var(--line);overflow:hidden
+}
+.n1-route-map .n1-map-title{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:8px}
+.n1-route-map .n1-map-title strong{color:var(--navy);font-family:Georgia,serif;font-size:17px;font-weight:500}
+.n1-route-map .n1-map-title span{color:#647176;font-size:10px;text-transform:uppercase;letter-spacing:.08em}
+.n1-route-map svg{display:block;width:100%;height:auto}
+.n1-route-map .route-line{fill:none;stroke:var(--gold);stroke-width:5;stroke-linecap:round;stroke-dasharray:9 7;animation:n1-route-walk 18s linear infinite}
+.n1-route-map .route-base{fill:none;stroke:rgba(27,85,81,.2);stroke-width:10;stroke-linecap:round}
+.n1-route-map .route-node{fill:var(--teal);stroke:#fff;stroke-width:4}
+.n1-route-map text{fill:var(--navy);font:700 13px system-ui,sans-serif}
+.n1-route-map .map-sub{font-size:10px;font-weight:500;fill:#697579}
+@keyframes n1-route-walk{to{stroke-dashoffset:-160}}
+
+.n1-arrival-card{
+  max-width:var(--max);margin:-30px auto 58px;padding:0 18px;
+  display:grid;grid-template-columns:1.05fr .95fr;gap:0
+}
+.n1-arrival-card .n1-arrival-photo{min-height:360px;overflow:hidden;border-radius:24px 0 0 24px;box-shadow:var(--soft-shadow)}
+.n1-arrival-card img{width:100%;height:100%;object-fit:cover;display:block}
+.n1-arrival-card .n1-arrival-copy{padding:38px 40px;background:var(--navy);color:#fff;border-radius:0 24px 24px 0;display:flex;flex-direction:column;justify-content:center}
+.n1-arrival-card .n1-arrival-copy h2{margin:7px 0 12px;color:#fff;font-size:clamp(30px,3.2vw,46px)}
+.n1-arrival-card .n1-arrival-copy p{color:#dbe5e2;line-height:1.6}
+.n1-arrival-card .n1-arrival-copy .eyebrow{color:var(--gold)}
+
+.n1-new-via-note{
+  margin:16px 0 0;padding:13px 15px;border-left:3px solid var(--gold);
+  background:rgba(200,164,93,.08);color:#58666a;font-size:13px;line-height:1.55
+}
+
+.n1-interest-wrap{max-width:920px;margin:0 auto 62px;padding:0 18px;scroll-margin-top:84px}
+.n1-interest-card{padding:36px;border-radius:24px;background:rgba(255,255,255,.82);border:1px solid var(--line);box-shadow:var(--soft-shadow)}
+.n1-interest-card h2{margin:7px 0 10px;font-size:clamp(30px,4vw,46px)}
+.n1-interest-card .lead{margin-bottom:22px}
+.n1-interest-form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.n1-field{display:grid;gap:6px}
+.n1-field.full{grid-column:1/-1}
+.n1-field label{font-size:13px;font-weight:800;color:var(--navy)}
+.n1-field input,.n1-field select,.n1-field textarea{
+  width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid #cfd6d2;border-radius:12px;
+  background:#fff;color:var(--navy);font:inherit;min-height:46px
+}
+.n1-field textarea{min-height:96px;resize:vertical}
+.n1-field input:focus,.n1-field select:focus,.n1-field textarea:focus{outline:3px solid rgba(200,164,93,.27);border-color:var(--gold)}
+.n1-form-note{grid-column:1/-1;margin:0;padding:11px 12px;border-radius:11px;background:rgba(27,85,81,.06);color:#59666a;font-size:12px;line-height:1.5}
+.n1-form-actions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:2px}
+.n1-form-actions small{color:#697579;line-height:1.45}
+.n1-hp{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
+
+/* More compact route list; the detail remains available without looking like a technical matrix. */
+.stages .section-head{margin-bottom:16px}
+.stage-row{padding:11px 8px}
+
+@media(max-width:650px){
+  .nav-shell{height:58px;padding-inline:12px}
+  .brand img{width:36px;height:36px}
+  .brand b{font-size:14px}.brand small{font-size:10px}
+  .journey-ribbon.n1-three{grid-template-columns:1fr;gap:7px}
+  .journey-ribbon.n1-three div{min-height:50px;padding:10px 13px}
+  .n1-safety-foundation{padding:0 11px;margin-bottom:10px}
+  .camino-clarifier{margin-top:14px;padding:11px 12px}
+  .n1-route-map{padding:12px;margin:17px 0}
+  .n1-route-map text{font-size:12px}.n1-route-map .map-sub{font-size:9px}
+  .n1-arrival-card{grid-template-columns:1fr;margin:-10px auto 44px;padding:0 11px}
+  .n1-arrival-card .n1-arrival-photo{min-height:300px;border-radius:20px 20px 0 0}
+  .n1-arrival-card .n1-arrival-copy{padding:28px 22px;border-radius:0 0 20px 20px}
+  .n1-interest-wrap{padding:0 11px;margin-bottom:48px;scroll-margin-top:70px}
+  .n1-interest-card{padding:27px 20px;border-radius:20px}
+  .n1-interest-form{grid-template-columns:1fr;gap:12px}
+  .n1-field.full,.n1-form-note,.n1-form-actions{grid-column:1}
+  .n1-form-actions .btn{width:100%;justify-content:center}
+  .stage-row{padding:9px 4px}
+}
+
+@media(prefers-reduced-motion:reduce){.n1-route-map .route-line{animation:none}}
