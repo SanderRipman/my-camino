@@ -43,5 +43,7 @@ jobs:
         run: node --check portal/app.js
       - name: Verify clean bundle invariants
         run: node portal/smoke-test.mjs
+      - name: Verify context drilldown invariants
+        run: node portal/context-drilldown-smoke.mjs
       - name: Verify Mini CRM invariants
         run: node portal/crm-smoke.mjs
