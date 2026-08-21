@@ -24,7 +24,6 @@ const FORM_ERROR_TEXT={
 };
 function formError(code){return FORM_ERROR_TEXT[code]||'Skjemaet kunne ikke lagres. Ingen alternativ direkte databasevei ble brukt.'}
 
-const directSave=save;
 save=async function saveThroughCommand(status){
   if(!currentVersion||!contextOk())return;
   const participant=selectedParticipant(),pilot=selectedPilot(),org=orgId();
@@ -49,7 +48,4 @@ save=async function saveThroughCommand(status){
   if(status==='DRAFT')currentDraft={id:submission.id};else currentDraft=null;
   await loadSubmissions();
 };
-
-// Keep a reference only for development diagnostics; normal UI listeners resolve the overridden `save` at click/submit time.
-Object.defineProperty(window,'__aidmeLegacyDirectFormSave',{value:directSave,writable:false,configurable:false,enumerable:false});
 })();
