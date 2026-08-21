@@ -6,6 +6,9 @@ on:
       - '.github/workflows/live-mobile-shell-qa.yml'
       - 'ops/wix/aidme-public-shell.js'
       - 'ops/wix/aidme-public-git-presentation-bridge-v7.js'
+      - 'ops/wix/aidme-public-n1-mobile-shell.js'
+      - 'ops/wix/aidme-public-n1-desktop-bridge.js'
+      - 'ops/wix/aidme-public-n1-live-first-override.js'
 
 permissions:
   contents: read
@@ -15,6 +18,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Enforce fail-safe mobile activation invariant
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e ops/wix/aidme-public-n1-live-first-override.js
+          node --check ops/wix/aidme-public-n1-mobile-shell.js
+          grep -q "legacy Wix remains visible" ops/wix/aidme-public-n1-mobile-shell.js
+          grep -q "if(!Number.isFinite(height)||height<1200||height>MAX_HEIGHT)return false" ops/wix/aidme-public-n1-mobile-shell.js
+          grep -q "if(!doc||!doc.body||!doc.querySelector('main'))return 0" ops/wix/aidme-public-n1-mobile-shell.js
+          grep -q "if(!text.includes('Portugal → Spania'))return 0" ops/wix/aidme-public-n1-mobile-shell.js
+          ! grep -q "live-first-provisional" ops/wix/aidme-public-n1-mobile-shell.js
+          ! grep -R -q "live-first-provisional" ops/wix
       - name: Prove live mobile shell isolation and capture screenshots
         shell: bash
         run: |
@@ -35,8 +50,12 @@ jobs:
           test -n "$root"
           test -n "$frame"
           printf '%s' "$root" | grep -q 'data-state="active"'
+          printf '%s' "$root" | grep -q 'data-preflight="ok"'
           printf '%s' "$root" | grep -q 'data-aidme-top-shell="1"'
           printf '%s' "$frame" | grep -q 'data-aidme-top-shell="1"'
+          ! printf '%s' "$root" | grep -q 'live-first-provisional'
+          grep -q 'data-aidme-legacy-hidden="1"' live-shell-qa/mobile-dom.html
+          grep -q 'Portugal → Spania' live-shell-qa/mobile-dom.html
 
           # The desktop presentation bridge must never bind to the mobile shell.
           ! printf '%s' "$frame" | grep -q 'data-aidme-nav-top'
