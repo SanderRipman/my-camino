@@ -20,7 +20,7 @@ Status: operativ implementerings- og QA-referanse. Faglig autoritet ligger i akt
 |---|---|---|---|---|---|
 | 0. Offentlig interesse | Potensiell deltaker | `Se om dette kan passe for meg` → kort interesse | `info_before_via` / Skjema 00 som informasjonsgrunnlag; `interest_referral` / Skjema 01 når interesse registreres | Mottak/program | Bare dataminimal kontakt og formål. Ingen detaljert helse-/risikokartlegging offentlig. |
 | 1. Mottak/triage | Programleder / VÍA-mottak | Trenger avklaring / Gå videre til VÍA / Anbefal annen vei / Avslutt | `interest_referral` | `manage_intakes` | Interesse ≠ godkjenning. Ikke opprett konto før personen faktisk skal inn i VÍA. |
-| 2. VÍA-start | Deltaker + VÍA-eier | Sikker invitasjon → `Din neste handling` | `info_before_via`, `interest_referral`, `via_roadmap` | VÍA-eier | Egenressurs for deltaker; staff kun innen rolle+scope. Sensitive VÍA-data krever AAL2. |
+| 2. VÍA-start | Deltaker + VÍA-eier | Opprett VÍA én gang → sikker invitasjon kobles til samme reise → `Din neste handling` | `info_before_via`, `interest_referral`, `via_roadmap` | VÍA-eier | Egenressurs for deltaker; staff kun innen rolle+scope. Sensitive VÍA-data krever AAL2. |
 | 3. VÍA-avklaring | Deltaker + VÍA-eier + relevant fagperson | Fyll mangler i små steg → avklaring | `via_roadmap` / Skjema 02 | VÍA-eier | Deltaker kan korrigere egne opplysninger. Intern vurdering skilles fra deltakertekst. |
 | 4. Individuell beslutning | VÍA-eier / relevant fagperson | GO / GO med vilkår / UTSETT / NO-GO nå | `individual_go_no_go` / Skjema 03 | `decide_go` | Ikke scorekort. Vilkår blir oppgaver med eier/frister. Deltakersammendrag skilles fra intern begrunnelse. |
 | 5. Før SER | Deltaker + program/logistikk | Avtale, kontaktvalg, dokumenter, forsikring, VIDA-eier, praktisk beredskap | `participant_agreement` / Skjema 04 + `pilot_go` / Skjema 05 | Program/pilot-GO | Samlet SER/pilot-GO er egen gate etter individuell beslutning. |
@@ -117,7 +117,7 @@ Mini CRM kan inneholde relasjonsminne om partner, finansiør, offentlig/NAV/komm
 
 ## P0/P1 før ekte persondata åpnes bredere
 
-1. `portal/intake.js` bruker Edge Function `intake-command`, men kildekoden er per 2026-08-21 ikke funnet under `supabase/functions/` i Git. Live-kilde/deploy må bringes under gjenopprettbar kontroll før backend endres.
+1. **LUKKET 2026-08-22:** `intake-command` er gjenopprettet fra aktiv Supabase-deploy til `supabase/functions/intake-command/` i Git og er igjen under gjenopprettbar kildekontroll. N2→N3-kjeden har i tillegg fått versjonskontrollert `admin-create-participant`. En bredere Supabase↔Git source-parity-audit gjenstår som teknisk hygiene, men blokkerer ikke denne brukerreisen.
 2. `form-runner.js` skriver i dag til `form_submissions` fra nettleserklienten. Selv med RLS/AAL2 må dette eksplisitt verifiseres mot regelen om autoriserte serverkommandoer, audit og minst mulig write-surface før ekte sensitive skjema åpnes.
 3. Offentlig `public-intake` forblir fail-closed til CAPTCHA/Turnstile, rate-limit, origin, personverntekst og dataminimering er verifisert samlet.
 4. Alle sensitive rollebaner skal gjennom positiv + negativ scope-test, AAL1/AAL2, direkte URL/API-bypass, audit og utløp/tilbakekalling.

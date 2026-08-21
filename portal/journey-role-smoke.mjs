@@ -7,6 +7,7 @@ const journey=read('./USER_JOURNEY.md');
 const e2e=read('./END_TO_END_ROLE_JOURNEY.md');
 const intakeHtml=read('./intake.html');
 const intakeJs=read('./intake.js');
+const participantJs=read('./app-participant.js');
 const roleMatrix=read('./ROLE_SCOPE_QA_MATRIX.md');
 const qaHtml=read('./qa-role-pack.html');
 const qaJs=read('./qa-role-pack.js');
@@ -14,6 +15,7 @@ const formJs=read('./form-runner.js');
 const crmJs=read('./crm.js');
 const publicN1=read('../public-site/current/n1-ux.js');
 const qaFunction=read('../supabase/functions/qa-create-role-pack/index.ts');
+const intakeFunction=read('../supabase/functions/intake-command/index.ts');
 
 // Public N1: exactly three stages; safety is cross-cutting, not stage 4.
 assert(publicN1.includes("items[3].remove()"),'N1 must remove the fourth journey-ribbon item');
@@ -30,7 +32,17 @@ assert(intakeJs.includes("get('n2qa')==='1'"),'N2 must retain explicit synthetic
 assert(intakeHtml.includes('ingen data lagres'),'N2 must tell the tester that QA data is not persisted');
 assert(intakeJs.includes("client.functions.invoke('intake-command'"),'N2 must use the authorized intake command');
 assert(!intakeJs.includes("client.from('intakes')"),'N2 must not fall back to direct intake-table access');
-assert(e2e.includes('intake-command')&&e2e.includes('ikke funnet'),'Recoverability gap for intake-command must stay visible until closed');
+assert(intakeFunction.includes("action==='CONVERT_TO_VIA'")&&intakeFunction.includes('manage_intakes'),'Recovered intake-command source must remain version-controlled and authorization-aware');
+assert(e2e.includes('intake-command')&&e2e.includes('gjenopprettet'),'End-to-end journey must record the closed intake-command recovery item');
+
+// Participant-first N3: same secure portal, different mental model. Internal staff labels must not leak into the participant journey.
+assert(participantJs.includes('ownParticipant()'),'Participant layer must anchor to the authenticated participant journey');
+assert(participantJs.includes("return new Set(['info_before_via','via_roadmap','participant_agreement'])"),'VÍA participant must see only relevant participant-facing forms');
+assert(participantJs.includes("$('#dayStatus')?.closest('label')")&&participantJs.includes("classList.add('hidden')"),'Participant must not be asked to set internal RAG day status');
+assert(participantJs.includes("$('#showAverage')")&&participantJs.includes("analysisParticipants")&&participantJs.includes("classList.add('hidden')"),'Participant analysis must not expose staff/group comparison controls');
+for(const text of ['Mine åpne steg','Viktig nå','Min fase','Din neste handling','Dine steg og skjemaer'])assert(participantJs.includes(text),`Participant-first copy missing: ${text}`);
+assert(!participantJs.includes("'Kritisk'"),'Participant-first layer must not label own tasks with internal critical wording');
+assert(participantJs.includes("if(isStaff())return staffRenderParticipants()"),'Staff participant workspace must remain unchanged by participant-first layer');
 
 // Canonical forms must be represented in the portal and holistic journey.
 const formKeys=['info_before_via','interest_referral','via_roadmap','individual_go_no_go','participant_agreement','pilot_go','ser_daily','incident','vida_plan','pilot_evaluation'];

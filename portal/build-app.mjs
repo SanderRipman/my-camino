@@ -9,6 +9,7 @@ const uxPath=path.join(dir,'app-ux.js');
 const onboardingPath=path.join(dir,'app-onboarding.js');
 const mobilePath=path.join(dir,'app-mobile.js');
 const contextPath=path.join(dir,'app-context.js');
+const participantPath=path.join(dir,'app-participant.js');
 const outPath=path.join(dir,'app.js');
 let code=fs.readFileSync(sourcePath,'utf8');
 const ops=fs.readFileSync(opsPath,'utf8');
@@ -16,6 +17,7 @@ const ux=fs.readFileSync(uxPath,'utf8');
 const onboarding=fs.readFileSync(onboardingPath,'utf8');
 const mobile=fs.readFileSync(mobilePath,'utf8');
 const context=fs.readFileSync(contextPath,'utf8');
+const participant=fs.readFileSync(participantPath,'utf8');
 
 function replaceOnce(label,needle,replacement){
  const first=code.indexOf(needle);if(first<0)throw new Error(`${label}: source pattern missing`);if(code.indexOf(needle,first+1)>=0)throw new Error(`${label}: source pattern is not unique`);code=code.replace(needle,replacement);
@@ -59,5 +61,6 @@ code += '\n\n/* UX/auth/mobile hardening is maintained separately and concatenat
 code += '\n\n/* Role onboarding navigation is maintained separately. */\n'+onboarding+'\n';
 code += '\n\n/* Mobile parity and navigation behavior are maintained separately. */\n'+mobile+'\n';
 code += '\n\n/* Role-aware context drill-down / action resolver is concatenated last so it wraps the final task dialog behavior. */\n'+context+'\n';
+code += '\n\n/* Participant-first presentation is concatenated last so it can soften staff language without weakening authorization. */\n'+participant+'\n';
 fs.writeFileSync(outPath,code,'utf8');
 console.log(`Built ${path.relative(process.cwd(),outPath)} (${code.length} bytes)`);
