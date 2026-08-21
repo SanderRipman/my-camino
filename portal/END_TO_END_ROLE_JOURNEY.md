@@ -118,7 +118,7 @@ Mini CRM kan inneholde relasjonsminne om partner, finansiør, offentlig/NAV/komm
 ## P0/P1 før ekte persondata åpnes bredere
 
 1. **LUKKET 2026-08-22:** `intake-command` er gjenopprettet fra aktiv Supabase-deploy til `supabase/functions/intake-command/` i Git og er igjen under gjenopprettbar kildekontroll. N2→N3-kjeden har i tillegg fått versjonskontrollert `admin-create-participant`. En bredere Supabase↔Git source-parity-audit gjenstår som teknisk hygiene, men blokkerer ikke denne brukerreisen.
-2. `form-runner.js` skriver i dag til `form_submissions` fra nettleserklienten. Selv med RLS/AAL2 må dette eksplisitt verifiseres mot regelen om autoriserte serverkommandoer, audit og minst mulig write-surface før ekte sensitive skjema åpnes.
+2. **MITIGERT 2026-08-22:** Portalens lagre-/fullfør-handling går via `form-command`, som bruker innlogget brukers JWT og dermed bevarer eksisterende AAL2, RLS, `auth.uid()`, payloadvalidering, formelle GO-gater, samtykkeflyt, VIDA-synk og databaseaudit. Skjemakontekst og fullførte innsendinger er immutabile i kommandolaget, og egne utkast gjenbrukes for å unngå duplikater. Direkte PostgREST-skrivetillatelse på tabellen beholdes foreløpig som RLS-beskyttet reserve/kompatibilitet og skal vurderes for eksplisitt revoke før ekte sensitive data åpnes bredt; kommandolaget bruker ikke service-role og svekker derfor ikke databasenormen.
 3. Offentlig `public-intake` forblir fail-closed til CAPTCHA/Turnstile, rate-limit, origin, personverntekst og dataminimering er verifisert samlet.
 4. Alle sensitive rollebaner skal gjennom positiv + negativ scope-test, AAL1/AAL2, direkte URL/API-bypass, audit og utløp/tilbakekalling.
 
