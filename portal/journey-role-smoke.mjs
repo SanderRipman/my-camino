@@ -12,10 +12,12 @@ const roleMatrix=read('./ROLE_SCOPE_QA_MATRIX.md');
 const qaHtml=read('./qa-role-pack.html');
 const qaJs=read('./qa-role-pack.js');
 const formJs=read('./form-runner.js');
+const formCommandClient=read('./form-command-client.js');
 const crmJs=read('./crm.js');
 const publicN1=read('../public-site/current/n1-ux.js');
 const qaFunction=read('../supabase/functions/qa-create-role-pack/index.ts');
 const intakeFunction=read('../supabase/functions/intake-command/index.ts');
+const formCommand=read('../supabase/functions/form-command/index.ts');
 
 // Public N1: exactly three stages; safety is cross-cutting, not stage 4.
 assert(publicN1.includes("items[3].remove()"),'N1 must remove the fourth journey-ribbon item');
@@ -39,7 +41,7 @@ assert(e2e.includes('intake-command')&&e2e.includes('gjenopprettet'),'End-to-end
 assert(participantJs.includes('ownParticipant()'),'Participant layer must anchor to the authenticated participant journey');
 assert(participantJs.includes("return new Set(['info_before_via','via_roadmap','participant_agreement'])"),'VÍA participant must see only relevant participant-facing forms');
 assert(participantJs.includes("$('#dayStatus')?.closest('label')")&&participantJs.includes("classList.add('hidden')"),'Participant must not be asked to set internal RAG day status');
-assert(participantJs.includes("$('#showAverage')")&&participantJs.includes("analysisParticipants")&&participantJs.includes("classList.add('hidden')"),'Participant analysis must not expose staff/group comparison controls');
+assert(participantJs.includes("$('#showAverage')")&&participantJs.includes('analysisParticipants')&&participantJs.includes("classList.add('hidden')"),'Participant analysis must not expose staff/group comparison controls');
 for(const text of ['Mine åpne steg','Viktig nå','Min fase','Din neste handling','Dine steg og skjemaer'])assert(participantJs.includes(text),`Participant-first copy missing: ${text}`);
 assert(!participantJs.includes("'Kritisk'"),'Participant-first layer must not label own tasks with internal critical wording');
 assert(participantJs.includes("if(isStaff())return staffRenderParticipants()"),'Staff participant workspace must remain unchanged by participant-first layer');
@@ -50,6 +52,16 @@ for(const key of formKeys){
   assert(formJs.includes(key),`Form runner missing canonical key: ${key}`);
   assert(e2e.includes(key),`End-to-end journey missing canonical key: ${key}`);
 }
+
+// Form writes: application path goes through a caller-JWT command while DB RLS/triggers remain authoritative.
+assert(formCommandClient.includes("client.functions.invoke('form-command'"),'Form runner must route writes through form-command');
+assert(formCommandClient.includes('submissionId:currentDraft?.id'),'Form command client must preserve draft identity');
+assert(formCommand.includes("claims(token).aal!=='aal2'"),'Form command must require AAL2');
+assert(formCommand.includes("userClient.from('form_submissions')"),'Form command must write with caller JWT so RLS/auth.uid()/audit remain active');
+assert(!formCommand.includes('SUPABASE_SECRET_KEYS')&&!formCommand.includes('service_role'),'Form command must not bypass RLS with service credentials');
+assert(formCommand.includes('CONTEXT_IMMUTABLE')&&formCommand.includes('SUBMISSION_IMMUTABLE'),'Form command must lock context and completed submissions');
+assert(formCommand.includes("eq('submitted_by',userData.user.id)")&&formCommand.includes("eq('status','DRAFT')"),'Form command must reuse only caller-owned drafts');
+assert(e2e.includes('form-command')&&e2e.includes('RLS'),'End-to-end journey must document the RLS-preserving form command');
 
 // Role model and negative rights boundaries.
 const roles=['system_admin','project_owner','program_lead','via_owner','clinical_professional','ser_lead','vida_owner','logistics','observer','evaluator','break_glass'];
@@ -77,9 +89,5 @@ assert(qaHtml.includes('Systemadministrator')&&qaHtml.includes('Break-glass'),'Q
 assert(crmJs.includes('crm_contacts'),'Mini CRM must use crm_contacts');
 assert(!crmJs.includes("client.from('participants')"),'Mini CRM must not become a participant registry');
 assert(e2e.includes('Mini CRM')&&e2e.includes('parallelt deltakerregister'),'End-to-end journey must document CRM boundary');
-
-// Form write surface is intentionally visible as a real-data gate until backend policy is verified.
-assert(formJs.includes("client.from('form_submissions')"),'Form write-surface changed; re-review the documented P0/P1 gate');
-assert(e2e.includes('form_submissions')&&e2e.includes('autoriserte serverkommandoer'),'Direct form write must remain explicitly tracked as a security review item');
 
 console.log('Holistic journey/role QA invariants passed');
