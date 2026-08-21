@@ -6,19 +6,25 @@
 <link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./admin.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-.qa-wrap{max-width:1180px;margin:0 auto;padding:28px}.qa-actions{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}.qa-table{width:100%;border-collapse:collapse}.qa-table th,.qa-table td{text-align:left;padding:12px;border-bottom:1px solid #ddd6c8;vertical-align:top}.qa-table code{font-size:12px;word-break:break-all}.qa-note{background:#fff8df;border:1px solid #e7d69e;border-radius:16px;padding:16px;margin:16px 0}.copy-btn{font:inherit;border:1px solid #d9d2c4;background:white;border-radius:999px;padding:6px 10px;cursor:pointer}.danger-soft{border:1px solid #c98f8f;color:#7c2929;background:#fff7f7;border-radius:999px;padding:12px 18px;font-weight:700;cursor:pointer}@media(max-width:760px){.qa-wrap{padding:14px}.qa-table,.qa-table thead,.qa-table tbody,.qa-table tr,.qa-table th,.qa-table td{display:block}.qa-table thead{display:none}.qa-table tr{padding:12px 0;border-bottom:1px solid #d9d2c4}.qa-table td{border:0;padding:5px 0}.qa-table td:before{content:attr(data-label);display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#6c777a}}
+.qa-wrap{max-width:1180px;margin:0 auto;padding:28px}.qa-actions{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}.qa-table{width:100%;border-collapse:collapse}.qa-table th,.qa-table td{text-align:left;padding:12px;border-bottom:1px solid #ddd6c8;vertical-align:top}.qa-table code{font-size:12px;word-break:break-all}.qa-note{background:#fff8df;border:1px solid #e7d69e;border-radius:16px;padding:16px;margin:16px 0}.qa-map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}.qa-map div{border:1px solid #ddd6c8;border-radius:14px;padding:12px;background:#fff}.qa-map b{display:block;margin-bottom:4px}.qa-map span{font-size:13px;color:#5f6f71}.copy-btn{font:inherit;border:1px solid #d9d2c4;background:white;border-radius:999px;padding:6px 10px;cursor:pointer}.danger-soft{border:1px solid #c98f8f;color:#7c2929;background:#fff7f7;border-radius:999px;padding:12px 18px;font-weight:700;cursor:pointer}@media(max-width:760px){.qa-wrap{padding:14px}.qa-map{grid-template-columns:1fr}.qa-table,.qa-table thead,.qa-table tbody,.qa-table tr,.qa-table th,.qa-table td{display:block}.qa-table thead{display:none}.qa-table tr{padding:12px 0;border-bottom:1px solid #d9d2c4}.qa-table td{border:0;padding:5px 0}.qa-table td:before{content:attr(data-label);display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#6c777a}}
 </style>
 </head>
 <body>
 <main class="qa-wrap">
   <header class="topbar"><div><p class="eyebrow">LAB · kun syntetiske data</p><h1>Rolle- og scope-QA</h1></div><div class="top-actions"><span id="securityPill" class="security-pill">Kontrollerer…</span><a class="ghost" href="./admin.html">Administrasjon</a><a class="ghost" href="./">Portal</a></div></header>
-  <article class="preview-strip"><strong>Formål:</strong> Opprett tidsbegrensede, fiktive testkontoer slik at hver rolle kan prøves med ekte RLS – ikke bare en visuell simulering.</article>
+  <article class="preview-strip"><strong>Formål:</strong> Test den samme reisen som faktiske roller med ekte RLS og AAL2 – ikke bare visuell simulering. Trygghet følger VÍA, SER og VIDA; det er et fundament, ikke et fjerde steg.</article>
   <article id="blocked" class="panel-card warning-card hidden"><h2>Rolle-QA er låst</h2><p id="blockedText"></p></article>
   <section id="workspace" class="hidden">
     <article class="panel-card">
       <p class="eyebrow">Syntetisk testpakke</p><h2>Test portalen som faktiske roller</h2>
       <p>Knappen oppretter eller fornyer fiktive <code>@example.invalid</code>-kontoer. Staff-grants varer i 36 timer. Hver konto må sette opp sin egen Authenticator før sensitive AAL2-flater kan åpnes.</p>
       <div class="qa-note"><strong>Ingen reelle data.</strong> Kontoene er kun koblet til eksisterende DEMO-deltakere/pilot. Passordene vises bare i denne responsen og lagres ikke i portalen.</div>
+      <div class="qa-map" aria-label="Roller i syntetisk testpakke">
+        <div><b>Deltaker + VÍA</b><span>Deltaker · VÍA-ansvarlig · relevant fagperson</span></div>
+        <div><b>SER + beredskap</b><span>SER-/turleder · logistikk · programleder</span></div>
+        <div><b>VIDA + styring</b><span>VIDA-eier · prosjekteier · observatør · evaluator</span></div>
+      </div>
+      <p><strong>Systemadministrator</strong> testes med den eksisterende eier/admin-kontoen. <strong>Break-glass</strong> opprettes ikke som rutinekonto; nødtilgang skal være særskilt, tidsavgrenset, begrunnet og auditert.</p>
       <div class="qa-actions"><button id="createPack" class="primary">Opprett / forny rollepakke</button><button id="hideCredentials" class="ghost hidden">Skjul passord</button><button id="cleanupPack" class="danger-soft">Deaktiver testkontoer</button></div>
       <p id="message" class="message" aria-live="polite"></p>
     </article>
@@ -27,7 +33,7 @@
       <p>Test først AAL1-begrensningen, sett deretter opp MFA og test AAL2. Kontroller også at direkte URL til en forbudt modul fortsatt avvises.</p>
       <div style="overflow:auto"><table class="qa-table"><thead><tr><th>Rolle</th><th>Scope</th><th>E-post</th><th>Midlertidig passord</th><th>Utløp</th></tr></thead><tbody id="accounts"></tbody></table></div>
     </article>
-    <article class="panel-card"><p class="eyebrow">Testrekkefølge</p><h2>Positiv + negativ tilgang</h2><ol><li>Logg inn som rollen og se hva som faktisk vises.</li><li>Forsøk riktig in-scope deltaker/pilot.</li><li>Forsøk en out-of-scope deltaker eller direkte URL.</li><li>Test før og etter MFA.</li><li>Følg KPI → kø → oppgave → deltaker → gate/skjema → tilbake.</li><li>Noter alt som føles ulogisk selv om sikkerheten teknisk er korrekt.</li></ol></article>
+    <article class="panel-card"><p class="eyebrow">Testrekkefølge</p><h2>Reise + positiv og negativ tilgang</h2><ol><li>Start med rollen slik den faktisk møter portalen: én tydelig neste handling, ikke dokumentmenyen.</li><li>Følg N1→N2-handoff: interesse → mottak/triage → VÍA, uten å anta at interesse betyr godkjenning.</li><li>Test riktig in-scope deltaker/pilot og følg indikator → kø → oppgave → kontekstfelt → eier/rute → riktig gate/skjema → tilbake.</li><li>Forsøk en out-of-scope deltaker eller direkte URL og kontroller at låst tilgang ikke lekker informasjon eller blir blindvei.</li><li>Test før og etter MFA/AAL2.</li><li>Kontroller at formelle beslutninger går via riktig skjema/gate og ikke gjennom tilfeldig feltredigering.</li><li>Kontroller SER fra mobilperspektiv: dagens etappe, kort innsjekk, pause/tilpasning og operativt minimum.</li><li>Kontroller SER→VIDA: navngitt VIDA-eier, første handling innen 72 timer og én levende 14/30/90-plan.</li><li>Noter alt som føles ulogisk selv om sikkerheten teknisk er korrekt.</li></ol></article>
   </section>
 </main>
 <script src="./qa-role-pack.js"></script>
