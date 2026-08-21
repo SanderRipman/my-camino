@@ -1,0 +1,40 @@
+name: Public N1 UX Smoke
+
+on:
+  pull_request:
+    paths:
+      - 'public-site/current/**'
+      - '.github/workflows/public-n1-ux-smoke.yml'
+  workflow_dispatch:
+
+jobs:
+  n1-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Syntax check
+        run: node --check public-site/current/n1-ux.js && node --check public-site/current/site.js
+      - name: N1 invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f public-site/current/n1-ux.css
+          test -f public-site/current/forms.html
+          test -f public-site/current/takk.html
+          grep -q 'Portugal → Spania' public-site/current/n1-ux.js
+          grep -q 'Tre steg er hele løpet' public-site/current/n1-ux.js
+          grep -q 'Se om dette kan passe for meg' public-site/current/n1-ux.js
+          grep -q 'data-netlify="true"' public-site/current/forms.html
+          grep -q 'netlify-honeypot' public-site/current/n1-ux.js
+          grep -q 'Ikke skriv helseopplysninger' public-site/current/n1-ux.js
+          ! grep -Eqi 'diagnose|fødselsnummer|personnummer|medisin(er)?' public-site/current/forms.html
+          grep -q 'n1-ux.js' public-site/current/site.js
+      - name: Three-stage public narrative guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'VÍA → SER → VIDA' public-site/current/site.js
+          ! grep -q 'STEG 4' public-site/current/n1-ux.js
