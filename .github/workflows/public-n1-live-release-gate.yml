@@ -38,7 +38,7 @@ jobs:
           printf '%s' "$root" | grep -q 'data-state="active"'
           printf '%s' "$root" | grep -q "data-aidme-n1-commit=\"${PIN}\""
           printf '%s' "$root" | grep -q 'data-preflight="ok"'
-          printf '%s' "$root" | grep -Eq 'data-activation="(post-message|srcdoc-load|srcdoc-load-delayed|srcdoc-load-delayed-2)"'
+          printf '%s' "$root" | grep -Eq 'data-activation="(post-message|srcdoc-load|srcdoc-load-delayed|srcdoc-load-delayed-2|live-first-measured|live-first-provisional)"'
           grep -q 'data-aidme-legacy-hidden="1"' live-gate/mobile.html
           grep -q 'Portugal → Spania' live-gate/mobile.html
           ! grep -q '<strong>Preview:</strong>' live-gate/mobile.html
