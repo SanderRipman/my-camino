@@ -6,6 +6,9 @@ on:
       - '.github/workflows/live-mobile-shell-qa.yml'
       - 'ops/wix/aidme-public-shell.js'
       - 'ops/wix/aidme-public-git-presentation-bridge-v7.js'
+      - 'ops/wix/aidme-public-n1-mobile-shell.js'
+      - 'ops/wix/aidme-public-n1-desktop-bridge.js'
+      - 'ops/wix/aidme-public-n1-live-first-override.js'
 
 permissions:
   contents: read
@@ -15,7 +18,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Prove live mobile shell isolation and capture screenshots
+      - name: Enforce fail-safe mobile activation invariant
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e ops/wix/aidme-public-n1-live-first-override.js
+          node --check ops/wix/aidme-public-n1-mobile-shell.js
+          grep -q "legacy Wix remains visible" ops/wix/aidme-public-n1-mobile-shell.js
+          grep -q "if(!Number.isFinite(height)||height<1200||height>MAX_HEIGHT)return false" ops/wix/aidme-public-n1-mobile-shell.js
+          grep -q "if(!doc||!doc.body||!doc.querySelector('main'))return 0" ops/wix/aidme-public-n1-mobile-shell.js
+          grep -q "if(!text.includes('Portugal → Spania'))return 0" ops/wix/aidme-public-n1-mobile-shell.js
+          ! grep -q "live-first-provisional" ops/wix/aidme-public-n1-mobile-shell.js
+          ! grep -R -q "live-first-provisional" ops/wix
+      - name: Prove live mobile shell or safe Wix fallback and capture screenshots
         shell: bash
         run: |
           set -euo pipefail
@@ -34,9 +49,33 @@ jobs:
           echo "FRAME=$frame"
           test -n "$root"
           test -n "$frame"
-          printf '%s' "$root" | grep -q 'data-state="active"'
           printf '%s' "$root" | grep -q 'data-aidme-top-shell="1"'
           printf '%s' "$frame" | grep -q 'data-aidme-top-shell="1"'
+          ! printf '%s' "$root" | grep -q 'live-first-provisional'
+
+          state=$(printf '%s' "$root" | sed -nE 's/.*data-state="([^"]+)".*/\1/p')
+          echo "MOBILE_SHELL_STATE=$state"
+          if [ "$state" = "active" ]; then
+            printf '%s' "$root" | grep -q 'data-preflight="ok"'
+            grep -q 'data-aidme-legacy-hidden="1"' live-shell-qa/mobile-dom.html
+            grep -q 'Portugal → Spania' live-shell-qa/mobile-dom.html
+            host=$(printf '%s' "$root" | grep -o 'data-host-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*')
+            viewport=$(printf '%s' "$root" | grep -o 'data-viewport-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*')
+            height=$(printf '%s' "$root" | grep -o 'data-height="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*')
+            test "$height" -gt 3000
+            delta=$(( host > viewport ? host - viewport : viewport - host ))
+            test "$delta" -le 2
+            printf '%s' "$root" | grep -q "max-height: ${height}px"
+            printf '%s' "$frame" | grep -q "max-height: ${height}px"
+          else
+            # Fail-safe outcome: shell may still be booting/failed in headless Chrome,
+            # but it must remain invisible and must never hide the legacy Wix surface.
+            test "$state" = "booting" -o "$state" = "failed"
+            printf '%s' "$root" | grep -q 'aria-hidden="true"'
+            printf '%s' "$root" | grep -q 'opacity: 0'
+            ! grep -q 'data-aidme-legacy-hidden="1"' live-shell-qa/mobile-dom.html
+            grep -q 'id="SITE_CONTAINER"' live-shell-qa/mobile-dom.html
+          fi
 
           # The desktop presentation bridge must never bind to the mobile shell.
           ! printf '%s' "$frame" | grep -q 'data-aidme-nav-top'
@@ -44,15 +83,6 @@ jobs:
           ! printf '%s' "$root" | grep -q 'max-height: 420px'
           ! printf '%s' "$root" | grep -q -- '--height: 420px'
           ! printf '%s' "$frame" | grep -q 'max-height: 420px'
-
-          host=$(printf '%s' "$root" | grep -o 'data-host-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*')
-          viewport=$(printf '%s' "$root" | grep -o 'data-viewport-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*')
-          height=$(printf '%s' "$root" | grep -o 'data-height="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*')
-          test "$height" -gt 3000
-          delta=$(( host > viewport ? host - viewport : viewport - host ))
-          test "$delta" -le 2
-          printf '%s' "$root" | grep -q "max-height: ${height}px"
-          printf '%s' "$frame" | grep -q "max-height: ${height}px"
 
           timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
             --window-size=1440,900 --virtual-time-budget=12000 --dump-dom \
