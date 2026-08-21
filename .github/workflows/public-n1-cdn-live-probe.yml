@@ -1,10 +1,12 @@
 name: Public N1 CDN Live Probe
 
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/public-n1-cdn-live-probe.yml'
   workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: 'Immutable Git commit to probe. Leave blank to use the dispatched ref SHA.'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -12,12 +14,15 @@ permissions:
 jobs:
   cdn-probe:
     runs-on: ubuntu-latest
+    env:
+      TARGET_SHA: ${{ inputs.commit_sha || github.sha }}
     steps:
       - name: Verify immutable commit-pinned source and browser runtime
         shell: bash
         run: |
           set -euo pipefail
-          SHA='dd4d67583b1cde88c91a0ea9e58e097b8599a857'
+          SHA="${TARGET_SHA}"
+          test -n "$SHA"
           BASE="https://cdn.jsdelivr.net/gh/SanderRipman/my-camino@${SHA}/public-site/current"
           mkdir -p /tmp/n1cdn
           for file in index.html via.html ser.html vida.html deltakere.html partnere.html ruter.html om.html kontakt.html takk.html site.js n1-ux.js n1-intake-safe.js site.css n1-ux.css; do
