@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>AidMe VIDA · Administrasjon</title>
 <link rel="stylesheet" href="./styles.css">
-<link rel="stylesheet" href="./admin.css">
+<link rel="stylesheet" href="./admin.css?v=20260822a">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -40,6 +40,7 @@
         <article class="panel-card admin-card">
           <p class="eyebrow">1 · Inviter</p><h2>Ny bruker</h2>
           <p>Velg om personen skal inn som deltaker eller medarbeider. En deltaker får kun sin egen reise; medarbeidere får ingen arbeidsrettigheter før en rolle er tildelt.</p>
+          <div id="inviteJourneyContext" class="admin-journey-context hidden"></div>
           <form id="inviteForm" class="admin-form">
             <label><span>Kontotype</span><select id="inviteType"><option value="participant">Deltaker</option><option value="staff">Medarbeider / partner</option></select></label>
             <label><span>E-post</span><input id="inviteEmail" type="email" autocomplete="off" required placeholder="navn@eksempel.no"></label>
@@ -47,7 +48,8 @@
               <label><span>Kodenavn i operativ arbeidsflate</span><input id="inviteCodeName" maxlength="40" placeholder="f.eks. Nordlys-07"><small>Navn/identitet holdes separat. Kodenavnet brukes i operative deltakeroversikter.</small></label>
               <label><span>Pilot / gruppe (valgfritt)</span><select id="invitePilot"><option value="">Ikke tildel ennå</option></select></label>
             </div>
-            <button class="primary" type="submit">Send invitasjon</button>
+            <input id="existingParticipantId" type="hidden">
+            <button id="inviteSubmit" class="primary" type="submit">Send invitasjon</button>
           </form>
           <p id="inviteMessage" class="message" aria-live="polite"></p>
           <input id="targetUserId" type="hidden">
@@ -82,6 +84,6 @@
     </section>
   </main>
 </div>
-<script src="./admin.js"></script><script src="./app-mobile.js"></script>
+<script src="./admin.js?v=20260822a"></script><script src="./app-mobile.js"></script>
 </body>
 </html>

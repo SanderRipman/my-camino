@@ -3,6 +3,8 @@ const SUPABASE_PUBLISHABLE_KEY='sb_publishable_JtNmgzTLlepPhKDCVsn6CA_Vk7BCClv';
 const client=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 let accessData={users:[],participants:[],pilots:[]};
+let handoffApplied=false;
+const N2_HANDOFF=(()=>{const p=new URLSearchParams(location.search);if(p.get('from')!=='n2')return null;return{participantId:clean(p.get('participantId')),email:clean(p.get('email')).toLowerCase()}})();
 const ROLE_INFO={
  project_owner:{title:'Prosjekteier',can:'Konsept, avtaler, økonomi, kvalitetssystem og partner-/forsikringsramme.',limit:'Skal ikke alene gjøre kliniske GO/NO-GO-vurderinger uten riktig kompetanse.'},
  program_lead:{title:'Programleder',can:'Holder sammen VÍA, SER og VIDA, deltakerflyt og kvalitet.',limit:'Skal ikke overstyre faglige sikkerhetsbeslutninger.'},
@@ -34,7 +36,7 @@ async function requireAdmin(){
  $('#adminWorkspace').classList.remove('hidden');await loadAccess();return true;
 }
 async function loadAccess(){
- $('#accessList').innerHTML='<p>Laster brukere og tilgang…</p>';const {data,error}=await client.functions.invoke('admin-list-access',{body:{}});if(error||data?.error){$('#accessList').innerHTML='<p>Kunne ikke hente tilgangsoversikten.</p>';return}accessData=data;fillAdminSelects();renderAccessList();
+ $('#accessList').innerHTML='<p>Laster brukere og tilgang…</p>';const {data,error}=await client.functions.invoke('admin-list-access',{body:{}});if(error||data?.error){$('#accessList').innerHTML='<p>Kunne ikke hente tilgangsoversikten.</p>';return}accessData=data;fillAdminSelects();renderAccessList();applyN2Handoff();
 }
 function fillAdminSelects(){
  const staffUsers=accessData.users.filter(u=>!u.participant);$('#targetUserSelect').innerHTML='<option value="">Velg medarbeider</option>'+staffUsers.map(u=>`<option value="${u.id}">${escapeHtml(u.staff?.full_name||u.email||u.id)}${u.staff?.job_title?` · ${escapeHtml(u.staff.job_title)}`:''}</option>`).join('');
@@ -46,13 +48,23 @@ function renderAccessList(){
  $$('.revoke-access').forEach(b=>b.addEventListener('click',()=>revokeGrant(b.dataset.grantId)));
 }
 function renderRoleInfo(){const code=$('#roleCode').value,info=ROLE_INFO[code];if(!info){$('#roleDescription').innerHTML='<strong>Velg en rolle</strong><p>Her vises hva rollen er ment å gjøre – og hva den ikke skal gjøre alene.</p>';return}$('#roleDescription').innerHTML=`<strong>${escapeHtml(info.title)}</strong><p><b>Kan:</b> ${escapeHtml(info.can)}</p><p><b>Grense:</b> ${escapeHtml(info.limit)}</p>`}
-function toggleInviteFields(){const participant=$('#inviteType').value==='participant';$('#participantInviteFields').classList.toggle('hidden',!participant);$('#inviteCodeName').required=participant}
+function toggleInviteFields(){const participant=$('#inviteType').value==='participant';$('#participantInviteFields').classList.toggle('hidden',!participant);$('#inviteCodeName').required=participant&&!$('#existingParticipantId').value}
+function applyN2Handoff(){
+ if(!N2_HANDOFF||handoffApplied)return;handoffApplied=true;const participant=accessData.participants.find(p=>p.id===N2_HANDOFF.participantId);
+ if(!participant){msg('#inviteMessage','N2-overgangen kunne ikke verifiseres mot en aktiv VÍA-reise. Åpne saken fra Mottak / VÍA på nytt før du inviterer.');history.replaceState(null,'',location.pathname);return}
+ if(String(participant.stage).toUpperCase()!=='VIA'){msg('#inviteMessage',`Denne reisen er nå i ${participant.stage}. Konto kan ikke kobles via N2-overgangen uten ny vurdering.`);history.replaceState(null,'',location.pathname);return}
+ $('#existingParticipantId').value=participant.id;$('#inviteType').value='participant';$('#inviteType').disabled=true;$('#inviteCodeName').value=participant.code_name;$('#inviteCodeName').readOnly=true;$('#inviteEmail').value=N2_HANDOFF.email||'';toggleInviteFields();
+ const ctx=$('#inviteJourneyContext');ctx.innerHTML=`<strong>Fortsetter fra N2 · ${escapeHtml(participant.code_name)}</strong><span>VÍA-reisen finnes allerede. Denne invitasjonen kobler sikker konto til samme reise og gjenbruker tidligere kontaktdata. Det opprettes ikke en ny deltaker.</span>`;ctx.classList.remove('hidden');$('#inviteSubmit').textContent='Send invitasjon og koble VÍA';ctx.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function clearN2Handoff(){
+ $('#existingParticipantId').value='';$('#inviteJourneyContext').classList.add('hidden');$('#inviteJourneyContext').innerHTML='';$('#inviteType').disabled=false;$('#inviteCodeName').readOnly=false;$('#inviteSubmit').textContent='Send invitasjon';history.replaceState(null,'',location.pathname);toggleInviteFields();
+}
 
 $('#inviteForm').addEventListener('submit',async e=>{
- e.preventDefault();const email=clean($('#inviteEmail').value).toLowerCase(),type=$('#inviteType').value,codeName=clean($('#inviteCodeName').value),pilotId=$('#invitePilot').value||null;if(type==='participant'&&codeName.length<3){msg('#inviteMessage','Deltaker trenger et kodenavn på minst 3 tegn.');return}msg('#inviteMessage','Sender sikker invitasjon…');
- const invite=await client.functions.invoke('admin-invite-user',{body:{email}});if(invite.error||invite.data?.error){msg('#inviteMessage',`Invitasjonen feilet: ${invite.data?.error||invite.error?.message||'ukjent feil'}`);return}const userId=invite.data?.userId;if(!userId){msg('#inviteMessage','Invitasjonen ble sendt, men bruker-ID manglet.');return}$('#targetUserId').value=userId;
- if(type==='participant'){msg('#inviteMessage','Invitasjon sendt. Oppretter begrenset deltakerreise…');const create=await client.functions.invoke('admin-create-participant',{body:{targetUserId:userId,codeName,pilotId}});if(create.error||create.data?.error){msg('#inviteMessage',`Invitasjonen ble sendt, men deltakerkoblingen feilet: ${create.data?.error||create.error?.message||'ukjent feil'}`);await loadAccess();return}msg('#inviteMessage',`Deltaker ${codeName} er opprettet med tilgang kun til egen reise.`,true)}else{msg('#inviteMessage','Medarbeider er invitert. Velg arbeidsrolle og omfang i neste felt.',true)}
- $('#inviteForm').reset();toggleInviteFields();await loadAccess();if(type==='staff'){$('#targetUserSelect').value=userId;}
+ e.preventDefault();const email=clean($('#inviteEmail').value).toLowerCase(),type=$('#inviteType').value,codeName=clean($('#inviteCodeName').value),pilotId=$('#invitePilot').value||null,participantId=$('#existingParticipantId').value||null;if(type==='participant'&&!participantId&&codeName.length<3){msg('#inviteMessage','Deltaker trenger et kodenavn på minst 3 tegn.');return}msg('#inviteMessage',participantId?'Sender sikker invitasjon til eksisterende VÍA-reise…':'Sender sikker invitasjon…');
+ const invite=await client.functions.invoke('admin-invite-user',{body:{email}});if(invite.error||invite.data?.error){const code=invite.data?.error||invite.error?.message||'ukjent feil';msg('#inviteMessage',code==='USER_ALREADY_EXISTS'?'Denne e-postadressen har allerede en konto. Ingen deltakerkobling ble endret. Bruk eksisterende konto eller avklar den før ny kobling.':`Invitasjonen feilet: ${code}`);return}const userId=invite.data?.userId;if(!userId){msg('#inviteMessage','Invitasjonen ble sendt, men bruker-ID manglet. Ingen deltakerkobling ble endret.');return}$('#targetUserId').value=userId;
+ if(type==='participant'){msg('#inviteMessage',participantId?'Invitasjon sendt. Kobler kontoen til eksisterende VÍA-reise…':'Invitasjon sendt. Oppretter begrenset deltakerreise…');const create=await client.functions.invoke('admin-create-participant',{body:{targetUserId:userId,participantId,codeName,pilotId}});if(create.error||create.data?.error){msg('#inviteMessage',`Invitasjonen ble sendt, men deltakerkoblingen feilet: ${create.data?.error||create.error?.message||'ukjent feil'}`);await loadAccess();return}msg('#inviteMessage',participantId?`Invitasjon sendt. Kontoen er koblet til VÍA-reisen ${create.data?.participant?.code_name||codeName} – ingen ny deltaker ble opprettet.`:`Deltaker ${codeName} er opprettet med tilgang kun til egen reise.`,true)}else{msg('#inviteMessage','Medarbeider er invitert. Velg arbeidsrolle og omfang i neste felt.',true)}
+ $('#inviteForm').reset();clearN2Handoff();await loadAccess();if(type==='staff'){$('#targetUserSelect').value=userId;}
 });
 
 $('#grantForm').addEventListener('submit',async e=>{
