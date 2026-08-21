@@ -6,6 +6,12 @@
     privacyNoticeVersion: 'aidme-public-interest-v0.1-2026-08-21'
   };
 
+  const params = new URLSearchParams(location.search);
+  const previewMode = !config.enabled && (
+    ['localhost', '127.0.0.1'].includes(location.hostname) ||
+    params.get('previewIntake') === '1'
+  );
+
   const activate = (form) => {
     if (form.dataset.n1SafeBound === '1') return;
     form.dataset.n1SafeBound = '1';
@@ -18,12 +24,34 @@
     form.removeAttribute('method');
     form.querySelector('input[name="form-name"]')?.remove();
 
+    // Public N1 deliberately avoids open free text. Deeper information belongs
+    // after triage/VÍA inside the controlled participant flow.
     const noteField = form.querySelector('textarea[name="interest_note"]')?.closest('.n1-field');
     if (noteField) noteField.remove();
 
     const note = form.querySelector('.n1-form-note');
-    if (note && !config.enabled) {
+    if (note && previewMode) {
       note.insertAdjacentHTML('beforeend', ' <span class="n1-preview-only"><strong>Preview:</strong> skjemaet kan testes, men ingen persondata lagres før den sikre intake-gaten er aktivert.</span>');
+    }
+
+    // On the real public surface, a closed intake gate must look intentional —
+    // not like a broken form and not like a test environment. Do not invite the
+    // participant to type information that cannot yet be received securely.
+    if (!config.enabled && !previewMode) {
+      form.dataset.intakeState = 'closed';
+      form.querySelectorAll('.n1-field').forEach((field) => { field.hidden = true; });
+      if (note) {
+        note.innerHTML = '<strong>Digital interessehenvendelse åpnes snart.</strong> Inntil den sikre mottaksflyten er aktivert kan du kontakte AidMe direkte på e-post. Du trenger ikke sende sensitive eller helserelaterte opplysninger.';
+      }
+      const button = form.querySelector('button[type="submit"]');
+      if (button) {
+        const link = document.createElement('a');
+        link.className = button.className || 'btn teal';
+        link.href = 'mailto:sander@aidme.no?subject=AidMe%20VIDA%20-%20interesse%20som%20deltaker';
+        link.innerHTML = '<span class="lang-no">Kontakt oss på e-post</span><span class="lang-en">Contact us by email</span>';
+        button.replaceWith(link);
+      }
+      return;
     }
 
     let turnstileToken = '';
@@ -103,7 +131,7 @@
     observer.observe(document.documentElement, { childList: true, subtree: true });
   }
 
-  if (new URLSearchParams(location.search).get('preview') === '1' && location.pathname.endsWith('/takk.html')) {
+  if (previewMode && new URLSearchParams(location.search).get('preview') === '1' && location.pathname.endsWith('/takk.html')) {
     const p = document.querySelector('.page-hero-copy p:not(.eyebrow)');
     if (p) p.innerHTML = '<span class="lang-no">Testreisen er fullført. Ingen persondata ble lagret. Når den sikre intake-gaten er aktivert, går samme flyt videre til triage og VÍA.</span><span class="lang-en">The test journey is complete. No personal data was stored. Once the secure intake gate is enabled, the same flow continues to triage and VÍA.</span>';
   }
