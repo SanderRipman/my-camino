@@ -1,11 +1,6 @@
 name: Public N1 Live Release Gate
 
 on:
-  pull_request:
-    paths:
-      - 'ops/wix/aidme-public-n1-*.js'
-      - 'public-site/current/**'
-      - '.github/workflows/public-n1-live-release-gate.yml'
   workflow_dispatch:
 
 permissions:
