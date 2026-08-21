@@ -16,22 +16,39 @@ jobs:
         with:
           node-version: '20'
       - name: Syntax check
-        run: node --check public-site/current/n1-ux.js && node --check public-site/current/site.js
-      - name: N1 invariants
+        run: |
+          node --check public-site/current/n1-ux.js
+          node --check public-site/current/n1-intake-safe.js
+          node --check public-site/current/site.js
+      - name: N1 content and interaction invariants
         shell: bash
         run: |
           set -euo pipefail
           test -f public-site/current/n1-ux.css
-          test -f public-site/current/forms.html
+          test -f public-site/current/n1-ux.js
+          test -f public-site/current/n1-intake-safe.js
           test -f public-site/current/takk.html
+          test ! -f public-site/current/forms.html
           grep -q 'Portugal → Spania' public-site/current/n1-ux.js
           grep -q 'Tre steg er hele løpet' public-site/current/n1-ux.js
           grep -q 'Se om dette kan passe for meg' public-site/current/n1-ux.js
-          grep -q 'data-netlify="true"' public-site/current/forms.html
-          grep -q 'netlify-honeypot' public-site/current/n1-ux.js
-          grep -q 'Ikke skriv helseopplysninger' public-site/current/n1-ux.js
-          ! grep -Eqi 'diagnose|fødselsnummer|personnummer|medisin(er)?' public-site/current/forms.html
+          grep -q 'Målgang, mestring' public-site/current/n1-ux.js
           grep -q 'n1-ux.js' public-site/current/site.js
+          grep -q 'n1-intake-safe.js' public-site/current/kontakt.html
+          grep -q 'n1-intake-safe.js' public-site/current/takk.html
+      - name: Hardened intake gate invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'functions/v1/public-intake' public-site/current/n1-intake-safe.js
+          grep -q 'enabled: false' public-site/current/n1-intake-safe.js
+          grep -q 'turnstile' public-site/current/n1-intake-safe.js
+          grep -q "removeAttribute('data-netlify')" public-site/current/n1-intake-safe.js
+          grep -q 'Ingen persondata lagres' public-site/current/n1-intake-safe.js
+          grep -q 'Ikke skriv helseopplysninger' public-site/current/n1-ux.js
+          ! grep -q 'createClient' public-site/current/n1-intake-safe.js
+          ! grep -q "from('intakes')" public-site/current/n1-intake-safe.js
+          ! grep -R -E 'data-netlify="true"|netlify-honeypot=' public-site/current --include='*.html'
       - name: Three-stage public narrative guard
         shell: bash
         run: |
