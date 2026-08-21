@@ -21,6 +21,14 @@ async function cmd(action,body={}){return client.functions.invoke('intake-comman
 function setWorkspaceMessage(text,type='info'){
   const el=$('#workspaceMessage');if(!el)return;el.textContent=text||'';el.className=`message ${type==='success'?'auth-success':type==='error'?'auth-error':'auth-info'}`;
 }
+function hideHandoff(){const el=$('#n3Handoff');if(!el)return;el.classList.add('hidden');el.innerHTML=''}
+function adminHandoffUrl(participant,intake,codeName){const q=new URLSearchParams({from:'n2',participantId:String(participant?.id||''),codeName:String(participant?.code_name||codeName||''),email:String(intake?.contact_email||'')});return `./admin.html?${q.toString()}`}
+function showHandoff(participant,intake,codeName,{qa=false}={}){
+  const el=$('#n3Handoff');if(!el)return;const label=participant?.code_name||codeName||'VÍA-reisen';
+  if(qa){el.innerHTML=`<div><p class="eyebrow">N3 · Konto og første VÍA-opplevelse</p><h2>Neste steg er tydelig</h2><p>Syretesten viser at <strong>${esc(label)}</strong> går videre til sikker kontoinvitasjon som et eget steg. Ingen konto, e-post eller backenddata opprettes i QA-modus.</p><div class="n3-meta">VÍA er opprettet før konto – SER er fortsatt ikke godkjent.</div></div><div class="n3-actions"><button class="ghost" type="button" id="dismissHandoff">Lukk syretest</button></div>`}
+  else{const href=adminHandoffUrl(participant,intake,codeName);el.innerHTML=`<div><p class="eyebrow">N3 · Konto og første VÍA-opplevelse</p><h2>VÍA er opprettet – inviter personen videre</h2><p><strong>${esc(label)}</strong> er nå en VÍA-reise. Neste separate handling er sikker kontoinvitasjon. Systemadministrator kobler den nye kontoen til denne eksisterende reisen – det skal ikke opprettes en ny deltaker.</p><div class="n3-meta">${intake?.contact_email?`Invitasjonsadresse: ${esc(intake.contact_email)} · `:''}Konto gir bare egen VÍA-reise. SER krever senere egen GO/NO-GO.</div></div><div class="n3-actions"><a class="primary link-btn" href="${esc(href)}">Fortsett til sikker invitasjon</a><button class="ghost" type="button" id="dismissHandoff">Gjør senere</button></div>`}
+  el.classList.remove('hidden');$('#dismissHandoff')?.addEventListener('click',hideHandoff);el.scrollIntoView({behavior:'smooth',block:'nearest'})
+}
 function updateSummary(){
   const open=rows.filter(r=>['NEW','TRIAGE'].includes(r.status));
   $('#countNew').textContent=open.filter(r=>r.status==='NEW').length;
@@ -73,13 +81,13 @@ async function triage(status){
   setWorkspaceMessage(status==='TRIAGE'?'Saken er markert «Trenger avklaring».':`${statusLabel(status)}. Saken er tatt ut av aktiv triage.`,'success');await refresh()
 }
 $('#convertForm').addEventListener('submit',async e=>{
-  e.preventDefault();const codeName=$('#codeName').value.trim();if(!codeName)return;
-  if(QA_MODE){const row=qaRows.find(x=>x.id===selectedId);if(row)row.status='CONVERTED';$('#convertDialog').close();setWorkspaceMessage(`Syretest: VÍA-reise «${codeName}» opprettet lokalt. Ingen konto eller data ble opprettet. Neste logiske steg er sikker VÍA-invitasjon.`,'success');await refresh();return}
+  e.preventDefault();const codeName=$('#codeName').value.trim();if(!codeName)return;const sourceRow=rows.find(x=>x.id===selectedId)||null;
+  if(QA_MODE){const row=qaRows.find(x=>x.id===selectedId);if(row)row.status='CONVERTED';$('#convertDialog').close();setWorkspaceMessage(`Syretest: VÍA-reise «${codeName}» opprettet lokalt. Ingen konto eller data ble opprettet.`,'success');showHandoff({id:'qa-participant',code_name:codeName},sourceRow,codeName,{qa:true});await refresh();return}
   $('#convertMessage').textContent='Oppretter VÍA…';const {data,error}=await cmd('CONVERT_TO_VIA',{intakeId:selectedId,codeName});
   if(error||data?.error){$('#convertMessage').textContent=`Kunne ikke opprette VÍA (${data?.error||'ukjent feil'}).`;return}
-  $('#convertDialog').close();selectedId=null;setWorkspaceMessage(`VÍA-reise «${codeName}» er opprettet. Neste steg er sikker invitasjon når VÍA skal starte; personen er ikke godkjent for SER.`,'success');await refresh()
+  const participant=data.participant||{id:data.participantId,code_name:codeName,stage:'VIA'};$('#convertDialog').close();selectedId=null;setWorkspaceMessage(`VÍA-reise «${participant.code_name||codeName}» er opprettet. Neste steg er sikker invitasjon; personen er ikke godkjent for SER.`,'success');showHandoff(participant,sourceRow,codeName);await refresh()
 });
 $('#refresh').addEventListener('click',refresh);
-$('#resetQa')?.addEventListener('click',()=>{initializeQa();setWorkspaceMessage('Syretesten er nullstilt. Ingen data ble lagret.','success');renderAll()});
+$('#resetQa')?.addEventListener('click',()=>{initializeQa();hideHandoff();setWorkspaceMessage('Syretesten er nullstilt. Ingen data ble lagret.','success');renderAll()});
 client.auth.onAuthStateChange(()=>setTimeout(init,0));
 init();
