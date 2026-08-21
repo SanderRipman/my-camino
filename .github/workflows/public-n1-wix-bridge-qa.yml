@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'ops/wix/aidme-public-n1-*.js'
+      - 'public-site/current/**'
       - '.github/workflows/public-n1-wix-bridge-qa.yml'
   workflow_dispatch:
 
@@ -21,8 +22,13 @@ jobs:
           set -euo pipefail
           node --check ops/wix/aidme-public-n1-desktop-bridge.js
           node --check ops/wix/aidme-public-n1-mobile-shell.js
-          grep -q "dd4d67583b1cde88c91a0ea9e58e097b8599a857" ops/wix/aidme-public-n1-desktop-bridge.js
-          grep -q "dd4d67583b1cde88c91a0ea9e58e097b8599a857" ops/wix/aidme-public-n1-mobile-shell.js
+          DESKTOP_PIN="$(sed -nE "s/^const AIDME_N1_COMMIT = '([0-9a-f]{40})';$/\1/p" ops/wix/aidme-public-n1-desktop-bridge.js)"
+          MOBILE_PIN="$(sed -nE "s/^const AIDME_N1_COMMIT = '([0-9a-f]{40})';$/\1/p" ops/wix/aidme-public-n1-mobile-shell.js)"
+          test -n "$DESKTOP_PIN"
+          test "$DESKTOP_PIN" = "$MOBILE_PIN"
+          curl --fail --silent --show-error "https://raw.githubusercontent.com/SanderRipman/my-camino/${DESKTOP_PIN}/public-site/current/n1-intake-safe.js" -o /tmp/n1-intake-safe.js
+          grep -q "enabled: false" /tmp/n1-intake-safe.js
+          grep -q "Digital interessehenvendelse åpnes snart" /tmp/n1-intake-safe.js
           grep -q "legacy Wix remains visible" ops/wix/aidme-public-n1-mobile-shell.js
       - name: Render both bridges with external pinned Git source
         shell: bash
@@ -31,6 +37,8 @@ jobs:
           CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
           test -n "$CHROME"
           mkdir -p /tmp/n1wix qa-wix
+          PIN="$(sed -nE "s/^const AIDME_N1_COMMIT = '([0-9a-f]{40})';$/\1/p" ops/wix/aidme-public-n1-mobile-shell.js)"
+          test -n "$PIN"
 
           {
             printf '%s\n' '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0"><div id="SITE_CONTAINER">LEGACY-MOBILE</div><script>'
@@ -53,13 +61,16 @@ jobs:
           grep -q 'id="aidme-public-git-shell"' qa-wix/mobile-dom.html
           grep -q 'data-state="active"' qa-wix/mobile-dom.html
           grep -q 'data-aidme-legacy-hidden="1"' qa-wix/mobile-dom.html
-          grep -q 'data-aidme-n1-commit="dd4d67583b1cde88c91a0ea9e58e097b8599a857"' qa-wix/mobile-dom.html
+          grep -q "data-aidme-n1-commit=\"${PIN}\"" qa-wix/mobile-dom.html
           grep -q 'Portugal → Spania' qa-wix/mobile-dom.html
+          grep -q 'Digital interessehenvendelse åpnes snart' qa-wix/mobile-dom.html
+          ! grep -q '<strong>Preview:</strong>' qa-wix/mobile-dom.html
 
           timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage --window-size=1440,1000 --virtual-time-budget=12000 --dump-dom http://127.0.0.1:8771/desktop.html > qa-wix/desktop-dom.html || test -s qa-wix/desktop-dom.html
           grep -q 'data-aidme-git-bridge="1"' qa-wix/desktop-dom.html
-          grep -q 'data-aidme-n1-commit="dd4d67583b1cde88c91a0ea9e58e097b8599a857"' qa-wix/desktop-dom.html
+          grep -q "data-aidme-n1-commit=\"${PIN}\"" qa-wix/desktop-dom.html
           grep -q 'Portugal → Spania' qa-wix/desktop-dom.html
+          grep -q 'Digital interessehenvendelse åpnes snart' qa-wix/desktop-dom.html
 
           timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage --hide-scrollbars --window-size=500,2200 --virtual-time-budget=12000 --screenshot=qa-wix/mobile.png http://127.0.0.1:8771/mobile.html
           timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage --hide-scrollbars --window-size=1440,1800 --virtual-time-budget=12000 --screenshot=qa-wix/desktop.png http://127.0.0.1:8771/desktop.html
