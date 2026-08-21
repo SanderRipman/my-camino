@@ -1,0 +1,44 @@
+name: Public N1 CDN Live Probe
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/public-n1-cdn-live-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cdn-probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify immutable commit-pinned source and browser runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA='dd4d67583b1cde88c91a0ea9e58e097b8599a857'
+          BASE="https://cdn.jsdelivr.net/gh/SanderRipman/my-camino@${SHA}/public-site/current"
+          mkdir -p /tmp/n1cdn
+          for file in index.html via.html ser.html vida.html deltakere.html partnere.html ruter.html om.html kontakt.html takk.html site.js n1-ux.js n1-intake-safe.js site.css n1-ux.css; do
+            curl --fail --silent --show-error --location "${BASE}/${file}" -o "/tmp/n1cdn/${file}"
+            test -s "/tmp/n1cdn/${file}"
+          done
+          grep -q 'Portugal → Spania' /tmp/n1cdn/n1-ux.js
+          grep -q 'Tre steg er hele løpet' /tmp/n1cdn/n1-ux.js
+          grep -q 'enabled: false' /tmp/n1cdn/n1-intake-safe.js
+          curl -sSI "${BASE}/n1-ux.js" | grep -Eqi '^content-type:.*(javascript|text/plain)'
+          curl -sSI "${BASE}/n1-ux.css" | grep -Eqi '^content-type:.*text/css'
+
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME"
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --window-size=390,1000 --virtual-time-budget=8000 --dump-dom "${BASE}/index.html" > /tmp/n1cdn/home.html || test -s /tmp/n1cdn/home.html
+          grep -q 'Camino Portugués · Portugal → Spania' /tmp/n1cdn/home.html
+          grep -q 'Målgang, mestring' /tmp/n1cdn/home.html
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --window-size=390,1000 --virtual-time-budget=8000 --dump-dom "${BASE}/kontakt.html?spor=deltaker&fra=cdn-probe#deltaker-interesse" > /tmp/n1cdn/contact.html || test -s /tmp/n1cdn/contact.html
+          grep -q 'deltaker-interesse' /tmp/n1cdn/contact.html
+          grep -qi 'ingen persondata lagres' /tmp/n1cdn/contact.html
+          ! grep -q 'name="interest_note"' /tmp/n1cdn/contact.html
+          echo "CDN_SOURCE=${BASE}"
