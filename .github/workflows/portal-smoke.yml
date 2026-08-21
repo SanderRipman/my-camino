@@ -7,6 +7,7 @@ on:
       - 'portal/**'
       - 'public-site/current/**'
       - 'supabase/functions/**'
+      - 'supabase/migrations/**'
       - '_redirects'
       - 'netlify.toml'
       - '.github/workflows/portal-smoke.yml'
@@ -15,6 +16,7 @@ on:
       - 'portal/**'
       - 'public-site/current/**'
       - 'supabase/functions/**'
+      - 'supabase/migrations/**'
       - '_redirects'
       - 'netlify.toml'
       - '.github/workflows/portal-smoke.yml'
@@ -86,3 +88,5 @@ jobs:
         run: node portal/crm-smoke.mjs
       - name: Verify holistic journey and role invariants
         run: node portal/journey-role-smoke.mjs
+      - name: Verify VÍA roadmap handoff invariants
+        run: node portal/via-handoff-smoke.mjs
