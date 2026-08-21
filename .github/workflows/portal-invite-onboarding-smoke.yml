@@ -3,9 +3,14 @@ on:
   pull_request:
     paths:
       - 'portal/welcome.*'
+      - 'portal/admin.*'
+      - 'portal/intake.*'
+      - 'portal/intake-n2.css'
       - 'portal/invite-stress-smoke.mjs'
       - 'supabase/functions/admin-invite-user/**'
+      - 'supabase/functions/admin-create-participant/**'
       - 'supabase/functions/account-setup-command/**'
+      - 'supabase/functions/intake-command/**'
       - '.github/workflows/portal-invite-onboarding-smoke.yml'
   workflow_dispatch:
 jobs:
@@ -16,5 +21,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate first-login chain
+      - name: Validate first-login and N2 to N3 chain
         run: node portal/invite-stress-smoke.mjs
