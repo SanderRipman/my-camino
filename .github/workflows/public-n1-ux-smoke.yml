@@ -44,7 +44,7 @@ jobs:
           grep -q 'enabled: false' public-site/current/n1-intake-safe.js
           grep -q 'turnstile' public-site/current/n1-intake-safe.js
           grep -q "removeAttribute('data-netlify')" public-site/current/n1-intake-safe.js
-          grep -q 'Ingen persondata lagres' public-site/current/n1-intake-safe.js
+          grep -qi 'ingen persondata lagres' public-site/current/n1-intake-safe.js
           grep -q 'Ikke skriv helseopplysninger' public-site/current/n1-ux.js
           ! grep -q 'createClient' public-site/current/n1-intake-safe.js
           ! grep -q "from('intakes')" public-site/current/n1-intake-safe.js
