@@ -1,0 +1,31 @@
+name: Public N1 Source Artifact
+
+on:
+  pull_request:
+    paths:
+      - 'public-site/current/**'
+      - '.github/workflows/public-n1-source-artifact.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify N1 release markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f public-site/current/n1-ux.js
+          test -f public-site/current/n1-intake-safe.js
+          grep -q 'Portugal → Spania' public-site/current/n1-ux.js
+          grep -q 'Tre steg er hele løpet' public-site/current/n1-ux.js
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aidme-public-n1-release-source
+          path: public-site/current/
+          if-no-files-found: error
+          retention-days: 3
