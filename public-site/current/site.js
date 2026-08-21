@@ -2,8 +2,9 @@
   const root = document.documentElement;
   const storedLanguage = localStorage.getItem("aidme_public_lang");
   let language = storedLanguage === "en" ? "en" : "no";
+  const shellPresentation = new URLSearchParams(window.location.search).get("aidme-shell") === "1";
 
-  if (window.self !== window.top) {
+  if (window.self !== window.top && !shellPresentation) {
     root.classList.add("is-embedded");
   }
 
@@ -167,4 +168,51 @@
   window.addEventListener("load", reportHeight, { once: true });
 
   applyLanguage();
+})();
+
+/* 2026-08-18 reversible public UX extension. */
+(() => {
+  const style = document.createElement("link");
+  style.rel = "stylesheet";
+  style.href = "mobile-ux.css?v=20260818a";
+  style.dataset.aidmeMobileUx = "1";
+  document.head.appendChild(style);
+
+  // Keep one semantic anchor per phase card. CSS stretches that anchor across
+  // the full card for pointer users, while keyboard/screen-reader users retain
+  // the original link instead of a nested synthetic role=link container.
+  document.querySelectorAll(".step").forEach((card) => {
+    if (card.querySelector("a.step-link")) card.classList.add("has-card-link");
+  });
+
+  const mobileNav = document.querySelector(".mobile-nav");
+  if (mobileNav && !mobileNav.querySelector(".mobile-process-nav")) {
+    const details = document.createElement("details");
+    details.className = "mobile-process-nav";
+    details.innerHTML = `
+      <summary><span class="lang-no">Slik virker det · VÍA → SER → VIDA</span><span class="lang-en">How it works · VÍA → SER → VIDA</span></summary>
+      <div class="mobile-process-links">
+        <a href="via.html"><span class="lang-no">01 · VÍA · Før</span><span class="lang-en">01 · VÍA · Before</span></a>
+        <a href="ser.html"><span class="lang-no">02 · SER · Under</span><span class="lang-en">02 · SER · During</span></a>
+        <a href="vida.html"><span class="lang-no">03 · VIDA · Etter</span><span class="lang-en">03 · VIDA · After</span></a>
+        <a href="ruter.html"><span class="lang-no">Camino · rute og målgang</span><span class="lang-en">Camino · route and arrival</span></a>
+      </div>`;
+    const simpleVia = [...mobileNav.querySelectorAll("a.nav-link")].find((a) => /via\.html$/.test(a.getAttribute("href") || ""));
+    if (simpleVia) simpleVia.hidden = true;
+    mobileNav.prepend(details);
+    details.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => {
+      mobileNav.classList.remove("open");
+      const button = document.querySelector(".menu-toggle");
+      if (button) {
+        button.setAttribute("aria-expanded", "false");
+        button.textContent = "☰";
+      }
+    }));
+  }
+
+  if (window.self !== window.top && !window.location.hash) {
+    window.addEventListener("pageshow", () => {
+      requestAnimationFrame(() => window.scrollTo({ top: 0, left: 0, behavior: "instant" }));
+    }, { once: true });
+  }
 })();

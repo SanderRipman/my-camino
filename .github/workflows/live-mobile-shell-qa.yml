@@ -1,0 +1,77 @@
+name: Live mobile shell QA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/live-mobile-shell-qa.yml'
+      - 'ops/wix/aidme-public-shell.js'
+      - 'ops/wix/aidme-public-git-presentation-bridge-v7.js'
+
+permissions:
+  contents: read
+
+jobs:
+  live-shell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prove live mobile shell isolation and capture screenshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME"
+          mkdir -p live-shell-qa
+          LIVE="https://www.aidme.no/?shellqa=${GITHUB_SHA}"
+
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --window-size=500,900 --virtual-time-budget=18000 --dump-dom \
+            "$LIVE" > live-shell-qa/mobile-dom.html || test -s live-shell-qa/mobile-dom.html
+
+          root=$(grep -o '<div id="aidme-public-git-shell"[^>]*>' live-shell-qa/mobile-dom.html | head -1 || true)
+          frame=$(grep -o '<iframe[^>]*data-aidme-top-shell="1"[^>]*>' live-shell-qa/mobile-dom.html | head -1 || true)
+          echo "ROOT=$root"
+          echo "FRAME=$frame"
+          test -n "$root"
+          test -n "$frame"
+          printf '%s' "$root" | grep -q 'data-state="active"'
+          printf '%s' "$root" | grep -q 'data-aidme-top-shell="1"'
+          printf '%s' "$frame" | grep -q 'data-aidme-top-shell="1"'
+
+          # The desktop presentation bridge must never bind to the mobile shell.
+          ! printf '%s' "$frame" | grep -q 'data-aidme-nav-top'
+          ! printf '%s' "$frame" | grep -q 'data-aidme-git-bridge'
+          ! printf '%s' "$root" | grep -q 'max-height: 420px'
+          ! printf '%s' "$root" | grep -q -- '--height: 420px'
+          ! printf '%s' "$frame" | grep -q 'max-height: 420px'
+
+          host=$(printf '%s' "$root" | grep -o 'data-host-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*')
+          viewport=$(printf '%s' "$root" | grep -o 'data-viewport-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*')
+          height=$(printf '%s' "$root" | grep -o 'data-height="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*')
+          test "$height" -gt 3000
+          delta=$(( host > viewport ? host - viewport : viewport - host ))
+          test "$delta" -le 2
+          printf '%s' "$root" | grep -q "max-height: ${height}px"
+          printf '%s' "$frame" | grep -q "max-height: ${height}px"
+
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --window-size=1440,900 --virtual-time-budget=12000 --dump-dom \
+            "$LIVE" > live-shell-qa/desktop-dom.html || test -s live-shell-qa/desktop-dom.html
+          ! grep -q '<div id="aidme-public-git-shell"' live-shell-qa/desktop-dom.html
+
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --hide-scrollbars --force-device-scale-factor=1 --window-size=500,2200 \
+            --virtual-time-budget=18000 --screenshot=live-shell-qa/live-mobile.png "$LIVE"
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --hide-scrollbars --force-device-scale-factor=1 --window-size=1440,1800 \
+            --virtual-time-budget=15000 --screenshot=live-shell-qa/live-desktop.png "$LIVE"
+          test -s live-shell-qa/live-mobile.png
+          test -s live-shell-qa/live-desktop.png
+          sha256sum live-shell-qa/*.png > live-shell-qa/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aidme-live-mobile-shell-qa
+          path: live-shell-qa/
+          if-no-files-found: error
+          retention-days: 1
