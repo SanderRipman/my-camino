@@ -1,3 +1,4 @@
+(() => {
 'use strict';
 
 const AIDME_N1_COMMIT = 'e6d62240f4c30e4346d447ebcb5506dffe316bf1';
@@ -116,4 +117,5 @@ async function aidmeN1Preflight() {
   });
   function scan() { document.querySelectorAll('iframe').forEach(bind); }
   scan(); new MutationObserver(scan).observe(document.documentElement, { childList: true, subtree: true });
+})();
 })();
