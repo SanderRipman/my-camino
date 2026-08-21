@@ -1,0 +1,74 @@
+name: Public N1 Wix Bridge QA
+
+on:
+  pull_request:
+    paths:
+      - 'ops/wix/aidme-public-n1-*.js'
+      - '.github/workflows/public-n1-wix-bridge-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bridge-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax and pinned-source checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check ops/wix/aidme-public-n1-desktop-bridge.js
+          node --check ops/wix/aidme-public-n1-mobile-shell.js
+          grep -q "dd4d67583b1cde88c91a0ea9e58e097b8599a857" ops/wix/aidme-public-n1-desktop-bridge.js
+          grep -q "dd4d67583b1cde88c91a0ea9e58e097b8599a857" ops/wix/aidme-public-n1-mobile-shell.js
+          grep -q "legacy Wix remains visible" ops/wix/aidme-public-n1-mobile-shell.js
+      - name: Render both bridges with external pinned Git source
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME"
+          mkdir -p /tmp/n1wix qa-wix
+
+          {
+            printf '%s\n' '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0"><div id="SITE_CONTAINER">LEGACY-MOBILE</div><script>'
+            cat ops/wix/aidme-public-n1-mobile-shell.js
+            printf '%s\n' '</script></body></html>'
+          } > /tmp/n1wix/mobile.html
+
+          {
+            printf '%s\n' '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div id="wrap"><iframe src="about:blank" height="6000" style="width:100%"></iframe></div><script>'
+            cat ops/wix/aidme-public-n1-desktop-bridge.js
+            printf '%s\n' '</script></body></html>'
+          } > /tmp/n1wix/desktop.html
+
+          python3 -m http.server 8771 --directory /tmp/n1wix >/tmp/n1wix.log 2>&1 &
+          PID=$!
+          trap 'kill $PID 2>/dev/null || true' EXIT
+          sleep 1
+
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage --window-size=500,1000 --virtual-time-budget=12000 --dump-dom http://127.0.0.1:8771/mobile.html > qa-wix/mobile-dom.html || test -s qa-wix/mobile-dom.html
+          grep -q 'id="aidme-public-git-shell"' qa-wix/mobile-dom.html
+          grep -q 'data-state="active"' qa-wix/mobile-dom.html
+          grep -q 'data-aidme-legacy-hidden="1"' qa-wix/mobile-dom.html
+          grep -q 'data-aidme-n1-commit="dd4d67583b1cde88c91a0ea9e58e097b8599a857"' qa-wix/mobile-dom.html
+          grep -q 'Portugal → Spania' qa-wix/mobile-dom.html
+
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage --window-size=1440,1000 --virtual-time-budget=12000 --dump-dom http://127.0.0.1:8771/desktop.html > qa-wix/desktop-dom.html || test -s qa-wix/desktop-dom.html
+          grep -q 'data-aidme-git-bridge="1"' qa-wix/desktop-dom.html
+          grep -q 'data-aidme-n1-commit="dd4d67583b1cde88c91a0ea9e58e097b8599a857"' qa-wix/desktop-dom.html
+          grep -q 'Portugal → Spania' qa-wix/desktop-dom.html
+
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage --hide-scrollbars --window-size=500,2200 --virtual-time-budget=12000 --screenshot=qa-wix/mobile.png http://127.0.0.1:8771/mobile.html
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage --hide-scrollbars --window-size=1440,1800 --virtual-time-budget=12000 --screenshot=qa-wix/desktop.png http://127.0.0.1:8771/desktop.html
+          test -s qa-wix/mobile.png
+          test -s qa-wix/desktop.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aidme-n1-wix-bridge-qa
+          path: qa-wix/
+          if-no-files-found: error
+          retention-days: 2
