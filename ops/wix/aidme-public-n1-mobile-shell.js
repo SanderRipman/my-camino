@@ -1,3 +1,4 @@
+(() => {
 'use strict';
 
 const AIDME_N1_COMMIT = 'e6d62240f4c30e4346d447ebcb5506dffe316bf1';
@@ -34,4 +35,5 @@ async function aidmeN1Preflight(){await Promise.all(['index.html','kontakt.html'
   window.addEventListener('message',event=>{if(event.source!==frame.contentWindow)return;const data=event.data||{};if(data.type==='aidme-vida:git-nav'){load(String(data.path||currentPath)).catch(err=>console.warn('[AidMe N1 mobile] navigation failed',err));return;}if(data.type!=='aidme-vida:content-height'||!setHeight(data.height))return;root.dataset.path=currentPath;activate();});
   syncWidth();window.addEventListener('resize',syncWidth,{passive:true});window.addEventListener('orientationchange',syncWidth,{passive:true});
   aidmeN1Preflight().then(()=>load('index.html')).catch(error=>{root.dataset.state='failed';console.warn('[AidMe N1 mobile] preflight failed; legacy Wix remains visible.',error);});
+})();
 })();
