@@ -41,7 +41,10 @@ assert(e2e.includes('intake-command')&&e2e.includes('gjenopprettet'),'End-to-end
 
 // Participant-first N3: same secure portal, different mental model. Internal staff labels must not leak into the participant journey.
 assert(participantJs.includes('ownParticipant()'),'Participant layer must anchor to the authenticated participant journey');
-assert(participantJs.includes("return new Set(['info_before_via','via_roadmap','participant_agreement'])"),'VÍA participant must see only relevant participant-facing forms');
+assert(participantJs.includes("return new Set(['info_before_via','via_roadmap'])"),'Pre-decision VÍA participant must see clarification forms, not a premature participant agreement');
+assert(participantJs.includes("if(stage==='GO'||stage==='GO_WITH_CONDITIONS')return new Set(['participant_agreement'])"),'Participant agreement must become relevant only after individual GO / conditional GO');
+assert(participantJs.includes("if(stage==='POSTPONED'||stage==='NO_GO')return new Set()"),'Postponed/NO-GO paths must not expose unrelated forms');
+assert(e2e.includes('| 4. Individuell beslutning')&&e2e.includes('| 5. Før SER'),'End-to-end journey must keep individual decision before agreement/readiness');
 assert(participantJs.includes("$('#dayStatus')?.closest('label')")&&participantJs.includes("classList.add('hidden')"),'Participant must not be asked to set internal RAG day status');
 assert(participantJs.includes("$('#showAverage')")&&participantJs.includes('analysisParticipants')&&participantJs.includes("classList.add('hidden')"),'Participant analysis must not expose staff/group comparison controls');
 for(const text of ['Mine åpne steg','Viktig nå','Min fase','Din neste handling','Dine steg og skjemaer'])assert(participantJs.includes(text),`Participant-first copy missing: ${text}`);
