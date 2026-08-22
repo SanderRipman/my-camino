@@ -1,0 +1,35 @@
+name: Public N1 Feedback Completion
+
+on:
+  pull_request:
+    paths:
+      - 'public-site/current/n1-feedback-completion.js'
+      - 'public-site/current/site.js'
+      - 'ops/wix/aidme-public-n1-desktop-bridge.js'
+      - 'ops/wix/aidme-public-n1-mobile-shell.js'
+      - '.github/workflows/public-n1-feedback-completion.yml'
+  workflow_dispatch:
+
+jobs:
+  feedback-completion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Syntax and source invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check public-site/current/n1-feedback-completion.js
+          node --check public-site/current/site.js
+          grep -q 'n1-feedback-completion.js' public-site/current/site.js
+          grep -q 'Det er lov å være sliten' public-site/current/n1-feedback-completion.js
+          grep -q 'du trenger ikke dele mer personlig' public-site/current/n1-feedback-completion.js
+          grep -q 'Valença / Tui' public-site/current/n1-feedback-completion.js
+          grep -q 'Pontevedra' public-site/current/n1-feedback-completion.js
+          grep -q 'Santiago er ikke slutten på historien' public-site/current/n1-feedback-completion.js
+          grep -q 'En annen vei passer bedre nå' public-site/current/n1-feedback-completion.js
+          grep -q 'Én levende plan' public-site/current/n1-feedback-completion.js
+          ! grep -Eqi 'behandler|kurerer|garanterer.*bedring|garanterer.*arbeid' public-site/current/n1-feedback-completion.js
