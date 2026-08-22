@@ -23,7 +23,7 @@ assert(command.includes('interest_type,preferred_contact,locale'),'N2 list must 
 assert(publicIntake.includes("'REFERRAL'"),'Public intake must accept the referral contact type');
 assert(publicClient.includes('Bruk dine egne kontaktopplysninger')||publicClient.includes('Use your own contact details'),'Public referral form must tell referrer to use own contact details');
 assert(publicClient.includes('Ikke skriv navn, helseopplysninger eller andre private opplysninger'),'Public referral form must prohibit third-party sensitive details');
-assert(!publicClient.includes('name="interest_note"')&&!publicClient.includes("data.get('interest_note')"),'Public first contact must not reintroduce open narrative input');
+assert(!publicClient.includes("data.get('interest_note')")&&!publicIntake.includes('body?.interestNote'),'Public first contact must not submit open narrative input');
 assert(publicClient.includes("textarea[name=\"interest_note\"]")&&publicClient.includes('?.remove()'),'Legacy narrative fields must be actively removed if an older template reintroduces one');
 
 console.log('Referral identity-boundary invariants passed');
