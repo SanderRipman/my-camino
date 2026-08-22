@@ -2,6 +2,9 @@ import fs from 'node:fs';
 const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8');
 const welcome=read('./welcome.html'), welcomeJs=read('./welcome.js'), css=read('./welcome.css');
 const admin=read('./admin.js'), intake=read('./intake.js');
+const participantNext=read('./app-participant-next.js');
+const viaHandoff=read('./app-via-handoff.js');
+const viaMigration=fs.readFileSync(new URL('../supabase/migrations/20260822014000_via_roadmap_handoff_v1.sql',import.meta.url),'utf8');
 const invite=fs.readFileSync(new URL('../supabase/functions/admin-invite-user/index.ts',import.meta.url),'utf8');
 const setup=fs.readFileSync(new URL('../supabase/functions/account-setup-command/index.ts',import.meta.url),'utf8');
 const participant=fs.readFileSync(new URL('../supabase/functions/admin-create-participant/index.ts',import.meta.url),'utf8');
@@ -37,5 +40,13 @@ must(participant.includes("PARTICIPANT_ALREADY_LINKED")&&participant.includes("U
 must(participant.includes("PARTICIPANT_ACCOUNT_LINKED"),'account linkage is not audited/workflow logged');
 must(participant.includes(".eq('status','INVITED')")&&participant.includes("VIA_STARTED"),'intake state does not advance when account is linked');
 must(participant.includes("role_code','system_admin'")&&participant.includes("MFA_REQUIRED"),'participant-link mutation lacks AAL2/system-admin gate');
+// N3 must hand the SAME journey into the first participant action and onward to staff review.
+must(participant.includes("workflow_key:'participant_via_start'")&&participant.includes("eq('workflow_key','participant_via_start')"),'N3 must create/reuse exactly the participant VÍA start workflow');
+must(participant.includes("eq('participant_id',participant.id)")&&participant.includes("eq('assignee_user_id',targetUserId)"),'VÍA start task must stay bound to the linked participant and invited account');
+must(participant.includes("PARTICIPANT_VIA_START_READY")&&participant.includes("title:'Din VÍA er klar'"),'N3 must audit and safely notify the first participant action');
+must(participantNext.includes('participant_via_start')&&participantNext.includes('key=via_roadmap'),'participant VÍA start must route to the canonical VÍA roadmap');
+must(viaMigration.includes("workflow_key = 'participant_via_start'")&&viaMigration.includes("'PARTICIPANT_VIA_ROADMAP_COMPLETED'"),'roadmap completion must close/audit the N3 start task');
+must(viaMigration.includes("'via_go_review'")&&viaMigration.includes("'formal_go_no_go', false"),'roadmap completion must create staff review without prematurely deciding GO/NO-GO');
+must(viaHandoff.includes("task.workflow_key==='via_roadmap_review'")&&viaHandoff.includes('latest=1'),'staff review must open the completed roadmap before the decision gate');
 if(errors.length){console.error(errors.map(x=>'FAIL: '+x).join('\n'));process.exit(1)}
-console.log('Invite/onboarding + N2→N3 smoke: PASS');
+console.log('Invite/onboarding + N2→N3→VÍA continuity smoke: PASS');
