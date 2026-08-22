@@ -14,6 +14,8 @@ assert(layer.includes('Første SER-dag')||layer.includes('første dag'),'SER day
 assert(layer.includes('Pause, kortere etappe, transport')||layer.includes('pause, kortere etappe, transport'),'SER must preserve legitimate adaptation language');
 assert(layer.includes('Én levende plan')&&layer.includes('parallelle planer'),'VIDA must be framed as one living plan, not duplicate plans');
 assert(layer.includes('ser_daily')&&layer.includes('vida_plan'),'Participant actions must route only to canonical SER/VIDA forms');
+assert(layer.includes('vida_72h')&&layer.includes('vida_14d')&&layer.includes('vida_30d')&&layer.includes('vida_90d'),'VIDA must surface the canonical 72h/14d/30d/90d follow-up rhythm');
+assert(layer.includes('oppfølgingstidspunkter for den samme planen')&&layer.includes('ikke fire nye planer'),'VIDA milestones must be explicitly framed as follow-up of one plan');
 assert(!layer.includes('client.from(')&&!layer.includes('functions.invoke('),'SER/VIDA presentation layer must not add backend writes or bypass commands');
 assert(participant.includes("new Set(['ser_daily'])"),'Participant SER form scope must remain limited to ser_daily');
 assert(participant.includes("new Set(['vida_plan'])"),'Participant VIDA form scope must remain limited to vida_plan');

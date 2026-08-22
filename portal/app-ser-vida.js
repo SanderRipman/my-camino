@@ -1,11 +1,18 @@
 (()=>{
 'use strict';
 
+const VIDA_MILESTONE_LABELS={vida_72h:'72 timer',participant_vida_72h:'72 timer',vida_14d:'14 dager',vida_30d:'30 dager',vida_90d:'90 dager'};
 function serVidaParticipant(){
   return isStaff()?participantById(selectedParticipantId):ownParticipant();
 }
 function serVidaPhase(p){return p?stageLabel(p.stage):null}
 function serVidaOpenTasks(p){return (tasks||[]).filter(t=>t.participant_id===p?.id&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status))}
+function serVidaMilestones(p){
+  const rows=(tasks||[]).filter(t=>t.participant_id===p?.id&&VIDA_MILESTONE_LABELS[t.workflow_key]);
+  const byKey=new Map();
+  rows.sort((a,b)=>new Date(a.due_at||'2999')-new Date(b.due_at||'2999')).forEach(t=>{if(!byKey.has(t.workflow_key))byKey.set(t.workflow_key,t)});
+  return [...byKey.values()];
+}
 function serVidaTodayModel(p){
   if(!p)return null;
   const phase=serVidaPhase(p),pilot=participantPilot(p.id),route=pilot?routeToday(pilot.id):null,checkin=latestCheckin(p.id),open=serVidaOpenTasks(p);
@@ -21,6 +28,7 @@ function serVidaTodayModel(p){
       route,
       checkin,
       open,
+      milestones:[],
       primary:`./form-runner.html?key=ser_daily&participant=${encodeURIComponent(p.id)}`,
       primaryLabel:dayZero?'Gjør første SER-innsjekk':'Åpne dagens innsjekk'
     };
@@ -29,23 +37,28 @@ function serVidaTodayModel(p){
     phase,
     kicker:'VIDA · hjemme',
     title:'Én levende plan – neste konkrete handling',
-    body:'VIDA-planen skal være stedet du og avtalt oppfølgingskontakt holder neste handling, ansvar og oppfølging levende. Ikke lag parallelle planer hvis den eksisterende kan oppdateres.',
-    route:null,checkin,open,
+    body:'VIDA-planen skal være stedet du og avtalt oppfølgingskontakt holder neste handling, ansvar og oppfølging levende. 72 timer, 14, 30 og 90 dager er oppfølgingstidspunkter for den samme planen – ikke fire nye planer.',
+    route:null,checkin,open,milestones:serVidaMilestones(p),
     primary:`./form-runner.html?key=vida_plan&participant=${encodeURIComponent(p.id)}`,
     primaryLabel:'Åpne min levende VIDA-plan'
   };
   return null;
 }
+function serVidaMilestoneHtml(m){
+  if(m.phase!=='VIDA'||!m.milestones?.length)return'';
+  const rows=m.milestones.map(t=>`<div class="detail-stat"><span>${escapeHtml(VIDA_MILESTONE_LABELS[t.workflow_key]||'Oppfølging')}</span><strong>${escapeHtml(statusText(t.status))} · ${escapeHtml(formatDate(t.due_at))}</strong></div>`).join('');
+  return `<div class="detail-grid vida-followup-rhythm">${rows}</div><p class="privacy-note">Milepælene er påminnelser om å se på samme levende VIDA-plan igjen. Neste handling kan endres uten å opprette parallelle planer.</p>`;
+}
 function serVidaCardHtml(m){
   const route=m.route?`<div class="detail-stat"><span>Dagens etappe</span><strong>${escapeHtml(`${m.route.from_place} → ${m.route.to_place}${m.route.distance_km?` · ${m.route.distance_km} km`:''}`)}</strong></div>`:'';
   const last=m.checkin?.checkin_date?escapeHtml(m.checkin.checkin_date):'Ingen ennå';
-  return `<section class="panel-card ser-vida-today" data-ser-vida-phase="${m.phase}"><div class="card-head"><div><p class="eyebrow">${escapeHtml(m.kicker)}</p><h3>${escapeHtml(m.title)}</h3></div><span class="pill">${escapeHtml(m.phase)}</span></div><p>${escapeHtml(m.body)}</p><div class="detail-grid">${route}<div class="detail-stat"><span>Siste innsjekk</span><strong>${last}</strong></div><div class="detail-stat"><span>Åpne steg</span><strong>${m.open.length}</strong></div></div><div class="form-actions"><a class="primary" href="${m.primary}">${escapeHtml(m.primaryLabel)}</a></div></section>`;
+  return `<section class="panel-card ser-vida-today" data-ser-vida-phase="${m.phase}"><div class="card-head"><div><p class="eyebrow">${escapeHtml(m.kicker)}</p><h3>${escapeHtml(m.title)}</h3></div><span class="pill">${escapeHtml(m.phase)}</span></div><p>${escapeHtml(m.body)}</p><div class="detail-grid">${route}<div class="detail-stat"><span>Siste innsjekk</span><strong>${last}</strong></div><div class="detail-stat"><span>Åpne steg</span><strong>${m.open.length}</strong></div></div>${serVidaMilestoneHtml(m)}<div class="form-actions"><a class="primary" href="${m.primary}">${escapeHtml(m.primaryLabel)}</a></div></section>`;
 }
 function renderSerVidaToday(){
   const p=serVidaParticipant(),m=serVidaTodayModel(p);
   document.querySelectorAll('.ser-vida-today').forEach(el=>el.remove());
   if(!m)return;
-  const target=isStaff()?document.querySelector('#participantDetail'):document.querySelector('#participantDetail');
+  const target=document.querySelector('#participantDetail');
   if(!target)return;
   target.insertAdjacentHTML('beforeend',serVidaCardHtml(m));
 }
@@ -63,7 +76,7 @@ if(serVidaParticipantNext){
     if(phase==='VIDA')return{
       label:'Åpne min levende VIDA-plan',
       href:`./form-runner.html?key=vida_plan&participant=${encodeURIComponent(participant.id)}`,
-      hint:'Hold én plan levende: neste konkrete handling, hvem som følger opp og når dere ser på den igjen.'
+      hint:'Hold én plan levende. 72 timer, 14, 30 og 90 dager er oppfølging av samme neste handling, ansvar og avtalt kontakt – ikke nye parallelle planer.'
     };
     return base;
   };
