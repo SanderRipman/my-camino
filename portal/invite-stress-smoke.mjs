@@ -24,6 +24,9 @@ must(setup.includes("role_grants")&&setup.includes("staff_profiles")&&setup.incl
 must(intake.includes("from:'n2'")&&intake.includes('participantId'),'N2 does not hand existing participant to N3');
 must(intake.includes('sikker kontoinvitasjon'),'N2 does not explain separate secure invitation step');
 must(admin.includes("p.get('from')!=='n2'")&&admin.includes('existingParticipantId'),'admin does not recognize N2 journey handoff');
+must(!admin.includes("p.get('email')"),'admin must not consume invitation email from N2 URL/query');
+must(admin.includes('bæres invitasjonsadressen ikke i N2-lenken'),'admin does not explain privacy-safe invitation-address handoff');
+must(admin.includes("$('#inviteEmail').value=''"),'admin does not explicitly clear invitation address on N2 handoff');
 must(admin.includes("participantId,codeName,pilotId"),'admin invite does not pass existing participant id to server');
 must(admin.includes('ingen ny deltaker ble opprettet'),'admin confirmation does not preserve single-journey invariant');
 must(participant.includes("participantId=body?.participantId"),'server cannot receive existing participant id');

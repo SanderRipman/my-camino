@@ -4,7 +4,7 @@ const client=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 let accessData={users:[],participants:[],pilots:[]};
 let handoffApplied=false;
-const N2_HANDOFF=(()=>{const p=new URLSearchParams(location.search);if(p.get('from')!=='n2')return null;return{participantId:clean(p.get('participantId')),email:clean(p.get('email')).toLowerCase()}})();
+const N2_HANDOFF=(()=>{const p=new URLSearchParams(location.search);if(p.get('from')!=='n2')return null;return{participantId:clean(p.get('participantId'))}})();
 const ROLE_INFO={
  project_owner:{title:'Prosjekteier',can:'Konsept, avtaler, økonomi, kvalitetssystem og partner-/forsikringsramme.',limit:'Skal ikke alene gjøre kliniske GO/NO-GO-vurderinger uten riktig kompetanse.'},
  program_lead:{title:'Programleder',can:'Holder sammen VÍA, SER og VIDA, deltakerflyt og kvalitet.',limit:'Skal ikke overstyre faglige sikkerhetsbeslutninger.'},
@@ -53,8 +53,8 @@ function applyN2Handoff(){
  if(!N2_HANDOFF||handoffApplied)return;handoffApplied=true;const participant=accessData.participants.find(p=>p.id===N2_HANDOFF.participantId);
  if(!participant){msg('#inviteMessage','N2-overgangen kunne ikke verifiseres mot en aktiv VÍA-reise. Åpne saken fra Mottak / VÍA på nytt før du inviterer.');history.replaceState(null,'',location.pathname);return}
  if(String(participant.stage).toUpperCase()!=='VIA'){msg('#inviteMessage',`Denne reisen er nå i ${participant.stage}. Konto kan ikke kobles via N2-overgangen uten ny vurdering.`);history.replaceState(null,'',location.pathname);return}
- $('#existingParticipantId').value=participant.id;$('#inviteType').value='participant';$('#inviteType').disabled=true;$('#inviteCodeName').value=participant.code_name;$('#inviteCodeName').readOnly=true;$('#inviteEmail').value=N2_HANDOFF.email||'';toggleInviteFields();
- const ctx=$('#inviteJourneyContext');ctx.innerHTML=`<strong>Fortsetter fra N2 · ${escapeHtml(participant.code_name)}</strong><span>VÍA-reisen finnes allerede. Denne invitasjonen kobler sikker konto til samme reise og gjenbruker tidligere kontaktdata. Det opprettes ikke en ny deltaker.</span>`;ctx.classList.remove('hidden');$('#inviteSubmit').textContent='Send invitasjon og koble VÍA';ctx.scrollIntoView({behavior:'smooth',block:'nearest'});
+ $('#existingParticipantId').value=participant.id;$('#inviteType').value='participant';$('#inviteType').disabled=true;$('#inviteCodeName').value=participant.code_name;$('#inviteCodeName').readOnly=true;$('#inviteEmail').value='';toggleInviteFields();
+ const ctx=$('#inviteJourneyContext');ctx.innerHTML=`<strong>Fortsetter fra N2 · ${escapeHtml(participant.code_name)}</strong><span>VÍA-reisen finnes allerede. Denne invitasjonen kobler sikker konto til samme reise. Av personvernhensyn bæres invitasjonsadressen ikke i N2-lenken; fyll inn bekreftet e-postadresse her. Det opprettes ikke en ny deltaker.</span>`;ctx.classList.remove('hidden');$('#inviteSubmit').textContent='Send invitasjon og koble VÍA';ctx.scrollIntoView({behavior:'smooth',block:'nearest'});$('#inviteEmail').focus({preventScroll:true});
 }
 function clearN2Handoff(){
  $('#existingParticipantId').value='';$('#inviteJourneyContext').classList.add('hidden');$('#inviteJourneyContext').innerHTML='';$('#inviteType').disabled=false;$('#inviteCodeName').readOnly=false;$('#inviteSubmit').textContent='Send invitasjon';history.replaceState(null,'',location.pathname);toggleInviteFields();
