@@ -4,7 +4,8 @@ import { resolve } from 'node:path';
 
 const root = process.cwd();
 const out = resolve(root, '_netlify_publish');
-const PUBLIC_SITE_ID = '33549af8-6845-4c5b-b807-258ba5be1e99';
+const PUBLIC_DEV_SITE_ID = '33549af8-6845-4c5b-b807-258ba5be1e99';
+const PUBLIC_PROD_SITE_ID = '1b763521-f8c0-462a-a0cc-915c1ae56d08';
 const PORTAL_SITE_ID = 'a90c686c-e9fc-4373-9956-629c9d31e622';
 
 const siteId = (process.env.SITE_ID || process.env.NETLIFY_SITE_ID || '').trim();
@@ -17,25 +18,31 @@ for (const key of ['URL', 'DEPLOY_PRIME_URL', 'DEPLOY_URL']) {
   } catch {}
 }
 
-const isPublic = siteId === PUBLIC_SITE_ID || siteName === 'dev-aidme-no' || host === 'dev.aidme.no';
+const isPublicDev = siteId === PUBLIC_DEV_SITE_ID || siteName === 'dev-aidme-no' || host === 'dev.aidme.no';
+const isPublicProd = siteId === PUBLIC_PROD_SITE_ID || siteName === 'aidme-public-candidate-20260817' || host === 'www.aidme.no' || host === 'aidme.no';
 const isPortal = siteId === PORTAL_SITE_ID || siteName === 'mycamino' || host === 'my.aidme.no' || host.endsWith('--mycamino.netlify.app') || host === 'mycamino.netlify.app';
+const matchCount = [isPublicDev, isPublicProd, isPortal].filter(Boolean).length;
 
-if (isPublic && isPortal) throw new Error(`Ambiguous Netlify target: siteId=${siteId} siteName=${siteName} host=${host}`);
-if (!isPublic && !isPortal) throw new Error(`Unknown Netlify target; refusing to publish the wrong product. siteId=${siteId || '(empty)'} siteName=${siteName || '(empty)'} host=${host || '(empty)'}`);
+if (matchCount > 1) throw new Error(`Ambiguous Netlify target: siteId=${siteId} siteName=${siteName} host=${host}`);
+if (matchCount === 0) throw new Error(`Unknown Netlify target; refusing to publish the wrong product. siteId=${siteId || '(empty)'} siteName=${siteName || '(empty)'} host=${host || '(empty)'}`);
 
-function run(command, args) {
-  const result = spawnSync(command, args, { cwd: root, stdio: 'inherit', env: process.env });
+function run(command, args, env = process.env) {
+  const result = spawnSync(command, args, { cwd: root, stdio: 'inherit', env });
   if (result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed with exit ${result.status}`);
 }
 
 await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
 
-if (isPublic) {
-  console.log(`Netlify build router: PUBLIC DEV (${siteId || siteName || host})`);
-  run(process.execPath, ['public-site/current/seo-build.mjs']);
+if (isPublicDev || isPublicProd) {
+  const mode = isPublicProd ? 'PUBLIC PROD' : 'PUBLIC DEV';
+  console.log(`Netlify build router: ${mode} (${siteId || siteName || host})`);
+  const buildEnv = isPublicProd
+    ? { ...process.env, URL: 'https://www.aidme.no', CONTEXT: 'production' }
+    : process.env;
+  run(process.execPath, ['public-site/current/seo-build.mjs'], buildEnv);
   await cp(resolve(root, 'public-site/current/_site'), out, { recursive: true });
-  console.log('Netlify build router: published public-site/current/_site -> _netlify_publish');
+  console.log(`Netlify build router: ${mode} published public-site/current/_site -> _netlify_publish`);
 } else {
   console.log(`Netlify build router: PORTAL (${siteId || siteName || host})`);
   run(process.execPath, ['portal/build-app.mjs']);

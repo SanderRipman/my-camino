@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 jobs:
-  route-both-products:
+  route-all-products:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,13 +38,45 @@ jobs:
           test -f _netlify_publish/robots.txt
           grep -q 'X-Robots-Tag: noindex, nofollow' _netlify_publish/_headers
           grep -q 'AidMe' _netlify_publish/index.html
+          grep -q 'rel="canonical" href="https://www.aidme.no/"' _netlify_publish/index.html
           if grep -q "location.replace('/portal/')" _netlify_publish/index.html; then
-            echo 'Public build accidentally contains portal root redirect' >&2
+            echo 'Public dev build accidentally contains portal root redirect' >&2
             exit 1
           fi
           test ! -f _netlify_publish/_redirects
 
-      - name: Reset generated public output
+      - name: Reset generated public dev output
+        shell: bash
+        run: rm -rf _netlify_publish public-site/current/_site
+
+      - name: Validate public production route
+        shell: bash
+        env:
+          SITE_ID: 1b763521-f8c0-462a-a0cc-915c1ae56d08
+          SITE_NAME: aidme-public-candidate-20260817
+          URL: https://aidme-public-candidate-20260817.netlify.app
+          CONTEXT: production
+        run: |
+          set -euo pipefail
+          node netlify-build-router.mjs
+          test -f _netlify_publish/index.html
+          test -f _netlify_publish/via.html
+          test -f _netlify_publish/kontakt.html
+          test -f _netlify_publish/robots.txt
+          test -f _netlify_publish/sitemap.xml
+          grep -q 'rel="canonical" href="https://www.aidme.no/"' _netlify_publish/index.html
+          grep -q 'https://www.aidme.no/sitemap.xml' _netlify_publish/robots.txt
+          if grep -Rqi 'X-Robots-Tag: noindex, nofollow' _netlify_publish/_headers 2>/dev/null; then
+            echo 'Public production build must not carry global noindex' >&2
+            exit 1
+          fi
+          if grep -q "location.replace('/portal/')" _netlify_publish/index.html; then
+            echo 'Public production build accidentally contains portal root redirect' >&2
+            exit 1
+          fi
+          test ! -f _netlify_publish/_redirects
+
+      - name: Reset generated public production output
         shell: bash
         run: rm -rf _netlify_publish public-site/current/_site
 
