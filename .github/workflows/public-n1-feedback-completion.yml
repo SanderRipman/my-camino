@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'public-site/current/n1-feedback-completion.js'
+      - 'public-site/current/post-cutover-live.js'
       - 'public-site/current/site.js'
       - 'ops/wix/aidme-public-n1-desktop-bridge.js'
       - 'ops/wix/aidme-public-n1-mobile-shell.js'
@@ -23,8 +24,13 @@ jobs:
         run: |
           set -euo pipefail
           node --check public-site/current/n1-feedback-completion.js
+          node --check public-site/current/post-cutover-live.js
           node --check public-site/current/site.js
           grep -q 'n1-feedback-completion.js' public-site/current/site.js
+          grep -q 'post-cutover-live.js' public-site/current/site.js
+          grep -q 'Camino Portugués' public-site/current/post-cutover-live.js
+          grep -q 'Oppfølging hjemme' public-site/current/post-cutover-live.js
+          grep -q 'DEV-test · deltakerspor' public-site/current/post-cutover-live.js
           grep -q 'Det er lov å være sliten' public-site/current/n1-feedback-completion.js
           grep -q 'du trenger ikke dele mer personlig' public-site/current/n1-feedback-completion.js
           grep -q 'Valença / Tui' public-site/current/n1-feedback-completion.js
@@ -32,4 +38,4 @@ jobs:
           grep -q 'Santiago er ikke slutten på historien' public-site/current/n1-feedback-completion.js
           grep -q 'En annen vei passer bedre nå' public-site/current/n1-feedback-completion.js
           grep -q 'Én levende plan' public-site/current/n1-feedback-completion.js
-          ! grep -Eqi 'behandler|kurerer|garanterer.*bedring|garanterer.*arbeid' public-site/current/n1-feedback-completion.js
+          ! grep -Eqi 'behandler|kurerer|garanterer.*bedring|garanterer.*arbeid' public-site/current/n1-feedback-completion.js public-site/current/post-cutover-live.js
