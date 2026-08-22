@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 
-const AIDME_N1_COMMIT = 'e6d62240f4c30e4346d447ebcb5506dffe316bf1';
+const AIDME_N1_COMMIT = 'bcdae5cbf6167f713712982cac7b018a27bd9807';
 const AIDME_N1_RAW = `https://raw.githubusercontent.com/SanderRipman/my-camino/${AIDME_N1_COMMIT}/public-site/current/`;
 const AIDME_N1_PAGES = new Set(['index.html','via.html','ser.html','vida.html','deltakere.html','partnere.html','ruter.html','om.html','kontakt.html','takk.html']);
 const AIDME_N1_CACHE = new Map();
@@ -57,7 +57,7 @@ async function aidmeMakePage(pathWithQuery) {
   if (!AIDME_N1_PAGES.has(page)) throw new Error(`Unsupported page ${page}`);
   const virtualSearch = virtual.search || '';
   const [html, siteCss, refineCss, mobileCss, n1Css, siteJs, n1Js, intakeJs] = await Promise.all([
-    aidmeFetchText(page), aidmeFetchText('site.css'), aidmeFetchText('refine.css'), aidmeFetchText('mobile-ux.css'), aidmeFetchText('n1-ux.css'), aidmeFetchText('site.js'), aidmeFetchText('n1-ux.js'), aidmeFetchText('n1-intake-safe.js')
+    aidmeFetchText(page), aidmeFetchText('site.css'), aidmeFetchText('refine.css'), aidmeFetchText('mobile-ux.css'), aidmeFetchText('n1-ux.css'), aidmeFetchText('site.js'), Promise.all([aidmeFetchText('n1-ux.js'), aidmeFetchText('n1-feedback-completion.js')]).then(([base,delta]) => base + '\n' + delta), aidmeFetchText('n1-intake-safe.js')
   ]);
   let out = aidmeStripLocalAssets(html);
   const head = `<base href="${AIDME_N1_RAW}"><style data-aidme-git="site">${siteCss}</style><style data-aidme-git="refine">${refineCss}</style><style data-aidme-git="mobile">${mobileCss}</style><style data-aidme-git="n1">${n1Css}</style>`;
@@ -67,7 +67,7 @@ async function aidmeMakePage(pathWithQuery) {
   return out;
 }
 async function aidmeN1Preflight() {
-  await Promise.all(['index.html','kontakt.html','takk.html','site.css','refine.css','mobile-ux.css','n1-ux.css','site.js','n1-ux.js','n1-intake-safe.js'].map(aidmeFetchText));
+  await Promise.all(['index.html','kontakt.html','takk.html','site.css','refine.css','mobile-ux.css','n1-ux.css','site.js','n1-ux.js','n1-feedback-completion.js','n1-intake-safe.js'].map(aidmeFetchText));
   return true;
 }
 
