@@ -102,3 +102,5 @@ jobs:
         run: node portal/ser-vida-handoff-smoke.mjs
       - name: Verify optional new VIA handoff invariants
         run: node portal/vida-new-via-smoke.mjs
+      - name: Verify aggregated pilot evaluation entry invariants
+        run: node portal/pilot-evaluation-smoke.mjs
