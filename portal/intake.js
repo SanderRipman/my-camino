@@ -22,7 +22,7 @@ function setWorkspaceMessage(text,type='info'){
   const el=$('#workspaceMessage');if(!el)return;el.textContent=text||'';el.className=`message ${type==='success'?'auth-success':type==='error'?'auth-error':'auth-info'}`;
 }
 function hideHandoff(){const el=$('#n3Handoff');if(!el)return;el.classList.add('hidden');el.innerHTML=''}
-function adminHandoffUrl(participant,intake,codeName){const q=new URLSearchParams({from:'n2',participantId:String(participant?.id||''),codeName:String(participant?.code_name||codeName||''),email:String(intake?.contact_email||'')});return `./admin.html?${q.toString()}`}
+function adminHandoffUrl(participant,intake,codeName){const q=new URLSearchParams({from:'n2',participantId:String(participant?.id||''),codeName:String(participant?.code_name||codeName||'')});return `./admin.html?${q.toString()}`}
 function showHandoff(participant,intake,codeName,{qa=false}={}){
   const el=$('#n3Handoff');if(!el)return;const label=participant?.code_name||codeName||'VÍA-reisen';
   if(qa){el.innerHTML=`<div><p class="eyebrow">N3 · Konto og første VÍA-opplevelse</p><h2>Neste steg er tydelig</h2><p>Syretesten viser at <strong>${esc(label)}</strong> går videre til sikker kontoinvitasjon som et eget steg. Ingen konto, e-post eller backenddata opprettes i QA-modus.</p><div class="n3-meta">VÍA er opprettet før konto – SER er fortsatt ikke godkjent.</div></div><div class="n3-actions"><button class="ghost" type="button" id="dismissHandoff">Lukk syretest</button></div>`}

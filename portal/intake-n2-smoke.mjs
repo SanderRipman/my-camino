@@ -23,11 +23,15 @@ requireText('convert command',js,"cmd('CONVERT_TO_VIA'");
 requireText('terminal confirmation',js,'window.confirm');
 requireText('no-write qa copy',js,'Ingen data ble lagret');
 requireText('fail closed backend copy',js,'Ingen direkte databasevei brukes som reserve');
+requireText('N2 to N3 handoff keeps participant context',js,"participantId:String(participant?.id||'')");
 requireText('mobile target',css,'min-height:48px');
 requireText('reduced motion',css,'prefers-reduced-motion');
 
 for(const forbidden of ["client.from('intakes')",'client.from("intakes")',"client.from('participants')",'client.from("participants")']){
   if(js.includes(forbidden))throw new Error(`Direct DB write/read path forbidden in N2 intake UX: ${forbidden}`);
 }
+for(const forbidden of ["email:String(intake?.contact_email",'email:String(intake?.contact_email',"email:String(intake?.contact_email||'')"]){
+  if(js.includes(forbidden))throw new Error('N2→N3 handoff must not put contact email in URL/query parameters.');
+}
 if(!js.includes("if(QA_MODE)"))throw new Error('N2 QA mode must be explicit and opt-in');
-console.log('N2 intake triage invariants OK');
+console.log('N2 intake triage invariants OK, including PII-safe N2→N3 handoff URL.');
