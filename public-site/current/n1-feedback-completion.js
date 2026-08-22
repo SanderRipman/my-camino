@@ -113,3 +113,113 @@
     if(map && !intro.querySelector('.n1-milestones')) map.insertAdjacentHTML('afterend',milestones());
   }
 })();
+
+/* 2026-08-22 post-cutover owner feedback — DEV ONLY until owner QA approves promotion. */
+(() => {
+  'use strict';
+  if(location.hostname !== 'dev.aidme.no') return;
+
+  const page=(location.pathname.split('/').filter(Boolean).pop()||'index.html').replace('.html','');
+  const params=new URLSearchParams(location.search);
+  const mobile=window.matchMedia('(max-width:650px)');
+
+  if(!document.getElementById('post-cutover-feedback-dev-style')){
+    const style=document.createElement('style');
+    style.id='post-cutover-feedback-dev-style';
+    style.textContent=`
+      @media(max-width:650px){
+        .three-steps .step{min-height:0;padding:23px 20px 24px}
+        .three-steps .step .num{display:block;margin-bottom:5px}
+        .three-steps .step h3{display:inline-block;margin:8px 0 6px;font-size:44px;line-height:1}
+        .three-steps .step .n1-step-verb{display:inline-flex;vertical-align:middle;margin:0 0 0 8px;padding:3px 8px;font-size:13px;transform:translateY(-5px)}
+        .three-steps .step h4{margin:3px 0 10px;line-height:1.35}
+        .three-steps .step p{margin:0 0 7px;line-height:1.5}
+        .three-steps .step .phase{margin-top:7px}
+        .three-steps .step-link{display:inline-flex;margin-top:5px}
+        .hero-grid>.camino-clarifier.n1-mobile-after-photo{margin:13px 18px 18px;padding:11px 12px}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  const noVerbs=['Ve!','Sé!','Vive!'];
+  const enVerbs=['Go!','Be!','Live!'];
+  document.querySelectorAll('.three-steps .step').forEach((card,index)=>{
+    const badge=card.querySelector('.n1-step-verb');
+    if(!badge) return;
+    const no=badge.querySelector('.lang-no');
+    const en=badge.querySelector('.lang-en');
+    if(no && noVerbs[index]) no.textContent=noVerbs[index];
+    if(en && enVerbs[index]) en.textContent=enVerbs[index];
+  });
+
+  const placeClarifier=()=>{
+    if(page!=='index') return;
+    const copy=document.querySelector('.hero-copy');
+    const lead=copy?.querySelector(':scope > p');
+    const clarifier=document.querySelector('.camino-clarifier');
+    const photo=document.querySelector('.hero-photo');
+    if(!lead||!clarifier||!photo) return;
+    if(mobile.matches){
+      photo.insertAdjacentElement('afterend',clarifier);
+      clarifier.classList.add('n1-mobile-after-photo');
+    }else{
+      lead.insertAdjacentElement('afterend',clarifier);
+      clarifier.classList.remove('n1-mobile-after-photo');
+    }
+  };
+  placeClarifier();
+  if(typeof mobile.addEventListener==='function') mobile.addEventListener('change',placeClarifier);
+
+  const previewText='<strong>DEV-test:</strong> Skjemaet er aktivt i preprod slik at hele brukerreisen kan QA-testes, men innsendingen lagrer eller sender ingen persondata.';
+  const configureDevPreview=(form)=>{
+    if(!form) return;
+    if(form.dataset.devPreviewBound!=='1'){
+      form.dataset.devPreviewBound='1';
+      form.addEventListener('submit',event=>{
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if(!form.reportValidity()) return;
+        sessionStorage.setItem('aidme_n1_dev_preview_intake','1');
+        location.href='takk.html?devPreview=1';
+      },true);
+    }
+    if(form.dataset.intakeState!=='dev-preview') form.dataset.intakeState='dev-preview';
+    form.querySelectorAll('input,select,textarea,button[type="submit"]').forEach(el=>{if(el.disabled) el.disabled=false;});
+    const note=form.querySelector('.n1-form-note');
+    if(note && note.dataset.devPreviewNote!=='1'){
+      note.dataset.devPreviewNote='1';
+      note.innerHTML=previewText;
+    }
+    form.querySelector('.n1-turnstile')?.remove();
+    const fallback=form.querySelector('.n1-intake-fallback');
+    if(fallback && !fallback.hidden) fallback.hidden=true;
+  };
+
+  if(page==='kontakt'){
+    const bind=()=>{
+      const form=document.querySelector('form.n1-interest-form');
+      if(!form) return false;
+      configureDevPreview(form);
+      const observer=new MutationObserver(()=>configureDevPreview(form));
+      observer.observe(form,{subtree:true,childList:true,attributes:true,attributeFilter:['disabled','data-intake-state']});
+      window.setTimeout(()=>configureDevPreview(form),0);
+      window.setTimeout(()=>configureDevPreview(form),700);
+      return true;
+    };
+    if(!bind()){
+      const observer=new MutationObserver(()=>{if(bind()) observer.disconnect();});
+      observer.observe(document.documentElement,{subtree:true,childList:true});
+    }
+  }
+
+  if(page==='takk' && params.get('devPreview')==='1'){
+    const apply=()=>{
+      const p=document.querySelector('.page-hero-copy p:not(.eyebrow)');
+      if(!p) return false;
+      p.innerHTML='<span class="lang-no">DEV-testreisen er fullført. Ingen persondata ble lagret eller sendt. Neste produksjonssteg forblir stengt til sikkerhets- og personverngatene er eksplisitt godkjent.</span><span class="lang-en">The DEV test journey is complete. No personal data was stored or sent. The production intake remains closed until the security and privacy gates are explicitly approved.</span>';
+      return true;
+    };
+    if(!apply()) window.addEventListener('DOMContentLoaded',apply,{once:true});
+  }
+})();
