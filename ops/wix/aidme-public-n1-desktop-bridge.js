@@ -76,6 +76,7 @@ async function aidmeN1Preflight() {
   const BASE_HEIGHT = 500;
   let currentPath = 'index.html';
   let activeFrame = null;
+  let pendingNavigationScroll = false;
   function isAidmeFrame(frame) {
     if (frame.dataset.aidmeTopShell === '1') return false;
     const src = (frame.getAttribute('src') || '').toLowerCase();
@@ -96,23 +97,43 @@ async function aidmeN1Preflight() {
     }
   }
   function frameTop(frame) { return Math.max(0, Math.round(frame.getBoundingClientRect().top + window.scrollY)); }
+  function scrollToCurrentPath(frame) {
+    const virtual = new URL(currentPath || 'index.html', 'https://aidme.local/');
+    const base = frameTop(frame);
+    let top = base;
+    if (virtual.hash) {
+      try {
+        const id = decodeURIComponent(virtual.hash.slice(1));
+        const target = frame.contentDocument?.getElementById(id);
+        if (target) top = base + Math.round(target.getBoundingClientRect().top + (frame.contentWindow?.scrollY || 0)) - 74;
+      } catch (_) { /* malformed hash falls back to page top */ }
+    }
+    window.scrollTo({ top: Math.max(0, top), left: 0, behavior: 'auto' });
+    frame.dataset.aidmeLastNavScroll = virtual.hash || 'top';
+  }
   async function load(path, scroll = true) {
     const frame = activeFrame || findFrame(); if (!frame) return false;
     const virtual = new URL(path || 'index.html', 'https://aidme.local/');
     const page = virtual.pathname.split('/').filter(Boolean).pop() || 'index.html'; if (!AIDME_N1_PAGES.has(page)) return false;
     const doc = await aidmeMakePage(page + virtual.search + virtual.hash);
-    currentPath = page + virtual.search + virtual.hash; activeFrame = frame; frame.dataset.aidmeGitBridge = '1'; frame.dataset.aidmeN1Commit = AIDME_N1_COMMIT; frame.srcdoc = doc;
-    if (scroll) window.scrollTo({ top: frameTop(frame), left: 0, behavior: 'auto' }); return true;
+    currentPath = page + virtual.search + virtual.hash; activeFrame = frame; frame.dataset.aidmeGitBridge = '1'; frame.dataset.aidmeN1Commit = AIDME_N1_COMMIT; pendingNavigationScroll = !!scroll; frame.srcdoc = doc;
+    return true;
   }
   async function bind(frame) {
     if (!isAidmeFrame(frame) || frame.hasAttribute(MARK)) return;
     frame.setAttribute(MARK, '1'); activeFrame = frame;
+    frame.addEventListener('load', () => {
+      if (!pendingNavigationScroll) return;
+      pendingNavigationScroll = false;
+      setTimeout(() => scrollToCurrentPath(frame), 60);
+      setTimeout(() => scrollToCurrentPath(frame), 360);
+    });
     try { await aidmeN1Preflight(); await load('index.html', false); console.info('[AidMe N1 bridge] active', AIDME_N1_COMMIT); }
     catch (error) { console.warn('[AidMe N1 bridge] preflight failed; existing Wix/Netlify frame remains available.', error); }
   }
   window.addEventListener('message', event => {
     const frame = activeFrame || findFrame(); if (!frame || event.source !== frame.contentWindow) return; const data = event.data || {};
-    if (data.type === 'aidme-vida:git-nav') { load(String(data.path || currentPath)).catch(error => console.warn('[AidMe N1 bridge] navigation failed', error)); return; }
+    if (data.type === 'aidme-vida:git-nav') { load(String(data.path || currentPath), true).catch(error => console.warn('[AidMe N1 bridge] navigation failed', error)); return; }
     if (data.type === 'aidme-vida:content-height') resizeChain(frame, data.height);
   });
   function scan() { document.querySelectorAll('iframe').forEach(bind); }
