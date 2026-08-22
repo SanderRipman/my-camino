@@ -1,7 +1,7 @@
 [build]
   base = "."
-  command = "true"
-  publish = "."
+  command = "node seo-build.mjs"
+  publish = "_site"
 
 [[headers]]
   for = "/*"
