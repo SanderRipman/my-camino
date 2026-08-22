@@ -26,7 +26,7 @@ async function aidmeN1Preflight(){await Promise.all(['index.html','kontakt.html'
   if(viewportWidth()>MOBILE_MAX)return;
   const root=document.createElement('div');root.id=ROOT_ID;root.dataset.state='booting';root.dataset.preflight='pending';root.dataset.aidmeTopShell='1';root.dataset.aidmeN1Commit=AIDME_N1_COMMIT;root.setAttribute('aria-hidden','true');root.style.cssText=`position:absolute;left:0;top:0;min-width:0;box-sizing:border-box;height:${SAFE_BOOT_HEIGHT}px;opacity:0;pointer-events:none;overflow:hidden;background:transparent;z-index:2147483000`;
   const frame=document.createElement('iframe');frame.title='AidMe VIDA';frame.dataset.aidmeTopShell='1';frame.setAttribute('loading','eager');frame.setAttribute('referrerpolicy','strict-origin-when-cross-origin');frame.style.cssText=`display:block;min-width:0;box-sizing:border-box;height:${SAFE_BOOT_HEIGHT}px;border:0;margin:0;padding:0;background:#f5f0e6`;root.appendChild(frame);document.body.insertBefore(root,document.body.firstChild);
-  let activated=false,currentPath='index.html';
+  let activated=false,currentPath='index.html',pendingNavigationScroll=false;
   function syncWidth(){const width=viewportWidth();if(!width)return;const px=`${width}px`;root.dataset.viewportWidth=String(width);root.style.setProperty('width',px,'important');root.style.setProperty('max-width',px,'important');frame.style.setProperty('width',px,'important');frame.style.setProperty('max-width',px,'important');frame.setAttribute('width',String(width));requestAnimationFrame(()=>{root.dataset.hostWidth=String(Math.round(root.getBoundingClientRect().width));});}
   function lockHeight(el,height){const px=`${height}px`;['height','min-height','max-height','block-size','min-block-size','max-block-size'].forEach(p=>el.style.setProperty(p,px,'important'));}
   function setHeight(value){const numeric=Number(value);if(!Number.isFinite(numeric)||numeric<=0)return false;const h=Math.max(MIN_HEIGHT,Math.min(MAX_HEIGHT,Math.ceil(numeric)));lockHeight(root,h);lockHeight(frame,h);frame.removeAttribute('height');root.dataset.height=String(h);return true;}
@@ -52,17 +52,40 @@ async function aidmeN1Preflight(){await Promise.all(['index.html','kontakt.html'
       return true;
     }catch(error){root.dataset.measure='error';console.warn('[AidMe N1 mobile] validated frame measurement failed',error);return false;}
   }
+  function scrollToCurrentPath(){
+    if(!activated)return;
+    const virtual=new URL(currentPath||'index.html','https://aidme.local/');
+    const rootTop=Math.max(0,Math.round(root.getBoundingClientRect().top+window.scrollY));
+    let top=rootTop;
+    if(virtual.hash){
+      try{
+        const id=decodeURIComponent(virtual.hash.slice(1));
+        const target=frame.contentDocument?.getElementById(id);
+        if(target)top=rootTop+Math.round(target.getBoundingClientRect().top+(frame.contentWindow?.scrollY||0))-68;
+      }catch(_){/* malformed hash falls back to page top */}
+    }
+    window.scrollTo({top:Math.max(0,top),left:0,behavior:'auto'});
+    root.dataset.lastNavScroll=virtual.hash||'top';
+  }
   frame.addEventListener('load',()=>{
     root.dataset.frameLoaded='1';
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      if(tryActivateFromFrame('srcdoc-load'))return;
-      setTimeout(()=>tryActivateFromFrame('srcdoc-load-delayed'),250);
-      setTimeout(()=>tryActivateFromFrame('srcdoc-load-delayed-2'),1000);
+      if(!activated){
+        if(!tryActivateFromFrame('srcdoc-load')){
+          setTimeout(()=>tryActivateFromFrame('srcdoc-load-delayed'),250);
+          setTimeout(()=>tryActivateFromFrame('srcdoc-load-delayed-2'),1000);
+        }
+      }
+      if(pendingNavigationScroll){
+        pendingNavigationScroll=false;
+        setTimeout(scrollToCurrentPath,80);
+        setTimeout(scrollToCurrentPath,420);
+      }
     }));
   });
-  async function load(path){const virtual=new URL(path||'index.html','https://aidme.local/');const page=virtual.pathname.split('/').filter(Boolean).pop()||'index.html';if(!AIDME_N1_PAGES.has(page))return false;currentPath=page+virtual.search+virtual.hash;const doc=await aidmeMakePage(currentPath);frame.srcdoc=doc;root.dataset.srcdocSet='1';return true;}
-  window.addEventListener('message',event=>{if(event.source!==frame.contentWindow)return;const data=event.data||{};if(data.type==='aidme-vida:git-nav'){load(String(data.path||currentPath)).catch(err=>console.warn('[AidMe N1 mobile] navigation failed',err));return;}if(data.type!=='aidme-vida:content-height'||!setHeight(data.height))return;root.dataset.path=currentPath;root.dataset.messageHeight=String(Math.ceil(Number(data.height)||0));activate('post-message');});
+  async function load(path,scrollAfterLoad=false){const virtual=new URL(path||'index.html','https://aidme.local/');const page=virtual.pathname.split('/').filter(Boolean).pop()||'index.html';if(!AIDME_N1_PAGES.has(page))return false;currentPath=page+virtual.search+virtual.hash;pendingNavigationScroll=!!scrollAfterLoad;const doc=await aidmeMakePage(currentPath);frame.srcdoc=doc;root.dataset.srcdocSet='1';return true;}
+  window.addEventListener('message',event=>{if(event.source!==frame.contentWindow)return;const data=event.data||{};if(data.type==='aidme-vida:git-nav'){load(String(data.path||currentPath),true).catch(err=>console.warn('[AidMe N1 mobile] navigation failed',err));return;}if(data.type!=='aidme-vida:content-height'||!setHeight(data.height))return;root.dataset.path=currentPath;root.dataset.messageHeight=String(Math.ceil(Number(data.height)||0));activate('post-message');});
   syncWidth();window.addEventListener('resize',syncWidth,{passive:true});window.addEventListener('orientationchange',syncWidth,{passive:true});
-  aidmeN1Preflight().then(()=>{root.dataset.preflight='ok';return load('index.html');}).catch(error=>{root.dataset.preflight='failed';root.dataset.state='failed';console.warn('[AidMe N1 mobile] preflight failed; legacy Wix remains visible.',error);});
+  aidmeN1Preflight().then(()=>{root.dataset.preflight='ok';return load('index.html',false);}).catch(error=>{root.dataset.preflight='failed';root.dataset.state='failed';console.warn('[AidMe N1 mobile] preflight failed; legacy Wix remains visible.',error);});
 })();
 })();
