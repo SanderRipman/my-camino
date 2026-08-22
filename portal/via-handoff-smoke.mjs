@@ -7,6 +7,7 @@ const migration=read('../supabase/migrations/20260822014000_via_roadmap_handoff_
 const formReview=read('./form-review.js');
 const formHtml=read('./form-runner.html');
 const viaHandoff=read('./app-via-handoff.js');
+const taskContext=read('./app-task-workflow-context.js');
 const build=read('./build-app.mjs');
 
 // Completing the canonical VÍA roadmap closes the initial participant account-start task,
@@ -28,11 +29,20 @@ assert(formReview.includes('Formell beslutning tas i riktig senere gate'),'Revie
 assert(formReview.includes("params.get('latest')==='1'"),'Staff task deep-link must support opening the latest completed roadmap');
 assert(formReview.includes('Du trenger ikke «godkjenne deg selv»'),'Participant must be told that staff owns the later formal decision');
 
-// Staff review task leads to the actual submitted roadmap before the decision gate.
-assert(viaHandoff.includes("task.title!=='VÍA – vurder veikart før GO/NO-GO'"),'Handoff must be limited to the VÍA roadmap review task');
-assert(viaHandoff.includes('key=via_roadmap')&&viaHandoff.includes('latest=1'),'Staff review task must deep-link to latest completed roadmap');
+// Workflow metadata must actually be present in the browser task model before handoff routing.
+assert(taskContext.includes("select('id,workflow_key,source_type,source_id')"),'Task workflow context must be rehydrated read-only');
+assert(taskContext.includes("client.from('tasks')")&&!taskContext.includes('.update(')&&!taskContext.includes('.insert('),'Task context layer must remain read-only');
+assert(build.includes("app-task-workflow-context.js")&&build.includes("+taskWorkflowContext+'\\n'"),'Task workflow context must be included in production bundle');
+
+// Staff review task leads to the actual submitted roadmap before the first decision gate,
+// and a later optional new VÍA review routes back to the same canonical roadmap rather than a parallel flow.
+assert(viaHandoff.includes("task.workflow_key==='via_roadmap_review'")||viaHandoff.includes("task.title==='VÍA – vurder veikart før GO/NO-GO'"),'Initial VÍA review must remain narrowly routed');
+assert(viaHandoff.includes("task.workflow_key==='new_via_review'"),'Optional new VÍA staff task must have an explicit handoff');
+assert(viaHandoff.includes('key=via_roadmap')&&viaHandoff.includes('latest=1'),'Initial staff review task must deep-link to latest completed roadmap');
+assert(viaHandoff.includes('Åpne nytt VÍA-veikart'),'New VÍA review must route to the canonical roadmap in editable/new context');
 assert(viaHandoff.includes('Kontroller ansvar / VIDA-eier'),'Staff must have a direct owner/VIDA check from review');
-assert(viaHandoff.includes('Avklar mangler før du åpner den separate GO/NO-GO-gaten'),'Review must happen before formal decision');
+assert(viaHandoff.includes('Avklar mangler før du åpner den separate GO/NO-GO-gaten'),'Initial review must happen before formal decision');
+assert(viaHandoff.includes('ikke et automatisk fjerde steg'),'New VÍA handoff must preserve the three-step concept');
 assert(build.includes("app-via-handoff.js")&&build.includes("+viaHandoff+'\\n'"),'VÍA handoff layer must be part of the production app bundle');
 
-console.log('VÍA roadmap handoff invariants passed');
+console.log('VÍA roadmap and new-VÍA handoff invariants passed');
