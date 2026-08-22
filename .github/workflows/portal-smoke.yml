@@ -84,6 +84,8 @@ jobs:
         run: node portal/context-drilldown-smoke.mjs
       - name: Verify N2 intake triage invariants
         run: node portal/intake-n2-smoke.mjs
+      - name: Verify participant/referral identity boundary
+        run: node portal/intake-referral-smoke.mjs
       - name: Verify Mini CRM invariants
         run: node portal/crm-smoke.mjs
       - name: Verify holistic journey and role invariants
