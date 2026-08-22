@@ -23,7 +23,7 @@ Denne kontrollen ble utført mot aktivt Supabase-prosjekt `ibloovohuhrceivrvhvn`
 | demo-create-interest | 1 | true | `f08042f184a1f702c8148ed6fb9f663f37f5d2f08e8f932f3b13084ac67fa203` |
 | onboarding-command | 1 | true | `bc735166085fa7918a2da8fcab15d728344b0cb13163620439747b09e8e28421` |
 | qa-create-role-pack | 1 | true | `04a2646025c531f1f6392cf367aa5d0849df2092d190a2d281e83de8f90dba23` |
-| qa-cleanup-role-pack | 1 | true | `31795802a3327ffe02db91fddb405d6065ad38e9ef0d86e701401b81a01a4c1e` |
+| qa-cleanup-role-pack | 1 | true | `31795802a3327ffe02db91fddb405d6065ad38f90acc87c2cfdec76964b158a1` |
 | account-setup-command | 1 | true | `c623be24f4b7dccf2a63a64d7070798ea56d9b0e879e58248e79a828c91cd91d` |
 | form-command | 1 | true | `96fd9d8141971b660a15bf343692e6c5e33704655f897d6e55d66c80016b02c9` |
 
