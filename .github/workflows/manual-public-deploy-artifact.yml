@@ -1,0 +1,38 @@
+name: Manual AidMe dev deploy artifact
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/manual-public-deploy-artifact.yml'
+      - 'public-site/current/**'
+
+permissions:
+  contents: read
+
+jobs:
+  build-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build exact approved public source for dev.aidme.no
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd public-site/current
+          CONTEXT=deploy-preview URL='https://dev.aidme.no' node seo-build.mjs
+          test -f _site/index.html
+          test -f _site/_headers
+          grep -q 'X-Robots-Tag: noindex, nofollow' _site/_headers
+          cd _site
+          zip -qr "$GITHUB_WORKSPACE/AidMe_DEV_manual_deploy.zip" .
+          cd "$GITHUB_WORKSPACE"
+          unzip -l AidMe_DEV_manual_deploy.zip | grep -q ' index.html$'
+          sha256sum AidMe_DEV_manual_deploy.zip > AidMe_DEV_manual_deploy.zip.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AidMe_DEV_manual_deploy
+          path: |
+            AidMe_DEV_manual_deploy.zip
+            AidMe_DEV_manual_deploy.zip.sha256
+          if-no-files-found: error
+          retention-days: 3
