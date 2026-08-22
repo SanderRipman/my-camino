@@ -96,3 +96,5 @@ jobs:
         run: node portal/go-decision-journey-smoke.mjs
       - name: Verify pre-SER participant agreement/readiness v2 invariants
         run: node portal/pre-ser-agreement-smoke.mjs
+      - name: Verify SER day-zero / normal-day and VIDA living-plan invariants
+        run: node portal/ser-vida-journey-smoke.mjs
