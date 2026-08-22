@@ -17,6 +17,7 @@ const goDecisionPath=path.join(dir,'app-go-decision.js');
 const serVidaPath=path.join(dir,'app-ser-vida.js');
 const serVidaHandoffPath=path.join(dir,'app-ser-vida-handoff.js');
 const vidaNewViaPath=path.join(dir,'app-vida-new-via.js');
+const pilotEvaluationPath=path.join(dir,'app-pilot-evaluation.js');
 const outPath=path.join(dir,'app.js');
 let code=fs.readFileSync(sourcePath,'utf8');
 const ops=fs.readFileSync(opsPath,'utf8');
@@ -32,6 +33,7 @@ const goDecision=fs.readFileSync(goDecisionPath,'utf8');
 const serVida=fs.readFileSync(serVidaPath,'utf8');
 const serVidaHandoff=fs.readFileSync(serVidaHandoffPath,'utf8');
 const vidaNewVia=fs.readFileSync(vidaNewViaPath,'utf8');
+const pilotEvaluation=fs.readFileSync(pilotEvaluationPath,'utf8');
 
 function replaceOnce(label,needle,replacement){
  const first=code.indexOf(needle);if(first<0)throw new Error(`${label}: source pattern missing`);if(code.indexOf(needle,first+1)>=0)throw new Error(`${label}: source pattern is not unique`);code=code.replace(needle,replacement);
@@ -83,5 +85,6 @@ code += '\n\n/* GO decision handoff is appended last so agreement, Pilot-GO and 
 code += '\n\n/* SER day-zero / normal-day and VIDA living-plan guidance is appended last and remains presentation-only. */\n'+serVida+'\n';
 code += '\n\n/* Explicit staff SER→VIDA handoff uses the existing workflow command and preserves participant-only phase actions. */\n'+serVidaHandoff+'\n';
 code += '\n\n/* Optional new VÍA remains an explicit staff-triggered new start point after VIDA, never an automatic fourth step. */\n'+vidaNewVia+'\n';
+code += '\n\n/* Project-level pilot evaluation is an aggregated learning entry, not a participant gate. */\n'+pilotEvaluation+'\n';
 fs.writeFileSync(outPath,code,'utf8');
 console.log(`Built ${path.relative(process.cwd(),outPath)} (${code.length} bytes)`);
