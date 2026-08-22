@@ -26,7 +26,7 @@
     {"path":"prototype_manifest.json","size":747,"sha256":"9d831e9daea3b23983a84954cc52097075f9ecb7b763c919b5a3ba791efe362d"},
     {"path":"refine.css","size":13340,"sha256":"c70ac7eb37e7bee954125e199b85a65681dd142ca6951aea52efd5168855195a"},
     {"path":"ruter.html","size":18675,"sha256":"c7cc55af50f7b1f256fc628019357e22564e382de4580e33b3e44208d113ea1b"},
-    {"path":"seo-build.mjs","size":4064,"sha256":"184e856a28a2a87ca21a5bee9539e3ddfe41d20b727801d35cd241b146a26b4c"},
+    {"path":"seo-build.mjs","size":4060,"sha256":"d4a85af15976cbea301ad12a066b15e7e3c508dccf0defa604d01d0124e73fdb"},
     {"path":"ser.html","size":10827,"sha256":"9297d4d08ba1d1599e2c4f20faad39ed58209bb0b3d0fe5837b8e8d42e808b2a"},
     {"path":"site.css","size":11294,"sha256":"53f2739715e111fabd15a2941e8280be2552341a5b6519cf8775af192314b076"},
     {"path":"site.js","size":6382,"sha256":"212af44933bda211c1c88e3e4930815fec3a17187111d4bc4eb552688c820b7a"},

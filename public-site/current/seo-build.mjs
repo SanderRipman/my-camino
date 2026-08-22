@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const out = join(here, '_site');
-const canonicalOrigin = 'https://www.aidme.no';
+const canonicalOrigin = 'https://aidme.no';
 const indexablePages = [
   'index.html',
   'via.html',

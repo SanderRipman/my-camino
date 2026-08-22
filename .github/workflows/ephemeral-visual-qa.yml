@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate mobile-only fail-safe shell against immutable candidate and live Wix
+      - name: Validate rollback shell and direct Netlify production
         shell: bash
         run: |
           set -euo pipefail
@@ -26,7 +26,7 @@ jobs:
           mkdir -p visual-qa /tmp/aidme-shell-test /tmp/aidme-assets
 
           CANDIDATE='https://6a84e458653a15b76ca8f95e--aidme-public-candidate-20260817.netlify.app'
-          LIVE="https://www.aidme.no/?qa=${GITHUB_SHA}"
+          PROD='https://aidme-public-candidate-20260817.netlify.app'
           curl --fail --silent --show-error "${CANDIDATE}/site.js?qa=${GITHUB_SHA}" -o /tmp/candidate-site.js
           grep -q 'shellPresentation' /tmp/candidate-site.js
           grep -q 'aidme-shell' /tmp/candidate-site.js
@@ -43,6 +43,7 @@ jobs:
             file "/tmp/aidme-assets/${asset}" | grep -qi 'Web/P\|WebP'
           done
 
+          # Keep the old Wix wrapper fail-safe test as rollback coverage.
           cp ops/wix/aidme-public-shell.js /tmp/aidme-shell-test/shell.js
           {
             printf '%s\n' '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0"><div id="SITE_CONTAINER" style="height:420px;background:#ddd">LEGACY-FALLBACK</div><script>'
@@ -84,36 +85,23 @@ jobs:
           ! grep -q '<div id="aidme-public-git-shell"' visual-qa/desktop-dom.html
           grep -q 'LEGACY-FALLBACK' visual-qa/desktop-dom.html
 
-          # Live Wix may legitimately remain fail-safe in headless Chrome if the
-          # embedded Git page cannot be fully validated there. The invariant is
-          # therefore not "Git shell must always activate"; it is "never hide
-          # the Wix fallback unless a validated Git shell is active".
+          # Production is now top-level Netlify. It must render the public source
+          # directly and must not depend on the retired live Wix wrapper.
           timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
             --window-size=500,900 --virtual-time-budget=15000 --dump-dom \
-            "$LIVE" > visual-qa/live-mobile-dom.html || test -s visual-qa/live-mobile-dom.html
-          live_root=$(grep -o '<div id="aidme-public-git-shell"[^>]*>' visual-qa/live-mobile-dom.html | head -1 || true)
-          echo "LIVE_ROOT_TAG=$live_root"
-          test -n "$live_root"
-          if printf '%s' "$live_root" | grep -q 'data-state="active"'; then
-            grep -q 'data-aidme-legacy-hidden="1"' visual-qa/live-mobile-dom.html
-            live_host=$(printf '%s' "$live_root" | grep -o 'data-host-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*' || true)
-            live_viewport=$(printf '%s' "$live_root" | grep -o 'data-viewport-width="[0-9][0-9]*"' | head -1 | grep -o '[0-9][0-9]*' || true)
-            test -n "$live_host"
-            test -n "$live_viewport"
-            live_delta=$(( live_host > live_viewport ? live_host - live_viewport : live_viewport - live_host ))
-            test "$live_delta" -le 2
-            printf 'live_outcome=validated-git-shell\n' >> visual-qa/result.txt
-          else
-            grep -q 'id="SITE_CONTAINER"' visual-qa/live-mobile-dom.html
-            ! grep -q 'data-aidme-legacy-hidden="1"' visual-qa/live-mobile-dom.html
-            printf '%s' "$live_root" | grep -Eq 'data-state="booting"|data-state="failed"'
-            printf 'live_outcome=visible-wix-fallback\n' >> visual-qa/result.txt
-          fi
+            "${PROD}/?qa=${GITHUB_SHA}" > visual-qa/prod-mobile-dom.html || test -s visual-qa/prod-mobile-dom.html
+          grep -q '<footer class="site-footer"' visual-qa/prod-mobile-dom.html
+          grep -q 'AidMe' visual-qa/prod-mobile-dom.html
+          ! grep -q '<div id="aidme-public-git-shell"' visual-qa/prod-mobile-dom.html
+          ! grep -q 'id="SITE_CONTAINER"' visual-qa/prod-mobile-dom.html
+          printf 'production_outcome=direct-netlify-public\n' >> visual-qa/result.txt
 
           timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
             --window-size=1440,900 --virtual-time-budget=12000 --dump-dom \
-            "$LIVE" > visual-qa/live-desktop-dom.html || test -s visual-qa/live-desktop-dom.html
-          ! grep -q '<div id="aidme-public-git-shell"' visual-qa/live-desktop-dom.html
+            "${PROD}/?qa=${GITHUB_SHA}" > visual-qa/prod-desktop-dom.html || test -s visual-qa/prod-desktop-dom.html
+          grep -q '<footer class="site-footer"' visual-qa/prod-desktop-dom.html
+          grep -q 'AidMe' visual-qa/prod-desktop-dom.html
+          ! grep -q '<div id="aidme-public-git-shell"' visual-qa/prod-desktop-dom.html
 
           capture() {
             local name="$1" width="$2" height="$3" url="$4"
@@ -126,8 +114,8 @@ jobs:
           capture shell-mobile 500 2200 'http://127.0.0.1:8765/'
           capture direct-mobile 500 2200 "${CANDIDATE}/?aidme-shell=1"
           capture direct-desktop 1440 1800 "${CANDIDATE}/?aidme-shell=1"
-          capture live-mobile 500 2200 "$LIVE"
-          capture live-desktop 1440 1800 "$LIVE"
+          capture production-mobile 500 2200 "${PROD}/?qa=${GITHUB_SHA}"
+          capture production-desktop 1440 1800 "${PROD}/?qa=${GITHUB_SHA}"
           sha256sum visual-qa/*.png > visual-qa/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         if: always()
