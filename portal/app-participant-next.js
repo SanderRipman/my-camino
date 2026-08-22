@@ -3,12 +3,18 @@
 
 function participantNextAction(participant,task){
   if(!participant)return null;
-  const phase=stageLabel(participant.stage);
-  if(phase==='VÍA'||phase==='ny VÍA')return{
+  const stage=participant.stage,phase=stageLabel(stage);
+  if(['VIA','READY_FOR_GO','INTEREST','NEW_VIA'].includes(stage))return{
     label:task?.workflow_key==='participant_via_start'?'Start mitt VÍA-veikart':'Åpne mitt VÍA-veikart',
     href:`./form-runner.html?key=via_roadmap&participant=${encodeURIComponent(participant.id)}`,
     hint:'Her avklarer du retning, ressurser og det som må være på plass før neste beslutning. Dette er ikke en GO/NO-GO-beslutning.'
   };
+  if(stage==='GO'||stage==='GO_WITH_CONDITIONS')return{
+    label:'Bekreft avtale og neste rammer',
+    href:`./form-runner.html?key=participant_agreement&participant=${encodeURIComponent(participant.id)}`,
+    hint:stage==='GO_WITH_CONDITIONS'?'Din VÍA er avklart med vilkår. Les og bekreft dine rammer; vilkår og samlet SER-gate må fortsatt lukkes før eventuell oppstart.':'Din VÍA er avklart. Les og bekreft avtalen og de praktiske rammene. GO betyr ikke at SER har startet.'
+  };
+  if(stage==='POSTPONED'||stage==='NO_GO')return null;
   if(phase==='SER')return{
     label:'Åpne dagens SER-steg',
     href:`./form-runner.html?key=ser_daily&participant=${encodeURIComponent(participant.id)}`,

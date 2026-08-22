@@ -92,3 +92,5 @@ jobs:
         run: node portal/journey-role-smoke.mjs
       - name: Verify VÍA roadmap handoff invariants
         run: node portal/via-handoff-smoke.mjs
+      - name: Verify GO decision and pre-SER journey invariants
+        run: node portal/go-decision-journey-smoke.mjs
