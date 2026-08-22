@@ -33,6 +33,8 @@ jobs:
           grep -q 'Tre steg er hele løpet' public-site/current/n1-ux.js
           grep -q 'Se om dette kan passe for meg' public-site/current/n1-ux.js
           grep -q 'Målgang, mestring' public-site/current/n1-ux.js
+          grep -q 'Ingen tro, religiøs praksis eller bestemt livssyn kreves' public-site/current/n1-ux.js
+          grep -q 'No faith, religious practice or particular worldview is required' public-site/current/n1-ux.js
           grep -q 'n1-ux.js' public-site/current/site.js
           grep -q 'n1-intake-safe.js' public-site/current/kontakt.html
           grep -q 'n1-intake-safe.js' public-site/current/takk.html
