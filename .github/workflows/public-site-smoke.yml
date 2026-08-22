@@ -41,6 +41,7 @@ jobs:
           test -f "$ROOT/n1-ux.css"
           test -f "$ROOT/n1-intake-safe.js"
           test -f "$ROOT/n1-feedback-completion.js"
+          test -f "$ROOT/post-cutover-live.js"
           test -f "$ROOT/takk.html"
           test -f "$ROOT/SOURCE_PARITY_MANIFEST_2026-08-18.json"
           grep -q 'naturalContentHeight' "$ROOT/site.js"
@@ -52,15 +53,16 @@ jobs:
           grep -q 'my.AidMe' "$ROOT/site.js"
           grep -q 'n1-ux.js' "$ROOT/site.js"
           grep -q 'n1-feedback-completion.js' "$ROOT/site.js"
+          grep -q 'post-cutover-live.js' "$ROOT/site.js"
           grep -q 'grid-template-columns: 1fr' "$ROOT/mobile-ux.css"
           grep -q 'Gå videre til VIDA' "$ROOT/ser.html"
           grep -q 'Under lading' "$ROOT/via.html"
           grep -q 'n1-intake-safe.js' "$ROOT/kontakt.html"
 
           # Preserve exact known bytes for the verified layered public source.
-          # site.js intentionally changed in the feedback-completion release to
-          # sequence the additive feedback layer after canonical n1-ux.js.
-          test "$(git hash-object "$ROOT/site.js")" = 'fc994876dc3d6e920884b3f2fee4e0244ebd84fc'
+          # site.js now sequences the approved post-cutover layer after canonical N1 UX.
+          test "$(git hash-object "$ROOT/site.js")" = '4dddd0aff213ee9a7863b79ebdcb7711b044dc52'
+          test "$(git hash-object "$ROOT/post-cutover-live.js")" = 'feb494f23f96c1955e841d97d3d764536bf0fa73'
           test "$(git hash-object "$ROOT/mobile-ux.css")" = '9512227a22ba281f94644887c5e723bedb8b02dd'
           test "$(git hash-object "$ROOT/kontakt.html")" = '2f4664cc1a6aca8184c20960c90dafd452d1fecb'
 
@@ -78,7 +80,6 @@ jobs:
 
           for item in manifest.get('files', []):
               rel = item['path']
-              # Layered public UX changes are additive/reversible and explicitly pinned above.
               if rel in layered:
                   continue
               expected_size = int(item['size'])
