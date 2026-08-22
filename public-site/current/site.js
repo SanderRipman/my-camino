@@ -232,3 +232,17 @@
   }, { once: true });
   document.body.appendChild(script);
 })();
+
+/* 2026-08-22 owner-approved post-cutover feedback layer. */
+(() => {
+  const load = () => {
+    if (document.querySelector('script[data-aidme-post-cutover-live]')) return;
+    const script = document.createElement('script');
+    script.src = 'post-cutover-live.js?v=20260822b';
+    script.dataset.aidmePostCutoverLive = '1';
+    script.async = false;
+    document.body.appendChild(script);
+  };
+  if (document.readyState === 'complete') load();
+  else window.addEventListener('load', load, { once: true });
+})();
