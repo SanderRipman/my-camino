@@ -98,3 +98,5 @@ jobs:
         run: node portal/pre-ser-agreement-smoke.mjs
       - name: Verify SER day-zero / normal-day and VIDA living-plan invariants
         run: node portal/ser-vida-journey-smoke.mjs
+      - name: Verify explicit SER to VIDA staff handoff invariants
+        run: node portal/ser-vida-handoff-smoke.mjs
