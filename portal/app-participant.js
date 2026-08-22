@@ -1,7 +1,18 @@
 (()=>{
 'use strict';
 
+function participantPhaseLabel(stage){
+  if(stage==='GO')return'VÍA · avklart';
+  if(stage==='GO_WITH_CONDITIONS')return'VÍA · vilkår';
+  if(stage==='POSTPONED')return'VÍA · utsatt';
+  if(stage==='NO_GO')return'VÍA · annen vei nå';
+  return stageLabel(stage);
+}
 function participantStageCopy(stage){
+  if(stage==='GO')return'VÍA er avklart. Neste steg er deltakeravtale, beredskap og samlet SER-gate. GO er ikke det samme som oppstart.';
+  if(stage==='GO_WITH_CONDITIONS')return'VÍA er avklart med vilkår. Vilkårene og neste rammer må lukkes før en eventuell SER-start.';
+  if(stage==='POSTPONED')return'VÍA er utsatt. Det er ikke et avslag; ansvarlig følger opp hva som må avklares og når en ny vurdering er riktig.';
+  if(stage==='NO_GO')return'SER er ikke riktig neste steg nå. Du skal få en tydelig og trygg viderevei; dette er ikke en permanent dom over hva som kan være mulig senere.';
   const s=stageLabel(stage);
   if(s==='SER')return'Under · erfaring, rytme og trygg tilpasning';
   if(s==='VIDA')return'Etter · erfaring omsettes til handling hjemme';
@@ -11,11 +22,13 @@ function participantStageCopy(stage){
 function participantOpenTasks(p){return tasks.filter(t=>t.participant_id===p?.id&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status))}
 function participantTaskTone(t){const s=severity(t);return s==='RED'?'Viktig':s==='YELLOW'?'Avklares':'Neste steg'}
 function participantFormKeys(stage){
+  if(stage==='GO'||stage==='GO_WITH_CONDITIONS')return new Set(['participant_agreement']);
+  if(stage==='POSTPONED'||stage==='NO_GO')return new Set();
   const s=stageLabel(stage);
-  if(s==='SER')return new Set(['ser_daily','participant_agreement']);
+  if(s==='SER')return new Set(['ser_daily']);
   if(s==='VIDA')return new Set(['vida_plan']);
   if(s==='ny VÍA')return new Set(['via_roadmap']);
-  return new Set(['info_before_via','via_roadmap','participant_agreement']);
+  return new Set(['info_before_via','via_roadmap']);
 }
 
 const staffTaskRow=taskRow;
@@ -31,8 +44,8 @@ const staffRenderPulse=renderPulse;
 renderPulse=function(){
   if(isStaff())return staffRenderPulse();
   const p=ownParticipant();if(!p){$('#groupPulse').innerHTML='<p>Reisen din er ikke aktivert ennå.</p>';return}
-  const l=latestCheckin(p.id),open=participantOpenTasks(p),phase=stageLabel(p.stage);
-  $('#groupPulse').innerHTML=`<div class="pulse-row"><i class="dot ${phase==='SER'?'ser':phase==='VIDA'?'vida':'via'}"></i><div><b>${escapeHtml(phase)} · din reise</b><small>${l?.checkin_date?`Sist innsjekk ${escapeHtml(l.checkin_date)}`:'Ingen innsjekk ennå'}</small></div><small>${open.length} åpne steg</small></div>`;
+  const l=latestCheckin(p.id),open=participantOpenTasks(p),base=stageLabel(p.stage),phase=participantPhaseLabel(p.stage);
+  $('#groupPulse').innerHTML=`<div class="pulse-row"><i class="dot ${base==='SER'?'ser':base==='VIDA'?'vida':'via'}"></i><div><b>${escapeHtml(phase)} · din reise</b><small>${l?.checkin_date?`Sist innsjekk ${escapeHtml(l.checkin_date)}`:'Ingen innsjekk ennå'}</small></div><small>${open.length} åpne steg</small></div>`;
 };
 
 const staffRenderParticipants=renderParticipants;
@@ -41,8 +54,8 @@ renderParticipants=function(){
   const p=ownParticipant();$('#participantsNavLabel').textContent='Min reise';$('#participantsHeading').textContent='Min reise';$('#participantsIntro').textContent='Fase, neste handling og det som er relevant for deg – uten interne arbeidsmarkører.';
   selectedParticipantId=p?.id||null;
   if(!p){$('#participantList').innerHTML='<p>Ingen aktiv reise ennå.</p>';$('#participantDetail').innerHTML='<h3>Reisen din er ikke aktivert ennå</h3><p>Kontakt AidMe-kontakten din dersom du forventet tilgang.</p>';fillParticipantSelect();return}
-  const phase=stageLabel(p.stage),open=participantOpenTasks(p);
-  $('#participantList').innerHTML=`<button class="participant-card active" data-participant-id="${p.id}"><i class="dot ${phase==='SER'?'ser':phase==='VIDA'?'vida':'via'}"></i><div><b>${escapeHtml(p.code_name)}</b><small>${escapeHtml(phase)} · ${open.length} åpne steg</small></div><span class="pill">${escapeHtml(phase)}</span></button>`;
+  const base=stageLabel(p.stage),phase=participantPhaseLabel(p.stage),open=participantOpenTasks(p);
+  $('#participantList').innerHTML=`<button class="participant-card active" data-participant-id="${p.id}"><i class="dot ${base==='SER'?'ser':base==='VIDA'?'vida':'via'}"></i><div><b>${escapeHtml(p.code_name)}</b><small>${escapeHtml(phase)} · ${open.length} åpne steg</small></div><span class="pill">${escapeHtml(phase)}</span></button>`;
   renderParticipantDetail();fillParticipantSelect();
 };
 
@@ -50,8 +63,8 @@ const staffRenderParticipantDetail=renderParticipantDetail;
 renderParticipantDetail=function(){
   if(isStaff())return staffRenderParticipantDetail();
   const p=ownParticipant();if(!p){$('#participantDetail').innerHTML='<h3>Ingen aktiv reise ennå</h3>';return}
-  const phase=stageLabel(p.stage),pilot=participantPilot(p.id),r=routeToday(pilot?.id),open=participantOpenTasks(p),ordered=[...open].sort((a,b)=>new Date(a.due_at||'2999')-new Date(b.due_at||'2999')),next=ordered[0],idx=stageIndex(p.stage);
-  $('#participantDetail').innerHTML=`<div class="card-head"><div><p class="eyebrow">${escapeHtml(phase)} · din reise</p><h2>${escapeHtml(p.code_name)}</h2></div><span class="pill">${escapeHtml(phase)}</span></div><p>${escapeHtml(participantStageCopy(p.stage))}</p><div class="detail-grid"><div class="detail-stat"><span>Fase</span><strong>${escapeHtml(phase)}</strong></div><div class="detail-stat"><span>Neste frist</span><strong>${escapeHtml(next?formatDate(next.due_at):'Ingen frist')}</strong></div><div class="detail-stat"><span>Åpne steg</span><strong>${open.length}</strong></div><div class="detail-stat"><span>${phase==='SER'?'Dagens etappe':'Gruppe / rute'}</span><strong>${escapeHtml(phase==='SER'&&r?`${r.from_place} → ${r.to_place}`:(pilot?.route_name||'Avklares senere'))}</strong></div></div><h3>Din neste handling</h3><div class="task-list">${ordered.length?ordered.slice(0,4).map(taskRow).join(''):'<p>Du har ingen åpne steg akkurat nå.</p>'}</div><h3>Hvor du er i reisen</h3><div class="process-flow">${processMarkup(idx)}</div>`;
+  const base=stageLabel(p.stage),phase=participantPhaseLabel(p.stage),pilot=participantPilot(p.id),r=routeToday(pilot?.id),open=participantOpenTasks(p),ordered=[...open].sort((a,b)=>new Date(a.due_at||'2999')-new Date(b.due_at||'2999')),next=ordered[0],idx=stageIndex(p.stage);
+  $('#participantDetail').innerHTML=`<div class="card-head"><div><p class="eyebrow">${escapeHtml(phase)} · din reise</p><h2>${escapeHtml(p.code_name)}</h2></div><span class="pill">${escapeHtml(phase)}</span></div><p>${escapeHtml(participantStageCopy(p.stage))}</p><div class="detail-grid"><div class="detail-stat"><span>Fase</span><strong>${escapeHtml(phase)}</strong></div><div class="detail-stat"><span>Neste frist</span><strong>${escapeHtml(next?formatDate(next.due_at):'Ingen frist')}</strong></div><div class="detail-stat"><span>Åpne steg</span><strong>${open.length}</strong></div><div class="detail-stat"><span>${base==='SER'?'Dagens etappe':'Gruppe / rute'}</span><strong>${escapeHtml(base==='SER'&&r?`${r.from_place} → ${r.to_place}`:(pilot?.route_name||'Avklares senere'))}</strong></div></div><h3>Din neste handling</h3><div class="task-list">${ordered.length?ordered.slice(0,4).map(taskRow).join(''):'<p>Du har ingen åpne steg akkurat nå.</p>'}</div><h3>Hvor du er i reisen</h3><div class="process-flow">${processMarkup(idx)}</div>`;
   $$('#participantDetail .task-row').forEach(b=>b.addEventListener('click',()=>openTask(b.dataset.taskId)));
 };
 
@@ -60,7 +73,7 @@ renderForms=function(){
   if(isStaff())return staffRenderForms();
   const p=ownParticipant(),keys=participantFormKeys(p?.stage),participant=p?.id||'';
   const defs=formDefs.filter(f=>(f.scope==='participant'||f.scope==='participant_staff')&&keys.has(f.key));
-  $('#formLibrary').innerHTML=defs.length?defs.map((f,i)=>`<a class="form-module" style="text-decoration:none;color:inherit" href="./form-runner.html?key=${encodeURIComponent(f.key)}${participant?'&participant='+encodeURIComponent(participant):''}"><span class="num">${String(i+1).padStart(2,'0')}</span><h3>${escapeHtml(f.title_no)}</h3><p>${escapeHtml(f.key==='info_before_via'?'Kort informasjon før du går videre.':f.key==='via_roadmap'?'Ditt veikart og neste avklaringer i VÍA.':f.key==='participant_agreement'?'Avtaler og kontaktvalg som gjelder reisen din.':f.key==='ser_daily'?'Din korte daglige SER-oppfølging.':'Din levende VIDA-plan og neste handling hjemme.')}</p><div class="meta"><span>${escapeHtml(stageLabel(p?.stage||'VIA'))}</span><span>Åpne →</span></div></a>`).join(''):'<p>Ingen skjemaer krever noe fra deg i denne fasen.</p>';
+  $('#formLibrary').innerHTML=defs.length?defs.map((f,i)=>`<a class="form-module" style="text-decoration:none;color:inherit" href="./form-runner.html?key=${encodeURIComponent(f.key)}${participant?'&participant='+encodeURIComponent(participant):''}"><span class="num">${String(i+1).padStart(2,'0')}</span><h3>${escapeHtml(f.title_no)}</h3><p>${escapeHtml(f.key==='info_before_via'?'Kort informasjon før du går videre.':f.key==='via_roadmap'?'Ditt veikart og neste avklaringer i VÍA.':f.key==='participant_agreement'?'Din egen bekreftelse av avtale, kontaktvalg og praktiske rammer før neste gate.':f.key==='ser_daily'?'Din korte daglige SER-oppfølging.':'Din levende VIDA-plan og neste handling hjemme.')}</p><div class="meta"><span>${escapeHtml(participantPhaseLabel(p?.stage||'VIA'))}</span><span>Åpne →</span></div></a>`).join(''):'<p>Ingen skjemaer krever noe fra deg i denne fasen.</p>';
 };
 
 const staffRenderAnalysis=renderAnalysis;
@@ -73,7 +86,7 @@ renderAnalysis=function(){
 
 function adaptParticipantChrome(){
   if(isStaff())return;
-  const p=ownParticipant(),open=participantOpenTasks(p),overdue=t=>!!t.due_at&&new Date(t.due_at)<new Date(),important=open.filter(t=>severity(t)==='RED'||overdue(t)).length,clarify=open.filter(t=>severity(t)==='YELLOW'&&!overdue(t)).length,phase=stageLabel(p?.stage||'VIA');
+  const p=ownParticipant(),open=participantOpenTasks(p),overdue=t=>!!t.due_at&&new Date(t.due_at)<new Date(),important=open.filter(t=>severity(t)==='RED'||overdue(t)).length,clarify=open.filter(t=>severity(t)==='YELLOW'&&!overdue(t)).length,phase=participantPhaseLabel(p?.stage||'VIA');
   const cards=$$('#view-overview .metric-grid .metric');
   const setCard=(i,label,value,hint)=>{const c=cards[i];if(!c)return;c.querySelector('span').textContent=label;c.querySelector('strong').textContent=value;c.querySelector('small').textContent=hint};
   setCard(0,'Mine åpne steg',open.length,'det du kan gjøre nå');setCard(1,'Viktig nå',important,'prioritert for deg');setCard(2,'Trenger avklaring',clarify,'kan vente på svar');setCard(3,'Min fase',phase,participantStageCopy(p?.stage));
