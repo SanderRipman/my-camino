@@ -222,5 +222,13 @@
   const script = document.createElement("script");
   script.src = "n1-ux.js?v=20260821a";
   script.dataset.aidmeN1 = "1";
+  script.async = false;
+  script.addEventListener("load", () => {
+    const delta = document.createElement("script");
+    delta.src = "n1-feedback-completion.js?v=20260822a";
+    delta.dataset.aidmeN1FeedbackCompletion = "1";
+    delta.async = false;
+    document.body.appendChild(delta);
+  }, { once: true });
   document.body.appendChild(script);
 })();
