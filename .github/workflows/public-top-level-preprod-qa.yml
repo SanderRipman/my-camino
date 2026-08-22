@@ -1,0 +1,163 @@
+name: Public top-level preprod QA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/public-top-level-preprod-qa.yml'
+      - 'public-site/current/**'
+
+permissions:
+  contents: read
+
+jobs:
+  top-level-preprod:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build exact current public source as dev preprod
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd public-site/current
+          CONTEXT=deploy-preview URL='https://dev.aidme.no' node seo-build.mjs | tee /tmp/public-build.log
+          grep -q 'noindex=true' /tmp/public-build.log
+          test -f _site/index.html
+          test -f _site/robots.txt
+          test -f _site/sitemap.xml
+          grep -q 'X-Robots-Tag: noindex, nofollow' _site/_headers
+          grep -qi '<meta name="robots" content="[^"]*noindex' _site/takk.html
+
+      - name: Validate routes, metadata and source integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          import re
+
+          root = Path('public-site/current/_site')
+          pages = ['index.html','via.html','ser.html','vida.html','deltakere.html','partnere.html','ruter.html','om.html','kontakt.html']
+
+          class Links(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.links=[]
+              def handle_starttag(self, tag, attrs):
+                  if tag != 'a': return
+                  href = dict(attrs).get('href')
+                  if href: self.links.append(href)
+
+          errors=[]
+          for page in pages:
+              path=root/page
+              if not path.is_file(): errors.append(f'MISSING {page}'); continue
+              text=path.read_text(encoding='utf-8')
+              if len(re.findall(r'<h1\b', text, flags=re.I)) != 1: errors.append(f'H1 {page}')
+              if '<footer class="site-footer"' not in text: errors.append(f'FOOTER {page}')
+              if 'rel="canonical"' not in text: errors.append(f'CANONICAL {page}')
+              if 'property="og:title"' not in text or 'property="og:url"' not in text: errors.append(f'OG {page}')
+              parser=Links(); parser.feed(text)
+              for href in parser.links:
+                  if href.startswith(('#','mailto:','tel:','http://','https://')): continue
+                  target=href.split('?',1)[0].split('#',1)[0] or page
+                  if target == '/': target='index.html'
+                  target=target.lstrip('/')
+                  if not (root/target).exists(): errors.append(f'BROKEN {page} -> {href}')
+          sitemap=(root/'sitemap.xml').read_text(encoding='utf-8')
+          if sitemap.count('<url>') != 9: errors.append('SITEMAP_COUNT')
+          contact=(root/'kontakt.html').read_text(encoding='utf-8')
+          if 'n1-intake-safe.js' not in contact: errors.append('CONTACT_FAILSAFE_SCRIPT')
+          if errors:
+              raise SystemExit('\n'.join(errors))
+          print('Static route/metadata/deep-link checks passed for all 9 indexable pages.')
+          PY
+          node --check public-site/current/site.js
+          node --check public-site/current/n1-ux.js
+          node --check public-site/current/n1-feedback-completion.js
+          node --check public-site/current/n1-intake-safe.js
+
+      - name: Render current-source mobile and desktop matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME"
+          OUT="$GITHUB_WORKSPACE/top-level-qa"
+          SITE="$GITHUB_WORKSPACE/public-site/current/_site"
+          QA_SITE=/tmp/aidme-current-top-level
+          mkdir -p "$OUT/dom" "$OUT/screens" "$QA_SITE"
+          cp -a "$SITE"/. "$QA_SITE"/
+
+          # Add a hidden test-only marker to temporary copies so headless Chrome can
+          # expose computed overflow/footer metrics without changing repository source.
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('/tmp/aidme-current-top-level')
+          pages=['index.html','via.html','ser.html','vida.html','deltakere.html','partnere.html','ruter.html','om.html','kontakt.html']
+          probe=r'''<script id="qa-probe">window.addEventListener('load',()=>setTimeout(()=>{const d=document.documentElement,b=document.body,f=document.querySelector('footer.site-footer');const m=document.createElement('div');m.id='qa-metrics';m.hidden=true;m.dataset.clientWidth=String(d.clientWidth);m.dataset.scrollWidth=String(d.scrollWidth);m.dataset.scrollHeight=String(d.scrollHeight);m.dataset.footerBottom=f?String(Math.ceil(f.getBoundingClientRect().bottom+window.scrollY)):'0';m.dataset.images=String([...document.images].filter(i=>i.complete&&i.naturalWidth>0).length);m.dataset.imageErrors=String([...document.images].filter(i=>i.complete&&i.naturalWidth===0).length);b.appendChild(m);},800));</script>'''
+          for page in pages:
+              p=root/page
+              text=p.read_text(encoding='utf-8')
+              if '</body>' not in text.lower(): raise SystemExit(f'no body close: {page}')
+              idx=text.lower().rfind('</body>')
+              p.write_text(text[:idx]+probe+text[idx:],encoding='utf-8')
+          PY
+
+          python3 -m http.server 8877 --directory "$QA_SITE" >/tmp/aidme-current-top-level.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          sleep 1
+
+          pages=(index via ser vida deltakere partnere ruter om kontakt)
+          widths=(320 360 390 412 1440)
+          : > "$OUT/metrics.tsv"
+          printf 'page\twidth\tclientWidth\tscrollWidth\tscrollHeight\tfooterBottom\timages\timageErrors\n' >> "$OUT/metrics.tsv"
+
+          for page in "${pages[@]}"; do
+            for width in "${widths[@]}"; do
+              url="http://127.0.0.1:8877/${page}.html?qa=${GITHUB_SHA}"
+              dom="$OUT/dom/${page}-${width}.html"
+              timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+                --hide-scrollbars --force-device-scale-factor=1 --window-size="${width},1000" \
+                --virtual-time-budget=12000 --dump-dom "$url" > "$dom" || test -s "$dom"
+              marker="$(grep -o '<div id="qa-metrics"[^>]*>' "$dom" | tail -1 || true)"
+              test -n "$marker"
+              python3 - "$page" "$width" "$marker" "$OUT/metrics.tsv" <<'PY'
+          import re,sys
+          page,width,marker,out=sys.argv[1:]
+          def n(key):
+              m=re.search(fr'data-{key}="([0-9]+)"',marker)
+              if not m: raise SystemExit(f'missing {key}: {page}@{width}')
+              return int(m.group(1))
+          client=n('client-width'); scroll=n('scroll-width'); height=n('scroll-height'); footer=n('footer-bottom'); images=n('images'); errors=n('image-errors')
+          if scroll > client + 2: raise SystemExit(f'horizontal overflow {page}@{width}: {scroll}>{client}')
+          if footer <= 0: raise SystemExit(f'missing footer metric {page}@{width}')
+          if height - footer > 160: raise SystemExit(f'blank tail {page}@{width}: {height-footer}px')
+          if errors: raise SystemExit(f'broken images {page}@{width}: {errors}')
+          with open(out,'a',encoding='utf-8') as f: f.write(f'{page}\t{width}\t{client}\t{scroll}\t{height}\t{footer}\t{images}\t{errors}\n')
+          PY
+            done
+
+            for spec in '390 3000 mobile' '1440 2400 desktop'; do
+              set -- $spec; width="$1"; height="$2"; label="$3"
+              timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+                --hide-scrollbars --force-device-scale-factor=1 --window-size="${width},${height}" \
+                --virtual-time-budget=12000 --screenshot="$OUT/screens/${page}-${label}.png" \
+                "http://127.0.0.1:8877/${page}.html?qa=${GITHUB_SHA}"
+              test -s "$OUT/screens/${page}-${label}.png"
+            done
+          done
+
+          printf '%s\n' "$GITHUB_SHA" > "$OUT/source-sha.txt"
+          cp /tmp/public-build.log "$OUT/build.log"
+          sha256sum "$OUT"/screens/*.png > "$OUT/SHA256SUMS.txt"
+          cat "$OUT/metrics.tsv"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aidme-public-current-top-level-qa
+          path: top-level-qa/
+          if-no-files-found: error
+          retention-days: 3
