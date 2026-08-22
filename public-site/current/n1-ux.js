@@ -24,7 +24,7 @@
 
   if(page==='index'){
     const heroP=document.querySelector('.hero-copy > p');
-    if(heroP && !document.querySelector('.camino-clarifier')) heroP.insertAdjacentHTML('afterend','<div class="camino-clarifier"><strong>Camino Portugués · Portugal → Spania</strong><span class="lang-no">En virkelig vandring – og en arena for veien videre.</span><span class="lang-en">A real walk – and an arena for the way forward.</span></div>');
+    if(heroP && !document.querySelector('.camino-clarifier')) heroP.insertAdjacentHTML('afterend','<div class="camino-clarifier"><strong>Camino Portugués · Portugal → Spania</strong><span class="lang-no">En virkelig vandring – og en arena for veien videre. Ingen tro, religiøs praksis eller bestemt livssyn kreves.</span><span class="lang-en">A real walk – and an arena for the way forward. No faith, religious practice or particular worldview is required.</span></div>');
     const heroCta=document.querySelector('.hero .cta-row a.gold'); setAnchor(heroCta,interestHref('hero'),'Se om dette kan passe for meg','See if this could fit me');
     const ribbon=document.querySelector('.journey-ribbon');
     if(ribbon){ ribbon.classList.add('n1-three'); const items=[...ribbon.children]; if(items[3]) items[3].remove(); if(!document.querySelector('.n1-safety-foundation')) ribbon.insertAdjacentHTML('afterend','<div class="n1-safety-foundation"><strong><span class="lang-no">Trygghet følger alle tre steg</span><span class="lang-en">Safety follows all three stages</span></strong> · <span class="lang-no">frivillig · individuelt vurdert · tilpasset</span><span class="lang-en">voluntary · individually assessed · adaptable</span></div>'); }
