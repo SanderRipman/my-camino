@@ -38,7 +38,7 @@ if (isPublicDev || isPublicProd) {
   const mode = isPublicProd ? 'PUBLIC PROD' : 'PUBLIC DEV';
   console.log(`Netlify build router: ${mode} (${siteId || siteName || host})`);
   const buildEnv = isPublicProd
-    ? { ...process.env, URL: 'https://www.aidme.no', CONTEXT: 'production' }
+    ? { ...process.env, URL: 'https://aidme.no', CONTEXT: 'production' }
     : process.env;
   run(process.execPath, ['public-site/current/seo-build.mjs'], buildEnv);
   await cp(resolve(root, 'public-site/current/_site'), out, { recursive: true });
