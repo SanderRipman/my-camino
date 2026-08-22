@@ -30,11 +30,17 @@ function ensureReviewPanel(){
   document.querySelector('#submissionList')?.closest('.panel-card')?.insertAdjacentElement('afterend',panel);
   return panel;
 }
+function agreementReviewNext(){
+  if(!isStaff()||currentDef?.key!=='participant_agreement')return'';
+  const pilot=selectedPilot();
+  const href=pilot?.id?`./form-runner.html?key=pilot_go&pilot=${encodeURIComponent(pilot.id)}`:'./#tasks';
+  return `<div class="preview-strip pre-ser-review-next"><strong>Neste formelle gate:</strong> Lukk avtale-review og eventuelle individuelle vilkår før samlet Pilot-GO. Deltakeravtalen er dokumentasjon og beredskap – ikke SER-start.<div class="form-actions"><a class="ghost" href="./#tasks">Til oppgaver</a><a class="primary" href="${href}">${pilot?.id?'Åpne samlet Pilot-GO':'Tilbake til oppgaver'}</a></div></div>`;
+}
 function renderSubmissionReview(row){
   const panel=ensureReviewPanel();if(!panel||!currentVersion)return;
   const sections=currentVersion.schema_json?.sections||[];
   const body=sections.map(sec=>`<section class="form-section review-section"><h3>${esc(sec.title||'Del')}</h3><div class="dynamic-grid">${(sec.fields||[]).map(field=>`<div class="field-wrap${['textarea','action','multi_select'].includes(field.type)?' full':''}"><label><span>${esc(field.label||field.key)}</span><div class="review-value">${esc(reviewValue(row.payload?.[field.key]))}</div></label></div>`).join('')}</div></section>`).join('');
-  panel.innerHTML=`<div class="card-head"><div><p class="eyebrow">Fullført · skrivebeskyttet</p><h2>${esc(currentDef?.title_no||'Skjema')}</h2><p>${reviewFormatDate(row.submitted_at||row.updated_at||row.created_at)} · v${currentVersion.version}</p></div><button id="closeSubmissionReview" class="ghost" type="button">Lukk visning</button></div><p class="privacy-note">Dette er den lagrede versjonen. Formell beslutning tas i riktig senere gate; et fullført skjema kan ikke redigeres her.</p>${body}`;
+  panel.innerHTML=`<div class="card-head"><div><p class="eyebrow">Fullført · skrivebeskyttet</p><h2>${esc(currentDef?.title_no||'Skjema')}</h2><p>${reviewFormatDate(row.submitted_at||row.updated_at||row.created_at)} · v${currentVersion.version}</p></div><button id="closeSubmissionReview" class="ghost" type="button">Lukk visning</button></div><p class="privacy-note">Dette er den lagrede versjonen. Formell beslutning tas i riktig senere gate; et fullført skjema kan ikke redigeres her.</p>${body}${agreementReviewNext()}`;
   panel.classList.remove('hidden');
   panel.querySelector('#closeSubmissionReview')?.addEventListener('click',()=>{panel.classList.add('hidden');panel.innerHTML='';});
   panel.scrollIntoView({behavior:'smooth',block:'start'});
@@ -78,6 +84,11 @@ save=async function(status){
     let box=document.querySelector('#participantFormHandoff');
     if(!box){box=document.createElement('div');box.id='participantFormHandoff';box.className='preview-strip';$('#dynamicForm')?.insertAdjacentElement('afterend',box)}
     box.innerHTML='<strong>Veikartet er sendt videre.</strong> VÍA-ansvarlig går nå gjennom retning, ressurser, beredskap og VIDA-broen sammen med deg før en eventuell formell GO/NO-GO. Du trenger ikke «godkjenne deg selv». <a href="./">Tilbake til min reise</a>';
+  }
+  if(!isStaff()&&own&&participant?.id===own.id&&key==='participant_agreement'){
+    let box=document.querySelector('#participantFormHandoff');
+    if(!box){box=document.createElement('div');box.id='participantFormHandoff';box.className='preview-strip';$('#dynamicForm')?.insertAdjacentElement('afterend',box)}
+    box.innerHTML='<strong>Avtalen og kontaktvalgene dine er bekreftet.</strong> Programansvarlig kontrollerer nå avtale, beredskap og eventuelle vilkår før samlet Pilot-GO. Du trenger ikke gjøre noe mer her nå, og dette betyr ikke at SER har startet. <a href="./">Tilbake til min reise</a>';
   }
 };
 
