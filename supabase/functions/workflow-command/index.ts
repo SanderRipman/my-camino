@@ -24,6 +24,20 @@ async function pickOwner(admin:any,orgId:string,participantId:string,pilotId:str
  const rows=(data??[]).filter((g:any)=>!g.revoked_at&&(!g.valid_from||g.valid_from<=now)&&(!g.valid_until||g.valid_until>now)&&(!g.participant_id||g.participant_id===participantId)&&(!g.pilot_id||g.pilot_id===pilotId));rows.sort((a:any,b:any)=>roles.indexOf(a.role_code)-roles.indexOf(b.role_code)||String(b.created_at).localeCompare(String(a.created_at)));return rows[0]?.user_id??null
 }
 async function pilotGoApproved(admin:any,pilotId:string){const {data,error}=await admin.from('pilot_gate_decisions').select('decision,decision_version,decided_at').eq('pilot_id',pilotId).order('decision_version',{ascending:false}).limit(1).maybeSingle();if(error)throw error;return data?.decision==='GO'}
+
+async function participantAgreementReady(admin:any,participantId:string,userId:string|null){
+ const {data:def,error:defError}=await admin.from('form_definitions').select('id').eq('key','participant_agreement').limit(1).maybeSingle();if(defError)throw defError;if(!def?.id)return false
+ const {data:versions,error:versionError}=await admin.from('form_versions').select('id').eq('form_definition_id',def.id);if(versionError)throw versionError
+ const versionIds=(versions??[]).map((row:any)=>row.id);if(!versionIds.length)return false
+ const {count:submitted,error:submissionError}=await admin.from('form_submissions').select('id',{head:true,count:'exact'}).eq('participant_id',participantId).eq('status','SUBMITTED').in('form_version_id',versionIds);if(submissionError)throw submissionError;if((submitted??0)<1)return false
+ const {count:pending,error:pendingError}=await admin.from('tasks').select('id',{head:true,count:'exact'}).eq('participant_id',participantId).in('workflow_key',['participant_agreement_ack','participant_agreement_identity','via_agreement_review']).in('status',['OPEN','IN_PROGRESS','WAITING']);if(pendingError)throw pendingError;if((pending??0)>0)return false
+ if(userId){
+   const now=new Date().toISOString();const {data:consent,error:consentError}=await admin.from('consent_versions').select('id').eq('key','participant_program_agreement').lte('effective_from',now).or(`retired_at.is.null,retired_at.gt.${now}`).order('version',{ascending:false}).limit(1).maybeSingle();if(consentError)throw consentError;if(!consent?.id)return false
+   const {count:granted,error:grantError}=await admin.from('consent_events').select('id',{head:true,count:'exact'}).eq('participant_id',participantId).eq('consent_version_id',consent.id).eq('decision','GRANTED');if(grantError)throw grantError;if((granted??0)<1)return false
+ }
+ return true
+}
+
 Deno.serve(async(req:Request)=>{const headers=cors(req);if(req.method==='OPTIONS')return new Response('ok',{headers});if(req.method!=='POST')return new Response(JSON.stringify({error:'METHOD_NOT_ALLOWED'}),{status:405,headers});try{
  const authHeader=req.headers.get('Authorization')??'',token=authHeader.replace(/^Bearer\s+/i,'');if(!token)return new Response(JSON.stringify({error:'UNAUTHORIZED'}),{status:401,headers});if(claims(token).aal!=='aal2')return new Response(JSON.stringify({error:'MFA_REQUIRED'}),{status:403,headers})
  const publishable=JSON.parse(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS')??'{}').default,secret=JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS')??'{}').default;if(!publishable||!secret)throw new Error('Missing keys')
@@ -36,6 +50,7 @@ Deno.serve(async(req:Request)=>{const headers=cors(req);if(req.method==='OPTIONS
  if(action==='START_SER'){
    if(!['GO','GO_WITH_CONDITIONS'].includes(oldStage))return new Response(JSON.stringify({error:'SER_REQUIRES_INDIVIDUAL_GO',stage:oldStage}),{status:409,headers});if(!pilotId)return new Response(JSON.stringify({error:'SER_REQUIRES_PILOT'}),{status:409,headers})
    if(!await capability(admin,userData.user.id,p.organization_id,participantId,pilotId,['manage_program','manage_tasks']))return new Response(JSON.stringify({error:'FORBIDDEN'}),{status:403,headers})
+   if(!await participantAgreementReady(admin,participantId,p.user_id??null))return new Response(JSON.stringify({error:'PARTICIPANT_AGREEMENT_REQUIRED'}),{status:409,headers})
    if(!await pilotGoApproved(admin,pilotId))return new Response(JSON.stringify({error:'PILOT_GO_REQUIRED'}),{status:409,headers})
    const {data:via}=await admin.from('via_assessments').select('vida_owner_user_id,status').eq('participant_id',participantId).order('updated_at',{ascending:false}).limit(1).maybeSingle();if(!via?.vida_owner_user_id)return new Response(JSON.stringify({error:'NAMED_VIDA_OWNER_REQUIRED'}),{status:409,headers})
    if(oldStage==='GO_WITH_CONDITIONS'){const {count}=await admin.from('tasks').select('id',{head:true,count:'exact'}).eq('participant_id',participantId).eq('workflow_key','go_conditions').in('status',['OPEN','IN_PROGRESS','WAITING']);if((count??0)>0)return new Response(JSON.stringify({error:'GO_CONDITIONS_OPEN'}),{status:409,headers})}
