@@ -9,6 +9,7 @@ const NEW_VIA_ERRORS={
   STALE_STAGE:'Fasen ble endret et annet sted. Last arbeidsflaten på nytt.'
 };
 function newViaError(code){return NEW_VIA_ERRORS[code]||'Ny VÍA kunne ikke startes. Ingen alternativ direkte databasevei ble brukt.'}
+function canStartNewVia(){return hasRole('project_owner')||hasRole('vida_owner')}
 
 async function startOptionalNewVia(p,button,message){
   if(!p||p.stage!=='VIDA'){message.textContent='Deltakeren er ikke lenger i VIDA. Last arbeidsflaten på nytt.';return}
@@ -26,7 +27,7 @@ async function startOptionalNewVia(p,button,message){
 
 function renderOptionalNewVia(){
   document.querySelectorAll('.vida-new-via').forEach(el=>el.remove());
-  if(!isStaff())return;
+  if(!canStartNewVia())return;
   const p=participantById(selectedParticipantId);
   if(!p||p.stage!=='VIDA')return;
   const card=document.querySelector('.ser-vida-today[data-ser-vida-phase="VIDA"]');
