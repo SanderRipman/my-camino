@@ -94,3 +94,5 @@ jobs:
         run: node portal/via-handoff-smoke.mjs
       - name: Verify GO decision and pre-SER journey invariants
         run: node portal/go-decision-journey-smoke.mjs
+      - name: Verify pre-SER participant agreement/readiness v2 invariants
+        run: node portal/pre-ser-agreement-smoke.mjs

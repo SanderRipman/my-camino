@@ -16,9 +16,9 @@ function staffDecisionTaskGate(task,participant){
     hint:'Samlet Pilot-GO er registrert. Åpne deltakeren og bruk «Kontroller og start SER»; serveren gjør siste gatekontroll.'
   };
   if(task.workflow_key==='via_agreement_review')return{
-    label:'Åpne samlet Pilot-GO',
-    href:`./form-runner.html?key=pilot_go${pilot?.id?'&pilot='+encodeURIComponent(pilot.id):'&participant='+encodeURIComponent(participant.id)}`,
-    hint:'Deltakeravtalen er levert. Lukk review og eventuelle vilkår før samlet Pilot-GO.'
+    label:'Se fullført avtale / beredskap',
+    href:`./form-runner.html?key=participant_agreement&participant=${encodeURIComponent(participant.id)}&latest=1`,
+    hint:'Les deltakerens faktiske avtale, kontakt-/delingsvalg og beredskapsbekreftelser før review lukkes. Deretter er samlet Pilot-GO neste formelle gate; avtalen er ikke i seg selv en SER-godkjenning.'
   };
   return{
     label:'Åpne avtale / beredskap',
