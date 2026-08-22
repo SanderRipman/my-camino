@@ -1,8 +1,10 @@
 [build]
-  publish = "."
-  command = "node portal/build-app.mjs"
+  base = "public-site/current"
+  command = "node seo-build.mjs"
+  publish = "_site"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
