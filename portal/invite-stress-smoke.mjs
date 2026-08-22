@@ -30,6 +30,8 @@ must(admin.includes("$('#inviteEmail').value=''"),'admin does not explicitly cle
 must(admin.includes("participantId,codeName,pilotId"),'admin invite does not pass existing participant id to server');
 must(admin.includes('ingen ny deltaker ble opprettet'),'admin confirmation does not preserve single-journey invariant');
 must(participant.includes("participantId=body?.participantId"),'server cannot receive existing participant id');
+must(participant.includes("PARTICIPANT_NOT_INVITABLE_FROM_N2")&&participant.includes("String(existingParticipant.stage).toUpperCase()!=='VIA'"),'server must fail closed if an N2 participant id no longer points to an active VIA journey');
+must(participant.includes("!existingParticipant.active"),'server must reject inactive participant linkage even if the client handoff is stale');
 must(participant.includes(".update({user_id:targetUserId,active:true,updated_at:now})"),'server does not link invited account to existing participant');
 must(participant.includes("PARTICIPANT_ALREADY_LINKED")&&participant.includes("USER_ALREADY_PARTICIPANT"),'duplicate/cross-link guards missing');
 must(participant.includes("PARTICIPANT_ACCOUNT_LINKED"),'account linkage is not audited/workflow logged');

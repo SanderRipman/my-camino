@@ -38,6 +38,7 @@ Deno.serve(async(req:Request)=>{
    const {data:existingParticipant,error:participantError}=await admin.from('participants').select('id,organization_id,user_id,code_name,stage,active').eq('id',participantId).eq('organization_id',org.id).maybeSingle()
    if(participantError)throw participantError
    if(!existingParticipant)return new Response(JSON.stringify({error:'PARTICIPANT_NOT_FOUND'}),{status:404,headers})
+   if(!existingParticipant.active||String(existingParticipant.stage).toUpperCase()!=='VIA')return new Response(JSON.stringify({error:'PARTICIPANT_NOT_INVITABLE_FROM_N2'}),{status:409,headers})
    if(existingForUser&&existingForUser.id!==participantId)return new Response(JSON.stringify({error:'USER_ALREADY_PARTICIPANT',participant:existingForUser}),{status:409,headers})
    if(existingParticipant.user_id&&existingParticipant.user_id!==targetUserId)return new Response(JSON.stringify({error:'PARTICIPANT_ALREADY_LINKED'}),{status:409,headers})
    if(existingParticipant.user_id===targetUserId){participant=existingParticipant;linkedExisting=true}
