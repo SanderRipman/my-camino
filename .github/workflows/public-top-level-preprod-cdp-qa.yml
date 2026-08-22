@@ -1,0 +1,131 @@
+name: Public top-level exact viewport QA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/public-top-level-preprod-cdp-qa.yml'
+      - 'public-site/current/**'
+
+permissions:
+  contents: read
+
+jobs:
+  exact-viewports:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build current source in dev mode
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd public-site/current
+          CONTEXT=deploy-preview URL='https://dev.aidme.no' node seo-build.mjs
+          grep -q 'X-Robots-Tag: noindex, nofollow' _site/_headers
+
+      - name: Render exact CSS viewports through Chrome DevTools Protocol
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME"
+          python3 -m pip install --quiet websocket-client
+          OUT="$GITHUB_WORKSPACE/exact-viewport-qa"
+          SITE="$GITHUB_WORKSPACE/public-site/current/_site"
+          mkdir -p "$OUT/screens"
+
+          python3 -m http.server 8878 --directory "$SITE" >/tmp/aidme-exact-http.log 2>&1 &
+          HTTP_PID=$!
+          "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --remote-debugging-port=9222 --remote-allow-origins='*' \
+            --user-data-dir=/tmp/aidme-cdp-profile about:blank >/tmp/aidme-chrome-cdp.log 2>&1 &
+          CHROME_PID=$!
+          trap 'kill $HTTP_PID $CHROME_PID 2>/dev/null || true' EXIT
+
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:9222/json/version >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:9222/json/version >/dev/null
+
+          python3 - <<'PY'
+          import base64, json, time, urllib.request
+          from pathlib import Path
+          import websocket
+
+          out=Path('exact-viewport-qa')
+          pages=['index','via','ser','vida','deltakere','partnere','ruter','om','kontakt']
+          widths=[320,360,390,412,1440]
+
+          targets=json.load(urllib.request.urlopen('http://127.0.0.1:9222/json/list'))
+          target=next(t for t in targets if t.get('type')=='page')
+          ws=websocket.create_connection(target['webSocketDebuggerUrl'],timeout=30)
+          seq=0
+          def call(method,params=None):
+              global seq
+              seq+=1; ident=seq
+              ws.send(json.dumps({'id':ident,'method':method,'params':params or {}}))
+              while True:
+                  msg=json.loads(ws.recv())
+                  if msg.get('id')==ident:
+                      if 'error' in msg: raise RuntimeError(f'{method}: {msg["error"]}')
+                      return msg.get('result',{})
+
+          call('Page.enable'); call('Runtime.enable')
+          rows=[]
+          for page in pages:
+              for width in widths:
+                  mobile=width < 600
+                  call('Emulation.setDeviceMetricsOverride',{
+                      'width':width,'height':900,'deviceScaleFactor':1,'mobile':mobile,
+                      'screenWidth':width,'screenHeight':900
+                  })
+                  url=f'http://127.0.0.1:8878/{page}.html?qa=exact-{width}'
+                  call('Page.navigate',{'url':url})
+                  metrics=call('Runtime.evaluate',{
+                      'expression':'''(async()=>{await new Promise(r=>setTimeout(r,1400));await Promise.all([...document.images].map(i=>i.complete?Promise.resolve():new Promise(r=>{i.addEventListener('load',r,{once:true});i.addEventListener('error',r,{once:true});setTimeout(r,3000)})));const d=document.documentElement,f=document.querySelector('footer.site-footer');return {innerWidth:window.innerWidth,clientWidth:d.clientWidth,scrollWidth:d.scrollWidth,scrollHeight:d.scrollHeight,footerBottom:f?Math.ceil(f.getBoundingClientRect().bottom+window.scrollY):0,images:document.images.length,imageErrors:[...document.images].filter(i=>i.complete&&i.naturalWidth===0).length,h1:document.querySelectorAll('h1').length,footer:!!f};})()''',
+                      'awaitPromise':True,'returnByValue':True
+                  })['result']['value']
+                  inner=int(metrics['innerWidth']); client=int(metrics['clientWidth']); scroll=int(metrics['scrollWidth']); height=int(metrics['scrollHeight']); footer=int(metrics['footerBottom']); errors=int(metrics['imageErrors'])
+                  if abs(inner-width)>2 or abs(client-width)>2:
+                      raise SystemExit(f'viewport mismatch {page}@{width}: inner={inner} client={client}')
+                  if scroll>client+2:
+                      raise SystemExit(f'horizontal overflow {page}@{width}: scroll={scroll} client={client}')
+                  if not metrics['footer'] or footer<=0:
+                      raise SystemExit(f'missing footer {page}@{width}')
+                  if abs(height-footer)>160:
+                      raise SystemExit(f'blank tail/footer mismatch {page}@{width}: height={height} footer={footer}')
+                  if errors:
+                      raise SystemExit(f'broken images {page}@{width}: {errors}')
+                  if int(metrics['h1']) != 1:
+                      raise SystemExit(f'h1 count {page}@{width}: {metrics["h1"]}')
+                  rows.append((page,width,inner,client,scroll,height,footer,metrics['images'],errors))
+
+                  if width in (390,1440):
+                      layout=call('Page.getLayoutMetrics')
+                      size=layout['cssContentSize']
+                      shot=call('Page.captureScreenshot',{
+                          'format':'png','fromSurface':True,'captureBeyondViewport':True,
+                          'clip':{'x':0,'y':0,'width':size['width'],'height':size['height'],'scale':1}
+                      })
+                      label='mobile390' if width==390 else 'desktop1440'
+                      (out/'screens'/f'{page}-{label}.png').write_bytes(base64.b64decode(shot['data']))
+
+          ws.close()
+          with (out/'metrics.tsv').open('w',encoding='utf-8') as f:
+              f.write('page\trequestedWidth\tinnerWidth\tclientWidth\tscrollWidth\tscrollHeight\tfooterBottom\timages\timageErrors\n')
+              for row in rows: f.write('\t'.join(map(str,row))+'\n')
+          (out/'source-sha.txt').write_text('${{ github.sha }}\n',encoding='utf-8')
+          print((out/'metrics.tsv').read_text(encoding='utf-8'))
+          PY
+
+          test "$(find "$OUT/screens" -name '*.png' | wc -l | tr -d ' ')" = '18'
+          sha256sum "$OUT"/screens/*.png > "$OUT/SHA256SUMS.txt"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aidme-public-exact-viewport-qa
+          path: exact-viewport-qa/
+          if-no-files-found: error
+          retention-days: 3
