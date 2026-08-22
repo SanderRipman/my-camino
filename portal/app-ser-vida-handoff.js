@@ -10,7 +10,8 @@ const SER_VIDA_HANDOFF_ERRORS={
   STALE_STAGE:'Fasen ble endret et annet sted. Last arbeidsflaten på nytt.'
 };
 function serVidaHandoffError(code){return SER_VIDA_HANDOFF_ERRORS[code]||'VIDA kunne ikke startes. Ingen alternativ direkte databasevei ble brukt.'}
-function serVidaHandoffParticipant(){return isStaff()?participantById(selectedParticipantId):null}
+function canStartVida(){return hasRole('project_owner')||hasRole('program_lead')||hasRole('ser_lead')}
+function serVidaHandoffParticipant(){return canStartVida()?participantById(selectedParticipantId):null}
 function serVidaHandoffOpenSerTasks(p){return (tasks||[]).filter(t=>t.participant_id===p?.id&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status)&&String(t.workflow_key||'').startsWith('ser_'))}
 
 async function startVidaHandoff(p,button,message){
@@ -30,7 +31,7 @@ async function startVidaHandoff(p,button,message){
 
 function renderSerVidaHandoff(){
   document.querySelectorAll('.ser-vida-handoff').forEach(el=>el.remove());
-  if(!isStaff())return;
+  if(!canStartVida())return;
   const p=serVidaHandoffParticipant();
   if(!p||p.stage!=='SER')return;
   const card=document.querySelector('.ser-vida-today[data-ser-vida-phase="SER"]');
