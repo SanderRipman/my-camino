@@ -5,7 +5,7 @@ const $=s=>document.querySelector(s);
 const QA_MODE=new URLSearchParams(location.search).get('n2qa')==='1';
 let session=null,rows=[],selectedId=null,qaRows=[];
 
-function esc(v=''){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function esc(v=''){return String(v??'').replace(/[&<>'\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[c]))}
 function statusLabel(status){return({NEW:'Ny',TRIAGE:'Trenger avklaring',REFERRED:'Anbefalt annen vei',CLOSED:'Avsluttet',CONVERTED:'VÍA opprettet'})[status]||status||'Ukjent'}
 function sourceLabel(source){return({PUBLIC_WEB:'aidme.no',WEB:'aidme.no',PARTNER:'Partner',NAV:'NAV / offentlig partner',SELF:'Egen interesse',STAFF:'Registrert av medarbeider'})[String(source||'').toUpperCase()]||source||'Ikke angitt'}
 function statusTone(status){return status==='NEW'?'YELLOW':status==='TRIAGE'?'GREEN':'neutral'}
@@ -22,7 +22,7 @@ function setWorkspaceMessage(text,type='info'){
   const el=$('#workspaceMessage');if(!el)return;el.textContent=text||'';el.className=`message ${type==='success'?'auth-success':type==='error'?'auth-error':'auth-info'}`;
 }
 function hideHandoff(){const el=$('#n3Handoff');if(!el)return;el.classList.add('hidden');el.innerHTML=''}
-function adminHandoffUrl(participant,intake,codeName){const q=new URLSearchParams({from:'n2',participantId:String(participant?.id||''),codeName:String(participant?.code_name||codeName||''),email:String(intake?.contact_email||'')});return `./admin.html?${q.toString()}`}
+function adminHandoffUrl(participant,intake,codeName){const q=new URLSearchParams({from:'n2',participantId:String(participant?.id||''),codeName:String(participant?.code_name||codeName||'')});return `./admin.html?${q.toString()}`}
 function showHandoff(participant,intake,codeName,{qa=false}={}){
   const el=$('#n3Handoff');if(!el)return;const label=participant?.code_name||codeName||'VÍA-reisen';
   if(qa){el.innerHTML=`<div><p class="eyebrow">N3 · Konto og første VÍA-opplevelse</p><h2>Neste steg er tydelig</h2><p>Syretesten viser at <strong>${esc(label)}</strong> går videre til sikker kontoinvitasjon som et eget steg. Ingen konto, e-post eller backenddata opprettes i QA-modus.</p><div class="n3-meta">VÍA er opprettet før konto – SER er fortsatt ikke godkjent.</div></div><div class="n3-actions"><button class="ghost" type="button" id="dismissHandoff">Lukk syretest</button></div>`}
