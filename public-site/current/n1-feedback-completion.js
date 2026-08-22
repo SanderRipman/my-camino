@@ -127,6 +127,7 @@
     const style=document.createElement('style');
     style.id='post-cutover-feedback-dev-style';
     style.textContent=`
+      .n1-referral-fields[hidden]{display:none!important}
       @media(max-width:650px){
         .three-steps .step{min-height:0;padding:23px 20px 24px}
         .three-steps .step .num{display:block;margin-bottom:5px}
@@ -137,6 +138,26 @@
         .three-steps .step .phase{margin-top:7px}
         .three-steps .step-link{display:inline-flex;margin-top:5px}
         .hero-grid>.camino-clarifier.n1-mobile-after-photo{margin:13px 18px 18px;padding:11px 12px}
+
+        .route-shell .n1-milestones{display:block;margin:7px 0 18px;padding:0;border-top:1px solid rgba(255,255,255,.16)}
+        .route-shell .n1-milestone{position:relative;padding:8px 0 8px 20px;border:0;border-bottom:1px solid rgba(255,255,255,.13);border-radius:0;background:transparent;color:#dbe5e2}
+        .route-shell .n1-milestone:before{content:'';position:absolute;left:2px;top:15px;width:7px;height:7px;border-radius:50%;background:var(--gold2);box-shadow:0 0 0 3px rgba(229,207,154,.13)}
+        .route-shell .n1-milestone b{display:inline;color:var(--gold2);font-size:12px;margin-right:5px}
+        .route-shell .n1-milestone>span{display:inline;margin:0;font-size:11px;line-height:1.35;color:#dbe5e2}
+        .route-shell .n1-milestone>span>span{display:inline;margin:0;font-size:inherit;line-height:inherit;color:inherit}
+        .route-intro .n1-milestones{display:block;margin:8px 0 17px;padding:0;border-top:1px solid var(--line)}
+        .route-intro .n1-milestone{position:relative;padding:8px 0 8px 20px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent}
+        .route-intro .n1-milestone:before{content:'';position:absolute;left:2px;top:15px;width:7px;height:7px;border-radius:50%;background:var(--gold)}
+        .route-intro .n1-milestone b{display:inline;font-size:12px;margin-right:5px}
+        .route-intro .n1-milestone>span{display:inline;margin:0;font-size:11px;line-height:1.35}
+        .route-intro .n1-milestone>span>span{display:inline;margin:0;font-size:inherit;line-height:inherit;color:inherit}
+        html[data-lang="no"] .n1-milestone .lang-en{display:none!important}
+        html[data-lang="no"] .n1-milestone .lang-no{display:inline!important}
+        html[data-lang="en"] .n1-milestone .lang-no{display:none!important}
+        html[data-lang="en"] .n1-milestone .lang-en{display:inline!important}
+        .route-mini{gap:0}
+        .route-mini div{grid-template-columns:34px minmax(0,1fr) auto;gap:8px;padding:9px 0;align-items:baseline}
+        .route-mini div span:last-child{grid-column:auto;font-size:12px;white-space:nowrap;color:#d7e2df}
       }
     `;
     document.head.appendChild(style);
@@ -171,7 +192,6 @@
   placeClarifier();
   if(typeof mobile.addEventListener==='function') mobile.addEventListener('change',placeClarifier);
 
-  const previewText='<strong>DEV-test:</strong> Skjemaet er aktivt i preprod slik at hele brukerreisen kan QA-testes, men innsendingen lagrer eller sender ingen persondata.';
   const configureDevPreview=(form)=>{
     if(!form) return;
     if(form.dataset.devPreviewBound!=='1'){
@@ -186,14 +206,51 @@
     }
     if(form.dataset.intakeState!=='dev-preview') form.dataset.intakeState='dev-preview';
     form.querySelectorAll('input,select,textarea,button[type="submit"]').forEach(el=>{if(el.disabled) el.disabled=false;});
-    const note=form.querySelector('.n1-form-note');
-    if(note && note.dataset.devPreviewNote!=='1'){
-      note.dataset.devPreviewNote='1';
-      note.innerHTML=previewText;
-    }
     form.querySelector('.n1-turnstile')?.remove();
     const fallback=form.querySelector('.n1-intake-fallback');
-    if(fallback && !fallback.hidden) fallback.hidden=true;
+    if(fallback) fallback.hidden=true;
+
+    const inquiry=form.querySelector('[name="inquiry_type"]');
+    const participantOption=inquiry?.querySelector('option[value="PARTICIPANT"]');
+    const referralOption=inquiry?.querySelector('option[value="REFERRAL"]');
+    const roleWrap=form.querySelector('.n1-referral-fields');
+    const role=form.querySelector('[name="referral_role"]');
+    const organization=form.querySelector('[name="organization_name"]');
+    const note=form.querySelector('.n1-form-note');
+
+    const syncLabels=()=>{
+      const en=document.documentElement.dataset.lang==='en';
+      if(participantOption) participantOption.textContent=en?'I am considering AidMe VIDA for myself':'Jeg vurderer AidMe VIDA for meg selv';
+      if(referralOption) referralOption.textContent=en?'I want to refer or recommend someone':'Jeg vil henvise eller anbefale noen';
+    };
+    const syncFlow=()=>{
+      const referral=inquiry?.value==='REFERRAL';
+      if(roleWrap){
+        roleWrap.hidden=!referral;
+        roleWrap.setAttribute('aria-hidden',String(!referral));
+      }
+      if(role) role.required=referral;
+      if(!referral){
+        if(role) role.value='';
+        if(organization) organization.value='';
+      }
+      if(note){
+        note.dataset.devPreviewNote='1';
+        note.innerHTML=referral
+          ? '<strong>DEV-test · henviserspor:</strong> Bruk dine egne kontaktopplysninger. Ikke skriv navn, helseopplysninger eller andre private opplysninger om personen du vurderer å henvise. Ingen persondata lagres eller sendes i denne testen.'
+          : '<strong>DEV-test · deltakerspor:</strong> Dette er bare en kort interesse for deg selv. Ingen helseopplysninger trengs her, og ingen persondata lagres eller sendes i denne testen.';
+      }
+    };
+    syncLabels();
+    syncFlow();
+    if(inquiry && inquiry.dataset.devFlowBound!=='1'){
+      inquiry.dataset.devFlowBound='1';
+      inquiry.addEventListener('change',syncFlow);
+    }
+    if(document.documentElement.dataset.devLangObserver!=='1'){
+      document.documentElement.dataset.devLangObserver='1';
+      new MutationObserver(syncLabels).observe(document.documentElement,{attributes:true,attributeFilter:['data-lang']});
+    }
   };
 
   if(page==='kontakt'){
@@ -202,7 +259,7 @@
       if(!form) return false;
       configureDevPreview(form);
       const observer=new MutationObserver(()=>configureDevPreview(form));
-      observer.observe(form,{subtree:true,childList:true,attributes:true,attributeFilter:['disabled','data-intake-state']});
+      observer.observe(form,{subtree:true,childList:true});
       window.setTimeout(()=>configureDevPreview(form),0);
       window.setTimeout(()=>configureDevPreview(form),700);
       return true;
