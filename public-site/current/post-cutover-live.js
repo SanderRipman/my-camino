@@ -9,10 +9,14 @@
     const style=document.createElement('style');
     style.id='post-cutover-live-style';
     style.textContent=`
+      .n1-referral-fields[hidden]{display:none!important}
       .n1-arrival-copy .n1-home-rhythm{margin:16px 0 14px;gap:7px;align-items:center}
       .n1-arrival-copy .n1-home-rhythm span{color:#fff;border-color:rgba(200,164,93,.55);background:rgba(255,255,255,.08)}
       .n1-vida-followup-label{margin:4px 0 0;color:var(--gold)!important;font-size:11px!important;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-      html[data-lang="no"] .n1-milestone .lang-en,html[data-lang="en"] .n1-milestone .lang-no{display:none!important}
+      html[data-lang="no"] .n1-milestone .lang-en{display:none!important}
+      html[data-lang="no"] .n1-milestone .lang-no{display:inline!important}
+      html[data-lang="en"] .n1-milestone .lang-no{display:none!important}
+      html[data-lang="en"] .n1-milestone .lang-en{display:inline!important}
       @media(max-width:650px){
         .three-steps .step{min-height:0;padding:23px 20px 24px}
         .three-steps .step .num{display:block;margin-bottom:5px}
@@ -23,15 +27,25 @@
         .three-steps .step .phase{margin-top:7px}
         .three-steps .step-link{display:inline-flex;margin-top:5px}
         .hero-grid>.camino-clarifier.n1-mobile-after-photo{margin:13px 18px 18px;padding:11px 12px}
-        .n1-milestones{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important;margin:10px 0 17px!important}
-        .n1-milestone{padding:9px 11px!important;border-radius:11px!important;min-height:0!important}
-        .n1-milestone b{font-size:12px!important}
-        .n1-milestone span{font-size:10px!important;line-height:1.3!important;margin-top:2px!important}
+        .route-shell .n1-milestones{display:block;margin:7px 0 18px;padding:0;border-top:1px solid rgba(255,255,255,.16)}
+        .route-shell .n1-milestone{position:relative;padding:8px 0 8px 20px;border:0;border-bottom:1px solid rgba(255,255,255,.13);border-radius:0;background:transparent;color:#dbe5e2}
+        .route-shell .n1-milestone:before{content:'';position:absolute;left:2px;top:15px;width:7px;height:7px;border-radius:50%;background:var(--gold2);box-shadow:0 0 0 3px rgba(229,207,154,.13)}
+        .route-shell .n1-milestone b{display:inline;color:var(--gold2);font-size:12px;margin-right:5px}
+        .route-shell .n1-milestone>span{display:inline;margin:0;font-size:11px;line-height:1.35;color:#dbe5e2}
+        .route-shell .n1-milestone>span>span{display:inline;margin:0;font-size:inherit;line-height:inherit;color:inherit}
+        .route-intro .n1-milestones{display:block;margin:8px 0 17px;padding:0;border-top:1px solid var(--line)}
+        .route-intro .n1-milestone{position:relative;padding:8px 0 8px 20px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent}
+        .route-intro .n1-milestone:before{content:'';position:absolute;left:2px;top:15px;width:7px;height:7px;border-radius:50%;background:var(--gold)}
+        .route-intro .n1-milestone b{display:inline;font-size:12px;margin-right:5px}
+        .route-intro .n1-milestone>span{display:inline;margin:0;font-size:11px;line-height:1.35}
+        .route-intro .n1-milestone>span>span{display:inline;margin:0;font-size:inherit;line-height:inherit;color:inherit}
+        .route-mini{gap:0}
+        .route-mini div{grid-template-columns:34px minmax(0,1fr) auto;gap:8px;padding:9px 0;align-items:baseline}
+        .route-mini div span:last-child{grid-column:auto;font-size:12px;white-space:nowrap;color:#d7e2df}
         .stage-row{padding-top:7px!important;padding-bottom:7px!important}
         .n1-arrival-copy .n1-home-rhythm{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 14px}
         .n1-arrival-copy .n1-home-rhythm span{padding:7px 4px;text-align:center;font-size:11px}
       }
-      @media(max-width:380px){.n1-milestones{grid-template-columns:1fr!important}}
     `;
     document.head.appendChild(style);
   }
@@ -110,30 +124,38 @@
     const inquiry=form.querySelector('[name="inquiry_type"]');
     const referral=inquiry?.value==='REFERRAL';
     const wrap=form.querySelector('.n1-referral-fields');
-    if(wrap) wrap.hidden=!referral;
+    if(wrap){
+      if(wrap.hidden===referral) wrap.hidden=!referral;
+      wrap.setAttribute('aria-hidden',String(!referral));
+    }
     const role=form.querySelector('[name="referral_role"]');
-    if(role){role.required=!!referral;if(!referral) role.value='';}
+    if(role){role.required=!!referral;if(!referral&&role.value) role.value='';}
     const org=form.querySelector('[name="organization_name"]');
-    if(org&&!referral) org.value='';
+    if(org&&!referral&&org.value) org.value='';
+    return referral;
   };
 
   const hardenDevPreview=(form)=>{
     if(!isDev||!form) return;
     ensureDevStructure(form);
     const enforce=()=>{
-      form.dataset.intakeState='dev-preview';
-      form.querySelectorAll('input,select,textarea,button[type="submit"]').forEach(el=>{el.disabled=false;});
+      if(form.dataset.intakeState!=='dev-preview') form.dataset.intakeState='dev-preview';
+      form.querySelectorAll('input,select,textarea,button[type="submit"]').forEach(el=>{if(el.disabled) el.disabled=false;});
       form.querySelector('.n1-turnstile')?.remove();
       const fallback=form.querySelector('.n1-intake-fallback');
-      if(fallback) fallback.hidden=true;
+      if(fallback&&!fallback.hidden) fallback.hidden=true;
+      const referral=syncReferral(form);
       const note=form.querySelector('.n1-form-note');
-      if(note) note.innerHTML='<strong>DEV-test:</strong> Skjemaet kan fylles ut for å teste hele første kontaktflyt, men ingen persondata lagres eller sendes.';
-      syncReferral(form);
+      if(note){
+        note.innerHTML=referral
+          ? '<strong>DEV-test · henviserspor:</strong> Bruk dine egne kontaktopplysninger. Ikke skriv navn, helseopplysninger eller andre private opplysninger om personen du vurderer å henvise. Ingen persondata lagres eller sendes i denne testen.'
+          : '<strong>DEV-test · deltakerspor:</strong> Dette er bare en kort interesse for deg selv. Ingen helseopplysninger trengs her, og ingen persondata lagres eller sendes i denne testen.';
+      }
     };
     enforce();
     if(form.dataset.postCutoverDevBound!=='1'){
       form.dataset.postCutoverDevBound='1';
-      form.addEventListener('change',()=>syncReferral(form));
+      form.addEventListener('change',()=>enforce());
       form.addEventListener('submit',event=>{
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -142,7 +164,7 @@
         location.href='takk.html?devPreview=1';
       },true);
       const observer=new MutationObserver(enforce);
-      observer.observe(form,{subtree:true,childList:true,attributes:true,attributeFilter:['disabled','data-intake-state','hidden']});
+      observer.observe(form,{subtree:true,childList:true,attributes:true,attributeFilter:['disabled']});
     }
   };
 
