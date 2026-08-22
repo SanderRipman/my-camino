@@ -100,3 +100,5 @@ jobs:
         run: node portal/ser-vida-journey-smoke.mjs
       - name: Verify explicit SER to VIDA staff handoff invariants
         run: node portal/ser-vida-handoff-smoke.mjs
+      - name: Verify optional new VIA handoff invariants
+        run: node portal/vida-new-via-smoke.mjs
