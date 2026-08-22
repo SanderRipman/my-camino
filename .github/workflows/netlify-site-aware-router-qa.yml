@@ -38,7 +38,7 @@ jobs:
           test -f _netlify_publish/robots.txt
           grep -q 'X-Robots-Tag: noindex, nofollow' _netlify_publish/_headers
           grep -q 'AidMe' _netlify_publish/index.html
-          grep -q 'rel="canonical" href="https://www.aidme.no/"' _netlify_publish/index.html
+          grep -q 'rel="canonical" href="https://aidme.no/"' _netlify_publish/index.html
           if grep -q "location.replace('/portal/')" _netlify_publish/index.html; then
             echo 'Public dev build accidentally contains portal root redirect' >&2
             exit 1
@@ -64,8 +64,8 @@ jobs:
           test -f _netlify_publish/kontakt.html
           test -f _netlify_publish/robots.txt
           test -f _netlify_publish/sitemap.xml
-          grep -q 'rel="canonical" href="https://www.aidme.no/"' _netlify_publish/index.html
-          grep -q 'https://www.aidme.no/sitemap.xml' _netlify_publish/robots.txt
+          grep -q 'rel="canonical" href="https://aidme.no/"' _netlify_publish/index.html
+          grep -q 'https://aidme.no/sitemap.xml' _netlify_publish/robots.txt
           if grep -Rqi 'X-Robots-Tag: noindex, nofollow' _netlify_publish/_headers 2>/dev/null; then
             echo 'Public production build must not carry global noindex' >&2
             exit 1
