@@ -5,7 +5,7 @@ const $=s=>document.querySelector(s);
 const QA_MODE=new URLSearchParams(location.search).get('n2qa')==='1';
 let session=null,rows=[],selectedId=null,qaRows=[];
 
-function esc(v=''){return String(v??'').replace(/[&<>'\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[c]))}
+function esc(v=''){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function statusLabel(status){return({NEW:'Ny',TRIAGE:'Trenger avklaring',REFERRED:'Anbefalt annen vei',CLOSED:'Avsluttet',CONVERTED:'VÍA opprettet'})[status]||status||'Ukjent'}
 function sourceLabel(source){return({PUBLIC_WEB:'aidme.no',WEB:'aidme.no',PARTNER:'Partner',NAV:'NAV / offentlig partner',SELF:'Egen interesse',STAFF:'Registrert av medarbeider'})[String(source||'').toUpperCase()]||source||'Ikke angitt'}
 function statusTone(status){return status==='NEW'?'YELLOW':status==='TRIAGE'?'GREEN':'neutral'}
