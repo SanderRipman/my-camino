@@ -62,3 +62,26 @@ drop trigger if exists trg_pilot_go_ready_workflow on public.pilot_gate_decision
 create trigger trg_pilot_go_ready_workflow
 after insert on public.pilot_gate_decisions
 for each row execute function aidme_private.pilot_go_ready_workflow();
+
+create or replace function aidme_private.ser_start_task_cleanup()
+returns trigger
+language plpgsql
+security definer
+set search_path to ''
+as $$
+begin
+  if new.stage = 'SER' and old.stage is distinct from new.stage then
+    update public.tasks
+    set status = 'DONE', updated_at = now()
+    where participant_id = new.id
+      and workflow_key = 'ser_start_ready'
+      and status in ('OPEN','IN_PROGRESS','WAITING');
+  end if;
+  return new;
+end
+$$;
+
+drop trigger if exists trg_ser_start_task_cleanup on public.participants;
+create trigger trg_ser_start_task_cleanup
+after update of stage on public.participants
+for each row execute function aidme_private.ser_start_task_cleanup();
