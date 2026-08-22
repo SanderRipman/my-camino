@@ -48,8 +48,13 @@ jobs:
           dump contact-mobile "$BASE/kontakt.html?spor=deltaker&fra=qa#deltaker-interesse" 390
           dump home-desktop "$BASE/index.html" 1440
 
-          grep -q 'Camino Portugués · Portugal → Spania' n1-runtime-qa/home-mobile.html
+          grep -q '<strong>Camino Portugués</strong>' n1-runtime-qa/home-mobile.html
           grep -q 'Målgang, mestring – og en ny begynnelse' n1-runtime-qa/home-mobile.html
+          grep -q 'Oppfølging hjemme' n1-runtime-qa/home-mobile.html
+          grep -q '>72 t<' n1-runtime-qa/home-mobile.html
+          grep -q '>14 d<' n1-runtime-qa/home-mobile.html
+          grep -q '>30 d<' n1-runtime-qa/home-mobile.html
+          grep -q '>90 d<' n1-runtime-qa/home-mobile.html
           grep -q 'Tre steg er hele løpet' <(curl -fsS "$BASE/n1-ux.js")
           grep -q 'n1-route-map' n1-runtime-qa/route-mobile.html
           grep -q 'deltaker-interesse' n1-runtime-qa/contact-mobile.html
