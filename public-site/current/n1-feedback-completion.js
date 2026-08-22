@@ -67,8 +67,8 @@
     const clarifier=document.querySelector('.camino-clarifier');
     if(clarifier){
       const spans=clarifier.querySelectorAll(':scope > span');
-      if(spans[0]) spans[0].textContent='En virkelig vandring – og en arena for veien videre. Ingen tro, religiøs praksis eller bestemt livssyn kreves, og du trenger ikke dele mer personlig enn du selv ønsker.';
-      if(spans[1]) spans[1].textContent='A real walk – and an arena for the way forward. No faith, religious practice or particular worldview is required, and you do not have to share more personally than you choose.';
+      if(spans[0]) spans[0].textContent='En virkelig vandring – og en arena for veien videre. Ingen tro, religiøs praksis eller bestemt livssyn kreves. Ingen forkynnelse eller press til religiøse eller personlige handlinger – og du trenger ikke dele mer personlig enn du selv ønsker.';
+      if(spans[1]) spans[1].textContent='A real walk – and an arena for the way forward. No faith, religious practice or particular worldview is required. There is no preaching or pressure toward religious or personal acts, and you do not have to share more personally than you choose.';
     }
     const rs=document.querySelector('.route-shell');
     if(rs){
