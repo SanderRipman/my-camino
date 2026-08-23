@@ -25,7 +25,7 @@ function participantFormKeys(stage){
   if(stage==='GO'||stage==='GO_WITH_CONDITIONS')return new Set(['participant_agreement']);
   if(stage==='POSTPONED'||stage==='NO_GO')return new Set();
   const s=stageLabel(stage);
-  if(s==='SER')return new Set(['ser_daily']);
+  if(s==='SER')return new Set();
   if(s==='VIDA')return new Set(['vida_plan']);
   if(s==='ny VÍA')return new Set(['via_roadmap']);
   return new Set(['info_before_via','via_roadmap']);
@@ -73,7 +73,7 @@ renderForms=function(){
   if(isStaff())return staffRenderForms();
   const p=ownParticipant(),keys=participantFormKeys(p?.stage),participant=p?.id||'';
   const defs=formDefs.filter(f=>(f.scope==='participant'||f.scope==='participant_staff')&&keys.has(f.key));
-  $('#formLibrary').innerHTML=defs.length?defs.map((f,i)=>`<a class="form-module" style="text-decoration:none;color:inherit" href="./form-runner.html?key=${encodeURIComponent(f.key)}${participant?'&participant='+encodeURIComponent(participant):''}"><span class="num">${String(i+1).padStart(2,'0')}</span><h3>${escapeHtml(f.title_no)}</h3><p>${escapeHtml(f.key==='info_before_via'?'Kort informasjon før du går videre.':f.key==='via_roadmap'?'Ditt veikart og neste avklaringer i VÍA.':f.key==='participant_agreement'?'Din egen bekreftelse av avtale, kontaktvalg og praktiske rammer før neste gate.':f.key==='ser_daily'?'Din korte daglige SER-oppfølging.':'Din levende VIDA-plan og neste handling hjemme.')}</p><div class="meta"><span>${escapeHtml(participantPhaseLabel(p?.stage||'VIA'))}</span><span>Åpne →</span></div></a>`).join(''):'<p>Ingen skjemaer krever noe fra deg i denne fasen.</p>';
+  $('#formLibrary').innerHTML=defs.length?defs.map((f,i)=>`<a class="form-module" style="text-decoration:none;color:inherit" href="./form-runner.html?key=${encodeURIComponent(f.key)}${participant?'&participant='+encodeURIComponent(participant):''}"><span class="num">${String(i+1).padStart(2,'0')}</span><h3>${escapeHtml(f.title_no)}</h3><p>${escapeHtml(f.key==='info_before_via'?'Kort informasjon før du går videre.':f.key==='via_roadmap'?'Ditt veikart og neste avklaringer i VÍA.':f.key==='participant_agreement'?'Din egen bekreftelse av avtale, kontaktvalg og praktiske rammer før neste gate.':'Din levende VIDA-plan og neste handling hjemme.')}</p><div class="meta"><span>${escapeHtml(participantPhaseLabel(p?.stage||'VIA'))}</span><span>Åpne →</span></div></a>`).join(''):'<p>Ingen versjonerte skjemaer krever noe fra deg i denne fasen.</p>';
 };
 
 const staffRenderAnalysis=renderAnalysis;
@@ -86,7 +86,7 @@ renderAnalysis=function(){
 
 function adaptParticipantChrome(){
   if(isStaff())return;
-  const p=ownParticipant(),open=participantOpenTasks(p),overdue=t=>!!t.due_at&&new Date(t.due_at)<new Date(),important=open.filter(t=>severity(t)==='RED'||overdue(t)).length,clarify=open.filter(t=>severity(t)==='YELLOW'&&!overdue(t)).length,phase=participantPhaseLabel(p?.stage||'VIA');
+  const p=ownParticipant(),open=participantOpenTasks(p),overdue=t=>!!t.due_at&&new Date(t.due_at)<new Date(),important=open.filter(t=>severity(t)==='RED'||overdue(t)).length,clarify=open.filter(t=>severity(t)==='YELLOW'&&!overdue(t)).length,phase=participantPhaseLabel(p?.stage||'VIA'),base=stageLabel(p?.stage||'VIA');
   const cards=$$('#view-overview .metric-grid .metric');
   const setCard=(i,label,value,hint)=>{const c=cards[i];if(!c)return;c.querySelector('span').textContent=label;c.querySelector('strong').textContent=value;c.querySelector('small').textContent=hint};
   setCard(0,'Mine åpne steg',open.length,'det du kan gjøre nå');setCard(1,'Viktig nå',important,'prioritert for deg');setCard(2,'Trenger avklaring',clarify,'kan vente på svar');setCard(3,'Min fase',phase,participantStageCopy(p?.stage));
@@ -94,9 +94,11 @@ function adaptParticipantChrome(){
   const chart=$('#overviewChart')?.closest('.panel-card');if(chart){chart.querySelector('.eyebrow').textContent='Din utvikling';chart.querySelector('h3').textContent='Siste 30 dager';const b=chart.querySelector('[data-go="analysis"]');if(b)b.textContent='Se min utvikling'}
   const analysis=$('#view-analysis .section-head');if(analysis){analysis.querySelector('.eyebrow').textContent='Dine målinger';analysis.querySelector('h2').textContent='Din utvikling over tid';analysis.querySelector('p').textContent='Se dine egne målinger som støtte for refleksjon og samtale. En skår er ikke en diagnose eller en automatisk beslutning.'}
   $('#analysisParticipants')?.classList.add('hidden');$('#showAverage')?.closest('label')?.classList.add('hidden');
-  const formsHead=$('#view-forms .section-head');if(formsHead){formsHead.querySelector('.eyebrow').textContent='Din reise';formsHead.querySelector('h2').textContent='Dine steg og skjemaer';formsHead.querySelector('p').textContent='Bare det som er relevant i fasen din vises her.'}
+  const formsHead=$('#view-forms .section-head');if(formsHead){formsHead.querySelector('.eyebrow').textContent='Din reise';formsHead.querySelector('h2').textContent='Dine steg og skjemaer';formsHead.querySelector('p').textContent=base==='SER'?'Under SER bruker du den korte Innsjekk-flaten. Den daglige operative SER-loggen tilhører teamet.':'Bare det som er relevant i fasen din vises her.'}
   $('#view-forms .reference-card')?.classList.add('hidden');
+  const checkNav=$('.nav-item[data-view="checkin"]');if(checkNav)checkNav.classList.toggle('hidden',base!=='SER');
   const checkStatus=$('#dayStatus')?.closest('label');checkStatus?.classList.add('hidden');
+  const checkHead=$('#view-checkin .section-head');if(checkHead){checkHead.querySelector('.eyebrow').textContent='SER · din korte innsjekk';checkHead.querySelector('h2').textContent='Hvordan er dagen din?';checkHead.querySelector('p').textContent='Kort egen innsjekk for støtte og tilpasning. Dette er ikke teamets operative SER-logg, og ingen enkelt skår avgjør sikkerhet eller videre deltakelse.'}
   const documentsHead=$('#view-documents .section-head');if(documentsHead){documentsHead.querySelector('p').textContent='Dokumenter som gjelder reisen din samles her når de er klare.';documentsHead.querySelector('button')?.classList.add('hidden')}
   const docNote=$('#view-documents .privacy-note');if(docNote)docNote.textContent='Du ser bare dokumenter kontoen din har tilgang til.';
   const red=$('#mobileAttentionBar [data-attention="RED"]'),yellow=$('#mobileAttentionBar [data-attention="YELLOW"]');if(red)red.innerHTML=`<b>${important}</b> viktig/forfalt`;if(yellow)yellow.innerHTML=`<b>${clarify}</b> avklaringer`;
