@@ -11,6 +11,7 @@ Canonical detailed QA baseline is stored in SharePoint as `MY_AIDME_ROLE_SCOPE_Q
 - System administration is not automatic professional/sensitive participant access.
 - Observer/evaluator default to aggregated learning, not individual sensitive data.
 - Healthcare/journal data belongs to the responsible healthcare entity if healthcare is actually delivered.
+- Deltakerens SER-innsjekk og teamets `ser_daily`-operativlogg er to forskjellige spor; staff-felter skal ikke kunne nås via deltakerens direkte skjema-URL/API.
 
 ## Current backend capabilities
 
@@ -28,7 +29,7 @@ Canonical detailed QA baseline is stored in SharePoint as `MY_AIDME_ROLE_SCOPE_Q
 | evaluator | view_aggregated |
 | break_glass | view_identity, view_incidents, view_operational_min, view_sensitive_via |
 
-Participant access is not a staff grant. It follows `participants.user_id` and own-resource RLS.
+Participant access is not a staff grant. It follows `participants.user_id` and own-resource RLS. Participant form writes are additionally stage-gated by `aidme_private.participant_form_allowed` so a direct form URL cannot jump ahead in the journey.
 
 ## Sensitive AAL2 tables
 
@@ -50,6 +51,7 @@ For each role use synthetic data and test:
 Specific negative assertions:
 
 - participant never sees another participant;
+- participant cannot submit `ser_daily` or another participant form outside the participant's current stage;
 - system_admin does not gain sensitive case content from the admin role alone;
 - SER does not gain sensitive VÍA by default;
 - VIDA does not gain VÍA/incidents by default;
@@ -57,6 +59,10 @@ Specific negative assertions:
 - observer/evaluator do not gain individual sensitive data;
 - GO cannot be made by a role lacking `decide_go`;
 - break-glass must be temporary, reasoned and audited.
+
+## Current VERIFY item before realdata
+
+`project_owner` har `manage_program`, mens eksisterende staff-formhjelper også bruker `manage_program` som én av nøklene til flere individuelle VÍA-/avtaleskjema. Dette skal behandles som en **MYFB-008 rettighetskontroll**: syntetisk project_owner-test må bevise at prosjektrollen ikke får mer individuelt sensitivt saksinnhold enn mandatet tilsier, eller mappingen må strammes før reelle sensitive data åpnes. Dette er ikke grunn til å svekke andre RLS-/AAL2-gater.
 
 ## Context navigation acceptance rule
 
