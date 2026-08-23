@@ -20,6 +20,7 @@ const qaFunction=read('../supabase/functions/qa-create-role-pack/index.ts');
 const intakeFunction=read('../supabase/functions/intake-command/index.ts');
 const adminCreateParticipant=read('../supabase/functions/admin-create-participant/index.ts');
 const formCommand=read('../supabase/functions/form-command/index.ts');
+const participantStageBoundary=read('../supabase/migrations/20260824010500_participant_form_stage_boundary_v1.sql');
 
 // Public N1: exactly three stages; safety is cross-cutting, not stage 4.
 assert(publicN1.includes("items[3].remove()"),'N1 must remove the fourth journey-ribbon item');
@@ -59,6 +60,15 @@ assert(participantNextJs.includes('participant_via_start')&&participantNextJs.in
 assert(participantNextJs.includes('key=via_roadmap'),'Participant VÍA action must route to the participant-facing roadmap, not staff GO/NO-GO');
 assert(participantNextJs.includes('Dette er ikke en GO/NO-GO-beslutning'),'Participant copy must separate VÍA clarification from the formal staff decision gate');
 assert(participantNextJs.includes("if(isStaff())return"),'Participant next-action layer must not alter staff task-gate behavior');
+
+// SER participant vs staff boundary: participant uses dedicated self check-in; ser_daily remains staff operational.
+assert(participantJs.includes("if(s==='SER')return new Set()"),'Participant SER phase must not expose the staff ser_daily form');
+assert(participantNextJs.includes("view:'checkin'")&&!participantNextJs.includes('key=ser_daily'),'Participant SER task action must route to the dedicated check-in view, not ser_daily');
+assert(formJs.includes("const PARTICIPANT_KEYS=['info_before_via','via_roadmap','participant_agreement','vida_plan']"),'Participant form runner allowlist must exclude intake and staff SER operational forms');
+assert(formJs.includes("stage==='POSTPONED'||stage==='NO_GO'||stage==='SER'"),'Participant form runner must enforce stage-aware UI access');
+assert(participantStageBoundary.includes("fd.key='participant_agreement'")&&participantStageBoundary.includes("upper(p.stage::text) in ('GO','GO_WITH_CONDITIONS')"),'Participant form RLS helper must enforce agreement stage');
+assert(participantStageBoundary.includes("fd.key='vida_plan'")&&participantStageBoundary.includes("upper(p.stage::text)='VIDA'"),'Participant form RLS helper must enforce VIDA stage');
+assert(!participantStageBoundary.includes("fd.key='ser_daily'"),'Participant form RLS helper must never allow ser_daily');
 
 // Canonical forms must be represented in the portal and holistic journey.
 const formKeys=['info_before_via','interest_referral','via_roadmap','individual_go_no_go','participant_agreement','pilot_go','ser_daily','incident','vida_plan','pilot_evaluation'];
