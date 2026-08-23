@@ -20,12 +20,12 @@ Status: operativ implementerings- og QA-referanse. Faglig autoritet ligger i akt
 |---|---|---|---|---|---|
 | 0. Offentlig interesse | Potensiell deltaker | `Se om dette kan passe for meg` → kort interesse | `info_before_via` / Skjema 00 som informasjonsgrunnlag; `interest_referral` / Skjema 01 når interesse registreres | Mottak/program | Bare dataminimal kontakt og formål. Ingen detaljert helse-/risikokartlegging offentlig. |
 | 1. Mottak/triage | Programleder / VÍA-mottak | Trenger avklaring / Gå videre til VÍA / Anbefal annen vei / Avslutt | `interest_referral` | `manage_intakes` | Interesse ≠ godkjenning. Ikke opprett konto før personen faktisk skal inn i VÍA. |
-| 2. VÍA-start | Deltaker + VÍA-eier | Opprett VÍA én gang → sikker invitasjon kobles til samme reise → `Din neste handling` | `info_before_via`, `interest_referral`, `via_roadmap` | VÍA-eier | Egenressurs for deltaker; staff kun innen rolle+scope. Sensitive VÍA-data krever AAL2. |
+| 2. VÍA-start | Deltaker + VÍA-eier | Opprett VÍA én gang → sikker invitasjon kobles til samme reise → `Din neste handling` | `info_before_via`, `via_roadmap` | VÍA-eier | Egenressurs for deltaker; staff kun innen rolle+scope. Sensitive VÍA-data krever AAL2. Offentlig/henviserinteresse gjentas ikke som nytt deltakerskjema. |
 | 3. VÍA-avklaring | Deltaker + VÍA-eier + relevant fagperson | Fyll mangler i små steg → avklaring | `via_roadmap` / Skjema 02 | VÍA-eier | Deltaker kan korrigere egne opplysninger. Intern vurdering skilles fra deltakertekst. |
 | 4. Individuell beslutning | VÍA-eier / relevant fagperson | GO / GO med vilkår / UTSETT / NO-GO nå | `individual_go_no_go` / Skjema 03 | `decide_go` | Ikke scorekort. Vilkår blir oppgaver med eier/frister. Deltakersammendrag skilles fra intern begrunnelse. |
 | 5. Før SER | Deltaker + program/logistikk | Avtale, kontaktvalg, dokumenter, forsikring, VIDA-eier, praktisk beredskap | `participant_agreement` / Skjema 04 + `pilot_go` / Skjema 05 | Program/pilot-GO | Samlet SER/pilot-GO er egen gate etter individuell beslutning. |
-| 6. SER – normal dag | Deltaker | Dagens etappe → kort innsjekk → be om kontakt/pause/tilpasning ved behov | `ser_daily` / Skjema 06 | SER-leder | Mobil først. Ingen krav om personlig deling. Normal bruk under ett minutt når alt er grønt. |
-| 7. SER – operativt | SER-leder + logistikk | Trenger handling nå → signal/oppgave → deltaker/rute/eier | Skjema 06 + 06B 1:1 ved behov | SER-leder | Operativt minimum; SER får ikke sensitiv VÍA som standard. |
+| 6. SER – deltaker | Deltaker | Dagens etappe → kort egen innsjekk → be om kontakt/pause/tilpasning ved behov | Dedikert `ser_checkins` / `Innsjekk` | Deltaker + SER-oppfølging | Mobil først. Deltaker kan bare skrive egen innsjekk. `ser_daily` er ikke et deltakerskjema og direkte skjema-URL/API skal avvises. |
+| 7. SER – operativt | SER-leder + logistikk | Trenger handling nå → signal/oppgave → deltaker/rute/eier → én operativ daglogg | `ser_daily` / Skjema 06 + 06B 1:1 ved behov | SER-leder | Operativt minimum; rute/roller/tiltak holdes i staff-sporet. SER får ikke sensitiv VÍA som standard. |
 | 8. Hendelse/avvik | SER/fag etter mandat | Observerbare fakta → tiltak → varsling → eier/frister → lukking | `incident` / Skjema 07 | Operativ/faglig eier | Hendelseslogg bare ved reell hendelse. Akutt hjelp skal aldri avhenge av portal. |
 | 9. SER → VIDA | Deltaker + VIDA-eier | Første handling innen 72 t + avtalt kontakt | `vida_plan` / Skjema 08 | Navngitt VIDA-eier | Santiago/målgang er overgang, ikke avslutning eller prestasjonskrav. |
 | 10. VIDA | Deltaker + VIDA-eier/partner | Neste handling → 72t/14/30/90 i én levende plan | `vida_plan` | VIDA-eier | Én plan, ikke fire nye skjema. Del bare avtalt overføringssammendrag til partner. |
@@ -38,6 +38,7 @@ Status: operativ implementerings- og QA-referanse. Faglig autoritet ligger i akt
 - ser egen reise og én tydelig neste handling;
 - ser hvorfor informasjon spørres om og hva som skjer etterpå;
 - kan aldri se andre deltakere;
+- kan under SER bruke egen kort `Innsjekk`, men kan ikke åpne eller sende teamets `ser_daily`-operativlogg;
 - møtes av menneskelig forklaring når noe er låst;
 - pause, tilpasning, transport og avbrudd fremstilles som legitime sikkerhetstiltak.
 
@@ -60,6 +61,7 @@ Status: operativ implementerings- og QA-referanse. Faglig autoritet ligger i akt
 
 ### SER-/turleder
 - ser operativt minimum, dagens rute, sikkerhet, hendelser og oppgaver;
+- bruker `ser_daily` som teamets korte operative normaldagslogg, ikke som deltakerens egenrapport;
 - får ikke sensitiv VÍA som standard;
 - normal drift skal kunne håndteres raskt på mobil.
 
@@ -100,16 +102,19 @@ Et felt kan være trykkbart uten å være redigerbart. Ved manglende tilgang:
 ## Form- og datagrenser
 
 - `info_before_via`: informasjon/forventningsavklaring før dypere VÍA.
-- `interest_referral`: én inngang for interesse/henvisning.
+- `interest_referral`: én inngang for offentlig interesse/henvisning og staff-triage; skal ikke repeteres som deltakerskjema etter at VÍA-reisen er opprettet.
 - `via_roadmap`: én levende VÍA-avklaring; gjenbruk data fremfor gjentakelse.
 - `individual_go_no_go`: formell individuell beslutning, ikke score.
-- `participant_agreement`: avtale/kontaktvalg før SER.
+- `participant_agreement`: avtale/kontaktvalg før SER, tilgjengelig for deltaker først etter GO / GO med vilkår.
 - `pilot_go`: samlet operativ SER-gate; ikke synonymt med individuell GO.
-- `ser_daily`: kort normaldag; privat refleksjon trenger ikke lagres.
+- `ser_checkins`: deltakerens korte egeninnsjekk i SER.
+- `ser_daily`: staff-only daglig SER-operativlogg med rute, roller, tiltak og oppfølgingsbehov.
 - `incident`: bare faktisk hendelse/avvik.
 - `vida_plan`: én levende plan med 72t/14/30/90 kontrollpunkter.
 - `pilot_evaluation`: aggregert pilot-/programlæring.
 - Skjema A: teknisk støtte ved behov.
+
+Deltakerens versjonerte skjema-tilgang følger aktiv fase både i UI og i RLS. Direkte URL/API skal derfor ikke kunne åpne et senere skjema eller staff-operativlogg før riktig fase/gate.
 
 ## Mini CRM-grense
 
@@ -119,8 +124,9 @@ Mini CRM kan inneholde relasjonsminne om partner, finansiør, offentlig/NAV/komm
 
 1. **LUKKET 2026-08-22:** `intake-command` er gjenopprettet fra aktiv Supabase-deploy til `supabase/functions/intake-command/` i Git og er igjen under gjenopprettbar kildekontroll. N2→N3-kjeden har i tillegg fått versjonskontrollert `admin-create-participant`. En bredere Supabase↔Git source-parity-audit gjenstår som teknisk hygiene, men blokkerer ikke denne brukerreisen.
 2. **MITIGERT 2026-08-22:** Portalens lagre-/fullfør-handling går via `form-command`, som bruker innlogget brukers JWT og dermed bevarer eksisterende AAL2, RLS, `auth.uid()`, payloadvalidering, formelle GO-gater, samtykkeflyt, VIDA-synk og databaseaudit. Skjemakontekst og fullførte innsendinger er immutabile i kommandolaget, og egne utkast gjenbrukes for å unngå duplikater. Direkte PostgREST-skrivetillatelse på tabellen beholdes foreløpig som RLS-beskyttet reserve/kompatibilitet og skal vurderes for eksplisitt revoke før ekte sensitive data åpnes bredt; kommandolaget bruker ikke service-role og svekker derfor ikke databasenormen.
-3. Offentlig `public-intake` forblir fail-closed til CAPTCHA/Turnstile, rate-limit, origin, personverntekst og dataminimering er verifisert samlet.
-4. Alle sensitive rollebaner skal gjennom positiv + negativ scope-test, AAL1/AAL2, direkte URL/API-bypass, audit og utløp/tilbakekalling.
+3. **STRAMMET 2026-08-24:** `participant_form_allowed` følger deltakerens faktiske fase. Deltaker kan ikke via direkte URL/API sende `ser_daily`, `interest_referral` eller andre versjonerte skjema som ikke hører til aktuell fase. SER-deltaker bruker dedikert `ser_checkins`; `ser_daily` forblir operativ staff-logg.
+4. Offentlig `public-intake` forblir fail-closed til CAPTCHA/Turnstile, rate-limit, origin, personverntekst og dataminimering er verifisert samlet.
+5. Alle sensitive rollebaner skal gjennom positiv + negativ scope-test, AAL1/AAL2, direkte URL/API-bypass, audit og utløp/tilbakekalling.
 
 ## QA-lab
 
