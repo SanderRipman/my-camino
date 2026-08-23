@@ -1,0 +1,133 @@
+name: Public N1 interaction regression
+
+on:
+  pull_request:
+    paths:
+      - 'public-site/current/**'
+      - '.github/workflows/public-n1-interaction-regression.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  n1-interaction:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build public source in safe preview mode
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd public-site/current
+          CONTEXT=deploy-preview URL='https://dev.aidme.no' node seo-build.mjs
+          grep -q 'X-Robots-Tag: noindex, nofollow' _site/_headers
+          grep -q "previewMode" n1-intake-safe.js
+          grep -q "post-cutover-live.js" site.js
+
+      - name: Exercise N1 participant and referral interaction
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME"
+          python3 -m pip install --quiet websocket-client
+
+          SITE="$GITHUB_WORKSPACE/public-site/current/_site"
+          python3 -m http.server 8879 --directory "$SITE" >/tmp/aidme-n1-interaction-http.log 2>&1 &
+          HTTP_PID=$!
+          "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --remote-debugging-port=9223 --remote-allow-origins='*' \
+            --user-data-dir=/tmp/aidme-n1-interaction-profile about:blank >/tmp/aidme-n1-interaction-chrome.log 2>&1 &
+          CHROME_PID=$!
+          trap 'kill $HTTP_PID $CHROME_PID 2>/dev/null || true' EXIT
+
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:9223/json/version >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:9223/json/version >/dev/null
+
+          python3 - <<'PY'
+          import json, time, urllib.request
+          import websocket
+
+          targets=json.load(urllib.request.urlopen('http://127.0.0.1:9223/json/list'))
+          target=next(t for t in targets if t.get('type')=='page')
+          ws=websocket.create_connection(target['webSocketDebuggerUrl'],timeout=30)
+          seq=0
+
+          def call(method,params=None):
+              global seq
+              seq+=1; ident=seq
+              ws.send(json.dumps({'id':ident,'method':method,'params':params or {}}))
+              while True:
+                  msg=json.loads(ws.recv())
+                  if msg.get('id')==ident:
+                      if 'error' in msg:
+                          raise RuntimeError(f'{method}: {msg["error"]}')
+                      return msg.get('result',{})
+
+          def evaluate(expression,await_promise=False):
+              result=call('Runtime.evaluate',{
+                  'expression':expression,
+                  'awaitPromise':await_promise,
+                  'returnByValue':True,
+              })
+              if result.get('exceptionDetails'):
+                  raise RuntimeError(result['exceptionDetails'])
+              return result.get('result',{}).get('value')
+
+          call('Page.enable'); call('Runtime.enable')
+          url='http://127.0.0.1:8879/kontakt.html?previewIntake=1&spor=deltaker&fra=n1-regression#deltaker-interesse'
+          call('Page.navigate',{'url':url})
+          time.sleep(2.5)
+
+          result=evaluate(r'''(async() => {
+            const form=document.querySelector('form.n1-interest-form');
+            if(!form) return {ok:false,error:'missing form'};
+            const q=s=>form.querySelector(s);
+            const inquiry=q('[name="inquiry_type"]');
+            const participant=inquiry?.querySelector('option[value="PARTICIPANT"]');
+            const referral=inquiry?.querySelector('option[value="REFERRAL"]');
+            const wrap=q('.n1-referral-fields');
+            const role=q('[name="referral_role"]');
+            const org=q('[name="organization_name"]');
+            const required=['[name="first_name"]','[name="email"]','[name="preferred_contact"]','[name="inquiry_type"]','button[type="submit"]'];
+            const disabled=required.filter(s=>!q(s)||q(s).disabled);
+            if(disabled.length) return {ok:false,error:'disabled or missing controls',disabled};
+            if(participant?.textContent.trim()!=='Jeg vurderer AidMe VIDA for meg selv') return {ok:false,error:'participant label duplicated/stale',label:participant?.textContent};
+            if(referral?.textContent.trim()!=='Jeg vil henvise eller anbefale noen') return {ok:false,error:'referral label stale',label:referral?.textContent};
+
+            inquiry.value='PARTICIPANT';
+            inquiry.dispatchEvent(new Event('change',{bubbles:true}));
+            if(!wrap?.hidden || role?.required) return {ok:false,error:'participant path exposes referral fields'};
+
+            inquiry.value='REFERRAL';
+            inquiry.dispatchEvent(new Event('change',{bubbles:true}));
+            if(wrap?.hidden || !role?.required) return {ok:false,error:'referral path does not expose required referral role'};
+
+            role.value='NAV';
+            if(org) org.value='Testorganisasjon';
+            inquiry.value='PARTICIPANT';
+            inquiry.dispatchEvent(new Event('change',{bubbles:true}));
+            if(!wrap?.hidden || role?.required || role?.value || org?.value) return {ok:false,error:'referral-only values survive switch back to participant'};
+
+            document.querySelector('.lang-toggle')?.click();
+            await new Promise(resolve=>setTimeout(resolve,50));
+            const enParticipant=participant?.textContent.trim();
+            const enReferral=referral?.textContent.trim();
+            if(document.documentElement.dataset.lang!=='en') return {ok:false,error:'language toggle did not reach EN'};
+            if(enParticipant!=='I am considering AidMe VIDA for myself') return {ok:false,error:'EN participant option wrong',label:enParticipant};
+            if(enReferral!=='I want to refer or recommend someone') return {ok:false,error:'EN referral option wrong',label:enReferral};
+
+            return {ok:true,intakeState:form.dataset.intakeState||'',participantHidden:wrap?.hidden===true,language:document.documentElement.dataset.lang};
+          })()''',await_promise=True)
+          print(json.dumps(result,ensure_ascii=False))
+          if not result or not result.get('ok'):
+              raise SystemExit(f'N1 interaction regression failed: {result}')
+
+          ws.close()
+          PY
+
+          echo 'N1 participant/referral interaction regression passed in no-write preview mode.'

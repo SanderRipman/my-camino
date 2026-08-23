@@ -36,7 +36,7 @@
       if(label && !label.querySelector('.lang-no')) label.textContent='Navn';
       const input=first.querySelector('input[name="first_name"]');
       if(input){input.autocomplete='name';input.setAttribute('aria-label','Navn');}
-      first.insertAdjacentHTML('beforebegin',`<div class="n1-field full n1-inquiry-type"><label for="n1-inquiry-type"><span class="lang-no">Hva gjelder henvendelsen?</span><span class="lang-en">What is this enquiry about?</span></label><select id="n1-inquiry-type" name="inquiry_type" required><option value="PARTICIPANT"><span class="lang-no">Jeg vurderer AidMe VIDA for meg selv</span>Jeg vurderer AidMe VIDA for meg selv</option><option value="REFERRAL">Jeg vil henvise eller anbefale noen</option></select><small><span class="lang-no">Velg bare første kontaktspor. Ingen helseopplysninger trengs her.</span><span class="lang-en">Choose only the first-contact path. No health information is needed here.</span></small></div>`);
+      first.insertAdjacentHTML('beforebegin',`<div class="n1-field full n1-inquiry-type"><label for="n1-inquiry-type"><span class="lang-no">Hva gjelder henvendelsen?</span><span class="lang-en">What is this enquiry about?</span></label><select id="n1-inquiry-type" name="inquiry_type" required><option value="PARTICIPANT">Jeg vurderer AidMe VIDA for meg selv</option><option value="REFERRAL">Jeg vil henvise eller anbefale noen</option></select><small><span class="lang-no">Velg bare første kontaktspor. Ingen helseopplysninger trengs her.</span><span class="lang-en">Choose only the first-contact path. No health information is needed here.</span></small></div>`);
     }
     const inquiry=form.querySelector('[name="inquiry_type"]');
     const contactField=form.querySelector('[name="preferred_contact"]')?.closest('.n1-field');
@@ -47,7 +47,10 @@
     const sync=()=>{
       const referral=inquiry?.value==='REFERRAL';
       const wrap=form.querySelector('.n1-referral-fields');if(wrap)wrap.hidden=!referral;
-      const role=form.querySelector('[name="referral_role"]');if(role)role.required=referral;
+      const role=form.querySelector('[name="referral_role"]');
+      if(role){role.required=referral;if(!referral&&role.value)role.value='';}
+      const organization=form.querySelector('[name="organization_name"]');
+      if(organization&&!referral&&organization.value)organization.value='';
       const note=form.querySelector('.n1-form-note');
       if(note)note.innerHTML=referral
         ? '<strong>Ikke skriv opplysninger om den mulige deltakeren her.</strong> Vi tar eventuell deltakerinformasjon i et senere, riktig og sikkert steg. Dette er bare første kontakt med deg som henviser.'
