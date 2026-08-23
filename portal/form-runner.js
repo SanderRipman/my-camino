@@ -10,14 +10,22 @@ const ROLE_KEYS={
  clinical_professional:['info_before_via','interest_referral','via_roadmap','individual_go_no_go','participant_agreement'],
  ser_lead:['ser_daily','incident'],vida_owner:['vida_plan'],logistics:['pilot_go']
 };
-const PARTICIPANT_KEYS=['info_before_via','interest_referral','via_roadmap','participant_agreement','ser_daily','vida_plan'];
+const PARTICIPANT_KEYS=['info_before_via','via_roadmap','participant_agreement','vida_plan'];
 const PILOT_LEVEL_KEYS=new Set(['pilot_go','pilot_evaluation']);
 const PARTICIPANT_REQUIRED_KEYS=new Set(['info_before_via','interest_referral','via_roadmap','individual_go_no_go','participant_agreement','ser_daily','vida_plan']);
 function esc(v=''){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function active(g){const n=new Date();return !g.revoked_at&&(!g.valid_from||new Date(g.valid_from)<=n)&&(!g.valid_until||new Date(g.valid_until)>n)}
 function ownParticipant(){return participants.find(p=>p.user_id===session?.user?.id)||null}
 function isStaff(){return grants.some(active)}
-function allowedKeys(){if(!isStaff())return new Set(PARTICIPANT_KEYS);const s=new Set();grants.filter(active).forEach(g=>(ROLE_KEYS[g.role_code]||[]).forEach(k=>s.add(k)));return s}
+function participantAllowedKeys(){
+ const stage=String(ownParticipant()?.stage||'').toUpperCase();
+ if(stage==='GO'||stage==='GO_WITH_CONDITIONS')return new Set(['participant_agreement']);
+ if(stage==='POSTPONED'||stage==='NO_GO'||stage==='SER')return new Set();
+ if(stage==='VIDA')return new Set(['vida_plan']);
+ if(stage==='NEW_VIA')return new Set(['via_roadmap']);
+ return new Set(['info_before_via','via_roadmap']);
+}
+function allowedKeys(){if(!isStaff())return participantAllowedKeys();const s=new Set();grants.filter(active).forEach(g=>(ROLE_KEYS[g.role_code]||[]).forEach(k=>s.add(k)));return s}
 function selectedParticipant(){return participants.find(p=>p.id===$('#participantSelect').value)||null}
 function explicitPilot(){return pilots.find(p=>p.id===$('#pilotSelect').value)||null}
 function participantPilot(participantId){const link=pilotParticipants.find(x=>x.participant_id===participantId&&x.status==='ACTIVE');return link?pilots.find(p=>p.id===link.pilot_id)||null:null}

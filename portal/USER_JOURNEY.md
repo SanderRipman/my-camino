@@ -120,11 +120,13 @@ Mobil først.
 
 Hjemskjermen skal normalt vise:
 - dagens etappe/praktiske beskjed;
-- kort innsjekk;
+- kort **egen innsjekk** i portalens dedikerte `Innsjekk`-flate;
 - «Be om kontakt»;
 - «Jeg trenger pause/tilpasning»;
 - møtested/beredskapsinfo;
 - neste felles tidspunkt.
+
+Deltakerens korte innsjekk lagres som egen `ser_checkins`-registrering. Den er **ikke** `ser_daily` / Skjema 06. `ser_daily` er teamets operative daglogg og skal verken vises eller kunne sendes inn av deltaker via direkte skjema-URL/API.
 
 Ingen krav om personlig deling. Pause, transport, tilpasning og avbrudd er legitime sikkerhetstiltak. Deltaker kan bruke løsningen på under ett minutt når alt er normalt.
 
@@ -139,7 +141,7 @@ Staff-start:
 - logistiske avvik;
 - hvem som bør få 1:1-kontakt.
 
-Normal dag skal kunne lukkes med én kort operativ logg. Hendelseslogg opprettes bare ved reell hendelse/avvik.
+Normal dag skal kunne lukkes med én kort **`ser_daily` / Skjema 06 operativlogg** for teamet. Den inneholder rute/roller/tiltak og oppfølgingsbehov og må ikke blandes med deltakerens egen innsjekk. Hendelseslogg opprettes bare ved reell hendelse/avvik.
 
 ## 8. Hendelse
 
@@ -215,6 +217,7 @@ Teknisk admin betyr ikke automatisk full tilgang til deltakerinnhold. Nødtilgan
 - Ikke send sensitive detaljer i e-post/push.
 - Ikke la klikkbare felt antyde redigeringsrettighet når handlingen egentlig er detalj, eier, forespørsel eller gate.
 - Ikke la manglende tilgang bli en blindvei når en sikker neste handling kan forklares.
+- Ikke bland deltakerens egen SER-innsjekk med teamets operative `ser_daily`-logg.
 
 ## 14. QA-regel
 

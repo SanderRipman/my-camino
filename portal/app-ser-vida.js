@@ -15,22 +15,25 @@ function serVidaMilestones(p){
 }
 function serVidaTodayModel(p){
   if(!p)return null;
-  const phase=serVidaPhase(p),pilot=participantPilot(p.id),route=pilot?routeToday(pilot.id):null,checkin=latestCheckin(p.id),open=serVidaOpenTasks(p);
+  const phase=serVidaPhase(p),pilot=participantPilot(p.id),route=pilot?routeToday(pilot.id):null,checkin=latestCheckin(p.id),open=serVidaOpenTasks(p),participantMode=!isStaff();
   if(phase==='SER'){
     const dayZero=!checkin;
     return{
       phase,
       kicker:dayZero?'SER · første dag':'SER · i dag',
-      title:dayZero?'Start rolig – få rammene på plass':'Dagens rytme',
-      body:dayZero
-        ?'Første SER-dag handler om orientering, kontaktvei og en gjennomførbar start. Pause, kortere etappe, transport eller annen tilpasning er legitime valg.'
-        :'Bruk den korte innsjekken til å fange det som faktisk betyr noe i dag. En gul eller rød status er et signal om støtte og tilpasning – ikke prestasjon.',
+      title:participantMode?(dayZero?'Start rolig – få rammene på plass':'Dagens rytme'):'Dagens SER-arbeid',
+      body:participantMode
+        ?(dayZero
+          ?'Første SER-dag handler om orientering, kontaktvei og en gjennomførbar start. Pause, kortere etappe, transport eller annen tilpasning er legitime valg.'
+          :'Bruk den korte innsjekken til å fange det som faktisk betyr noe i dag. En gul eller rød status er et signal om støtte og tilpasning – ikke prestasjon.')
+        :'Bruk den daglige SER-operativloggen til rute, roller, tiltak og oppfølgingsbehov. Deltakerens egen korte innsjekk er et separat spor og skal ikke erstattes av teamloggen.',
       route,
       checkin,
       open,
       milestones:[],
-      primary:`./form-runner.html?key=ser_daily&participant=${encodeURIComponent(p.id)}`,
-      primaryLabel:dayZero?'Gjør første SER-innsjekk':'Åpne dagens innsjekk'
+      primary:participantMode?null:`./form-runner.html?key=ser_daily&participant=${encodeURIComponent(p.id)}`,
+      primaryView:participantMode?'checkin':null,
+      primaryLabel:participantMode?(dayZero?'Gjør første SER-innsjekk':'Åpne dagens innsjekk'):'Åpne daglig SER-operativlogg'
     };
   }
   if(phase==='VIDA')return{
@@ -40,6 +43,7 @@ function serVidaTodayModel(p){
     body:'VIDA-planen skal være stedet du og avtalt oppfølgingskontakt holder neste handling, ansvar og oppfølging levende. 72 timer, 14, 30 og 90 dager er oppfølgingstidspunkter for den samme planen – ikke fire nye planer.',
     route:null,checkin,open,milestones:serVidaMilestones(p),
     primary:`./form-runner.html?key=vida_plan&participant=${encodeURIComponent(p.id)}`,
+    primaryView:null,
     primaryLabel:'Åpne min levende VIDA-plan'
   };
   return null;
@@ -49,10 +53,14 @@ function serVidaMilestoneHtml(m){
   const rows=m.milestones.map(t=>`<div class="detail-stat"><span>${escapeHtml(VIDA_MILESTONE_LABELS[t.workflow_key]||'Oppfølging')}</span><strong>${escapeHtml(statusText(t.status))} · ${escapeHtml(formatDate(t.due_at))}</strong></div>`).join('');
   return `<div class="detail-grid vida-followup-rhythm">${rows}</div><p class="privacy-note">Milepælene er påminnelser om å se på samme levende VIDA-plan igjen. Neste handling kan endres uten å opprette parallelle planer.</p>`;
 }
+function serVidaActionHtml(m){
+  if(m.primaryView)return `<button class="primary" type="button" data-ser-vida-view="${escapeHtml(m.primaryView)}">${escapeHtml(m.primaryLabel)}</button>`;
+  return `<a class="primary" href="${m.primary}">${escapeHtml(m.primaryLabel)}</a>`;
+}
 function serVidaCardHtml(m){
   const route=m.route?`<div class="detail-stat"><span>Dagens etappe</span><strong>${escapeHtml(`${m.route.from_place} → ${m.route.to_place}${m.route.distance_km?` · ${m.route.distance_km} km`:''}`)}</strong></div>`:'';
   const last=m.checkin?.checkin_date?escapeHtml(m.checkin.checkin_date):'Ingen ennå';
-  return `<section class="panel-card ser-vida-today" data-ser-vida-phase="${m.phase}"><div class="card-head"><div><p class="eyebrow">${escapeHtml(m.kicker)}</p><h3>${escapeHtml(m.title)}</h3></div><span class="pill">${escapeHtml(m.phase)}</span></div><p>${escapeHtml(m.body)}</p><div class="detail-grid">${route}<div class="detail-stat"><span>Siste innsjekk</span><strong>${last}</strong></div><div class="detail-stat"><span>Åpne steg</span><strong>${m.open.length}</strong></div></div>${serVidaMilestoneHtml(m)}<div class="form-actions"><a class="primary" href="${m.primary}">${escapeHtml(m.primaryLabel)}</a></div></section>`;
+  return `<section class="panel-card ser-vida-today" data-ser-vida-phase="${m.phase}"><div class="card-head"><div><p class="eyebrow">${escapeHtml(m.kicker)}</p><h3>${escapeHtml(m.title)}</h3></div><span class="pill">${escapeHtml(m.phase)}</span></div><p>${escapeHtml(m.body)}</p><div class="detail-grid">${route}<div class="detail-stat"><span>Siste innsjekk</span><strong>${last}</strong></div><div class="detail-stat"><span>Åpne steg</span><strong>${m.open.length}</strong></div></div>${serVidaMilestoneHtml(m)}<div class="form-actions">${serVidaActionHtml(m)}</div></section>`;
 }
 function renderSerVidaToday(){
   const p=serVidaParticipant(),m=serVidaTodayModel(p);
@@ -61,25 +69,7 @@ function renderSerVidaToday(){
   const target=document.querySelector('#participantDetail');
   if(!target)return;
   target.insertAdjacentHTML('beforeend',serVidaCardHtml(m));
-}
-
-const serVidaParticipantNext=typeof participantNextAction==='function'?participantNextAction:null;
-if(serVidaParticipantNext){
-  participantNextAction=function(participant,task){
-    const base=serVidaParticipantNext(participant,task);if(!participant)return base;
-    const phase=serVidaPhase(participant);
-    if(phase==='SER')return{
-      label:'Åpne dagens SER-steg',
-      href:`./form-runner.html?key=ser_daily&participant=${encodeURIComponent(participant.id)}`,
-      hint:latestCheckin(participant.id)?'Kort innsjekk for dagens rytme, støtte og tilpasning.':'Første SER-dag: orienter deg, bekreft kontaktveien og gjør en kort innsjekk. Du kan be om pause, kortere etappe, transport eller annen tilpasning.'
-    };
-    if(phase==='VIDA')return{
-      label:'Åpne min levende VIDA-plan',
-      href:`./form-runner.html?key=vida_plan&participant=${encodeURIComponent(participant.id)}`,
-      hint:'Hold én plan levende. 72 timer, 14, 30 og 90 dager er oppfølging av samme neste handling, ansvar og avtalt kontakt – ikke nye parallelle planer.'
-    };
-    return base;
-  };
+  target.querySelector('[data-ser-vida-view]')?.addEventListener('click',event=>show(event.currentTarget.dataset.serVidaView));
 }
 
 const serVidaRenderAll=renderAll;

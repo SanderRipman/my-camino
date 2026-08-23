@@ -16,9 +16,9 @@ function participantNextAction(participant,task){
   };
   if(stage==='POSTPONED'||stage==='NO_GO')return null;
   if(phase==='SER')return{
-    label:'Åpne dagens SER-steg',
-    href:`./form-runner.html?key=ser_daily&participant=${encodeURIComponent(participant.id)}`,
-    hint:'Kort innsjekk og det som er relevant for dagen. Pause, tilpasning og transport er legitime tiltak.'
+    label:'Åpne dagens innsjekk',
+    view:'checkin',
+    hint:'Bruk din korte egeninnsjekk for dagens rytme, støtte og tilpasning. Teamets operative SER-logg er et separat staff-steg.'
   };
   if(phase==='VIDA')return{
     label:'Åpne min VIDA-plan',
@@ -44,8 +44,12 @@ openTask=function(id){
   const box=document.createElement('div');
   box.dataset.participantNextAction='1';
   box.className='task-crosslinks participant-next-action';
-  box.innerHTML=`<p class="eyebrow">Din neste handling</p><p>${escapeHtml(next.hint)}</p><div class="crosslink-grid"><a class="gate-link" href="${next.href}">${escapeHtml(next.label)}</a></div>`;
+  const action=next.view
+    ?`<button class="gate-link" type="button" data-participant-view="${escapeHtml(next.view)}">${escapeHtml(next.label)}</button>`
+    :`<a class="gate-link" href="${next.href}">${escapeHtml(next.label)}</a>`;
+  box.innerHTML=`<p class="eyebrow">Din neste handling</p><p>${escapeHtml(next.hint)}</p><div class="crosslink-grid">${action}</div>`;
   body.appendChild(box);
+  box.querySelector('[data-participant-view]')?.addEventListener('click',()=>{document.querySelector('#taskDialog')?.close();show(next.view)});
 };
 
 })();
