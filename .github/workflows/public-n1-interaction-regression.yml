@@ -83,7 +83,7 @@ jobs:
           call('Page.navigate',{'url':url})
           time.sleep(2.5)
 
-          result=evaluate(r'''(() => {
+          result=evaluate(r'''(async() => {
             const form=document.querySelector('form.n1-interest-form');
             if(!form) return {ok:false,error:'missing form'};
             const q=s=>form.querySelector(s);
@@ -114,6 +114,7 @@ jobs:
             if(!wrap?.hidden || role?.required || role?.value || org?.value) return {ok:false,error:'referral-only values survive switch back to participant'};
 
             document.querySelector('.lang-toggle')?.click();
+            await new Promise(resolve=>setTimeout(resolve,50));
             const enParticipant=participant?.textContent.trim();
             const enReferral=referral?.textContent.trim();
             if(document.documentElement.dataset.lang!=='en') return {ok:false,error:'language toggle did not reach EN'};
@@ -121,7 +122,7 @@ jobs:
             if(enReferral!=='I want to refer or recommend someone') return {ok:false,error:'EN referral option wrong',label:enReferral};
 
             return {ok:true,intakeState:form.dataset.intakeState||'',participantHidden:wrap?.hidden===true,language:document.documentElement.dataset.lang};
-          })()''')
+          })()''',await_promise=True)
           print(json.dumps(result,ensure_ascii=False))
           if not result or not result.get('ok'):
               raise SystemExit(f'N1 interaction regression failed: {result}')
