@@ -14,7 +14,8 @@ assert(layer.includes('key=pilot_evaluation&pilot='),'Evaluation entry must carr
 assert(layer.includes('Aggregert læring')&&layer.includes('ikke en ny deltakerport'),'Evaluation UX must be program learning, not a participant gate');
 assert(layer.includes('aggregert lesetilgang')&&layer.includes('manage_program'),'UI must explain the current read/write role boundary in user-facing language');
 assert(!layer.includes('client.from(')&&!layer.includes('functions.invoke('),'Evaluation entry layer must be presentation/navigation only');
-assert(runner.includes("project_owner:['info_before_via','interest_referral','via_roadmap','participant_agreement','pilot_go','pilot_evaluation']"),'Existing form runner must keep pilot_evaluation available to project owner');
+assert(runner.includes("project_owner:['pilot_go','pilot_evaluation']"),'Project owner must retain pilot-level GO/evaluation without inheriting individual participant forms');
+assert(!runner.includes("project_owner:['info_before_via'")&&!runner.includes("project_owner:['interest_referral'")&&!runner.includes("project_owner:['via_roadmap'")&&!runner.includes("project_owner:['participant_agreement'"),'Project owner must not regain individual form payload UI through generic program ownership');
 assert(!runner.includes("evaluator:['pilot_evaluation']")&&!runner.includes("observer:['pilot_evaluation']"),'Do not silently widen evaluator/observer write UI');
 assert(journey.includes('| 11. Evaluering |')&&journey.includes('Aggregert læring → forbedring'),'Implementation must align with the documented evaluation journey');
 assert(journey.includes('Observatør/evaluator har aggregert tilgang som standard'),'Evaluator/observer boundary must remain source-aligned');
