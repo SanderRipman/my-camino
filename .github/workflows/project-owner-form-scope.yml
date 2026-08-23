@@ -1,0 +1,35 @@
+name: Project owner form scope QA
+
+on:
+  pull_request:
+    paths:
+      - 'portal/form-runner.js'
+      - 'supabase/migrations/**project_owner_form_scope**.sql'
+      - '.github/workflows/project-owner-form-scope.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  least-privilege:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify project owner cannot inherit individual form payloads
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          form=Path('portal/form-runner.js').read_text()
+          mig=Path('supabase/migrations/20260824012600_project_owner_form_scope_v1.sql').read_text()
+          assert "project_owner:['pilot_go','pilot_evaluation']" in form
+          for key in ['info_before_via','interest_referral','via_roadmap','participant_agreement']:
+              block=mig.split(f"when '{key}' then",1)[1].split("when '",1)[0]
+              assert "manage_program" not in block, (key, block)
+          assert "when 'pilot_go'" in mig and "when 'pilot_evaluation'" in mig
+          policy=mig.split('create policy form_submission_read',1)[1]
+          assert 'view_case_status' not in policy
+          assert 'staff_form_allowed_v2' in policy
+          print('Project owner form scope is least-privilege aligned.')
+          PY
