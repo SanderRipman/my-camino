@@ -4,7 +4,7 @@ const client=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s);
 let session=null,participants=[],pilots=[],pilotParticipants=[],grants=[],definitions=[],versions=[],currentDef=null,currentVersion=null,currentDraft=null;
 const ROLE_KEYS={
- project_owner:['info_before_via','interest_referral','via_roadmap','participant_agreement','pilot_go','pilot_evaluation'],
+ project_owner:['pilot_go','pilot_evaluation'],
  program_lead:['interest_referral','pilot_go'],
  via_owner:['info_before_via','interest_referral','via_roadmap','individual_go_no_go','participant_agreement'],
  clinical_professional:['info_before_via','interest_referral','via_roadmap','individual_go_no_go','participant_agreement'],
