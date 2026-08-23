@@ -47,7 +47,10 @@
     const sync=()=>{
       const referral=inquiry?.value==='REFERRAL';
       const wrap=form.querySelector('.n1-referral-fields');if(wrap)wrap.hidden=!referral;
-      const role=form.querySelector('[name="referral_role"]');if(role)role.required=referral;
+      const role=form.querySelector('[name="referral_role"]');
+      if(role){role.required=referral;if(!referral&&role.value)role.value='';}
+      const organization=form.querySelector('[name="organization_name"]');
+      if(organization&&!referral&&organization.value)organization.value='';
       const note=form.querySelector('.n1-form-note');
       if(note)note.innerHTML=referral
         ? '<strong>Ikke skriv opplysninger om den mulige deltakeren her.</strong> Vi tar eventuell deltakerinformasjon i et senere, riktig og sikkert steg. Dette er bare første kontakt med deg som henviser.'
