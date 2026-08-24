@@ -106,3 +106,5 @@ jobs:
         run: node portal/pilot-evaluation-smoke.mjs
       - name: Verify semantic navigation badge invariants
         run: node portal/nav-badges-smoke.mjs
+      - name: Verify SER and VIDA streamline provenance invariants
+        run: node portal/form-streamline-provenance-smoke.mjs

@@ -52,3 +52,10 @@ if(originalChooseForm){
 document.querySelector('#formSelect')?.addEventListener('change',()=>setTimeout(renderFormQnaGuidance,0));
 setTimeout(renderFormQnaGuidance,160);
 })();
+
+if(!document.querySelector('script[data-form-streamline-provenance]')){
+  const script=document.createElement('script');
+  script.src='./form-streamline-provenance.js?v=20260824a';
+  script.dataset.formStreamlineProvenance='1';
+  document.body.appendChild(script);
+}
