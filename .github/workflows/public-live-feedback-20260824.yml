@@ -1,0 +1,27 @@
+name: Public LIVE feedback 20260824
+
+on:
+  pull_request:
+    paths:
+      - 'public-site/current/live-feedback-20260824.js'
+      - 'public-site/current/live-feedback-20260824-smoke.mjs'
+      - 'public-site/current/site.js'
+      - 'public-site/current/assets/santiago-4-ser.jpg'
+      - '.github/workflows/public-live-feedback-20260824.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'public-site/current/live-feedback-20260824.js'
+      - 'public-site/current/live-feedback-20260824-smoke.mjs'
+      - 'public-site/current/site.js'
+      - 'public-site/current/assets/santiago-4-ser.jpg'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node public-site/current/live-feedback-20260824-smoke.mjs
