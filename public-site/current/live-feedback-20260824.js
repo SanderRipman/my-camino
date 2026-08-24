@@ -19,7 +19,7 @@
       .n1-pause-mark.n1-pause-photo img{display:block;width:100%;height:100%;min-height:260px;object-fit:cover;object-position:center 45%}
       .n1-pause-mark.n1-pause-photo .n1-pause-photo-note{position:absolute;left:12px;right:12px;bottom:12px;padding:7px 10px;border-radius:999px;background:rgba(20,33,43,.72);color:#fff;font-size:11px;text-align:center;backdrop-filter:blur(4px)}
       @media(max-width:650px){
-        .journey-ribbon>div:last-child.n1-safety-line{grid-column:1/-1;display:flex!important;align-items:baseline;justify-content:center;gap:6px;min-width:0;padding:8px 8px!important;white-space:nowrap}
+        .journey-ribbon>div:last-child.n1-safety-line{grid-column:1/-1;display:flex!important;align-items:baseline;justify-content:center;gap:3px 6px;min-width:0;padding:8px 8px!important;white-space:normal;flex-wrap:wrap}
         .journey-ribbon>div:last-child.n1-safety-line b{display:inline!important;margin:0!important;font-size:clamp(11px,3.2vw,14px)!important}
         .journey-ribbon>div:last-child.n1-safety-line>span{display:inline!important;margin:0!important;font-size:clamp(10px,2.9vw,13px)!important;line-height:1.2!important}
         .n1-pause-mark.n1-pause-photo img{min-height:0;aspect-ratio:3/4}
@@ -34,9 +34,9 @@
     if(!item)return;
     item.classList.add('n1-safety-line');
     const b=item.querySelector('b');
-    if(b)b.textContent='Trygghet';
-    const no=item.querySelector('.lang-no');
-    const en=item.querySelector('.lang-en');
+    if(b)b.innerHTML=bi('Trygghet','Safety');
+    const no=item.querySelector(':scope > .lang-no');
+    const en=item.querySelector(':scope > .lang-en');
     if(no)no.textContent='i alle tre steg · frivillig · tilpasset';
     if(en)en.textContent='across all three stages · voluntary · adaptable';
   }
