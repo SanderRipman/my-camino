@@ -1,0 +1,1 @@
+Role-aware home PR scope: presentation-only differentiation between participant, operational staff, multi-role staff and aggregate project/evaluation users; aggregate-only queues render only program-level tasks without participant_id and hide participant/check-in primary navigation. No backend/RLS/grant changes.
