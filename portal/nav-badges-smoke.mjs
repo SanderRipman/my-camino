@@ -8,7 +8,7 @@ must(build,"const navBadgesPath=path.join(dir,'app-nav-badges.js');",'build sour
 must(build,"'+navBadges+'",'bundle append');
 must(src,"kind==='overview'",'overview distinct total');
 must(src,"kind==='participants'",'participant attention semantics');
-must(src,"kind==='tasks'",'task severity semantics');
+must(src,"semanticBadgeMarkup('tasks',taskCounts)",'task severity semantics');
 must(src,"latestCheckin(participant.id)",'participant latest check-in signal');
 must(src,"if(!isStaff())",'participant role boundary');
 must(src,"participantBadge.innerHTML=''",'participant no staff badge leakage');
