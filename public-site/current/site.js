@@ -134,9 +134,6 @@
   }
 
   const naturalContentHeight = () => {
-    // Do not use documentElement.scrollHeight here. The Wix iframe can start much taller
-    // than the page, and html/body min-height:100% would then report that oversized
-    // viewport back to the parent and create a permanent blank scroll tail.
     const nodes = [...document.body.children].filter((el) => {
       const tag = el.tagName;
       if (tag === "SCRIPT" || tag === "STYLE") return false;
@@ -178,9 +175,6 @@
   style.dataset.aidmeMobileUx = "1";
   document.head.appendChild(style);
 
-  // Keep one semantic anchor per phase card. CSS stretches that anchor across
-  // the full card for pointer users, while keyboard/screen-reader users retain
-  // the original link instead of a nested synthetic role=link container.
   document.querySelectorAll(".step").forEach((card) => {
     if (card.querySelector("a.step-link")) card.classList.add("has-card-link");
   });
@@ -240,6 +234,20 @@
     const script = document.createElement('script');
     script.src = 'post-cutover-live.js?v=20260822b';
     script.dataset.aidmePostCutoverLive = '1';
+    script.async = false;
+    document.body.appendChild(script);
+  };
+  if (document.readyState === 'complete') load();
+  else window.addEventListener('load', load, { once: true });
+})();
+
+/* 2026-08-24 owner-authorized LIVE demo/feedback layer. No public data writes. */
+(() => {
+  const load = () => {
+    if (document.querySelector('script[data-aidme-live-feedback-20260824]')) return;
+    const script = document.createElement('script');
+    script.src = 'live-feedback-20260824.js?v=20260824a';
+    script.dataset.aidmeLiveFeedback20260824 = '1';
     script.async = false;
     document.body.appendChild(script);
   };
