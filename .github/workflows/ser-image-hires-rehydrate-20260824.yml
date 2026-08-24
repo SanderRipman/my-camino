@@ -1,0 +1,48 @@
+name: SER image hires rehydrate 20260824
+
+on:
+  push:
+    branches: [camino/public-ser-image-hires-20260824]
+    paths:
+      - '.github/workflows/ser-image-hires-rehydrate-20260824.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  rehydrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: camino/public-ser-image-hires-20260824
+          fetch-depth: 0
+      - name: Restore approved Santiago 4 original bytes
+        shell: bash
+        env:
+          SOURCE_URL: 'https://sdmntprpolandcentral.oaiusercontent.com/files/00000000-fbfc-820a-873d-4026f0a5fca5/raw?se=2026-08-24T02%3A25%3A27Z&sp=r&sv=2026-02-06&sr=b&scid=293acae6-8a56-5247-8ae0-62f30758278e&skoid=061609b8-1cdb-4a5b-9e68-c7ab9a523a8f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-08-23T22%3A34%3A26Z&ske=2026-08-24T22%3A34%3A26Z&sks=b&skv=2026-02-06&sig=Rc0A3gombZ7EnhbdI3U8aC4TZ26uT697ncHjmK597Bc%3D'
+          EXPECTED_SHA256: 'f055d6cc88a62d44f0aa08b704d67b8f50f4475a9639903653cd66463edf7b9c'
+          EXPECTED_SIZE: '436407'
+        run: |
+          set -euo pipefail
+          TARGET='public-site/current/assets/santiago-4-ser.jpg'
+          python3 - <<'PY'
+          import hashlib, os, urllib.request
+          url=os.environ['SOURCE_URL']
+          target='public-site/current/assets/santiago-4-ser.jpg'
+          req=urllib.request.Request(url,headers={'User-Agent':'AidMe-Camino-asset-restore/1.0'})
+          with urllib.request.urlopen(req,timeout=60) as r:
+              data=r.read()
+          if len(data)!=int(os.environ['EXPECTED_SIZE']):
+              raise SystemExit(f"size mismatch: {len(data)}")
+          sha=hashlib.sha256(data).hexdigest()
+          if sha!=os.environ['EXPECTED_SHA256']:
+              raise SystemExit(f"sha mismatch: {sha}")
+          open(target,'wb').write(data)
+          print(f"restored {target}: {len(data)} bytes {sha}")
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "$TARGET"
+          git commit -m 'Restore full-resolution approved Santiago 4 SER image'
+          git push origin HEAD:camino/public-ser-image-hires-20260824
