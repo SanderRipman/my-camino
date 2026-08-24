@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+const src=fs.readFileSync(new URL('./app-role-home.js',import.meta.url),'utf8');
+const build=fs.readFileSync(new URL('./build-app.mjs',import.meta.url),'utf8');
+const must=(needle,label)=>{if(!src.includes(needle))throw new Error(`${label}: missing ${needle}`)};
+must('if(!isStaff())return null','participant home must remain owned by participant layer');
+must("key:'aggregate'",'aggregate project/evaluation lens');
+must("key:'ser'",'SER operational lens');
+must("key:'vida'",'VIDA owner lens');
+must("key:'via'",'VIA professional lens');
+must("operational.length>1",'multi-role combined lens');
+must('minste nødvendige innsyn','least privilege wording');
+must('role-home-hide-aggregate','aggregate view must suppress participant pulse panel');
+if(/client\.from\(|client\.functions\.invoke|\.insert\(|\.update\(|\.upsert\(/.test(src))throw new Error('role-aware home must remain presentation-only and read-only');
+if(src.includes('role_grants').includes?.('insert'))throw new Error('role-aware home must never mutate grants');
+if(!build.includes('app-role-home.js'))throw new Error('role-aware home must be in deterministic build');
+console.log('Role-aware home presentation invariants passed.');
