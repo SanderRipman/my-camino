@@ -8,7 +8,7 @@ const ops=read('./app-ops.js');
 const build=read('./build-app.mjs');
 
 assert(build.includes("app-ser-vida-handoff.js")&&build.includes("'+serVidaHandoff+'"),'SER→VIDA handoff layer must be included in deterministic portal build');
-assert(layer.includes("hasRole('project_owner')")&&layer.includes("hasRole('program_lead')")&&layer.includes("hasRole('ser_lead')"),'SER→VIDA control must be hidden from staff roles without a matching transition capability');
+assert(!layer.includes("hasRole('project_owner')")&&layer.includes("hasRole('program_lead')")&&layer.includes("hasRole('ser_lead')"),'SER→VIDA control must stay hidden from project_owner and remain available only to operational transition roles');
 assert(layer.includes("p.stage!=='SER'")||layer.includes("p.stage==='SER'"),'SER→VIDA action must be stage constrained');
 assert(layer.includes("client.functions.invoke('workflow-command'")&&layer.includes("action:'START_VIDA'"),'Transition must use the existing workflow command and START_VIDA action');
 assert(!layer.includes('client.from('),'Handoff layer must not add direct database writes');
@@ -18,4 +18,4 @@ assert(layer.includes('ikke automatisk')&&layer.includes('åpne SER-oppgave'),'H
 assert(layer.includes('window.confirm'),'Stage transition must require an explicit staff confirmation click');
 assert(ops.includes("p.stage==='SER'||p.stage==='VIDA'")&&!ops.includes("action='START_VIDA'")&&!ops.includes("action='START_NEW_VIA'"),'Generic ops layer must not render duplicate SER/VIDA transition controls');
 
-console.log('SER→VIDA explicit staff handoff and dedupe invariants OK');
+console.log('SER→VIDA explicit staff handoff, project-owner least-privilege and dedupe invariants OK');
