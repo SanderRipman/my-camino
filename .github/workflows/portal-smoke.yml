@@ -108,3 +108,5 @@ jobs:
         run: node portal/nav-badges-smoke.mjs
       - name: Verify SER and VIDA streamline provenance invariants
         run: node portal/form-streamline-provenance-smoke.mjs
+      - name: Verify analysis clarity and mobile readability invariants
+        run: node portal/analysis-clarity-smoke.mjs
