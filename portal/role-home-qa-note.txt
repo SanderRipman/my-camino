@@ -1,0 +1,1 @@
+Presentation-only role-aware home bundle prepared for PR. Security boundary remains Supabase RLS/capabilities; aggregate-only UX filters participant-linked task rows but does not change authorization.
