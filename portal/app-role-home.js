@@ -44,6 +44,7 @@ function roleHomeLens(){
     context:'Minste nødvendige innsyn',queue:'Prioritert arbeidskø'
   };
 }
+function aggregateOnlyLens(){return roleHomeLens()?.key==='aggregate'}
 
 function roleHomeStyles(){
   if(document.querySelector('#role-home-style'))return;
@@ -51,12 +52,14 @@ function roleHomeStyles(){
   style.textContent=`
     #view-overview.role-home-aggregate .dashboard-top{grid-template-columns:1fr}
     #view-overview.role-home-aggregate .role-home-hide-aggregate{display:none!important}
+    #view-overview.role-home-aggregate .metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
     #contextMini{max-width:240px;line-height:1.35}
     @media(max-width:760px){
       #view-overview .hero-panel.compact-hero{align-items:flex-start;gap:14px}
       #view-overview .hero-badge{min-width:0;max-width:46%;padding-left:12px}
       #view-overview .hero-badge strong{font-size:clamp(20px,6vw,28px)}
       #view-overview #homeIntro{line-height:1.45}
+      #view-overview.role-home-aggregate .metric-grid{grid-template-columns:1fr}
     }
   `;document.head.appendChild(style);
 }
@@ -64,11 +67,19 @@ function setOverviewMetricLabel(index,label,hint){
   const card=document.querySelectorAll('#view-overview .metric-grid .metric')[index];if(!card)return;
   const l=card.querySelector('span'),s=card.querySelector('small');if(l)l.textContent=label;if(s&&hint)s.textContent=hint;
 }
+function adaptAggregateNavigation(lens){
+  const participantNav=document.querySelector('.nav-item[data-view="participants"]');
+  const checkinNav=document.querySelector('.nav-item[data-view="checkin"]');
+  if(participantNav)participantNav.classList.toggle('hidden',lens.key==='aggregate');
+  if(checkinNav)checkinNav.classList.toggle('hidden',lens.key==='aggregate');
+}
 function applyRoleAwareHome(){
   if(!isStaff())return;
-  const lens=roleHomeLens();if(!lens)return;roleHomeStyles();
+  const lens=roleHomeLens();if(!lens)return;roleHomeStyles();adaptAggregateNavigation(lens);
   const view=document.querySelector('#view-overview');if(!view)return;
   view.classList.toggle('role-home-aggregate',lens.key==='aggregate');
+  const metrics=document.querySelectorAll('#view-overview .metric-grid .metric');
+  if(metrics[3])metrics[3].classList.toggle('role-home-hide-aggregate',lens.key==='aggregate');
   const eyebrow=document.querySelector('#homeEyebrow'),heading=document.querySelector('#homeHeading'),intro=document.querySelector('#homeIntro'),badge=document.querySelector('#stageBadge'),context=document.querySelector('#contextMini');
   if(eyebrow)eyebrow.textContent=lens.eyebrow;if(heading)heading.textContent=lens.heading;if(intro)intro.textContent=lens.intro;if(badge)badge.textContent=lens.badge;if(context)context.textContent=lens.context;
   const queue=document.querySelector('#priorityQueue')?.closest('.panel-card');if(queue){const h=queue.querySelector('h3');if(h)h.textContent=lens.queue}
@@ -77,7 +88,6 @@ function applyRoleAwareHome(){
     setOverviewMetricLabel(0,'Åpne programoppgaver','porter, rapportering og oppfølging');
     setOverviewMetricLabel(1,'Kritisk / forfalt','krever programoppmerksomhet');
     setOverviewMetricLabel(2,'Trenger avklaring','åpne programspørsmål');
-    setOverviewMetricLabel(3,'Synlige forløp','kun innen eksisterende tilgang');
   }else if(lens.key==='vida'){
     setOverviewMetricLabel(0,'Åpne VIDA-steg','første handling og oppfølging');
     setOverviewMetricLabel(3,'Deltakere i scope','kun ditt eksisterende ansvar');
@@ -89,6 +99,14 @@ function applyRoleAwareHome(){
     setOverviewMetricLabel(3,'Deltakere i VÍA','innen eksisterende scope');
   }
 }
+
+const roleHomeRenderTaskLists=renderTaskLists;
+renderTaskLists=function(){
+  if(!aggregateOnlyLens())return roleHomeRenderTaskLists();
+  const allTasks=tasks;
+  tasks=(allTasks||[]).filter(t=>!t.participant_id);
+  try{return roleHomeRenderTaskLists()}finally{tasks=allTasks}
+};
 
 const roleHomeRenderAll=renderAll;
 renderAll=function(){roleHomeRenderAll();applyRoleAwareHome()};
