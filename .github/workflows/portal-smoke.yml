@@ -100,6 +100,8 @@ jobs:
         run: node portal/ser-vida-journey-smoke.mjs
       - name: Verify explicit SER to VIDA staff handoff invariants
         run: node portal/ser-vida-handoff-smoke.mjs
+      - name: Verify START_VIDA least-privilege backend boundary
+        run: node portal/workflow-start-vida-least-privilege-smoke.mjs
       - name: Verify optional new VIA handoff invariants
         run: node portal/vida-new-via-smoke.mjs
       - name: Verify aggregated pilot evaluation entry invariants
