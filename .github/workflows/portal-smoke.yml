@@ -112,3 +112,5 @@ jobs:
         run: node portal/form-streamline-provenance-smoke.mjs
       - name: Verify analysis clarity and mobile readability invariants
         run: node portal/analysis-clarity-smoke.mjs
+      - name: Verify role-aware home presentation invariants
+        run: node portal/role-home-smoke.mjs
