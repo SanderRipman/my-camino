@@ -10,7 +10,7 @@ const SER_VIDA_HANDOFF_ERRORS={
   STALE_STAGE:'Fasen ble endret et annet sted. Last arbeidsflaten på nytt.'
 };
 function serVidaHandoffError(code){return SER_VIDA_HANDOFF_ERRORS[code]||'VIDA kunne ikke startes. Ingen alternativ direkte databasevei ble brukt.'}
-function canStartVida(){return hasRole('project_owner')||hasRole('program_lead')||hasRole('ser_lead')}
+function canStartVida(){return hasRole('program_lead')||hasRole('ser_lead')}
 function serVidaHandoffParticipant(){return canStartVida()?participantById(selectedParticipantId):null}
 function serVidaHandoffOpenSerTasks(p){return (tasks||[]).filter(t=>t.participant_id===p?.id&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status)&&String(t.workflow_key||'').startsWith('ser_'))}
 
