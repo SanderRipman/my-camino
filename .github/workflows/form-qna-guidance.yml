@@ -1,0 +1,25 @@
+name: Form Q&A guidance
+
+on:
+  pull_request:
+    paths:
+      - 'portal/form-runner.html'
+      - 'portal/form-qna-guidance.js'
+      - 'portal/form-qna-guidance-smoke.mjs'
+      - '.github/workflows/form-qna-guidance.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'portal/form-runner.html'
+      - 'portal/form-qna-guidance.js'
+      - 'portal/form-qna-guidance-smoke.mjs'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node portal/form-qna-guidance-smoke.mjs
