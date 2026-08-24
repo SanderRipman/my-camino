@@ -15,11 +15,19 @@ function staffDecisionTaskGate(task,participant){
     local:'participant',
     hint:'Samlet Pilot-GO er registrert. Åpne deltakeren og bruk «Kontroller og start SER»; serveren gjør siste gatekontroll.'
   };
-  if(task.workflow_key==='via_agreement_review')return{
-    label:'Se fullført avtale / beredskap',
-    href:`./form-runner.html?key=participant_agreement&participant=${encodeURIComponent(participant.id)}&latest=1`,
-    hint:'Les deltakerens faktiske avtale, kontakt-/delingsvalg og beredskapsbekreftelser før review lukkes. Deretter er samlet Pilot-GO neste formelle gate; avtalen er ikke i seg selv en SER-godkjenning.'
-  };
+  if(task.workflow_key==='via_agreement_review'){
+    const canReviewAgreement=canContext('edit_via',participant.id,pilot?.id||null);
+    if(!canReviewAgreement)return{
+      label:'Åpne ansvar / avklar reviewer',
+      href:`./owners.html?participant=${encodeURIComponent(participant.id)}`,
+      hint:'Du kan koordinere programramme og neste gate, men detaljert deltakeravtale er rollebegrenset. Tildel eller involver autorisert VÍA-/fagrolle for detaljreview i stedet for å utvide sensitiv tilgang som snarvei.'
+    };
+    return{
+      label:'Se fullført avtale / beredskap',
+      href:`./form-runner.html?key=participant_agreement&participant=${encodeURIComponent(participant.id)}&latest=1`,
+      hint:'Les deltakerens faktiske avtale, kontakt-/delingsvalg og beredskapsbekreftelser før review lukkes. Deretter er samlet Pilot-GO neste formelle gate; avtalen er ikke i seg selv en SER-godkjenning.'
+    };
+  }
   return{
     label:'Åpne avtale / beredskap',
     href:`./form-runner.html?key=participant_agreement&participant=${encodeURIComponent(participant.id)}`,
