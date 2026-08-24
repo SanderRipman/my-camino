@@ -104,3 +104,5 @@ jobs:
         run: node portal/vida-new-via-smoke.mjs
       - name: Verify aggregated pilot evaluation entry invariants
         run: node portal/pilot-evaluation-smoke.mjs
+      - name: Verify semantic navigation badge invariants
+        run: node portal/nav-badges-smoke.mjs
