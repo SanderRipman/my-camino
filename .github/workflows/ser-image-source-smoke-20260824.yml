@@ -1,0 +1,26 @@
+name: SER image source QA 20260824
+
+on:
+  pull_request:
+    paths:
+      - 'public-site/current/assets/santiago-4-ser.jpg'
+      - 'public-site/current/ser-image-hires-smoke.mjs'
+      - 'public-site/current/SER_IMAGE_SOURCE_2026-08-24.md'
+      - '.github/workflows/ser-image-source-smoke-20260824.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'public-site/current/assets/santiago-4-ser.jpg'
+      - 'public-site/current/ser-image-hires-smoke.mjs'
+      - 'public-site/current/SER_IMAGE_SOURCE_2026-08-24.md'
+      - '.github/workflows/ser-image-source-smoke-20260824.yml'
+
+jobs:
+  exact-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node public-site/current/ser-image-hires-smoke.mjs
