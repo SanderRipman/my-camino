@@ -53,7 +53,10 @@ Deno.serve(async(req:Request)=>{
 
   if(action==='CONFIRM_REFERRAL'){
    if(String(intake.interest_type||'').toUpperCase()!=='REFERRAL')return new Response(JSON.stringify({error:'NOT_A_REFERRAL'}),{status:409,headers})
-   if(body?.consentConfirmed!==true)return new Response(JSON.stringify({error:'PARTICIPANT_CONSENT_REQUIRED'}),{status:400,headers})
+   // This is a staff attestation that the person wants direct contact, not the participant's formal programme consent.
+   // Accept the legacy consentConfirmed flag temporarily so an older portal client cannot break during rollout.
+   const contactWillingnessConfirmed=body?.contactWillingnessConfirmed===true||body?.consentConfirmed===true
+   if(!contactWillingnessConfirmed)return new Response(JSON.stringify({error:'PARTICIPANT_CONTACT_WILLINGNESS_REQUIRED'}),{status:400,headers})
    const participant=body?.participant||{},name=text(participant.name,120),email=text(participant.email,254).toLowerCase(),phone=text(participant.phone,40),preferred=String(participant.preferredContact||'EMAIL').toUpperCase()
    if(!name||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!['EMAIL','PHONE'].includes(preferred)||(preferred==='PHONE'&&!phone))return new Response(JSON.stringify({error:'INVALID_PARTICIPANT_CONTACT'}),{status:400,headers})
    const now=new Date().toISOString()
@@ -62,7 +65,7 @@ Deno.serve(async(req:Request)=>{
    const existingSummary=text(intake.triage_summary,800),summary=[existingSummary,`Direkte deltakerkontakt bekreftet og opprettet som ny interesse ${newIntake.id}.`].filter(Boolean).join(' ')
    const {error:closeError}=await admin.from('intakes').update({status:'CLOSED',triage_owner:u.user.id,triage_summary:summary,updated_at:now}).eq('id',intakeId);if(closeError)throw closeError
    await admin.from('tasks').update({status:'DONE',updated_at:now}).eq('source_type','intake').eq('source_id',intakeId).in('status',['OPEN','IN_PROGRESS','WAITING'])
-   await admin.from('workflow_events').insert({organization_id:org.id,actor_user_id:u.user.id,event_type:'REFERRAL_CONFIRMED_TO_PARTICIPANT_INTEREST',source_type:'intake',source_id:intakeId,metadata:{participant_intake_id:newIntake.id}})
+   await admin.from('workflow_events').insert({organization_id:org.id,actor_user_id:u.user.id,event_type:'REFERRAL_CONFIRMED_TO_PARTICIPANT_INTEREST',source_type:'intake',source_id:intakeId,metadata:{participant_intake_id:newIntake.id,contact_willingness_attested_by_staff:true,formal_participant_consent_recorded:false}})
    return new Response(JSON.stringify({ok:true,intake:newIntake}),{status:201,headers})
   }
 
