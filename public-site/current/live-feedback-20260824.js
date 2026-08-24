@@ -18,10 +18,17 @@
       .n1-pause-mark.n1-pause-photo{position:relative;display:block;padding:0;min-height:0;overflow:hidden;background:#183d3b}
       .n1-pause-mark.n1-pause-photo img{display:block;width:100%;height:100%;min-height:260px;object-fit:cover;object-position:center 45%}
       .n1-pause-mark.n1-pause-photo .n1-pause-photo-note{position:absolute;left:12px;right:12px;bottom:12px;padding:7px 10px;border-radius:999px;background:rgba(20,33,43,.72);color:#fff;font-size:11px;text-align:center;backdrop-filter:blur(4px)}
+      html[data-lang="no"] .n1-safety-foundation .lang-en{display:none!important}
+      html[data-lang="no"] .n1-safety-foundation .lang-no{display:inline!important}
+      html[data-lang="en"] .n1-safety-foundation .lang-no{display:none!important}
+      html[data-lang="en"] .n1-safety-foundation .lang-en{display:inline!important}
       @media(max-width:650px){
-        .journey-ribbon>div:last-child.n1-safety-line{grid-column:1/-1;display:flex!important;align-items:baseline;justify-content:center;gap:3px 6px;min-width:0;padding:8px 8px!important;white-space:normal;flex-wrap:wrap}
-        .journey-ribbon>div:last-child.n1-safety-line b{display:inline!important;margin:0!important;font-size:clamp(11px,3.2vw,14px)!important}
-        .journey-ribbon>div:last-child.n1-safety-line>span{display:inline!important;margin:0!important;font-size:clamp(10px,2.9vw,13px)!important;line-height:1.2!important}
+        .journey-ribbon.n1-three{gap:6px;padding-bottom:6px}
+        .journey-ribbon.n1-three>div{min-height:0!important;padding:9px 13px!important}
+        .journey-ribbon.n1-three>div b{font-size:clamp(23px,7vw,31px);line-height:1}
+        .journey-ribbon.n1-three>div>span{font-size:clamp(12px,3.5vw,15px);line-height:1.25}
+        .n1-safety-foundation.n1-safety-line{margin:4px auto 12px;padding:0 11px;font-size:clamp(11px,3.2vw,13px);line-height:1.35;text-align:center}
+        .n1-safety-foundation.n1-safety-line strong{font-weight:800}
         .n1-pause-mark.n1-pause-photo img{min-height:0;aspect-ratio:3/4}
       }
     `;
@@ -30,15 +37,12 @@
 
   function applySafetyLine(){
     if(page!=='index')return;
-    const item=document.querySelector('.journey-ribbon > div:last-child');
-    if(!item)return;
-    item.classList.add('n1-safety-line');
-    const b=item.querySelector('b');
-    if(b)b.innerHTML=bi('Trygghet','Safety');
-    const no=item.querySelector(':scope > .lang-no');
-    const en=item.querySelector(':scope > .lang-en');
-    if(no)no.textContent='i alle tre steg · frivillig · tilpasset';
-    if(en)en.textContent='across all three stages · voluntary · adaptable';
+    const ribbon=document.querySelector('.journey-ribbon');
+    const foundation=document.querySelector('.n1-safety-foundation');
+    if(ribbon)ribbon.classList.add('n1-three');
+    if(!foundation)return;
+    foundation.classList.add('n1-safety-line');
+    foundation.innerHTML='<span class="lang-no"><strong>Trygghet i alle tre steg</strong> · frivillig · tilpasset</span><span class="lang-en"><strong>Safety across all three stages</strong> · voluntary · adaptable</span>';
   }
 
   function applyHeaderAutoHide(){
@@ -157,5 +161,5 @@
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});
   else run();
-  window.addEventListener('load',()=>{applySerPhoto();bindDemoFormWhenReady()},{once:true});
+  window.addEventListener('load',()=>{applySafetyLine();applySerPhoto();bindDemoFormWhenReady()},{once:true});
 })();
