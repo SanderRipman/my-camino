@@ -116,3 +116,5 @@ jobs:
         run: node portal/role-home-smoke.mjs
       - name: Verify task gate return-context invariants
         run: node portal/task-gate-return-smoke.mjs
+      - name: Verify standalone workspace chrome invariants
+        run: node portal/standalone-chrome-smoke.mjs
