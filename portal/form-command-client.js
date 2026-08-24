@@ -24,6 +24,31 @@ const FORM_ERROR_TEXT={
 };
 function formError(code){return FORM_ERROR_TEXT[code]||'Skjemaet kunne ikke lagres. Ingen alternativ direkte databasevei ble brukt.'}
 
+const returnQuery=new URLSearchParams(location.search);
+const returnTask=returnQuery.get('returnTask');
+const returnView=returnQuery.get('returnView')||'tasks';
+function returnTaskHref(){
+  if(!returnTask)return'./';
+  const q=new URLSearchParams({returnTask,returnView});
+  return`./?${q.toString()}`;
+}
+function ensureReturnTaskLink(){
+  if(!returnTask)return null;
+  let link=document.querySelector('#formReturnTask');
+  if(!link){
+    link=document.createElement('a');
+    link.id='formReturnTask';
+    link.className='ghost task-return-link';
+    link.href=returnTaskHref();
+    link.textContent='Tilbake til oppgaven';
+    document.querySelector('.runner-actions')?.prepend(link);
+  }
+  const portalLink=document.querySelector('.top-actions a.ghost[href="./"]');
+  if(portalLink){portalLink.href=returnTaskHref();portalLink.textContent='Tilbake til oppgaven'}
+  return link;
+}
+ensureReturnTaskLink();
+
 save=async function saveThroughCommand(status){
   if(!currentVersion||!contextOk())return;
   const participant=selectedParticipant(),pilot=selectedPilot(),org=orgId();
@@ -46,6 +71,10 @@ save=async function saveThroughCommand(status){
   const submission=data.submission;
   $('#formMessage').textContent=status==='SUBMITTED'?'Skjema fullført. Versjon, deltaker og pilotkontekst er bevart.':'Utkast lagret – du kan fortsette senere.';
   if(status==='DRAFT')currentDraft={id:submission.id};else currentDraft=null;
+  if(status==='SUBMITTED'){
+    const link=ensureReturnTaskLink();
+    if(link){link.className='primary task-return-link';link.textContent='Tilbake til oppgaven og se oppdatert status'}
+  }
   await loadSubmissions();
 };
 })();
