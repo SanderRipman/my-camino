@@ -7,6 +7,7 @@ const participant=read('./app-participant.js');
 const participantNext=read('./app-participant-next.js');
 const ops=read('./app-ops.js');
 const staffRouting=read('./app-go-decision.js');
+const runner=read('./form-runner.js');
 const build=read('./build-app.mjs');
 const workflow=read('../supabase/functions/workflow-command/index.ts');
 const decisionMigration=read('../supabase/migrations/20260822023000_go_decision_participant_handoff_v1.sql');
@@ -43,7 +44,12 @@ assert(participantNext.includes("stage==='POSTPONED'||stage==='NO_GO'"),'Postpon
 assert(ops.includes("p.stage==='POSTPONED'"),'Staff must be able to reopen a postponed case for a new formal decision');
 assert(ops.includes('PARTICIPANT_AGREEMENT_REQUIRED'),'Staff SER gate must explain agreement blocking condition');
 assert(ops.includes('Avtale / beredskap'),'Staff GO surface must expose agreement/readiness before SER');
-assert(staffRouting.includes("task.workflow_key==='via_agreement_review'"),'Agreement review task must route onward to Pilot-GO');
+assert(staffRouting.includes("task.workflow_key==='via_agreement_review'"),'Agreement review task must route onward safely');
+assert(staffRouting.includes("canContext('edit_via',participant.id"),'Detailed agreement review must follow the existing sensitive VÍA capability rather than generic program status access');
+assert(staffRouting.includes('Åpne ansvar / avklar reviewer'),'A staff member without detailed agreement scope must get a safe owner/reviewer path instead of a broken sensitive form link');
+assert(staffRouting.includes('i stedet for å utvide sensitiv tilgang som snarvei'),'Agreement review UX must explain the least-privilege boundary');
+assert(runner.includes("program_lead:['interest_referral','pilot_go']"),'Program lead must not gain participant_agreement form access as a shortcut');
+assert(!runner.includes("program_lead:['interest_referral','participant_agreement'"),'Do not silently widen program lead sensitive agreement access');
 assert(staffRouting.includes("task.workflow_key==='ser_start_ready'"),'Pilot-GO handoff task must route to last SER control');
 assert(build.includes("app-go-decision.js")&&build.includes("+goDecision+"),'GO decision extension must be part of the production bundle');
 
