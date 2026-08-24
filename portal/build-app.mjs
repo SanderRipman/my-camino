@@ -19,6 +19,7 @@ const serVidaHandoffPath=path.join(dir,'app-ser-vida-handoff.js');
 const vidaNewViaPath=path.join(dir,'app-vida-new-via.js');
 const pilotEvaluationPath=path.join(dir,'app-pilot-evaluation.js');
 const navBadgesPath=path.join(dir,'app-nav-badges.js');
+const analysisUxPath=path.join(dir,'app-analysis-ux.js');
 const outPath=path.join(dir,'app.js');
 let code=fs.readFileSync(sourcePath,'utf8');
 const ops=fs.readFileSync(opsPath,'utf8');
@@ -36,6 +37,7 @@ const serVidaHandoff=fs.readFileSync(serVidaHandoffPath,'utf8');
 const vidaNewVia=fs.readFileSync(vidaNewViaPath,'utf8');
 const pilotEvaluation=fs.readFileSync(pilotEvaluationPath,'utf8');
 const navBadges=fs.readFileSync(navBadgesPath,'utf8');
+const analysisUx=fs.readFileSync(analysisUxPath,'utf8');
 
 function replaceOnce(label,needle,replacement){
  const first=code.indexOf(needle);if(first<0)throw new Error(`${label}: source pattern missing`);if(code.indexOf(needle,first+1)>=0)throw new Error(`${label}: source pattern is not unique`);code=code.replace(needle,replacement);
@@ -89,5 +91,6 @@ code += '\n\n/* Explicit staff SER→VIDA handoff uses the existing workflow com
 code += '\n\n/* Optional new VÍA remains an explicit staff-triggered new start point after VIDA, never an automatic fourth step. */\n'+vidaNewVia+'\n';
 code += '\n\n/* Project-level pilot evaluation is an aggregated learning entry, not a participant gate. */\n'+pilotEvaluation+'\n';
 code += '\n\n/* Navigation badges use distinct semantics: overview total, task severity, participant attention. */\n'+navBadges+'\n';
+code += '\n\n/* Analysis clarity layer adds explicit empty states, readable mobile chart identity and responsive redraw without data writes. */\n'+analysisUx+'\n';
 fs.writeFileSync(outPath,code,'utf8');
 console.log(`Built ${path.relative(process.cwd(),outPath)} (${code.length} bytes)`);
