@@ -1,0 +1,1 @@
+START_VIDA least-privilege package: project_owner/manage_program is not sufficient; existing operational capabilities manage_tasks/edit_ser remain required alongside AAL2, SER stage and named VIDA owner.
