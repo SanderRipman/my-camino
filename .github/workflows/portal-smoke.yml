@@ -90,6 +90,8 @@ jobs:
         run: node portal/crm-smoke.mjs
       - name: Verify holistic journey and role invariants
         run: node portal/journey-role-smoke.mjs
+      - name: Verify phase-stable synthetic role fixtures
+        run: node portal/qa-role-fixture-smoke.mjs
       - name: Verify VÍA roadmap handoff invariants
         run: node portal/via-handoff-smoke.mjs
       - name: Verify GO decision and pre-SER journey invariants
