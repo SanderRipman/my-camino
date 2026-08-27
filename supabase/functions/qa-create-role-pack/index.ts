@@ -20,14 +20,26 @@ Deno.serve(async(req:Request)=>{
   if(!active.includes('system_admin'))return new Response(JSON.stringify({error:'FORBIDDEN'}),{status:403,headers:h});
   const {data:org,error:oe}=await admin.from('organizations').select('id').eq('name','AidMe VIDA').limit(1).maybeSingle();if(oe||!org)throw oe??new Error('ORG_NOT_FOUND');
   const {data:pilot,error:pe}=await admin.from('pilots').select('id').eq('organization_id',org.id).eq('status','DEMO').limit(1).maybeSingle();if(pe||!pilot)throw pe??new Error('DEMO_PILOT_NOT_FOUND');
-  const {data:parts,error:pae}=await admin.from('participants').select('id,code_name,user_id').eq('organization_id',org.id).in('code_name',['DEMO-VIA-01','DEMO-SER-02','DEMO-VIDA-03']);if(pae)throw pae;
-  const byCode=Object.fromEntries((parts??[]).map((p:any)=>[p.code_name,p]));if(!byCode['DEMO-VIA-01']||!byCode['DEMO-VIDA-03'])throw new Error('DEMO_PARTICIPANTS_NOT_FOUND');
+
+  async function ensureQaParticipant(code:string,stage:'VIA'|'VIDA'){
+   const {data:existing,error:se}=await admin.from('participants').select('id,code_name,user_id,stage').eq('organization_id',org.id).eq('code_name',code).maybeSingle();if(se)throw se;
+   if(existing){
+    const {data:updated,error:ue}=await admin.from('participants').update({stage,active:true,updated_at:nowIso}).eq('id',existing.id).select('id,code_name,user_id,stage').single();if(ue||!updated)throw ue??new Error('QA_FIXTURE_UPDATE_FAILED');
+    return updated;
+   }
+   const {data:created,error:ce}=await admin.from('participants').insert({organization_id:org.id,code_name:code,stage,active:true,created_by:u.user.id}).select('id,code_name,user_id,stage').single();if(ce||!created)throw ce??new Error('QA_FIXTURE_CREATE_FAILED');
+   return created;
+  }
+  const qaVia=await ensureQaParticipant('QA-ROLE-VIA-01','VIA');
+  const qaVida=await ensureQaParticipant('QA-ROLE-VIDA-01','VIDA');
+  const byCode:any={'QA-ROLE-VIA-01':qaVia,'QA-ROLE-VIDA-01':qaVida};
+
   const specs=[
-   {key:'participant',email:'qa-participant@example.invalid',name:'QA Deltaker',role:null,participant:'DEMO-VIA-01',pilot:null,title:'Deltaker'},
-   {key:'via_owner',email:'qa-via@example.invalid',name:'QA VÍA',role:'via_owner',participant:'DEMO-VIA-01',pilot:null,title:'VÍA-ansvarlig'},
-   {key:'clinical_professional',email:'qa-fag@example.invalid',name:'QA Fagperson',role:'clinical_professional',participant:'DEMO-VIA-01',pilot:null,title:'Relevant fagperson'},
+   {key:'participant',email:'qa-participant@example.invalid',name:'QA Deltaker',role:null,participant:'QA-ROLE-VIA-01',pilot:null,title:'Deltaker'},
+   {key:'via_owner',email:'qa-via@example.invalid',name:'QA VÍA',role:'via_owner',participant:'QA-ROLE-VIA-01',pilot:null,title:'VÍA-ansvarlig'},
+   {key:'clinical_professional',email:'qa-fag@example.invalid',name:'QA Fagperson',role:'clinical_professional',participant:'QA-ROLE-VIA-01',pilot:null,title:'Relevant fagperson'},
    {key:'ser_lead',email:'qa-ser@example.invalid',name:'QA SER',role:'ser_lead',participant:null,pilot:pilot.id,title:'SER-/turleder'},
-   {key:'vida_owner',email:'qa-vida@example.invalid',name:'QA VIDA',role:'vida_owner',participant:'DEMO-VIDA-03',pilot:null,title:'VIDA-eier'},
+   {key:'vida_owner',email:'qa-vida@example.invalid',name:'QA VIDA',role:'vida_owner',participant:'QA-ROLE-VIDA-01',pilot:null,title:'VIDA-eier'},
    {key:'logistics',email:'qa-logistics@example.invalid',name:'QA Logistikk',role:'logistics',participant:null,pilot:pilot.id,title:'Logistikk / beredskap'},
    {key:'program_lead',email:'qa-program@example.invalid',name:'QA Programleder',role:'program_lead',participant:null,pilot:pilot.id,title:'Programleder'},
    {key:'project_owner',email:'qa-project@example.invalid',name:'QA Prosjekteier',role:'project_owner',participant:null,pilot:null,title:'Prosjekteier'},
@@ -46,12 +58,12 @@ Deno.serve(async(req:Request)=>{
     const {error:rv}=await admin.from('role_grants').update({revoked_at:nowIso}).eq('user_id',user.id).eq('reason','SYNTHETIC_QA_ROLE_PACK').is('revoked_at',null);if(rv)throw rv;
     const {error:ri}=await admin.from('role_grants').insert({organization_id:org.id,user_id:user.id,role_code:s.role,participant_id:s.participant?byCode[s.participant].id:null,pilot_id:s.pilot,reason:'SYNTHETIC_QA_ROLE_PACK',valid_from:nowIso,valid_until:expires,granted_by:u.user.id});if(ri)throw ri;
    } else {
-    const p=byCode[s.participant];if(p.user_id&&p.user_id!==user.id)throw new Error('DEMO_PARTICIPANT_ALREADY_MAPPED');
+    const p=byCode[s.participant];if(p.user_id&&p.user_id!==user.id)throw new Error('QA_PARTICIPANT_ALREADY_MAPPED');
     const {error:pu}=await admin.from('participants').update({user_id:user.id,updated_at:nowIso}).eq('id',p.id);if(pu)throw pu;
    }
    result.push({key:s.key,label:s.title,email:s.email,password,expiresAt:s.role?expires:null,scope:s.participant?`participant:${s.participant}`:s.pilot?'pilot:DEMO':'organization:AidMe VIDA'});
   }
-  await admin.from('audit_events').insert({organization_id:org.id,actor_user_id:u.user.id,action:'QA_ROLE_PACK_CREATED',resource_type:'qa_role_pack',purpose:'Synthetic role/scope E2E QA',metadata:{roles:specs.map(s=>s.key),expires_at:expires}});
+  await admin.from('audit_events').insert({organization_id:org.id,actor_user_id:u.user.id,action:'QA_ROLE_PACK_CREATED',resource_type:'qa_role_pack',purpose:'Synthetic role/scope E2E QA',metadata:{roles:specs.map(s=>s.key),fixtures:['QA-ROLE-VIA-01','QA-ROLE-VIDA-01'],expires_at:expires}});
   return new Response(JSON.stringify({ok:true,synthetic:true,warning:'DEMO-NOT-REAL-DATA',expiresAt:expires,accounts:result}),{status:201,headers:h});
  }catch(e){console.error(e);return new Response(JSON.stringify({error:'QA_ROLE_PACK_FAILED'}),{status:500,headers:h})}
 })
