@@ -6,6 +6,7 @@ const onboarding=fs.readFileSync(new URL('./onboarding.js',import.meta.url),'utf
 const onboardingHtml=fs.readFileSync(new URL('./onboarding.html',import.meta.url),'utf8');
 const formHtml=fs.readFileSync(new URL('./form-runner.html',import.meta.url),'utf8');
 const formRunner=fs.readFileSync(new URL('./form-runner.js',import.meta.url),'utf8');
+const formReview=fs.readFileSync(new URL('./form-review.js',import.meta.url),'utf8');
 const formA11y=fs.readFileSync(new URL('./form-accessibility.js',import.meta.url),'utf8');
 const formCapture=fs.readFileSync(new URL('./form-auth-return-capture.js',import.meta.url),'utf8');
 const formGuard=fs.readFileSync(new URL('./form-runner-guard.js',import.meta.url),'utf8');
@@ -34,10 +35,14 @@ if(!formCapture.includes('sessionStorage.setItem')||!appAuthReturn.includes("cur
 if(appAuthReturn.includes('.from(')||appAuthReturn.includes('functions.invoke')||formCapture.includes('.from(')||formCapture.includes('functions.invoke')||formA11y.includes('.from(')||formA11y.includes('functions.invoke'))throw new Error('Return/accessibility layers must remain presentation/navigation-only.');
 if(!formRunner.includes('if(!applyQuery())return')||!formRunner.includes("!d||!optionHas($('#formSelect'),d.id)")||!formRunner.includes("!optionHas($('#participantSelect'),participant)")||!formRunner.includes("!optionHas($('#pilotSelect'),pilot)"))throw new Error('Requested form/participant/pilot context must fail closed instead of silently falling back.');
 if(!formRunner.includes('Portalen åpner ikke en annen sak som erstatning.')||!formRunner.includes("q.get('returnTask')?'Tilbake til oppgaven':'Tilbake til portalen'"))throw new Error('Denied deep links must explain the stop and provide a safe return route.');
+if(formRunner.includes("updated_at,payload').eq('form_version_id'")||formReview.includes("updated_at,payload').eq('form_version_id'"))throw new Error('Form history lists must not prefetch full payloads.');
+if(!formRunner.includes("select('id,payload').eq('id',currentDraft.id).single()"))throw new Error('Own draft payload must be fetched only for the active draft.');
+if(!formReview.includes("select('id,payload').eq('id',row.id).single()"))throw new Error('Completed payload must be fetched only when a specific submission is opened.');
 new vm.Script(app,{filename:'portal-app-built.js'});
 new vm.Script(onboarding,{filename:'portal-onboarding.js'});
 new vm.Script(formRunner,{filename:'portal-form-runner.js'});
+new vm.Script(formReview,{filename:'portal-form-review.js'});
 new vm.Script(formA11y,{filename:'portal-form-accessibility.js'});
 new vm.Script(formCapture,{filename:'portal-form-auth-return-capture.js'});
 new vm.Script(appAuthReturn,{filename:'portal-app-auth-return.js'});
-console.log('Clean portal bundle compiles with secure tasks, auth recovery, protected return context, denied-context routing, accessible forms, mobile UX, contextual drill-down and role onboarding.');
+console.log('Clean portal bundle compiles with secure tasks, auth recovery, protected return context, denied-context routing, metadata-first form history, accessible forms, mobile UX, contextual drill-down and role onboarding.');
