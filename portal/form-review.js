@@ -36,19 +36,27 @@ function agreementReviewNext(){
   const href=pilot?.id?`./form-runner.html?key=pilot_go&pilot=${encodeURIComponent(pilot.id)}`:'./#tasks';
   return `<div class="preview-strip pre-ser-review-next"><strong>Neste formelle gate:</strong> Lukk avtale-review og eventuelle individuelle vilkår før samlet Pilot-GO. Deltakeravtalen er dokumentasjon og beredskap – ikke SER-start.<div class="form-actions"><a class="ghost" href="./#tasks">Til oppgaver</a><a class="primary" href="${href}">${pilot?.id?'Åpne samlet Pilot-GO':'Tilbake til oppgaver'}</a></div></div>`;
 }
-function renderSubmissionReview(row){
+async function renderSubmissionReview(row){
   const panel=ensureReviewPanel();if(!panel||!currentVersion)return;
-  const sections=currentVersion.schema_json?.sections||[];
-  const body=sections.map(sec=>`<section class="form-section review-section"><h3>${esc(sec.title||'Del')}</h3><div class="dynamic-grid">${(sec.fields||[]).map(field=>`<div class="field-wrap${['textarea','action','multi_select'].includes(field.type)?' full':''}"><label><span>${esc(field.label||field.key)}</span><div class="review-value">${esc(reviewValue(row.payload?.[field.key]))}</div></label></div>`).join('')}</div></section>`).join('');
-  panel.innerHTML=`<div class="card-head"><div><p class="eyebrow">Fullført · skrivebeskyttet</p><h2>${esc(currentDef?.title_no||'Skjema')}</h2><p>${reviewFormatDate(row.submitted_at||row.updated_at||row.created_at)} · v${currentVersion.version}</p></div><button id="closeSubmissionReview" class="ghost" type="button">Lukk visning</button></div><p class="privacy-note">Dette er den lagrede versjonen. Formell beslutning tas i riktig senere gate; et fullført skjema kan ikke redigeres her.</p>${body}${agreementReviewNext()}`;
   panel.classList.remove('hidden');
+  panel.innerHTML='<p>Åpner valgt registrering…</p>';
+  const {data,error}=await client.from('form_submissions').select('id,payload').eq('id',row.id).single();
+  if(error||!data){
+    panel.innerHTML='<div class="card-head"><div><p class="eyebrow">Tilgang</p><h2>Kunne ikke åpne registreringen</h2></div><button id="closeSubmissionReview" class="ghost" type="button">Lukk</button></div><p>Registreringen er ikke tilgjengelig med din nåværende tilgang. Gå tilbake til oppgaven eller kontakt riktig eier dersom den må vurderes.</p>';
+    panel.querySelector('#closeSubmissionReview')?.addEventListener('click',()=>{panel.classList.add('hidden');panel.innerHTML='';});
+    return;
+  }
+  const payload=data.payload||{};
+  const sections=currentVersion.schema_json?.sections||[];
+  const body=sections.map(sec=>`<section class="form-section review-section"><h3>${esc(sec.title||'Del')}</h3><div class="dynamic-grid">${(sec.fields||[]).map(field=>`<div class="field-wrap${['textarea','action','multi_select'].includes(field.type)?' full':''}"><label><span>${esc(field.label||field.key)}</span><div class="review-value">${esc(reviewValue(payload?.[field.key]))}</div></label></div>`).join('')}</div></section>`).join('');
+  panel.innerHTML=`<div class="card-head"><div><p class="eyebrow">Fullført · skrivebeskyttet</p><h2>${esc(currentDef?.title_no||'Skjema')}</h2><p>${reviewFormatDate(row.submitted_at||row.updated_at||row.created_at)} · v${currentVersion.version}</p></div><button id="closeSubmissionReview" class="ghost" type="button">Lukk visning</button></div><p class="privacy-note">Dette er den lagrede versjonen. Formell beslutning tas i riktig senere gate; et fullført skjema kan ikke redigeres her.</p>${body}${agreementReviewNext()}`;
   panel.querySelector('#closeSubmissionReview')?.addEventListener('click',()=>{panel.classList.add('hidden');panel.innerHTML='';});
   panel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 async function fetchReviewRows(){
   if(!currentVersion)return[];
   const participantId=$('#participantSelect').value||null,pilotId=selectedPilot()?.id||null;
-  let q=client.from('form_submissions').select('id,participant_id,pilot_id,form_version_id,submitted_by,status,submitted_at,created_at,updated_at,payload').eq('form_version_id',currentVersion.id).order('created_at',{ascending:false}).limit(20);
+  let q=client.from('form_submissions').select('id,participant_id,pilot_id,form_version_id,submitted_by,status,submitted_at,created_at,updated_at').eq('form_version_id',currentVersion.id).order('created_at',{ascending:false}).limit(20);
   q=participantId?q.eq('participant_id',participantId):q.is('participant_id',null);
   q=pilotId?q.eq('pilot_id',pilotId):q.is('pilot_id',null);
   const {data,error}=await q;if(error)return[];return data||[];
@@ -58,14 +66,14 @@ async function enhanceSubmissionHistory(){
   const list=$('#submissionList');if(!list)return;
   if(!reviewRows.length){list.innerHTML='<p>Ingen registreringer for denne konteksten ennå.</p>';return}
   list.innerHTML=reviewRows.map(row=>`<div class="submission-row"><div><b>${row.status==='SUBMITTED'?'Fullført':'Utkast'}</b><small>${reviewFormatDate(row.submitted_at||row.updated_at||row.created_at)}</small></div><div class="submission-actions"><span class="pill">v${currentVersion.version}</span>${row.status==='SUBMITTED'?`<button type="button" class="ghost compact" data-review-submission="${row.id}">Se fullført</button>`:''}</div></div>`).join('');
-  list.querySelectorAll('[data-review-submission]').forEach(button=>button.addEventListener('click',()=>{const row=reviewRows.find(x=>x.id===button.dataset.reviewSubmission);if(row)renderSubmissionReview(row)}));
+  list.querySelectorAll('[data-review-submission]').forEach(button=>button.addEventListener('click',async()=>{const row=reviewRows.find(x=>x.id===button.dataset.reviewSubmission);if(row)await renderSubmissionReview(row)}));
 
   const params=new URLSearchParams(location.search),wanted=params.get('submission');
   const autoLatest=params.get('latest')==='1';
   const autoKey=`${currentVersion.id}:${$('#participantSelect').value}:${$('#pilotSelect').value}:${wanted||autoLatest}`;
   if(lastAutoReviewKey===autoKey)return;
   const row=wanted?reviewRows.find(x=>x.id===wanted&&x.status==='SUBMITTED'):autoLatest?reviewRows.find(x=>x.status==='SUBMITTED'):null;
-  if(row){lastAutoReviewKey=autoKey;renderSubmissionReview(row)}
+  if(row){lastAutoReviewKey=autoKey;await renderSubmissionReview(row)}
 }
 
 const baseLoadSubmissions=loadSubmissions;
