@@ -33,6 +33,15 @@ function selectedPilot(){return explicitPilot()||participantPilot(selectedPartic
 function orgId(){return selectedParticipant()?.organization_id||selectedPilot()?.organization_id||grants.find(active)?.organization_id||null}
 function formVersionFor(defId){return versions.filter(v=>v.form_definition_id===defId&&!v.retired_at&&v.published_at).sort((a,b)=>b.version-a.version)[0]||null}
 function phaseLabel(v){return String(v?.schema_json?.phase||'VÍA').replace('_',' → ')}
+function optionHas(select,value){return !!select&&[...select.options].some(o=>o.value===value)}
+function requestedContextReturnHref(q){const task=q.get('returnTask');if(!task)return'./';const out=new URLSearchParams({returnTask:task,returnView:q.get('returnView')||'tasks'});return`./?${out.toString()}`}
+function blockUnavailableRequestedContext(q){
+ $('#runner').classList.add('hidden');const blocked=$('#blocked');blocked.classList.remove('hidden');
+ blocked.querySelector('h2').textContent='Denne handlingen er ikke tilgjengelig for rollen din';
+ $('#blockedText').textContent='Du er innlogget, men den forespurte handlingen eller konteksten er ikke tilgjengelig med din nåværende rolle eller ditt scope. Portalen åpner ikke en annen sak som erstatning. Gå tilbake; riktig eier kan overta dersom steget fortsatt må utføres.';
+ const link=blocked.querySelector('a.primary');link.href=requestedContextReturnHref(q);link.textContent=q.get('returnTask')?'Tilbake til oppgaven':'Tilbake til portalen';
+ return false;
+}
 
 async function init(){
  const {data:{session:s}}=await client.auth.getSession();session=s;if(!session){location.replace('./');return}
@@ -45,12 +54,18 @@ async function init(){
   client.from('pilots').select('id,organization_id,name,status,route_name,start_date,end_date').order('start_date',{ascending:false}),
   client.from('pilot_participants').select('pilot_id,participant_id,status')
  ]);participants=pRes.data||[];grants=gRes.data||[];definitions=dRes.data||[];versions=vRes.data||[];pilots=pilotRes.data||[];pilotParticipants=ppRes.data||[];
- $('#runner').classList.remove('hidden');fillParticipants();fillPilots();fillForms();applyQuery();syncPilotFromParticipant();await chooseForm();
+ $('#runner').classList.remove('hidden');fillParticipants();fillPilots();fillForms();if(!applyQuery())return;syncPilotFromParticipant();await chooseForm();
 }
 function fillParticipants(){const own=ownParticipant(),staff=isStaff(),list=staff?participants:(own?[own]:[]);$('#participantSelect').innerHTML=(staff?'<option value="">Ingen enkelt deltaker / pilotnivå</option>':'')+list.map(p=>`<option value="${p.id}">${esc(p.code_name)} · ${esc(p.stage)}</option>`).join('')}
 function fillPilots(){const visible=isStaff()?pilots:pilots.filter(p=>pilotParticipants.some(x=>x.pilot_id===p.id&&x.participant_id===ownParticipant()?.id));$('#pilotSelect').innerHTML='<option value="">Avledes fra deltaker / ikke valgt</option>'+visible.map(p=>`<option value="${p.id}">${esc(p.name)}${p.route_name?` · ${esc(p.route_name)}`:''}</option>`).join('')}
 function fillForms(){const keys=allowedKeys(),defs=definitions.filter(d=>keys.has(d.key)&&formVersionFor(d.id));$('#formSelect').innerHTML=defs.map(d=>`<option value="${d.id}">${esc(d.title_no)}</option>`).join('')}
-function applyQuery(){const q=new URLSearchParams(location.search),key=q.get('key'),participant=q.get('participant'),pilot=q.get('pilot');if(key){const d=definitions.find(x=>x.key===key);if(d&&[...$('#formSelect').options].some(o=>o.value===d.id))$('#formSelect').value=d.id}if(participant&&[...$('#participantSelect').options].some(o=>o.value===participant))$('#participantSelect').value=participant;if(pilot&&[...$('#pilotSelect').options].some(o=>o.value===pilot))$('#pilotSelect').value=pilot}
+function applyQuery(){
+ const q=new URLSearchParams(location.search),key=q.get('key'),participant=q.get('participant'),pilot=q.get('pilot');
+ if(key){const d=definitions.find(x=>x.key===key);if(!d||!optionHas($('#formSelect'),d.id))return blockUnavailableRequestedContext(q);$('#formSelect').value=d.id}
+ if(participant){if(!optionHas($('#participantSelect'),participant))return blockUnavailableRequestedContext(q);$('#participantSelect').value=participant}
+ if(pilot){if(!optionHas($('#pilotSelect'),pilot))return blockUnavailableRequestedContext(q);$('#pilotSelect').value=pilot}
+ return true;
+}
 function syncPilotFromParticipant(){if($('#pilotSelect').value)return;const pp=participantPilot($('#participantSelect').value);if(pp&&[...$('#pilotSelect').options].some(o=>o.value===pp.id))$('#pilotSelect').value=pp.id}
 function contextOk(){if(!currentDef)return false;const participant=selectedParticipant(),pilot=selectedPilot();if(PARTICIPANT_REQUIRED_KEYS.has(currentDef.key)&&!participant){$('#contextNote').textContent='Velg en deltaker før dette skjemaet kan lagres.';$('#contextNote').classList.remove('hidden');return false}if(PILOT_LEVEL_KEYS.has(currentDef.key)&&!pilot){$('#contextNote').textContent='Velg pilot / gruppe før dette pilotskjemaet kan lagres.';$('#contextNote').classList.remove('hidden');return false}$('#contextNote').classList.add('hidden');return true}
 async function chooseForm(){currentDef=definitions.find(d=>d.id===$('#formSelect').value)||null;currentVersion=currentDef?formVersionFor(currentDef.id):null;currentDraft=null;if(!currentDef||!currentVersion){$('#formTitle').textContent='Ingen tilgjengelig mal';$('#formSections').innerHTML='';return}$('#formTitle').textContent=currentDef.title_no;$('#versionLabel').textContent=`v${currentVersion.version}`;$('#phaseLabel').textContent=phaseLabel(currentVersion);$('#scopeLabel').textContent=currentDef.scope;$('#formIntro').textContent=currentVersion.schema_json?.intro||'';renderSections();contextOk();await loadSubmissions()}
