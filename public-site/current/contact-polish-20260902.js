@@ -43,9 +43,10 @@ function directContact(){
 }
 function ensureInquiry(select){
  if(!select)return;
- const labels={PARTICIPANT:'Deltaker – for meg selv',PARTNER:'Partner / samarbeid',REFERRAL:'Henviser – for en annen'};
+ const en=document.documentElement.dataset.lang==='en';
+ const labels=en?{PARTICIPANT:'Participant – for myself',PARTNER:'Partner / collaboration',REFERRAL:'Referrer – for someone else'}:{PARTICIPANT:'Deltaker – for meg selv',PARTNER:'Partner / samarbeid',REFERRAL:'Henviser – for en annen'};
  let blank=[...select.options].find(o=>o.value==='');
- if(!blank){blank=new Option('Velg','');select.insertBefore(blank,select.firstChild)}
+ if(!blank){blank=new Option(en?'Choose':'Velg','');select.insertBefore(blank,select.firstChild)}else blank.textContent=en?'Choose':'Velg';
  for(const [value,label] of Object.entries(labels)){
    let option=[...select.options].find(o=>o.value===value);
    if(!option){option=new Option(label,value);select.appendChild(option)}else option.textContent=label;
@@ -93,7 +94,7 @@ function enhanceForm(){
  if(form.dataset.contactPolishBound!=='1'){
    form.dataset.contactPolishBound='1';
    form.addEventListener('change',()=>setTimeout(()=>{contextField(form);formActions(form);copy(form)},0));
-   document.querySelectorAll('.lang-toggle').forEach(b=>b.addEventListener('click',()=>setTimeout(()=>{formActions(form);copy(form)},0)));
+   document.querySelectorAll('.lang-toggle').forEach(b=>b.addEventListener('click',()=>setTimeout(()=>{ensureInquiry(form.querySelector('[name="inquiry_type"]'));formActions(form);copy(form)},0)));
  }
  return true;
 }
