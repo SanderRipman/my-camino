@@ -13,6 +13,8 @@ const roleMatrix=read('./ROLE_SCOPE_QA_MATRIX.md');
 const qaHtml=read('./qa-role-pack.html');
 const qaJs=read('./qa-role-pack.js');
 const formJs=read('./form-runner.js');
+const formQna=read('./form-qna-guidance.js');
+const formStreamline=read('./form-streamline-provenance.js');
 const formCommandClient=read('./form-command-client.js');
 const crmJs=read('./crm.js');
 const publicN1=read('../public-site/current/n1-ux.js');
@@ -21,6 +23,7 @@ const intakeFunction=read('../supabase/functions/intake-command/index.ts');
 const adminCreateParticipant=read('../supabase/functions/admin-create-participant/index.ts');
 const formCommand=read('../supabase/functions/form-command/index.ts');
 const participantStageBoundary=read('../supabase/migrations/20260824010500_participant_form_stage_boundary_v1.sql');
+const viaRoadmapV2=read('../supabase/migrations/20260902235000_via_roadmap_guidance_v2.sql');
 
 // Public N1: exactly three stages; safety is cross-cutting, not stage 4.
 assert(publicN1.includes("items[3].remove()"),'N1 must remove the fourth journey-ribbon item');
@@ -48,17 +51,42 @@ assert(participantJs.includes("if(stage==='POSTPONED'||stage==='NO_GO')return ne
 assert(e2e.includes('| 4. Individuell beslutning')&&e2e.includes('| 5. Før SER'),'End-to-end journey must keep individual decision before agreement/readiness');
 assert(participantJs.includes("$('#dayStatus')?.closest('label')")&&participantJs.includes("classList.add('hidden')"),'Participant must not be asked to set internal RAG day status');
 assert(participantJs.includes("$('#showAverage')")&&participantJs.includes('analysisParticipants')&&participantJs.includes("classList.add('hidden')"),'Participant analysis must not expose staff/group comparison controls');
-for(const text of ['Mine åpne steg','Viktig nå','Min fase','Din neste handling','Dine steg og skjemaer'])assert(participantJs.includes(text),`Participant-first copy missing: ${text}`);
+for(const text of ['Mine åpne steg','Må nå','Neste steg','Info / valgfritt','Din neste handling','Dine steg og skjemaer'])assert(participantJs.includes(text),`Participant-first copy missing: ${text}`);
 assert(!participantJs.includes("'Kritisk'"),'Participant-first layer must not label own tasks with internal critical wording');
 assert(participantJs.includes("if(isStaff())return staffRenderParticipants()"),'Staff participant workspace must remain unchanged by participant-first layer');
 
+// Participant attention thread: red must-now, yellow next action, blue info/optional; green is not an open participant badge.
+assert(participantJs.includes('function participantTaskAttention(t)'),'Participant must have a dedicated presentation attention model');
+assert(participantJs.includes("if(overdue||severity(t)==='RED')return'RED'"),'Overdue/internal red must become participant red');
+assert(participantJs.includes("if(t.status==='WAITING')return'BLUE'"),'Waiting participant task must become blue informational state');
+assert(participantJs.includes("return'YELLOW'"),'Ordinary open participant task must become yellow next action');
+assert(participantJs.includes("return f?.key==='info_before_via'?'BLUE':'YELLOW'"),'Supplementary VÍA information must be blue while required stage forms are yellow');
+assert(participantJs.includes('window.aidmeParticipantAttentionSnapshot=participantAttentionSnapshot'),'Navigation must consume one presentation-only participant attention snapshot');
+assert(!participantJs.includes('data-participant-attention="GREEN"'),'Open participant rows must not use green as an attention state');
+
 // Participant next-action UX: security first at AAL1, then stage-appropriate forms without parallel backend tasks.
-assert(participantJs.includes('participantSecurityAction')&&participantJs.includes('Bekreft sikker innlogging')&&participantJs.includes('Nødvendig først'),'Participant must see AAL2/security as an immediate next action instead of hunting in profile settings');
+assert(participantJs.includes('participantSecurityAction')&&participantJs.includes('Bekreft sikker innlogging')&&participantJs.includes('Må gjøres først'),'Participant must see AAL2/security as an immediate must-do instead of hunting in profile settings');
 assert(participantJs.includes("assurance?.currentLevel!=='aal2'")&&participantJs.includes('participantReadyForms'),'Participant form shortcuts must stay hidden until the session is AAL2');
 assert(participantJs.includes("participant_via_start:'via_roadmap'")&&participantJs.includes("participant_agreement_ack:'participant_agreement'"),'Derived form shortcuts must not duplicate canonical participant workflow tasks');
 assert(participantJs.includes("['#priorityQueue','#taskList']"),'Derived participant actions must surface on both Overview and Oppgaver');
-assert(participantJs.includes("open.length+actions.length"),'Participant open-step count must include visible next actions rather than showing zero beside ready forms/security');
-assert(participantJs.includes('Skjema klart'),'Available participant forms must be visibly actionable without being mislabeled as a stored task');
+assert(participantJs.includes('participantAttentionSnapshot()'),'Participant open-step count must use the same attention model as navigation');
+assert(participantJs.includes('Info / valgfritt'),'Available supplementary forms must be visibly informational rather than mislabeled as completed green');
+
+// Guided VÍA roadmap v2: low-pressure first clarification, historical v1 preserved, VIDA ownership stays staff-owned before SER.
+assert(viaRoadmapV2.includes("where key = 'via_roadmap'"),'VÍA v2 migration must resolve the canonical definition by key');
+assert(viaRoadmapV2.includes('values(def_id,2,desired_schema,now(),null)'),'VÍA v2 must publish a new version instead of mutating v1 in place');
+assert(viaRoadmapV2.includes('on conflict (form_definition_id,version)'),'VÍA v2 migration must be idempotent');
+assert(viaRoadmapV2.includes('version <> 2')&&viaRoadmapV2.includes('retired_at = coalesce(retired_at,now())'),'VÍA v1 must be retired, not deleted');
+assert(viaRoadmapV2.includes('ikke en test')&&viaRoadmapV2.includes('ingen riktige eller gale svar'),'VÍA v2 must explicitly lower response pressure');
+for(const key of ['sleep','walking_capacity','food_water','pain_injury','stress_social','work_activity','risk_overview','early_signs','stop_plan','via_sentence','ser_practice']){
+  assert(viaRoadmapV2.includes(`"key": "${key}"`)&&viaRoadmapV2.includes('"help":'),`VÍA v2 must retain and guide practical field ${key}`);
+}
+assert(viaRoadmapV2.includes('«skilpadde»-tempo')&&viaRoadmapV2.includes('«hare»-tempo'),'Walking guidance must use an intuitive, non-judgmental pace example');
+assert(!viaRoadmapV2.includes('"key": "vida_first_action"'),'Early VÍA must not require a premature VIDA home action');
+assert(!viaRoadmapV2.includes('"key": "vida_owner"'),'Early VÍA participant must not be asked to name the VIDA owner');
+assert(formQna.includes('via_roadmap')&&formQna.includes('Hvor mye skal jeg skrive'),'Existing form guidance layer must explain the VÍA response level');
+assert(formStreamline.includes('participant-context-compact')&&formStreamline.includes('Skjemakontekst'),'Participant form controls must collapse to a compact static context');
+assert(formStreamline.includes("if(typeof isStaff==='function'&&isStaff())"),'Staff must retain full form context controls');
 
 // N3 must end in one concrete VÍA participant action, not merely a linked account.
 assert(adminCreateParticipant.includes("workflow_key:'participant_via_start'"),'Account linking must create/reuse the participant VÍA start task');
