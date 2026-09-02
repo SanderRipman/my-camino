@@ -88,8 +88,8 @@ if(!document.querySelector('#semantic-nav-badge-style')){
   const style=document.createElement('style');
   style.id='semantic-nav-badge-style';
   style.textContent=`
-    .sidebar .nav-item{grid-template-columns:22px minmax(0,1fr) auto;gap:7px;padding-left:10px;padding-right:10px}
-    .sidebar .nav-item b{min-width:0}.sidebar .nav-badges{flex:0 0 auto;flex-wrap:nowrap}
+    .sidebar .nav-item{grid-template-columns:18px minmax(0,1fr) auto;gap:4px;padding-left:8px;padding-right:8px}
+    .sidebar .nav-item b{min-width:0}.sidebar .nav-badges{flex:0 0 auto;flex-wrap:nowrap;justify-self:end}
     .nav-count.red{background:#b4433f;color:#fff}.pill.RED{background:#b4433f;color:#fff}
     .nav-count.nav-count-total{background:#dbe5ec;color:#23435d}.nav-count.blue{background:#dbe5ec;color:#23435d}.nav-badges:empty{display:none}
     .task-dot.BLUE{background:#5f7f9b}.pill.BLUE{background:#dbe5ec;color:#23435d}
