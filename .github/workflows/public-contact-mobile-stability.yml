@@ -1,0 +1,23 @@
+name: Public contact mobile stability
+
+on:
+  pull_request:
+    paths:
+      - 'public-site/current/**'
+      - '.github/workflows/public-contact-mobile-stability.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'public-site/current/**'
+      - '.github/workflows/public-contact-mobile-stability.yml'
+
+jobs:
+  contact-mobile-stability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check contact/mobile invariants
+        run: node public-site/current/contact-mobile-stability-smoke.mjs
