@@ -39,6 +39,10 @@ for(const page of sidebarPages){
   assert(html.includes('app-mobile.js'),`${page} must use the common mobile/navigation shell.`);
 }
 
+const guide=read('./guide.html');
+assert(guide.includes('app-mobile.js'),'Program guide must load the common mobile/navigation shell.');
+assert(guide.includes('Slik fungerer det')&&guide.includes('Hjelp & SOS'),'Program guide must retain stable guide/help anchors before enhancement.');
+
 const admin=read('./admin.html');
 assert(admin.includes('app-mobile.js'),'Administration must load the common navigation shell.');
 
