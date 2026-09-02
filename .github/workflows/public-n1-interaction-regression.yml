@@ -132,9 +132,9 @@ jobs:
             const enPartner=partner?.textContent.trim();
             const enReferral=referral?.textContent.trim();
             if(document.documentElement.dataset.lang!=='en') return {ok:false,error:'language toggle did not reach EN'};
-            if(enParticipant!=='Participant – for myself') return {ok:false,error:'EN participant option wrong',label:enParticipant};
+            if(enParticipant!=='I am considering AidMe VIDA for myself') return {ok:false,error:'EN participant option wrong',label:enParticipant};
             if(enPartner!=='Partner / collaboration') return {ok:false,error:'EN partner option wrong',label:enPartner};
-            if(enReferral!=='Referrer – for someone else') return {ok:false,error:'EN referral option wrong',label:enReferral};
+            if(enReferral!=='I want to refer or recommend someone') return {ok:false,error:'EN referral option wrong',label:enReferral};
 
             return {ok:true,intakeState:form.dataset.intakeState||'',participantHidden:wrap?.hidden===true,language:document.documentElement.dataset.lang};
           })()''',await_promise=True)
