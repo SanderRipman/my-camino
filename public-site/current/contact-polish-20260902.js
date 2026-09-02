@@ -49,8 +49,10 @@ function ensureInquiry(select){
    let option=[...select.options].find(o=>o.value===value);
    if(!option){option=new Option(label,value);select.appendChild(option)}else option.textContent=label;
  }
- const initial=chosen();
- if(initial&&select.dataset.contactPolishPreset!=='1'){select.value=initial;select.dataset.contactPolishPreset='1';select.dispatchEvent(new Event('change',{bubbles:true}))}
+ if(select.dataset.contactPolishPreset!=='1'){
+   const initial=chosen();select.value=initial||'';select.dataset.contactPolishPreset='1';
+   select.dispatchEvent(new Event('change',{bubbles:true}));
+ }
 }
 function contextField(form){
  let wrap=form.querySelector('.n1-contact-context');
@@ -60,6 +62,8 @@ function contextField(form){
    (contact||form.querySelector('.n1-form-note'))?.insertAdjacentElement('afterend',wrap);
  }
  const type=form.querySelector('[name="inquiry_type"]')?.value||'';
+ if(wrap.dataset.forType===type)return;
+ wrap.dataset.forType=type;
  if(type==='PARTNER'){
    wrap.hidden=false;wrap.innerHTML=`<label for="n1-interest-context">${bi('Hva ønsker dere å utforske? (valgfritt)','What would you like to explore? (optional)')}</label><select id="n1-interest-context" name="interest_context"><option value="">Velg</option><option value="PILOT">Pilot / målgruppe</option><option value="COOPERATION">Samarbeid</option><option value="FUNDING">Finansiering</option><option value="WORK">Arbeidsrettet / NAV</option><option value="OTHER">Annet</option></select><small>${bi('Ikke skriv eller legg inn sensitive personopplysninger i første kontakt.','Do not enter sensitive personal data in the first contact.')}</small>`;
  }else if(type==='PARTICIPANT'){
