@@ -47,7 +47,7 @@ Deno.serve(async(req:Request)=>{
    {key:'evaluator',email:'qa-evaluator@example.invalid',name:'QA Evaluator',role:'evaluator',participant:null,pilot:pilot.id,title:'Evaluator'}
   ];
   const {data:list,error:le}=await admin.auth.admin.listUsers({page:1,perPage:1000});if(le)throw le;const existing=new Map((list.users??[]).map((x:any)=>[String(x.email).toLowerCase(),x]));
-  const expires=new Date(now.getTime()+36*60*60*1000).toISOString();const result:any[]=[];
+  const expires=new Date(now.getTime()+36*60*60*1000).toISOString();const result:any[]=[];let qaParticipantUserId:string|null=null;
   for(const s of specs){
    const password=makePassword();let user:any=existing.get(s.email.toLowerCase());
    if(user){const {data:upd,error}=await admin.auth.admin.updateUserById(user.id,{password,email_confirm:true,user_metadata:{qa_role_pack:true,qa_key:s.key}});if(error)throw error;user=upd.user}
@@ -60,10 +60,21 @@ Deno.serve(async(req:Request)=>{
    } else {
     const p=byCode[s.participant];if(p.user_id&&p.user_id!==user.id)throw new Error('QA_PARTICIPANT_ALREADY_MAPPED');
     const {error:pu}=await admin.from('participants').update({user_id:user.id,updated_at:nowIso}).eq('id',p.id);if(pu)throw pu;
+    qaParticipantUserId=user.id;
    }
    result.push({key:s.key,label:s.title,email:s.email,password,expiresAt:s.role?expires:null,scope:s.participant?`participant:${s.participant}`:s.pilot?'pilot:DEMO':'organization:AidMe VIDA'});
   }
-  await admin.from('audit_events').insert({organization_id:org.id,actor_user_id:u.user.id,action:'QA_ROLE_PACK_CREATED',resource_type:'qa_role_pack',purpose:'Synthetic role/scope E2E QA',metadata:{roles:specs.map(s=>s.key),fixtures:['QA-ROLE-VIA-01','QA-ROLE-VIDA-01'],expires_at:expires}});
-  return new Response(JSON.stringify({ok:true,synthetic:true,warning:'DEMO-NOT-REAL-DATA',expiresAt:expires,accounts:result}),{status:201,headers:h});
+
+  if(!qaParticipantUserId)throw new Error('QA_PARTICIPANT_USER_MISSING');
+  let startTask:any=null;
+  const {data:existingStart,error:startLookupError}=await admin.from('tasks').select('id,status,due_at').eq('participant_id',qaVia.id).eq('assignee_user_id',qaParticipantUserId).eq('workflow_key','participant_via_start').in('status',['OPEN','IN_PROGRESS','WAITING']).order('created_at',{ascending:false}).limit(1).maybeSingle();if(startLookupError)throw startLookupError;
+  if(existingStart)startTask=existingStart;
+  else{
+   const {data:createdStart,error:startError}=await admin.from('tasks').insert({organization_id:org.id,participant_id:qaVia.id,title:'Min VÍA – start her',description:'Start med VÍA-veikartet: retning, ressurser og det som må avklares før neste beslutning.',status:'OPEN',assignee_user_id:qaParticipantUserId,due_at:new Date(now.getTime()+3*86400000).toISOString(),priority:3,severity:'GREEN',task_type:'WORKFLOW',created_by:u.user.id,audience:'PARTICIPANT',workflow_key:'participant_via_start',source_type:'qa_role_pack',source_id:qaVia.id}).select('id,status,due_at').single();if(startError)throw startError;startTask=createdStart;
+   const {error:notifyError}=await admin.from('notifications').insert({user_id:qaParticipantUserId,task_id:createdStart.id,kind:'TASK',title:'Din VÍA er klar',safe_preview:'Du har et nytt steg i AidMe VIDA.'});if(notifyError)throw notifyError;
+  }
+
+  await admin.from('audit_events').insert({organization_id:org.id,actor_user_id:u.user.id,action:'QA_ROLE_PACK_CREATED',resource_type:'qa_role_pack',purpose:'Synthetic role/scope E2E QA',metadata:{roles:specs.map(s=>s.key),fixtures:['QA-ROLE-VIA-01','QA-ROLE-VIDA-01'],expires_at:expires,participant_start_task_id:startTask?.id??null}});
+  return new Response(JSON.stringify({ok:true,synthetic:true,warning:'DEMO-NOT-REAL-DATA',expiresAt:expires,accounts:result,startTask}),{status:201,headers:h});
  }catch(e){console.error(e);return new Response(JSON.stringify({error:'QA_ROLE_PACK_FAILED'}),{status:500,headers:h})}
 })
