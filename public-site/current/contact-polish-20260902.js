@@ -3,6 +3,7 @@
 const page=(location.pathname.split('/').filter(Boolean).pop()||'index.html').replace('.html','');
 if(page!=='kontakt')return;
 const params=new URLSearchParams(location.search);
+const noStore=params.get('previewIntake')==='1'||['localhost','127.0.0.1','aidme.no','www.aidme.no','dev.aidme.no'].includes(location.hostname);
 const bi=(no,en)=>`<span class="lang-no">${no}</span><span class="lang-en">${en}</span>`;
 const chosen=()=>{const raw=String(params.get('spor')||'').toUpperCase();return raw==='PARTNER'?'PARTNER':raw==='DELTAKER'||raw==='PARTICIPANT'?'PARTICIPANT':raw==='HENVISER'||raw==='REFERRAL'?'REFERRAL':''};
 
@@ -83,7 +84,8 @@ function copy(form){
  if(h)h.innerHTML=type==='PARTNER'?bi('Fortell kort hva dere vil utforske.','Tell us briefly what you want to explore.'):bi('Se om dette kan passe for deg.','See if this could fit you.');
  if(lead)lead.innerHTML=type==='PARTNER'?bi('Første steg er en kort og uforpliktende partnerinteresse. Vi trenger bare nok til å kunne svare og finne et logisk neste steg.','The first step is a short, non-binding partner enquiry. We only need enough to reply and identify a logical next step.'):bi('Første steg er en kort interesse – ikke en påmelding. Vi trenger bare nok informasjon til å kunne svare og finne et logisk neste steg.','The first step is a short expression of interest – not enrolment. We only need enough information to reply and identify a logical next step.');
  const note=form.querySelector('.n1-form-note');
- if(note&&type==='PARTNER')note.innerHTML=bi('<strong>Ikke oppgi sensitive personopplysninger.</strong> Første kontakt handler bare om virksomheten, behovet og hvordan vi kan svare.','<strong>Do not enter sensitive personal data.</strong> The first contact is only about the organisation, the need and how we can reply.');
+ if(note&&type==='PARTNER')note.innerHTML=bi(`<strong>Ikke oppgi sensitive personopplysninger.</strong> Første kontakt handler bare om virksomheten, behovet og hvordan vi kan svare.${noStore?' Ingen persondata lagres eller sendes i denne testen.':''}`,`<strong>Do not enter sensitive personal data.</strong> The first contact is only about the organisation, the need and how we can reply.${noStore?' No personal data is stored or sent in this test.':''}`);
+ if(note&&type==='PARTICIPANT'&&noStore)note.innerHTML=bi('<strong>Ikke skriv helseopplysninger eller andre sensitive personopplysninger her.</strong> Dette er bare første kontakt. Ingen persondata lagres eller sendes i denne testen.','<strong>Do not enter health information or other sensitive personal data here.</strong> This is only the first contact. No personal data is stored or sent in this test.');
 }
 function enhanceForm(){
  const form=document.querySelector('form.n1-interest-form');if(!form)return false;
