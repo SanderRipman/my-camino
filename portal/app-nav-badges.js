@@ -18,7 +18,7 @@ function badgeParticipantSeverity(participant,openTasks){
 function semanticBadgeMarkup(kind,counts){
   if(kind==='overview'&&isStaff())return counts.total?`<span class="nav-count nav-count-total" aria-label="${counts.total} åpne totalt">${counts.total}</span>`:'';
   let html='';
-  if(counts.red)html+=`<span class="nav-count red" aria-label="${counts.red} ${kind==='participants'?'deltakere':'steg'} må håndteres nå">${counts.red}</span>`;
+  if(counts.red)html+=`<span class="nav-count red" aria-label="${counts.red} ${kind==='participants'?'deltakere':'steg'} kritisk / blokkerende / forfalt">${counts.red}</span>`;
   if(counts.yellow)html+=`<span class="nav-count yellow" aria-label="${counts.yellow} ${kind==='participants'?'deltakere':'steg'} er neste handling">${counts.yellow}</span>`;
   if(counts.blue)html+=`<span class="nav-count blue" aria-label="${counts.blue} informative eller valgfrie steg">${counts.blue}</span>`;
   return html;
@@ -38,6 +38,11 @@ function participantTooltip(label,items){
   if(!items.length)return `${label}: ingen åpne steg`;
   return `${label}: ${items.length} · ${items.slice(0,3).map(participantItemSummary).join(' · ')}`;
 }
+function polishParticipantAttentionCopy(){
+  if(isStaff())return;
+  document.querySelectorAll('#view-overview .metric span').forEach(el=>{if(el.textContent.trim()==='Må nå')el.textContent='Kritisk'});
+  document.querySelectorAll('[data-participant-attention="RED"] .pill.RED').forEach(el=>{if(el.textContent.trim()==='Må nå')el.textContent='Kritisk'});
+}
 function renderParticipantNavigationBadges(){
   const snap=typeof window.aidmeParticipantAttentionSnapshot==='function'?window.aidmeParticipantAttentionSnapshot():null;if(!snap)return false;
   const overview=document.querySelector('#badgeOverview'),taskBadge=document.querySelector('#badgeTasks'),participantBadge=document.querySelector('#badgeParticipants'),formsBadge=ensureFormsBadge();
@@ -47,7 +52,8 @@ function renderParticipantNavigationBadges(){
   if(taskBadge){taskBadge.innerHTML=semanticBadgeMarkup('tasks',taskCounts);taskBadge.title=participantTooltip('Oppgaver',snap.tasks)}
   if(formsBadge){const formCounts={red:0,yellow:snap.forms.filter(x=>x.tone==='YELLOW').length,blue:snap.forms.filter(x=>x.tone==='BLUE').length};formsBadge.innerHTML=semanticBadgeMarkup('forms',formCounts);formsBadge.title=participantTooltip('Skjema',snap.forms)}
   if(participantBadge){participantBadge.innerHTML='';participantBadge.title='Min reise · fase og neste handling'}
-  document.querySelectorAll('[data-participant-attention]').forEach(row=>{const tone=row.dataset.participantAttention;row.title=tone==='RED'?'Må håndteres før du kan gå videre':tone==='YELLOW'?'Neste handling i reisen':'Tilgjengelig informasjon / valgfritt steg'});
+  document.querySelectorAll('[data-participant-attention]').forEach(row=>{const tone=row.dataset.participantAttention;row.title=tone==='RED'?'Kritisk: må håndteres før du kan gå videre':tone==='YELLOW'?'Neste handling i reisen':'Tilgjengelig informasjon / valgfritt steg'});
+  polishParticipantAttentionCopy();
   return true;
 }
 function renderSemanticNavigationBadges(){
@@ -82,8 +88,12 @@ if(!document.querySelector('#semantic-nav-badge-style')){
   const style=document.createElement('style');
   style.id='semantic-nav-badge-style';
   style.textContent=`
+    .sidebar .nav-item{grid-template-columns:22px minmax(0,1fr) auto;gap:7px;padding-left:10px;padding-right:10px}
+    .sidebar .nav-item b{min-width:0}.sidebar .nav-badges{flex:0 0 auto;flex-wrap:nowrap}
+    .nav-count.red{background:#b4433f;color:#fff}.pill.RED{background:#b4433f;color:#fff}
     .nav-count.nav-count-total{background:#dbe5ec;color:#23435d}.nav-count.blue{background:#dbe5ec;color:#23435d}.nav-badges:empty{display:none}
     .task-dot.BLUE{background:#5f7f9b}.pill.BLUE{background:#dbe5ec;color:#23435d}
+    .mobile-attention-bar .attention-chip.red{border-color:#a83e3a;background:#b4433f;color:#fff}
     .mobile-attention-bar .attention-chip.neutral{border-color:#b9c9d7;background:#edf3f8;color:#23435d}
   `;
   document.head.appendChild(style);
