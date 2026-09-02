@@ -2,6 +2,7 @@ import fs from 'node:fs';
 
 const src=fs.readFileSync(new URL('./app-nav-badges.js',import.meta.url),'utf8');
 const participant=fs.readFileSync(new URL('./app-participant.js',import.meta.url),'utf8');
+const styles=fs.readFileSync(new URL('./styles.css',import.meta.url),'utf8');
 const build=fs.readFileSync(new URL('./build-app.mjs',import.meta.url),'utf8');
 const must=(text,needle,label)=>{if(!text.includes(needle))throw new Error(`${label}: missing ${needle}`)};
 
@@ -27,9 +28,10 @@ must(participant,"tone:'RED'",'security gate is red');
 must(participant,"window.aidmeParticipantAttentionSnapshot=participantAttentionSnapshot",'presentation snapshot exposure');
 must(src,"el.textContent.trim()==='Må nå')el.textContent='Kritisk'",'participant visible red label polish');
 must(src,"Kritisk: må håndteres før du kan gå videre",'critical participant tooltip');
-must(src,"grid-template-columns:22px minmax(0,1fr) auto",'sidebar text/badge clearance');
-must(src,"gap:7px;padding-left:10px;padding-right:10px",'sidebar compact spacing');
-must(src,".sidebar .nav-badges{flex:0 0 auto;flex-wrap:nowrap}",'badge no-wrap geometry');
+must(styles,".nav-item b{font-weight:650;white-space:nowrap}",'long sidebar labels remain single-line');
+must(src,"grid-template-columns:18px minmax(0,1fr) auto",'long-label participant badge clearance');
+must(src,"gap:4px;padding-left:8px;padding-right:8px",'sidebar compact spacing and left shift');
+must(src,".sidebar .nav-badges{flex:0 0 auto;flex-wrap:nowrap;justify-self:end}",'badge fixed end-column geometry');
 must(src,".nav-count.red{background:#b4433f;color:#fff}",'strong red navigation badge');
 must(src,".pill.RED{background:#b4433f;color:#fff}",'strong red participant pill');
 must(src,".attention-chip.red{border-color:#a83e3a;background:#b4433f;color:#fff}",'strong red mobile attention chip');
@@ -41,4 +43,4 @@ for(const forbidden of ['role_grants','client.from(','functions.invoke(','SUPABA
 if(src.includes("$('#badgeTasks').innerHTML=navBadgeMarkup(red,yellow);$('#badgeOverview').innerHTML=navBadgeMarkup(red,yellow);$('#badgeParticipants').innerHTML=navBadgeMarkup(red,yellow);")){
   throw new Error('semantic badge extension must not reproduce the legacy identical-badge assignment');
 }
-console.log('Semantic navigation badge, critical-copy and sidebar polish invariants passed.');
+console.log('Semantic navigation badge, critical-copy and long-label sidebar clearance invariants passed.');
