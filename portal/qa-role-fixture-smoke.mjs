@@ -15,5 +15,9 @@ assert(!qaFunction.includes("participant:'DEMO-VIDA-03'"),'Mutable DEMO-VIDA-03 
 assert(qaFunction.includes("reason:'SYNTHETIC_QA_ROLE_PACK'"),'Synthetic grants must remain explicitly tagged for cleanup/audit');
 assert(qaFunction.includes("claims(token) as any).aal!=='aal2'"),'QA fixture creation must remain behind AAL2');
 assert(qaFunction.includes("active.includes('system_admin')"),'QA fixture creation must remain behind system_admin');
+assert(qaFunction.includes("workflow_key','participant_via_start'"),'QA participant must reuse the canonical VÍA start workflow instead of a QA-only task type');
+assert(qaFunction.includes("title:'Min VÍA – start her'")&&qaFunction.includes("audience:'PARTICIPANT'"),'QA participant must receive the same safe first VÍA task shape as a real linked participant');
+assert(qaFunction.includes("title:'Din VÍA er klar'")&&qaFunction.includes("safe_preview:'Du har et nytt steg i AidMe VIDA.'"),'QA participant start must also exercise the safe notification surface');
+assert(qaFunction.includes('participant_start_task_id'),'QA audit evidence must record the canonical participant start task id');
 
 console.log('Phase-stable synthetic role fixture invariants passed');
