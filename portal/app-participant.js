@@ -20,7 +20,14 @@ function participantStageCopy(stage){
   return'Før · retning, avklaring og forberedelse';
 }
 function participantOpenTasks(p){return tasks.filter(t=>t.participant_id===p?.id&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status))}
-function participantTaskTone(t){const s=severity(t);return s==='RED'?'Viktig':s==='YELLOW'?'Avklares':'Neste steg'}
+function participantTaskAttention(t){
+  const overdue=!!t?.due_at&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status)&&new Date(t.due_at)<new Date();
+  if(overdue||severity(t)==='RED')return'RED';
+  if(t.status==='WAITING')return'BLUE';
+  return'YELLOW';
+}
+function participantAttentionLabel(tone){return tone==='RED'?'Må nå':tone==='YELLOW'?'Neste steg':'Info / valgfritt'}
+function participantTaskTone(t){return participantAttentionLabel(participantTaskAttention(t))}
 function participantFormKeys(stage){
   if(stage==='GO'||stage==='GO_WITH_CONDITIONS')return new Set(['participant_agreement']);
   if(stage==='POSTPONED'||stage==='NO_GO')return new Set();
@@ -41,13 +48,16 @@ function participantReadyForms(p){
 }
 function participantSecurityAction(){
   if(assurance?.currentLevel==='aal2')return null;
-  return {kind:'security',title:'Bekreft sikker innlogging',detail:assurance?.nextLevel==='aal2'?'Bekreft Authenticator før personlige skjema og andre beskyttede steg åpnes.':'Sett opp Authenticator før personlige skjema og andre beskyttede steg åpnes.',label:'Nødvendig først'};
+  return {kind:'security',tone:'RED',title:'Bekreft sikker innlogging',detail:assurance?.nextLevel==='aal2'?'Bekreft Authenticator før personlige skjema og andre beskyttede steg åpnes.':'Sett opp Authenticator før personlige skjema og andre beskyttede steg åpnes.',label:'Må gjøres først'};
 }
-function participantDerivedActions(p){const security=participantSecurityAction();return security?[security]:participantReadyForms(p).map(f=>({kind:'form',...f}))}
+function participantFormTone(f){return f?.key==='info_before_via'?'BLUE':'YELLOW'}
+function participantDerivedActions(p){const security=participantSecurityAction();return security?[security]:participantReadyForms(p).map(f=>({kind:'form',tone:participantFormTone(f),...f}))}
 function participantDerivedActionMarkup(a,p){
-  if(a.kind==='security')return `<button class="task-row participant-derived-action" type="button" data-participant-action-view="security"><i class="task-dot YELLOW"></i><div><b>${escapeHtml(a.title)}</b><small>${escapeHtml(a.detail)}</small></div><div class="task-meta"><span class="pill YELLOW">${escapeHtml(a.label)}</span></div></button>`;
+  const tone=a.tone||'YELLOW';
+  if(a.kind==='security')return `<button class="task-row participant-derived-action" type="button" data-participant-action-view="security" data-participant-attention="${tone}"><i class="task-dot ${tone}"></i><div><b>${escapeHtml(a.title)}</b><small>${escapeHtml(a.detail)}</small></div><div class="task-meta"><span class="pill ${tone}">${escapeHtml(a.label)}</span></div></button>`;
   const href=`./form-runner.html?key=${encodeURIComponent(a.key)}&participant=${encodeURIComponent(p.id)}`;
-  return `<a class="task-row participant-derived-action" href="${href}" style="text-decoration:none;color:inherit"><i class="task-dot GREEN"></i><div><b>${escapeHtml(a.title_no)}</b><small>Skjemaet er klart i fasen din og kan åpnes direkte herfra.</small></div><div class="task-meta"><span class="pill GREEN">Skjema klart</span></div></a>`;
+  const detail=tone==='BLUE'?'Tilgjengelig som støtte i VÍA. Ikke nødvendig for å åpne neste obligatoriske steg.':'Skjemaet er klart i fasen din og kan åpnes direkte herfra.';
+  return `<a class="task-row participant-derived-action" href="${href}" style="text-decoration:none;color:inherit" data-participant-attention="${tone}" data-form-key="${escapeHtml(a.key)}"><i class="task-dot ${tone}"></i><div><b>${escapeHtml(a.title_no)}</b><small>${escapeHtml(detail)}</small></div><div class="task-meta"><span class="pill ${tone}">${participantAttentionLabel(tone)}</span></div></a>`;
 }
 function bindParticipantDerivedActions(root=document){root.querySelectorAll('[data-participant-action-view="security"]').forEach(b=>b.addEventListener('click',()=>show('security')))}
 function injectParticipantDerivedActions(){
@@ -63,6 +73,17 @@ function injectParticipantDerivedActions(){
   bindParticipantDerivedActions();
   const queueCard=$('#priorityQueue')?.closest('.panel-card');if(queueCard){queueCard.querySelector('.eyebrow').textContent='Neste';queueCard.querySelector('h3').textContent='Dine neste steg'}
 }
+function participantAttentionSnapshot(){
+  if(isStaff())return null;
+  const p=ownParticipant();if(!p)return{red:[],yellow:[],blue:[],tasks:[],forms:[],security:null,total:0};
+  const security=participantSecurityAction();
+  const open=participantOpenTasks(p).map(t=>({kind:'task',tone:participantTaskAttention(t),title:t.title,due_at:t.due_at,status:t.status,id:t.id,workflow_key:t.workflow_key||null}));
+  const forms=security?[]:participantReadyForms(p).map(f=>({kind:'form',tone:participantFormTone(f),title:f.title_no,key:f.key}));
+  const items=[...(security?[security]:[]),...open,...forms];
+  const red=items.filter(x=>x.tone==='RED'),yellow=items.filter(x=>x.tone==='YELLOW'),blue=items.filter(x=>x.tone==='BLUE');
+  return{red,yellow,blue,tasks:open,forms,security,total:items.length};
+}
+window.aidmeParticipantAttentionSnapshot=participantAttentionSnapshot;
 
 const staffRenderTaskLists=renderTaskLists;
 renderTaskLists=function(){staffRenderTaskLists();if(!isStaff())injectParticipantDerivedActions()};
@@ -70,10 +91,10 @@ renderTaskLists=function(){staffRenderTaskLists();if(!isStaff())injectParticipan
 const staffTaskRow=taskRow;
 taskRow=function(t){
   if(isStaff())return staffTaskRow(t);
-  const p=participantById(t.participant_id),pilot=pilotById(t.pilot_id),r=routeToday(t.pilot_id),sev=severity(t),overdue=!!t.due_at&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status)&&new Date(t.due_at)<new Date();
+  const p=participantById(t.participant_id),pilot=pilotById(t.pilot_id),r=routeToday(t.pilot_id),tone=participantTaskAttention(t),overdue=!!t.due_at&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status)&&new Date(t.due_at)<new Date();
   const context=[r?`Dag ${r.day_number}: ${r.from_place} → ${r.to_place}${r.distance_km?` · ${r.distance_km} km`:''}`:null,t.description||null].filter(Boolean).join(' · ');
   const due=overdue?`<span class="pill RED">Frist passert · ${formatDate(t.due_at)}</span>`:`<span class="pill">${formatDate(t.due_at)}</span>`;
-  return `<button class="task-row" data-task-id="${t.id}"><i class="task-dot ${sev}"></i><div><b>${escapeHtml(t.title)}</b><small>${escapeHtml(context)}</small></div><div class="task-meta"><span class="pill ${sev}">${participantTaskTone(t)}</span>${due}</div></button>`;
+  return `<button class="task-row" data-task-id="${t.id}" data-participant-attention="${tone}"><i class="task-dot ${tone}"></i><div><b>${escapeHtml(t.title)}</b><small>${escapeHtml(context)}</small></div><div class="task-meta"><span class="pill ${tone}">${participantTaskTone(t)}</span>${due}</div></button>`;
 };
 
 const staffRenderPulse=renderPulse;
@@ -90,8 +111,8 @@ renderParticipants=function(){
   const p=ownParticipant();$('#participantsNavLabel').textContent='Min reise';$('#participantsHeading').textContent='Min reise';$('#participantsIntro').textContent='Fase, neste handling og det som er relevant for deg – uten interne arbeidsmarkører.';
   selectedParticipantId=p?.id||null;
   if(!p){$('#participantList').innerHTML='<p>Ingen aktiv reise ennå.</p>';$('#participantDetail').innerHTML='<h3>Reisen din er ikke aktivert ennå</h3><p>Kontakt AidMe-kontakten din dersom du forventet tilgang.</p>';fillParticipantSelect();return}
-  const base=stageLabel(p.stage),phase=participantPhaseLabel(p.stage),open=participantOpenTasks(p),extra=participantDerivedActions(p).length;
-  $('#participantList').innerHTML=`<button class="participant-card active" data-participant-id="${p.id}"><i class="dot ${base==='SER'?'ser':base==='VIDA'?'vida':'via'}"></i><div><b>${escapeHtml(p.code_name)}</b><small>${escapeHtml(phase)} · ${open.length+extra} åpne steg</small></div><span class="pill">${escapeHtml(phase)}</span></button>`;
+  const base=stageLabel(p.stage),phase=participantPhaseLabel(p.stage),snap=participantAttentionSnapshot();
+  $('#participantList').innerHTML=`<button class="participant-card active" data-participant-id="${p.id}"><i class="dot ${base==='SER'?'ser':base==='VIDA'?'vida':'via'}"></i><div><b>${escapeHtml(p.code_name)}</b><small>${escapeHtml(phase)} · ${snap.total} åpne steg</small></div><span class="pill">${escapeHtml(phase)}</span></button>`;
   renderParticipantDetail();fillParticipantSelect();
 };
 
@@ -122,10 +143,10 @@ renderAnalysis=function(){
 
 function adaptParticipantChrome(){
   if(isStaff())return;
-  const p=ownParticipant(),open=participantOpenTasks(p),actions=participantDerivedActions(p),securityNeeded=actions.some(a=>a.kind==='security'),overdue=t=>!!t.due_at&&new Date(t.due_at)<new Date(),important=open.filter(t=>severity(t)==='RED'||overdue(t)).length+(securityNeeded?1:0),clarify=open.filter(t=>severity(t)==='YELLOW'&&!overdue(t)).length,phase=participantPhaseLabel(p?.stage||'VIA'),base=stageLabel(p?.stage||'VIA');
+  const p=ownParticipant(),snap=participantAttentionSnapshot(),phase=participantPhaseLabel(p?.stage||'VIA'),base=stageLabel(p?.stage||'VIA');
   const cards=$$('#view-overview .metric-grid .metric');
   const setCard=(i,label,value,hint)=>{const c=cards[i];if(!c)return;c.querySelector('span').textContent=label;c.querySelector('strong').textContent=value;c.querySelector('small').textContent=hint};
-  setCard(0,'Mine åpne steg',open.length+actions.length,'det du kan gjøre nå');setCard(1,'Viktig nå',important,'prioritert for deg');setCard(2,'Trenger avklaring',clarify,'kan vente på svar');setCard(3,'Min fase',phase,participantStageCopy(p?.stage));
+  setCard(0,'Mine åpne steg',snap.total,'det du kan gjøre eller må avklare');setCard(1,'Må nå',snap.red.length,'blokkerer / forfalt');setCard(2,'Neste steg',snap.yellow.length,'krever handling');setCard(3,'Info / valgfritt',snap.blue.length,'nyttig, men ikke fremdriftskrav');
   const pulse=$('#groupPulse')?.closest('.panel-card');if(pulse){pulse.querySelector('.eyebrow').textContent='Din rytme';pulse.querySelector('h3').textContent='Siste status'}
   const chart=$('#overviewChart')?.closest('.panel-card');if(chart){chart.querySelector('.eyebrow').textContent='Din utvikling';chart.querySelector('h3').textContent='Siste 30 dager';const b=chart.querySelector('[data-go="analysis"]');if(b)b.textContent='Se min utvikling'}
   const analysis=$('#view-analysis .section-head');if(analysis){analysis.querySelector('.eyebrow').textContent='Dine målinger';analysis.querySelector('h2').textContent='Din utvikling over tid';analysis.querySelector('p').textContent='Se dine egne målinger som støtte for refleksjon og samtale. En skår er ikke en diagnose eller en automatisk beslutning.'}
@@ -137,7 +158,7 @@ function adaptParticipantChrome(){
   const checkHead=$('#view-checkin .section-head');if(checkHead){checkHead.querySelector('.eyebrow').textContent='SER · din korte innsjekk';checkHead.querySelector('h2').textContent='Hvordan er dagen din?';checkHead.querySelector('p').textContent='Kort egen innsjekk for støtte og tilpasning. Dette er ikke teamets operative SER-logg, og ingen enkelt skår avgjør sikkerhet eller videre deltakelse.'}
   const documentsHead=$('#view-documents .section-head');if(documentsHead){documentsHead.querySelector('p').textContent='Dokumenter som gjelder reisen din samles her når de er klare.';documentsHead.querySelector('button')?.classList.add('hidden')}
   const docNote=$('#view-documents .privacy-note');if(docNote)docNote.textContent='Du ser bare dokumenter kontoen din har tilgang til.';
-  const red=$('#mobileAttentionBar [data-attention="RED"]'),yellow=$('#mobileAttentionBar [data-attention="YELLOW"]');if(red)red.innerHTML=`<b>${important}</b> viktig/forfalt`;if(yellow)yellow.innerHTML=`<b>${clarify}</b> avklaringer`;
+  const red=$('#mobileAttentionBar [data-attention="RED"]'),yellow=$('#mobileAttentionBar [data-attention="YELLOW"]'),neutral=$('#mobileAttentionBar [data-attention="ALL"]');if(red)red.innerHTML=`<b>${snap.red.length}</b> må nå`;if(yellow)yellow.innerHTML=`<b>${snap.yellow.length}</b> neste steg`;if(neutral)neutral.innerHTML=`<b>${snap.blue.length}</b> info / valgfritt`;
 }
 
 const participantOpenTask=openTask;
