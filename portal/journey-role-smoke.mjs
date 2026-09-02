@@ -52,6 +52,14 @@ for(const text of ['Mine åpne steg','Viktig nå','Min fase','Din neste handling
 assert(!participantJs.includes("'Kritisk'"),'Participant-first layer must not label own tasks with internal critical wording');
 assert(participantJs.includes("if(isStaff())return staffRenderParticipants()"),'Staff participant workspace must remain unchanged by participant-first layer');
 
+// Participant next-action UX: security first at AAL1, then stage-appropriate forms without parallel backend tasks.
+assert(participantJs.includes('participantSecurityAction')&&participantJs.includes('Bekreft sikker innlogging')&&participantJs.includes('Nødvendig først'),'Participant must see AAL2/security as an immediate next action instead of hunting in profile settings');
+assert(participantJs.includes("assurance?.currentLevel!=='aal2'")&&participantJs.includes('participantReadyForms'),'Participant form shortcuts must stay hidden until the session is AAL2');
+assert(participantJs.includes("participant_via_start:'via_roadmap'")&&participantJs.includes("participant_agreement_ack:'participant_agreement'"),'Derived form shortcuts must not duplicate canonical participant workflow tasks');
+assert(participantJs.includes("['#priorityQueue','#taskList']"),'Derived participant actions must surface on both Overview and Oppgaver');
+assert(participantJs.includes("open.length+actions.length"),'Participant open-step count must include visible next actions rather than showing zero beside ready forms/security');
+assert(participantJs.includes('Skjema klart'),'Available participant forms must be visibly actionable without being mislabeled as a stored task');
+
 // N3 must end in one concrete VÍA participant action, not merely a linked account.
 assert(adminCreateParticipant.includes("workflow_key:'participant_via_start'"),'Account linking must create/reuse the participant VÍA start task');
 assert(adminCreateParticipant.includes("eq('workflow_key','participant_via_start')")&&adminCreateParticipant.includes("eq('assignee_user_id',targetUserId)"),'VÍA start task must be duplicate-guarded for the linked participant account');

@@ -1,7 +1,9 @@
 (()=>{
 'use strict';
 
-const NAV_IA_VERSION='2026-09-02a';
+const NAV_IA_VERSION='2026-09-02b';
+const NAV_SNAPSHOT_KEY='aidme:navigation-snapshot:v1';
+const NAV_SNAPSHOT_MAX_AGE_MS=2*60*60*1000;
 const page=(location.pathname.split('/').filter(Boolean).pop()||'index.html').replace('.html','');
 
 function addStyles(){
@@ -46,11 +48,30 @@ const PAGE_META={
   crm:{num:'CRM',label:'Mini CRM'}
 };
 
+function navItemVisible(el){return !!el&&!el.classList.contains('hidden')&&!el.classList.contains('nav-ia-demoted')&&getComputedStyle(el).display!=='none'}
+function navItemHref(el){const href=el.getAttribute('href');if(href)return href;const view=el.dataset.view;return view?`./#${view}`:null}
+function persistMainSnapshot(nav){
+  try{
+    const items=[...nav.querySelectorAll('.nav-item')].filter(navItemVisible).map(el=>({num:el.querySelector('.nav-num')?.textContent?.trim()||'',label:el.querySelector('b')?.textContent?.trim()||'',href:navItemHref(el),sub:el.classList.contains('nav-subitem')})).filter(x=>x.label&&x.href);
+    if(items.length>=3)sessionStorage.setItem(NAV_SNAPSHOT_KEY,JSON.stringify({createdAt:Date.now(),items}));
+  }catch{}
+}
+function readMainSnapshot(){
+  try{const raw=sessionStorage.getItem(NAV_SNAPSHOT_KEY);if(!raw)return null;const data=JSON.parse(raw);if(!data?.createdAt||Date.now()-data.createdAt>NAV_SNAPSHOT_MAX_AGE_MS||!Array.isArray(data.items)){sessionStorage.removeItem(NAV_SNAPSHOT_KEY);return null}return data}catch{return null}
+}
+function guideFromSnapshot(nav){
+  const snapshot=readMainSnapshot();if(!snapshot?.items?.length)return false;
+  const items=snapshot.items.map(item=>{const active=item.label==='Slik fungerer det'||String(item.href||'').includes('guide.html');return makeItem({href:active?null:item.href,num:item.num,label:item.label,active,sub:item.sub})});
+  if(!items.some(el=>el.getAttribute('aria-current')==='page'))items.splice(Math.min(1,items.length),0,makeItem({num:'00',label:'Slik fungerer det',active:true}));
+  nav.replaceChildren(...items);nav.dataset.navigationIa=NAV_IA_VERSION;nav.setAttribute('aria-label','Navigasjon og gjeldende arbeidsflate');return true;
+}
+
 function normalizeStandalone(){
   if(document.querySelector('#mainNav'))return false;
   const sidebar=document.querySelector('.sidebar');
   const nav=sidebar?.querySelector('nav');
   if(!nav)return false;
+  if(page==='guide'&&guideFromSnapshot(nav))return true;
 
   const oldActive=nav.querySelector('.nav-item.active');
   const meta=PAGE_META[page]||{
@@ -100,6 +121,12 @@ function mainNode(nav,key){
   return nav.querySelector(`.nav-item[data-view="${key}"]`);
 }
 
+function applyHashView(nav){
+  const raw=location.hash.slice(1);if(!raw||!/^[a-z-]+$/.test(raw))return;
+  const target=nav.querySelector(`.nav-item[data-view="${raw}"]`);if(!target||!navItemVisible(target))return;
+  target.click();history.replaceState(null,'',location.pathname+location.search);
+}
+
 function normalizeMain(){
   const nav=document.querySelector('#mainNav');
   if(!nav)return false;
@@ -136,6 +163,9 @@ function normalizeMain(){
   const order=['overview','participants','#intakeNav','#ownersNav','tasks','checkin','forms','#pilotOpsNav','#adminLink','#crmNav','#guideNav','#sosNav'];
   order.map(key=>mainNode(nav,key)).filter(Boolean).forEach(el=>nav.appendChild(el));
   nav.dataset.navigationIa=NAV_IA_VERSION;
+  persistMainSnapshot(nav);
+  const guideNav=document.querySelector('#guideNav');if(guideNav&&!guideNav.dataset.snapshotBound){guideNav.dataset.snapshotBound='1';guideNav.addEventListener('click',()=>persistMainSnapshot(nav))}
+  applyHashView(nav);
   return true;
 }
 
