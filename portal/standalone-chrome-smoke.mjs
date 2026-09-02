@@ -11,6 +11,7 @@ assert(!/supabase|role_grants|capabilit/i.test(chrome),'Standalone chrome must r
 
 const mobile=read('./app-mobile.js');
 const navIa=read('./navigation-ia.js');
+assert(mobile.includes("NAVIGATION_IA_VERSION='2026-09-02b'"),'Shared portal shell must cache-bust the current navigation IA layer.');
 assert(mobile.includes('navigation-ia.js'),'Shared portal shell must load the navigation IA layer.');
 assert(navIa.includes('.sidebar{overflow-y:auto'),'Desktop/laptop sidebar must remain independently scrollable.');
 assert(navIa.includes("['analysis','documents','settings']"),'Analysis, document placeholder and settings must be demoted from main navigation.');
@@ -20,6 +21,8 @@ assert(navIa.includes("'Demo-reise (LAB)'"),'Authorized demo journey must move t
 assert(navIa.includes("label:'Slik fungerer det'")&&navIa.includes("label:'Hjelp & SOS'"),'Standalone navigation must keep stable guide/help anchors.');
 assert(navIa.includes("page==='admin'")&&navIa.includes("label:'Revisjon',sub:true"),'Revision must be contextualized under Administration.');
 assert(navIa.includes("'#intakeNav','#ownersNav','tasks','checkin','forms','#pilotOpsNav','#adminLink'"),'Main navigation must preserve the operational journey order.');
+assert(navIa.includes("NAV_SNAPSHOT_KEY='aidme:navigation-snapshot:v1'")&&navIa.includes('persistMainSnapshot(nav)')&&navIa.includes("page==='guide'&&guideFromSnapshot(nav)"),'Program guide must preserve the actual role-aware main navigation through a safe session-only snapshot.');
+assert(navIa.includes("view?`./#${view}`:null")&&navIa.includes('applyHashView(nav)'),'Guide return links must restore the requested portal view without creating a new authorization path.');
 assert(!/supabase|role_grants|client\.from|functions\.invoke|fetch\(/i.test(navIa),'Navigation IA must stay presentation-only and must not create a data or authorization path.');
 assert(!navIa.includes('MutationObserver'),'Navigation IA must use finite/idempotent passes, not persistent observer loops.');
 
