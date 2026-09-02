@@ -5,6 +5,7 @@ const MOBILE_UX_VERSION='2026-08-18a';
 const MOBILE_BREAKPOINT=780;
 const COLLAPSE_AFTER=84;
 const RESTORE_AT=20;
+const NAVIGATION_IA_VERSION='2026-09-02a';
 
 function addMobileStyles(){
   if(document.querySelector('link[data-aidme-mobile]'))return;
@@ -13,6 +14,14 @@ function addMobileStyles(){
   link.href=`./mobile.css?v=${MOBILE_UX_VERSION}`;
   link.dataset.aidmeMobile='1';
   document.head.appendChild(link);
+}
+
+function addNavigationIa(){
+  if(document.querySelector('script[data-aidme-navigation-ia]'))return;
+  const script=document.createElement('script');
+  script.src=`./navigation-ia.js?v=${NAVIGATION_IA_VERSION}`;
+  script.dataset.aidmeNavigationIa='1';
+  document.head.appendChild(script);
 }
 
 function installMobileNavAutoHide(){
@@ -63,5 +72,6 @@ function installMobileNavAutoHide(){
 }
 
 addMobileStyles();
+addNavigationIa();
 installMobileNavAutoHide();
 })();
