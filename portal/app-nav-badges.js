@@ -16,13 +16,42 @@ function badgeParticipantSeverity(participant,openTasks){
   return'GREEN';
 }
 function semanticBadgeMarkup(kind,counts){
-  if(kind==='overview')return counts.total?`<span class="nav-count nav-count-total" aria-label="${counts.total} åpne totalt">${counts.total}</span>`:'';
+  if(kind==='overview'&&isStaff())return counts.total?`<span class="nav-count nav-count-total" aria-label="${counts.total} åpne totalt">${counts.total}</span>`:'';
   let html='';
-  if(counts.red)html+=`<span class="nav-count red" aria-label="${counts.red} ${kind==='participants'?'deltakere':'oppgaver'} kritisk">${counts.red}</span>`;
-  if(counts.yellow)html+=`<span class="nav-count yellow" aria-label="${counts.yellow} ${kind==='participants'?'deltakere':'oppgaver'} trenger avklaring">${counts.yellow}</span>`;
+  if(counts.red)html+=`<span class="nav-count red" aria-label="${counts.red} ${kind==='participants'?'deltakere':'steg'} må håndteres nå">${counts.red}</span>`;
+  if(counts.yellow)html+=`<span class="nav-count yellow" aria-label="${counts.yellow} ${kind==='participants'?'deltakere':'steg'} er neste handling">${counts.yellow}</span>`;
+  if(counts.blue)html+=`<span class="nav-count blue" aria-label="${counts.blue} informative eller valgfrie steg">${counts.blue}</span>`;
   return html;
 }
+function ensureFormsBadge(){
+  const nav=document.querySelector('.nav-item[data-view="forms"]');if(!nav)return null;
+  let badge=document.querySelector('#badgeForms');if(!badge){badge=document.createElement('i');badge.id='badgeForms';badge.className='nav-badges';nav.appendChild(badge)}
+  return badge;
+}
+function participantItemSummary(item){
+  if(!item)return'';
+  if(item.kind==='security')return'Krever AAL2 / Authenticator';
+  if(item.kind==='task')return `${item.title}${item.due_at?` · frist ${formatDate(item.due_at)}`:''}`;
+  return item.title||item.key||'Skjema tilgjengelig';
+}
+function participantTooltip(label,items){
+  if(!items.length)return `${label}: ingen åpne steg`;
+  return `${label}: ${items.length} · ${items.slice(0,3).map(participantItemSummary).join(' · ')}`;
+}
+function renderParticipantNavigationBadges(){
+  const snap=typeof window.aidmeParticipantAttentionSnapshot==='function'?window.aidmeParticipantAttentionSnapshot():null;if(!snap)return false;
+  const overview=document.querySelector('#badgeOverview'),taskBadge=document.querySelector('#badgeTasks'),participantBadge=document.querySelector('#badgeParticipants'),formsBadge=ensureFormsBadge();
+  const counts={red:snap.red.length,yellow:snap.yellow.length,blue:snap.blue.length};
+  if(overview){overview.innerHTML=semanticBadgeMarkup('overview',counts);overview.title=`Samlet oversikt: ${snap.total} åpne steg${snap.total?` · ${[...snap.red,...snap.yellow,...snap.blue].slice(0,3).map(participantItemSummary).join(' · ')}`:''}`}
+  const taskCounts={red:snap.tasks.filter(x=>x.tone==='RED').length,yellow:snap.tasks.filter(x=>x.tone==='YELLOW').length,blue:snap.tasks.filter(x=>x.tone==='BLUE').length};
+  if(taskBadge){taskBadge.innerHTML=semanticBadgeMarkup('tasks',taskCounts);taskBadge.title=participantTooltip('Oppgaver',snap.tasks)}
+  if(formsBadge){const formCounts={red:0,yellow:snap.forms.filter(x=>x.tone==='YELLOW').length,blue:snap.forms.filter(x=>x.tone==='BLUE').length};formsBadge.innerHTML=semanticBadgeMarkup('forms',formCounts);formsBadge.title=participantTooltip('Skjema',snap.forms)}
+  if(participantBadge){participantBadge.innerHTML='';participantBadge.title='Min reise · fase og neste handling'}
+  document.querySelectorAll('[data-participant-attention]').forEach(row=>{const tone=row.dataset.participantAttention;row.title=tone==='RED'?'Må håndteres før du kan gå videre':tone==='YELLOW'?'Neste handling i reisen':'Tilgjengelig informasjon / valgfritt steg'});
+  return true;
+}
 function renderSemanticNavigationBadges(){
+  if(!isStaff()&&renderParticipantNavigationBadges())return;
   const visible=badgeVisibleTasks();
   const open=visible.filter(t=>badgeOpenStatus(t.status));
   const taskCounts={
@@ -32,6 +61,7 @@ function renderSemanticNavigationBadges(){
   const overview=document.querySelector('#badgeOverview');
   const taskBadge=document.querySelector('#badgeTasks');
   const participantBadge=document.querySelector('#badgeParticipants');
+  ensureFormsBadge()?.replaceChildren();
   if(overview){
     overview.innerHTML=semanticBadgeMarkup('overview',{total:open.length});
     overview.title=`Samlet oversikt: ${open.length} åpne oppgaver`;
@@ -41,22 +71,21 @@ function renderSemanticNavigationBadges(){
     taskBadge.title=`Oppgaver: ${taskCounts.red} kritisk/forfalt · ${taskCounts.yellow} trenger avklaring`;
   }
   if(participantBadge){
-    if(!isStaff()){
-      participantBadge.innerHTML='';
-      participantBadge.title='Min reise';
-    }else{
-      const attention=(participants||[]).map(p=>badgeParticipantSeverity(p,open)).filter(s=>s==='RED'||s==='YELLOW');
-      const participantCounts={red:attention.filter(s=>s==='RED').length,yellow:attention.filter(s=>s==='YELLOW').length};
-      participantBadge.innerHTML=semanticBadgeMarkup('participants',participantCounts);
-      participantBadge.title=`Deltakere: ${participantCounts.red} kritisk · ${participantCounts.yellow} trenger oppmerksomhet`;
-    }
+    const attention=(participants||[]).map(p=>badgeParticipantSeverity(p,open)).filter(s=>s==='RED'||s==='YELLOW');
+    const participantCounts={red:attention.filter(s=>s==='RED').length,yellow:attention.filter(s=>s==='YELLOW').length};
+    participantBadge.innerHTML=semanticBadgeMarkup('participants',participantCounts);
+    participantBadge.title=`Deltakere: ${participantCounts.red} kritisk · ${participantCounts.yellow} trenger oppmerksomhet`;
   }
 }
 
 if(!document.querySelector('#semantic-nav-badge-style')){
   const style=document.createElement('style');
   style.id='semantic-nav-badge-style';
-  style.textContent='.nav-count.nav-count-total{background:#dbe5ec;color:#23435d}.nav-badges:empty{display:none}';
+  style.textContent=`
+    .nav-count.nav-count-total{background:#dbe5ec;color:#23435d}.nav-count.blue{background:#dbe5ec;color:#23435d}.nav-badges:empty{display:none}
+    .task-dot.BLUE{background:#5f7f9b}.pill.BLUE{background:#dbe5ec;color:#23435d}
+    .mobile-attention-bar .attention-chip.neutral{border-color:#b9c9d7;background:#edf3f8;color:#23435d}
+  `;
   document.head.appendChild(style);
 }
 
@@ -64,7 +93,9 @@ const priorRenderTaskLists=renderTaskLists;
 renderTaskLists=function(){
   priorRenderTaskLists();
   renderSemanticNavigationBadges();
+  setTimeout(renderSemanticNavigationBadges,0);
 };
 setTimeout(renderSemanticNavigationBadges,120);
+window.addEventListener('pageshow',()=>setTimeout(renderSemanticNavigationBadges,30));
 
 })();

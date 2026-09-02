@@ -37,7 +37,8 @@ function streamlineStyle(){
     .streamline-lane{padding:10px 12px;border:1px solid rgba(18,63,61,.15);border-radius:12px;background:#fff}
     .streamline-lane span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#62706f}.streamline-lane b{display:block;margin-top:3px}
     .streamline-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.streamline-actions a{display:inline-flex;text-decoration:none}
-    @media(max-width:700px){.streamline-lanes{grid-template-columns:1fr}.streamline-guidance{padding:14px}}
+    .runner-controls.participant-context-compact{display:block;padding:10px 14px}.participant-form-context{display:flex;align-items:center;justify-content:space-between;gap:12px}.participant-form-context span{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#66737b}.participant-form-context b{display:block;color:#0e2940;margin-top:2px}.participant-form-context small{color:#66737b;text-align:right}
+    @media(max-width:700px){.streamline-lanes{grid-template-columns:1fr}.streamline-guidance{padding:14px}.participant-form-context{display:block}.participant-form-context small{display:block;text-align:left;margin-top:4px}}
   `;
   document.head.appendChild(style);
 }
@@ -52,6 +53,22 @@ function streamlineLink(key,label,participantId){
 function streamlineBaseLanes(){
   return `<div class="streamline-lanes"><div class="streamline-lane"><span>Deltaker</span><b>Egne ord / egen innsjekk</b></div><div class="streamline-lane"><span>Ansatt</span><b>Operativt minimum</b></div><div class="streamline-lane"><span>Partner / VIDA</span><b>Kun avtalt handoff</b></div></div>`;
 }
+function streamlineParticipantContext(){
+  const controls=document.querySelector('.runner-controls');if(!controls)return;
+  let summary=document.querySelector('#participantFormContext');
+  if(typeof isStaff==='function'&&isStaff()){
+    controls.classList.remove('participant-context-compact');
+    controls.querySelectorAll(':scope > label,:scope > .form-version').forEach(el=>el.classList.remove('hidden'));
+    summary?.remove();
+    return;
+  }
+  controls.classList.add('participant-context-compact');
+  controls.querySelectorAll(':scope > label,:scope > .form-version').forEach(el=>el.classList.add('hidden'));
+  if(!summary){summary=document.createElement('div');summary.id='participantFormContext';summary.className='participant-form-context';controls.appendChild(summary)}
+  let phase='VÍA',title='Skjema',version='';
+  try{phase=phaseLabel(currentVersion)||'VÍA';title=currentDef?.title_no||title;version=currentVersion?.version?`v${currentVersion.version}`:''}catch{}
+  summary.innerHTML=`<div><span>Skjemakontekst</span><b>${esc(phase)} · ${esc(title)}${version?` · ${esc(version)}`:''}</b></div><small>Din deltaker- og gruppekontekst kobles automatisk.</small>`;
+}
 async function streamlineLatestCheckin(participantId){
   if(!participantId)return null;
   const {data,error}=await client.from('ser_checkins')
@@ -63,6 +80,7 @@ async function streamlineLatestCheckin(participantId){
   return error?null:data||null;
 }
 async function renderFormStreamlineGuidance(){
+  streamlineParticipantContext();
   const host=streamlineHost();if(!host)return;
   streamlineStyle();
   const key=streamlineActiveFormKey(),participantId=streamlineParticipantId(),request=++provenanceRequest;
@@ -100,5 +118,5 @@ if(streamlineChooseForm){
 }
 document.querySelector('#participantSelect')?.addEventListener('change',()=>setTimeout(renderFormStreamlineGuidance,20));
 document.querySelector('#formSelect')?.addEventListener('change',()=>setTimeout(renderFormStreamlineGuidance,20));
-setTimeout(renderFormStreamlineGuidance,220);
+setTimeout(()=>{streamlineStyle();renderFormStreamlineGuidance()},220);
 })();
