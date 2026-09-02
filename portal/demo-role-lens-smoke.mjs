@@ -17,10 +17,10 @@ contains('Ingen ekstra deltakerdata hentes','Participant demo must remain data-m
 
 must(!src.includes('client.from('),'Demo lens must not query Supabase directly');
 must(!src.includes('client.functions.invoke'),'Demo lens must not invoke backend functions');
-must(!src.includes('accessGrants='),'Demo lens must not mutate grants');
-must(!src.includes('isStaff='),'Demo lens must not replace staff authorization helper');
-must(!src.includes('hasRole='),'Demo lens must not replace role authorization helper');
-must(!src.includes('role_code='),'Demo lens must not write role codes');
+must(!/\baccessGrants\s*=/.test(src),'Demo lens must not mutate grants');
+must(!/\b(?:function\s+isStaff\b|isStaff\s*=)/.test(src),'Demo lens must not replace staff authorization helper');
+must(!/\b(?:function\s+hasRole\b|hasRole\s*=)/.test(src),'Demo lens must not replace role authorization helper');
+must(!/\brole_code\s*=/.test(src),'Demo lens must not write role codes');
 
 must(build.includes("const demoLensPath=path.join(dir,'app-demo-lens.js')"),'Build must include demo lens source');
 must(build.includes("'+demoLens+'"),'Build must concatenate demo lens');
