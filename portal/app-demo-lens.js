@@ -23,7 +23,7 @@ function ensureDemoLensStyle(){
     .demo-lens-hidden{display:none!important}
     .demo-lens-control{display:flex;align-items:center;gap:7px;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.82)}
     .demo-lens-control span{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#687478}
-    .demo-lens-control select{border:0;background:transparent;color:var(--navy);font:700 12px/1.2 inherit;outline:none;max-width:170px}
+    .demo-lens-control select{border:0;background:transparent;color:var(--navy);font-size:12px;font-weight:700;font-family:inherit;line-height:1.2;outline:none;max-width:170px}
     .demo-lens-banner{max-width:none;margin:0 0 16px;padding:10px 13px;border:1px solid rgba(200,164,93,.35);border-radius:12px;background:rgba(200,164,93,.08);font-size:12px;line-height:1.45;color:#46575b}
     .demo-lens-banner strong{color:var(--teal)}
     .demo-participant-preview{display:none}
@@ -93,14 +93,13 @@ function ensureParticipantPreview(){
 }
 function resetDemoNav(){
   ['participants','tasks','checkin','analysis','forms','documents','settings'].forEach(v=>demoLensNav(v,true));
-  const admin=document.querySelector('#adminLink');if(admin)admin.classList.toggle('demo-lens-hidden',false);
+  const admin=document.querySelector('#adminLink');if(admin)admin.classList.remove('demo-lens-hidden');
 }
 function applyDemoLens(){
   if(!demoLensEligible()){
     document.documentElement.removeAttribute('data-demo-lens');
     document.querySelector('.demo-lens-control')?.remove();
     document.querySelector('.demo-lens-banner')?.remove();
-    resetDemoNav();
     return;
   }
   ensureDemoLensControl();ensureParticipantPreview();
