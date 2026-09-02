@@ -2,6 +2,12 @@
 'use strict';
 
 const GUIDE_BY_FORM={
+  via_roadmap:{
+    eyebrow:'Spør og fortell · VÍA',
+    question:'Hvor mye skal jeg skrive – og finnes det riktige svar?',
+    answer:'Nei. Dette er en første bli-kjent- og avklaringsrunde, ikke en test. Noen få ord kan være nok. Skriv det første som virker relevant, og ikke del mer personlig eller helserelatert informasjon enn det som er nødvendig for planlegging og trygg gjennomføring.',
+    next:'Ta ett felt om gangen. Eksemplene under feltene er bare hjelp til å forstå hva vi spør om – ikke en fasit eller en forventning om lange svar.'
+  },
   participant_agreement:{
     eyebrow:'Spør og fortell · før SER',
     question:'Betyr individuell GO at SER allerede er bestemt?',
@@ -55,7 +61,7 @@ setTimeout(renderFormQnaGuidance,160);
 
 if(!document.querySelector('script[data-form-streamline-provenance]')){
   const script=document.createElement('script');
-  script.src='./form-streamline-provenance.js?v=20260824a';
+  script.src='./form-streamline-provenance.js?v=20260902b';
   script.dataset.formStreamlineProvenance='1';
   document.body.appendChild(script);
 }
