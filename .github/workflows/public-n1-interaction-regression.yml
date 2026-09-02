@@ -25,7 +25,7 @@ jobs:
           grep -q "previewMode" n1-intake-safe.js
           grep -q "post-cutover-live.js" site.js
 
-      - name: Exercise N1 participant and referral interaction
+      - name: Exercise N1 participant partner and referral interaction
         shell: bash
         run: |
           set -euo pipefail
@@ -89,6 +89,7 @@ jobs:
             const q=s=>form.querySelector(s);
             const inquiry=q('[name="inquiry_type"]');
             const participant=inquiry?.querySelector('option[value="PARTICIPANT"]');
+            const partner=inquiry?.querySelector('option[value="PARTNER"]');
             const referral=inquiry?.querySelector('option[value="REFERRAL"]');
             const wrap=q('.n1-referral-fields');
             const role=q('[name="referral_role"]');
@@ -96,29 +97,43 @@ jobs:
             const required=['[name="first_name"]','[name="email"]','[name="preferred_contact"]','[name="inquiry_type"]','button[type="submit"]'];
             const disabled=required.filter(s=>!q(s)||q(s).disabled);
             if(disabled.length) return {ok:false,error:'disabled or missing controls',disabled};
-            if(participant?.textContent.trim()!=='Jeg vurderer AidMe VIDA for meg selv') return {ok:false,error:'participant label duplicated/stale',label:participant?.textContent};
-            if(referral?.textContent.trim()!=='Jeg vil henvise eller anbefale noen') return {ok:false,error:'referral label stale',label:referral?.textContent};
+            if(inquiry?.value!=='PARTICIPANT') return {ok:false,error:'participant query did not preselect participant',value:inquiry?.value};
+            if(participant?.textContent.trim()!=='Deltaker – for meg selv') return {ok:false,error:'participant compact label wrong',label:participant?.textContent};
+            if(partner?.textContent.trim()!=='Partner / samarbeid') return {ok:false,error:'partner option missing/wrong',label:partner?.textContent};
+            if(referral?.textContent.trim()!=='Henviser – for en annen') return {ok:false,error:'referral compact label wrong',label:referral?.textContent};
 
             inquiry.value='PARTICIPANT';
             inquiry.dispatchEvent(new Event('change',{bubbles:true}));
+            await new Promise(resolve=>setTimeout(resolve,20));
             if(!wrap?.hidden || role?.required) return {ok:false,error:'participant path exposes referral fields'};
+            if(q('.n1-contact-context')?.hidden) return {ok:false,error:'participant optional context missing'};
+
+            inquiry.value='PARTNER';
+            inquiry.dispatchEvent(new Event('change',{bubbles:true}));
+            await new Promise(resolve=>setTimeout(resolve,20));
+            if(!wrap?.hidden || role?.required) return {ok:false,error:'partner path exposes referral fields'};
+            if(q('.n1-contact-context')?.hidden) return {ok:false,error:'partner optional context missing'};
 
             inquiry.value='REFERRAL';
             inquiry.dispatchEvent(new Event('change',{bubbles:true}));
+            await new Promise(resolve=>setTimeout(resolve,20));
             if(wrap?.hidden || !role?.required) return {ok:false,error:'referral path does not expose required referral role'};
 
             role.value='NAV';
             if(org) org.value='Testorganisasjon';
             inquiry.value='PARTICIPANT';
             inquiry.dispatchEvent(new Event('change',{bubbles:true}));
+            await new Promise(resolve=>setTimeout(resolve,20));
             if(!wrap?.hidden || role?.required || role?.value || org?.value) return {ok:false,error:'referral-only values survive switch back to participant'};
 
             document.querySelector('.lang-toggle')?.click();
-            await new Promise(resolve=>setTimeout(resolve,50));
+            await new Promise(resolve=>setTimeout(resolve,80));
             const enParticipant=participant?.textContent.trim();
+            const enPartner=partner?.textContent.trim();
             const enReferral=referral?.textContent.trim();
             if(document.documentElement.dataset.lang!=='en') return {ok:false,error:'language toggle did not reach EN'};
             if(enParticipant!=='I am considering AidMe VIDA for myself') return {ok:false,error:'EN participant option wrong',label:enParticipant};
+            if(enPartner!=='Partner / collaboration') return {ok:false,error:'EN partner option wrong',label:enPartner};
             if(enReferral!=='I want to refer or recommend someone') return {ok:false,error:'EN referral option wrong',label:enReferral};
 
             return {ok:true,intakeState:form.dataset.intakeState||'',participantHidden:wrap?.hidden===true,language:document.documentElement.dataset.lang};
@@ -130,4 +145,4 @@ jobs:
           ws.close()
           PY
 
-          echo 'N1 participant/referral interaction regression passed in no-write preview mode.'
+          echo 'N1 participant/partner/referral interaction regression passed in no-write preview mode.'

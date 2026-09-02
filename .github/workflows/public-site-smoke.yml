@@ -43,6 +43,8 @@ jobs:
           test -f "$ROOT/n1-feedback-completion.js"
           test -f "$ROOT/post-cutover-live.js"
           test -f "$ROOT/live-feedback-20260824.js"
+          test -f "$ROOT/contact-polish-20260902.js"
+          test -f "$ROOT/contact-polish-20260902-smoke.mjs"
           test -f "$ROOT/takk.html"
           test -f "$ROOT/SOURCE_PARITY_MANIFEST_2026-08-18.json"
           grep -q 'naturalContentHeight' "$ROOT/site.js"
@@ -60,13 +62,14 @@ jobs:
           grep -q 'Gå videre til VIDA' "$ROOT/ser.html"
           grep -q 'Under lading' "$ROOT/via.html"
           grep -q 'n1-intake-safe.js' "$ROOT/kontakt.html"
+          grep -q 'contact-polish-20260902.js' "$ROOT/kontakt.html"
+          node "$ROOT/contact-polish-20260902-smoke.mjs"
 
-          # Preserve exact known bytes for the verified layered public source.
-          # site.js now sequences the owner-approved LIVE demo layer after canonical N1/post-cutover UX.
           test "$(git hash-object "$ROOT/site.js")" = '4131c4bba3940ad2e1085725d5fa51401c35ce9b'
           test "$(git hash-object "$ROOT/post-cutover-live.js")" = 'feb494f23f96c1955e841d97d3d764536bf0fa73'
           test "$(git hash-object "$ROOT/mobile-ux.css")" = '9512227a22ba281f94644887c5e723bedb8b02dd'
-          test "$(git hash-object "$ROOT/kontakt.html")" = '2f4664cc1a6aca8184c20960c90dafd452d1fecb'
+          test "$(git hash-object "$ROOT/kontakt.html")" = 'cae97f56bc657eb8b21d4f2acbbba9af114cd40a'
+          test "$(git hash-object "$ROOT/contact-polish-20260902.js")" = '7a38d8e87d52e400fa4ed237beecaca659656089'
 
           python - <<'PY'
           from pathlib import Path
