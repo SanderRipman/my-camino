@@ -5,7 +5,7 @@ const MOBILE_UX_VERSION='2026-08-18a';
 const MOBILE_BREAKPOINT=780;
 const COLLAPSE_AFTER=84;
 const RESTORE_AT=20;
-const NAVIGATION_IA_VERSION='2026-09-02a';
+const NAVIGATION_IA_VERSION='2026-09-02b';
 
 function addMobileStyles(){
   if(document.querySelector('link[data-aidme-mobile]'))return;
