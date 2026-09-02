@@ -25,7 +25,14 @@ must(participant,"return'YELLOW'",'ordinary open task becomes yellow participant
 must(participant,"return f?.key==='info_before_via'?'BLUE':'YELLOW'",'supplementary VÍA info is blue');
 must(participant,"tone:'RED'",'security gate is red');
 must(participant,"window.aidmeParticipantAttentionSnapshot=participantAttentionSnapshot",'presentation snapshot exposure');
-must(participant,"setCard(1,'Må nå'",'red overview metric');
+must(src,"el.textContent.trim()==='Må nå')el.textContent='Kritisk'",'participant visible red label polish');
+must(src,"Kritisk: må håndteres før du kan gå videre",'critical participant tooltip');
+must(src,"grid-template-columns:22px minmax(0,1fr) auto",'sidebar text/badge clearance');
+must(src,"gap:7px;padding-left:10px;padding-right:10px",'sidebar compact spacing');
+must(src,".sidebar .nav-badges{flex:0 0 auto;flex-wrap:nowrap}",'badge no-wrap geometry');
+must(src,".nav-count.red{background:#b4433f;color:#fff}",'strong red navigation badge');
+must(src,".pill.RED{background:#b4433f;color:#fff}",'strong red participant pill');
+must(src,".attention-chip.red{border-color:#a83e3a;background:#b4433f;color:#fff}",'strong red mobile attention chip');
 must(participant,"setCard(2,'Neste steg'",'yellow overview metric');
 must(participant,"setCard(3,'Info / valgfritt'",'blue overview metric');
 for(const forbidden of ['role_grants','client.from(','functions.invoke(','SUPABASE_SECRET_KEYS','service_role']){
@@ -34,4 +41,4 @@ for(const forbidden of ['role_grants','client.from(','functions.invoke(','SUPABA
 if(src.includes("$('#badgeTasks').innerHTML=navBadgeMarkup(red,yellow);$('#badgeOverview').innerHTML=navBadgeMarkup(red,yellow);$('#badgeParticipants').innerHTML=navBadgeMarkup(red,yellow);")){
   throw new Error('semantic badge extension must not reproduce the legacy identical-badge assignment');
 }
-console.log('Semantic navigation badge and participant attention invariants passed.');
+console.log('Semantic navigation badge, critical-copy and sidebar polish invariants passed.');
