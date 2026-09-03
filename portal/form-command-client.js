@@ -52,6 +52,37 @@ function ensureReturnTaskLink(){
   if(portalLink){portalLink.href=returnTaskHref();portalLink.textContent='Tilbake til oppgaven'}
   return link;
 }
+function completionReviewHref(submissionId){
+  const url=new URL(location.href);
+  url.searchParams.set('submission',submissionId);
+  url.searchParams.delete('latest');
+  return`${url.pathname}${url.search}`;
+}
+function completionBackTarget(){
+  if(returnTask)return{href:returnTaskHref(),label:'Tilbake til oppgaven'};
+  if(typeof isStaff==='function'&&!isStaff())return{href:'./',label:'Tilbake til min reise'};
+  return{href:'./form-runner.html',label:'Til Skjema & rutiner'};
+}
+function lockSubmittedForm(){
+  const form=document.querySelector('#dynamicForm');
+  if(!form)return;
+  form.classList.add('submitted-locked');
+  form.querySelectorAll('input,select,textarea,button').forEach(el=>{el.disabled=true});
+  const actions=form.querySelector('.runner-actions');
+  if(actions)actions.hidden=true;
+}
+function showCompletionState(submission){
+  document.querySelector('#formCompletionBackdrop')?.remove();
+  lockSubmittedForm();
+  const back=completionBackTarget();
+  const backdrop=document.createElement('div');
+  backdrop.id='formCompletionBackdrop';
+  backdrop.className='form-completion-backdrop';
+  backdrop.innerHTML=`<section class="form-completion-dialog" role="dialog" aria-modal="true" aria-labelledby="formCompletionTitle" aria-describedby="formCompletionText"><p class="eyebrow">Fullført · skrivebeskyttet</p><h2 id="formCompletionTitle">Skjemaet er lagret</h2><p id="formCompletionText">Versjon, deltaker og pilotkontekst er bevart. Den fullførte registreringen kan ikke redigeres her.</p><div class="form-completion-actions"><a class="primary" href="${completionReviewHref(submission.id)}">Se fullført</a><a class="ghost" href="${back.href}">${back.label}</a></div></section>`;
+  document.body.appendChild(backdrop);
+  document.body.classList.add('completion-open');
+  backdrop.querySelector('.primary')?.focus();
+}
 ensureReturnTaskLink();
 
 save=async function saveThroughCommand(status){
@@ -74,12 +105,13 @@ save=async function saveThroughCommand(status){
   const code=data?.error||(!data?.ok&&error?'FORM_COMMAND_FAILED':null);
   if(error||code){$('#formMessage').textContent=formError(code);return}
   const submission=data.submission;
-  $('#formMessage').textContent=status==='SUBMITTED'?'Skjema fullført. Versjon, deltaker og pilotkontekst er bevart.':'Utkast lagret – du kan fortsette senere.';
+  $('#formMessage').textContent=status==='SUBMITTED'?'Skjema fullført og skrivebeskyttet.':'Utkast lagret – du kan fortsette senere.';
   if(status==='DRAFT')currentDraft={id:submission.id};else currentDraft=null;
   if(status==='SUBMITTED'){
     const link=ensureReturnTaskLink();
     if(link){link.className='primary task-return-link';link.textContent='Tilbake til oppgaven og se oppdatert status'}
   }
   await loadSubmissions();
+  if(status==='SUBMITTED')showCompletionState(submission);
 };
 })();
