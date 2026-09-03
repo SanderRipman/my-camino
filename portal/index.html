@@ -12,6 +12,7 @@
   <title>AidMe VIDA · Portal</title>
   <link rel="manifest" href="./manifest.webmanifest?v=20260817b">
   <link rel="stylesheet" href="./styles.css?v=20260817b">
+  <link rel="stylesheet" href="./density.css?v=20260903a">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -82,8 +83,8 @@
 
       <div class="metric-grid">
         <article class="metric"><span>Åpne oppgaver</span><strong id="metricOpen">0</strong><small>tildelt / tilgjengelig</small></article>
-        <article class="metric"><span>Kritisk</span><strong id="metricRed">0</strong><small>rød status</small></article>
-        <article class="metric"><span>Trenger avklaring</span><strong id="metricYellow">0</strong><small>gul status</small></article>
+        <article class="metric"><span>Kritisk</span><strong id="metricRed">0</strong><small>prioritet / oppmerksomhet</small></article>
+        <article class="metric"><span>Trenger avklaring</span><strong id="metricYellow">0</strong><small>oppmerksomhet, ikke arbeidsstatus</small></article>
         <article class="metric"><span>Aktive deltakere</span><strong id="metricParticipants">0</strong><small id="metricPhaseMix">–</small></article>
       </div>
 
@@ -117,7 +118,7 @@
     </section>
 
     <section class="view" id="view-tasks">
-      <div class="section-head"><div><p class="eyebrow">Oppgaver</p><h2 id="tasksHeading">Tildelte oppgaver</h2><p>Trykk på en oppgave for kontekst, ansvar, rute og handling.</p></div></div>
+      <div class="section-head"><div><p class="eyebrow">Oppgaver</p><h2 id="tasksHeading">Tildelte oppgaver</h2><p>Trykk på en oppgave for kontekst, ansvar, rute og handling. <strong>Arbeidsstatus:</strong> Åpen / I gang / Ferdig. <strong>Oppmerksomhet:</strong> Kritisk / Avklar / Normal.</p></div></div>
       <article class="panel-card"><div class="task-filter-row"><button class="chip active" data-task-filter="OPEN">Åpne</button><button class="chip" data-task-filter="ALL">Alle</button></div><div id="taskList" class="task-list"></div></article>
     </section>
 
