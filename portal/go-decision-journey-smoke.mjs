@@ -8,10 +8,13 @@ const participantNext=read('./app-participant-next.js');
 const ops=read('./app-ops.js');
 const staffRouting=read('./app-go-decision.js');
 const runner=read('./form-runner.js');
+const formCommandClient=read('./form-command-client.js');
 const build=read('./build-app.mjs');
 const workflow=read('../supabase/functions/workflow-command/index.ts');
+const formCommand=read('../supabase/functions/form-command/index.ts');
 const decisionMigration=read('../supabase/migrations/20260822023000_go_decision_participant_handoff_v1.sql');
 const pilotMigration=read('../supabase/migrations/20260822024000_pilot_go_to_ser_ready_v1.sql');
+const demoPilotGateMigration=read('../supabase/migrations/20260903201000_pilot_go_demo_lab_exception_v1.sql');
 
 assert(decisionMigration.includes('INDIVIDUAL_GO_REQUIRES_PARTICIPANT_SUMMARY'),'Formal individual decision must require participant-safe communication');
 assert(decisionMigration.includes("'participant_agreement_ack'"),'GO must materialise the participant agreement handoff');
@@ -22,6 +25,17 @@ assert(decisionMigration.includes('PILOT_GO_REQUIRES_PARTICIPANT_AGREEMENT'),'Fi
 assert(decisionMigration.includes('PILOT_GO_REQUIRES_AGREEMENT_TASKS_CLOSED'),'Final Pilot-GO must require agreement review/ack tasks closed');
 assert(decisionMigration.includes('PILOT_GO_REQUIRES_PARTICIPANT_CONSENT'),'Linked participant must have explicit agreement consent before Pilot-GO');
 assert(decisionMigration.includes('participant_text')&&decisionMigration.includes('staff_text'),'Participant-safe summary and staff conditions must remain separate data paths');
+
+assert(demoPilotGateMigration.includes("pilot_status = 'DEMO'"),'Synthetic DEMO lab must bypass production-only participant agreement prerequisite gate');
+assert(demoPilotGateMigration.includes('PILOT_GO_REQUIRES_PARTICIPANT_AGREEMENT'),'DEMO exception migration must preserve participant agreement gate for non-DEMO pilots');
+assert(demoPilotGateMigration.includes('PILOT_GO_REQUIRES_AGREEMENT_TASKS_CLOSED'),'DEMO exception migration must preserve closed agreement-task gate for non-DEMO pilots');
+assert(demoPilotGateMigration.includes('PILOT_GO_REQUIRES_PARTICIPANT_CONSENT'),'DEMO exception migration must preserve participant consent gate for non-DEMO pilots');
+assert(formCommand.includes("'PILOT_GO_REQUIRES_PARTICIPANT_AGREEMENT'"),'Form command must surface participant-agreement Pilot-GO blocks instead of generic save failure');
+assert(formCommand.includes("'PILOT_GO_REQUIRES_AGREEMENT_TASKS_CLOSED'"),'Form command must surface open agreement-task Pilot-GO blocks');
+assert(formCommand.includes("'PILOT_GO_REQUIRES_PARTICIPANT_CONSENT'"),'Form command must surface missing consent Pilot-GO blocks');
+assert(formCommandClient.includes('Alle aktive deltakere må ha fullført deltakeravtalen'),'Portal must explain the participant-agreement Pilot-GO prerequisite');
+assert(formCommandClient.includes("if(returnTask)return{href:returnTaskHref(),label:'Tilbake til oppgaven'}"),'Completed forms must return to originating task when return context exists');
+assert(formCommandClient.includes("return{href:'./',label:'Til Oversikt'}"),'Staff form completion fallback must return to Overview');
 
 assert(pilotMigration.includes("'ser_start_ready'"),'Final Pilot-GO must create an explicit SER start handoff');
 assert(pilotMigration.includes('ser_start_task_cleanup'),'SER start handoff must close when SER actually starts');
