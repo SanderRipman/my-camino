@@ -118,7 +118,7 @@ setTimeout(applyRoleAwareHome,180);
 
 if(!document.querySelector('script[data-aggregate-analysis]')){
   const aggregateScript=document.createElement('script');
-  aggregateScript.src='./app-aggregate-analysis.js?v=20260903b';
+  aggregateScript.src='./app-aggregate-analysis.js?v=20260903c';
   aggregateScript.defer=true;
   aggregateScript.dataset.aggregateAnalysis='1';
   document.head.appendChild(aggregateScript);
