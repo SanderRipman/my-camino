@@ -24,6 +24,7 @@ const roleHomePath=path.join(dir,'app-role-home.js');
 const authReturnPath=path.join(dir,'app-auth-return.js');
 const returnContextPath=path.join(dir,'app-return-context.js');
 const demoLensPath=path.join(dir,'app-demo-lens.js');
+const mfaBrandingPath=path.join(dir,'app-mfa-branding.js');
 const outPath=path.join(dir,'app.js');
 let code=fs.readFileSync(sourcePath,'utf8');
 const ops=fs.readFileSync(opsPath,'utf8');
@@ -46,6 +47,7 @@ const roleHome=fs.readFileSync(roleHomePath,'utf8');
 const authReturn=fs.readFileSync(authReturnPath,'utf8');
 const returnContext=fs.readFileSync(returnContextPath,'utf8');
 const demoLens=fs.readFileSync(demoLensPath,'utf8');
+const mfaBranding=fs.readFileSync(mfaBrandingPath,'utf8');
 
 function replaceOnce(label,needle,replacement){
  const first=code.indexOf(needle);if(first<0)throw new Error(`${label}: source pattern missing`);if(code.indexOf(needle,first+1)>=0)throw new Error(`${label}: source pattern is not unique`);code=code.replace(needle,replacement);
@@ -104,5 +106,6 @@ code += '\n\n/* Role-aware home changes presentation only: participant journey, 
 code += '\n\n/* Protected auth return preserves a requested deep link through login/AAL2 without weakening the gate. */\n'+authReturn+'\n';
 code += '\n\n/* Return context preserves task -> form gate -> same task continuity without adding backend state. */\n'+returnContext+'\n';
 code += '\n\n/* Demo role lenses simplify testing presentation only; actual access remains grants/RLS/AAL2 and LAB owns physical role proof. */\n'+demoLens+'\n';
+code += '\n\n/* TOTP branding is presentation metadata only: stable AidMe issuer/friendly name, no auth/RLS bypass. */\n'+mfaBranding+'\n';
 fs.writeFileSync(outPath,code,'utf8');
 console.log(`Built ${path.relative(process.cwd(),outPath)} (${code.length} bytes)`);
