@@ -1,0 +1,27 @@
+name: Parallel language polish smoke
+
+on:
+  pull_request:
+    paths:
+      - 'portal/index.html'
+      - 'portal/admin.html'
+      - 'portal/welcome.html'
+      - 'portal/owners.html'
+      - 'portal/pilot-ops.html'
+      - 'portal/qa-role-pack.html'
+      - 'portal/language-polish-smoke.mjs'
+      - '.github/workflows/parallel-language-polish-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  copy-invariants:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify klarspråk presentation invariants
+        run: node portal/language-polish-smoke.mjs
