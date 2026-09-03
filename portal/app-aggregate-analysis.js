@@ -16,6 +16,10 @@ function ensureAggregateAnalysisStyle(){
     .aggregate-analysis-meta span{font-size:12px;border:1px solid #ddd6c8;border-radius:999px;padding:5px 9px;background:#fff}
   `;document.head.appendChild(style);
 }
+function hideLegacyAnalysisUx(){
+  if(!aggregateAnalysisOnly())return;
+  ['analysisMeta','analysisState','analysisLegend'].forEach(id=>{const el=document.querySelector(`#${id}`);if(el){el.innerHTML='';el.textContent='';el.classList.add('hidden')}});
+}
 function ensureAggregatePilotSelect(pilots,selectedId){
   const controls=document.querySelector('#view-analysis .analysis-controls');if(!controls)return;
   let label=document.querySelector('#aggregatePilotLabel');
@@ -28,6 +32,7 @@ function ensureAggregatePilotSelect(pilots,selectedId){
 }
 function adaptAggregateAnalysisPresentation(){
   ensureAggregateAnalysisStyle();
+  hideLegacyAnalysisUx();
   const view=document.querySelector('#view-analysis');if(!view)return;
   const heading=view.querySelector('.section-head h2');if(heading)heading.textContent='Aggregert utvikling og læring';
   const intro=view.querySelector('.section-head p:last-child');if(intro)intro.textContent='Se anonymiserte mønstre på pilotnivå. En liten pilot kan vise gjennomførbarhet, deltakeropplevelse og utvikling over tid – ikke bevise at programmet alene skapte endringen.';
@@ -44,6 +49,7 @@ function aggregateSummaryHost(){
   host=document.createElement('div');host.id='aggregateAnalysisSummary';host.style.marginTop='12px';chart.insertAdjacentElement('afterend',host);return host;
 }
 function renderAggregateEmpty(text){
+  hideLegacyAnalysisUx();
   drawChart(document.querySelector('#analysisChart'),[]);
   const host=aggregateStatusHost();if(host)host.innerHTML=`<div class="aggregate-analysis-note"><strong>Aggregert visning</strong>${escapeHtml(text)}</div>`;
   const summary=aggregateSummaryHost();if(summary)summary.innerHTML='';
@@ -64,6 +70,7 @@ async function renderAggregateAnalysis(){
   ensureAggregatePilotSelect(data?.pilots||[],aggregatePilotId);
   const points=(data?.points||[]).map(p=>({date:p.date,value:Number(p.value)}));
   const label=aggregateMetricLabels[metric]||metric;
+  hideLegacyAnalysisUx();
   drawChart(document.querySelector('#analysisChart'),points.length?[{label:'Gruppesnitt',dashed:false,values:points}]:[]);
   if(host){
     host.innerHTML=`<div class="aggregate-analysis-note"><strong>${escapeHtml(data?.pilot?.name||'Pilot')} · ${escapeHtml(label)}</strong>Ingen individuelle deltakere vises. Måledatoer med færre enn ${Number(data?.minGroupSize||3)} bidrag skjules.<div class="aggregate-analysis-meta"><span>${Number(data?.cohortSize||0)} deltakere i pilot</span><span>${points.length} aggregerte måledatoer</span>${Number(data?.suppressedDates||0)?`<span>${Number(data.suppressedDates)} datoer skjult</span>`:''}</div></div>`;
@@ -88,10 +95,41 @@ const aggregateBaseRenderAnalysis=renderAnalysis;
 renderAnalysis=function(){if(!aggregateAnalysisOnly())return aggregateBaseRenderAnalysis();return renderAggregateAnalysis()};
 const aggregateBaseRenderOverviewChart=renderOverviewChart;
 renderOverviewChart=function(){if(!aggregateAnalysisOnly())return aggregateBaseRenderOverviewChart();return renderAggregateOverview()};
+
+['analysisMetric','analysisPeriod'].forEach(id=>document.querySelector(`#${id}`)?.addEventListener('change',()=>{if(aggregateAnalysisOnly())setTimeout(renderAggregateAnalysis,25)}));
+window.addEventListener('resize',()=>{if(aggregateAnalysisOnly()&&document.querySelector('#view-analysis')?.classList.contains('active'))setTimeout(renderAggregateAnalysis,180)});
+
+const VIEW_STATE_PREFIX='aidme:portal-view:v1';
+let restoringPortalView=false;
+function viewStateKey(){const uid=session?.user?.id;return uid?`${VIEW_STATE_PREFIX}:${uid}`:null}
+function viewExistsAndAllowed(name){
+  if(!name||!document.querySelector(`#view-${name}`))return false;
+  const nav=document.querySelector(`.nav-item[data-view="${name}"]`);
+  if(nav&&(nav.classList.contains('hidden')||nav.hidden||getComputedStyle(nav).display==='none'))return false;
+  return true;
+}
+function savePortalView(name){
+  const key=viewStateKey();if(!key||restoringPortalView||!viewExistsAndAllowed(name))return;
+  try{sessionStorage.setItem(key,name)}catch{}
+}
+function restorePortalView(){
+  const key=viewStateKey();if(!key)return;
+  const params=new URLSearchParams(location.search);
+  if(params.get('returnTask')||params.get('returnView')||document.querySelector('#authReturnNotice'))return;
+  let name='';try{name=sessionStorage.getItem(key)||''}catch{}
+  if(!name||name==='overview'||!viewExistsAndAllowed(name))return;
+  restoringPortalView=true;
+  try{show(name)}finally{restoringPortalView=false}
+}
+const persistentBaseShow=show;
+show=function(name){const result=persistentBaseShow(name);savePortalView(name);return result};
+
 setTimeout(()=>{
+  restorePortalView();
   if(!aggregateAnalysisOnly())return;
+  hideLegacyAnalysisUx();
   if(document.querySelector('#view-analysis')?.classList.contains('active'))renderAnalysis();
   if(document.querySelector('#view-overview')?.classList.contains('active'))renderOverviewChart();
-},260);
+},360);
 
 })();
