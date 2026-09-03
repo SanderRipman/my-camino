@@ -61,7 +61,7 @@ function completionReviewHref(submissionId){
 function completionBackTarget(){
   if(returnTask)return{href:returnTaskHref(),label:'Tilbake til oppgaven'};
   if(typeof isStaff==='function'&&!isStaff())return{href:'./',label:'Tilbake til min reise'};
-  return{href:'./form-runner.html',label:'Til Skjema & rutiner'};
+  return{href:'./',label:'Til Oversikt'};
 }
 function lockSubmittedForm(){
   const form=document.querySelector('#dynamicForm');
