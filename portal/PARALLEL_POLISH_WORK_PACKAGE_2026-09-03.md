@@ -8,6 +8,7 @@ This branch is a supplement, never a competing source of truth.
 ## Branch / integration contract
 - Work only on `qa/parallel-polish-20260903`.
 - Branch base is `qa/myfb-008-staff` as of creation.
+- Treat that base snapshot as frozen: **do not rebase, merge, or pull newer `qa/myfb-008-staff` into this branch autonomously**. The main chat will integrate later.
 - Do **not** push to `main` or `qa/myfb-008-staff`.
 - Do **not** merge the branch or PR.
 - Do **not** deploy to `my.aidme.no` production.
@@ -90,6 +91,7 @@ The main chat owns these until MYFB-008 staff gate is finished:
 - No redesign from scratch.
 - Do not spend time on speculative features or new frameworks.
 - Stop only for an irreversible/security-sensitive choice; otherwise choose the simpler safe option.
+- A branch/Deploy Preview may be used only for static/presentational inspection. Do not infer authenticated backend correctness from a preview if its origin is not explicitly supported by current Supabase CORS.
 
 ## Required handoff at end
 Update this file with a final section `PARALLEL RESULT` containing:
