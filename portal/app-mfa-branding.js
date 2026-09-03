@@ -2,7 +2,7 @@
 'use strict';
 
 const MFA_TOTP_ISSUER='AidMe';
-const MFA_TOTP_FRIENDLY_NAME='AidMe';
+const MFA_TOTP_FRIENDLY_NAME='AidMe VIDA';
 const QA_ROLE_LABELS={
   via_owner:'VÍA-ansvarlig',
   clinical_professional:'Relevant fagperson',
@@ -23,7 +23,7 @@ function mfaEnrollmentIdentity(){
   return role?`${role} · ${email}`:email;
 }
 
-startMfaEnrollment=async function(){
+const brandedStartMfaEnrollment=async function(){
   $('#mfaEnrollMessage').textContent='Oppretter sikker AidMe-faktor…';
   const {data,error}=await client.auth.mfa.enroll({
     factorType:'totp',
@@ -40,4 +40,19 @@ startMfaEnrollment=async function(){
   $('#mfaEnrollPanel').classList.remove('hidden');
   $('#mfaEnrollMessage').textContent=`AidMe · ${mfaEnrollmentIdentity()}. Skann QR-koden og bekreft med seks sifre.`;
 };
+
+// Core binds the original enrollment function before this late branding layer loads.
+// Replace that one button once so future enrollments use the branded handler instead
+// of leaving the already-bound unbranded callback in place.
+startMfaEnrollment=brandedStartMfaEnrollment;
+function bindBrandedMfaStart(){
+  const current=document.querySelector('#startMfa');
+  if(!current||current.dataset.aidmeMfaBound==='1')return;
+  const replacement=current.cloneNode(true);
+  replacement.dataset.aidmeMfaBound='1';
+  current.replaceWith(replacement);
+  replacement.addEventListener('click',brandedStartMfaEnrollment);
+}
+bindBrandedMfaStart();
+
 })();
