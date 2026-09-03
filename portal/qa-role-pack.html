@@ -17,15 +17,16 @@
   <section id="workspace" class="hidden">
     <article class="panel-card">
       <p class="eyebrow">Syntetisk testpakke</p><h2>Test portalen som faktiske roller</h2>
-      <p>Knappen oppretter eller fornyer fiktive <code>@example.invalid</code>-kontoer. Staff-grants varer i 36 timer. Hver konto må sette opp sin egen Authenticator før sensitive AAL2-flater kan åpnes.</p>
-      <div class="qa-note"><strong>Ingen reelle data.</strong> Kontoene er kun koblet til eksisterende DEMO-deltakere/pilot. Passordene vises bare i denne responsen og lagres ikke i portalen.</div>
+      <p>Ny rollepakke oppretter eller oppdaterer fiktive <code>@example.invalid</code>-kontoer og sikrer staff-grants i minst én uke. Hver konto må sette opp sin egen Authenticator før sensitive AAL2-flater kan åpnes.</p>
+      <div class="qa-note"><strong>Ingen reelle data.</strong> Kontoene er kun koblet til DEMO-data. <strong>Opprett ny rollepakke</strong> kan rotere midlertidige passord og rolle-grants, men skal ikke slette nyttig syntetisk testhistorikk. <strong>Forny én uke</strong> forlenger bare eksisterende QA-grants og beholder passord, MFA og testdata.</div>
       <div class="qa-map" aria-label="Roller i syntetisk testpakke">
         <div><b>Deltaker + VÍA</b><span>Deltaker · VÍA-ansvarlig · relevant fagperson</span></div>
         <div><b>SER + beredskap</b><span>SER-/turleder · logistikk · programleder</span></div>
         <div><b>VIDA + styring</b><span>VIDA-eier · prosjekteier · observatør · evaluator</span></div>
       </div>
       <p><strong>Systemadministrator</strong> testes med den eksisterende eier/admin-kontoen. <strong>Break-glass</strong> opprettes ikke som rutinekonto; nødtilgang skal være særskilt, tidsavgrenset, begrunnet og auditert.</p>
-      <div class="qa-actions"><button id="createPack" class="primary">Opprett / forny rollepakke</button><button id="hideCredentials" class="ghost hidden">Skjul passord</button><button id="cleanupPack" class="danger-soft">Deaktiver testkontoer</button></div>
+      <div class="qa-actions"><button id="createPack" class="primary">Opprett ny rollepakke</button><button id="renewPack" class="ghost hidden">Forny én uke</button><button id="hideCredentials" class="ghost hidden">Skjul passord</button><button id="cleanupPack" class="danger-soft">Deaktiver testkontoer</button></div>
+      <p id="packStatus" class="privacy-note">Leser rollepakke-status…</p>
       <p id="message" class="message" aria-live="polite"></p>
     </article>
     <article id="resultCard" class="panel-card hidden">
@@ -36,5 +37,5 @@
     <article class="panel-card"><p class="eyebrow">Testrekkefølge</p><h2>Reise + positiv og negativ tilgang</h2><ol><li>Start med rollen slik den faktisk møter portalen: én tydelig neste handling, ikke dokumentmenyen.</li><li>Følg N1→N2-handoff: interesse → mottak/triage → VÍA, uten å anta at interesse betyr godkjenning.</li><li>Test riktig in-scope deltaker/pilot og følg indikator → kø → oppgave → kontekstfelt → eier/rute → riktig gate/skjema → tilbake.</li><li>Forsøk en out-of-scope deltaker eller direkte URL og kontroller at låst tilgang ikke lekker informasjon eller blir blindvei.</li><li>Test før og etter MFA/AAL2.</li><li>Kontroller at formelle beslutninger går via riktig skjema/gate og ikke gjennom tilfeldig feltredigering.</li><li>Kontroller SER fra mobilperspektiv: dagens etappe, kort innsjekk, pause/tilpasning og operativt minimum.</li><li>Kontroller SER→VIDA: navngitt VIDA-eier, første handling innen 72 timer og én levende 14/30/90-plan.</li><li>Noter alt som føles ulogisk selv om sikkerheten teknisk er korrekt.</li></ol></article>
   </section>
 </main>
-<script src="./qa-role-pack.js"></script>
+<script src="./qa-role-pack.js?v=20260903b"></script>
 </body></html>
