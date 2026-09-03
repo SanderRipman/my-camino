@@ -113,3 +113,130 @@ Oppdater denne filen med seksjon `PARALLEL RESULT` og oppgi:
 - `NEEDS_MAIN_CHAT` for punkter som krever beslutning.
 
 Ikke merge eller deploy. Ikke skriv inn nye produktbeslutninger i SharePoint-styringen; hovedchatten integrerer godkjent resultat ved neste checkpoint.
+
+---
+
+# PARALLEL RESULT
+
+Fullført 2026-09-03 på isolert branch `qa/parallel-language-polish-20260903`.
+
+Ingen production-deploy, merge, Supabase-/RLS-/capability-/grant-/MFA-endring, form-/beslutningsendring, returnContext-/routingendring eller fysisk MYFB-008-stateendring er gjort. SharePoint er brukt som read-only faglig fasit; kanoniske styringsfiler er ikke skrevet til.
+
+## Kildegrunnlag brukt før endring
+- `CAMINO_LIVE_START_HER.md`, aktiv Project State og Live Handover.
+- Beslutningslogg, Dokumentregister og Neste steg.
+- `AidMe_VIDA_programidentitet_og_kjernefortelling_v0_2_UTKAST.docx`.
+- `VIA_SER_VIDA_deltakerlop_sikkerhet_og_minimumskjerne_v0_3_UTKAST.docx`.
+- `Fagroller_ansvar_og_etiske_grenser_v0_3_UTKAST.docx`.
+- aktiv malpakke / `00_README_AKTIV_MALPAKKE.md`.
+- GitHub `USER_JOURNEY.md`, `END_TO_END_ROLE_JOURNEY.md` og `STREAMLINE_ROLE_FLOW_2026-08-24.md`.
+
+Språkendringene følger særlig disse etablerte prinsippene: neste handling først, én opplysning registreres ved riktig kilde én gang, minst nødvendig data, tydelig ansvar, frivillighet og menneskelig forklaring uten å svekke formelle sikkerhetskrav.
+
+## Inventar
+Eget P1/P2/P3-inventar er lagret i `portal/PARALLEL_LANGUAGE_INVENTORY_2026-09-03.md`.
+
+Hovedmønstre:
+1. internsjargong i primærtekst (`UI`, `scope`, `gate`, tekniske systemforklaringer),
+2. systemarkitektur forklart før brukerens neste handling,
+3. QA-/admintekst som var presis, men unødvendig teknisk før menneskelig forklaring.
+
+## Endret
+### `portal/index.html`
+- beta-banner beskriver portalen og kontrollene med vanlige ord i stedet for `UI` og `produksjonsgater`;
+- deltaker-/oppgaveintro forklarer konkret hva brukeren finner;
+- Skjema & rutiner forklarer én registrering / riktig rolle i stedet for intern lagringsarkitektur;
+- gammel skjemademo er tydelig merket som utviklingsreferanse og ikke sted for reelle opplysninger;
+- dokumentopplasting bruker vanlig språk fremfor `lagrings-QA` / `metadata klargjort`;
+- tofaktor forklares som `bekreftet tofaktor (AAL2)`;
+- deaktivert kontaktfunksjon beskrives som ikke åpnet ennå, ikke som intern utviklingsblokk.
+
+### `portal/admin.html`
+- AAL2 forklares som bekreftet tofaktor;
+- `Kodenavn i operativ arbeidsflate` er forenklet til `Kodenavn i arbeidsflaten`;
+- sikkerhetsforklaring er snudd fra nettleser-/adminsjargong til `Rettigheter kontrolleres på serveren`, med `system_admin` beholdt sekundært som teknisk bevis.
+
+### `portal/welcome.html`
+- onboarding forklarer hva brukeren gjør nå og hva som skjer etter lagring, ut fra deltakerreise eller arbeidsrolle.
+
+### `portal/owners.html`
+- synlig `scope` og `gate` er erstattet med `tilgang` og konkret krav;
+- navngitt VIDA-eier er fortsatt eksplisitt og ufravikelig;
+- teknisk `oppgavemotor` er erstattet med vanlig forklaring om overganger og oppgaver.
+
+### `portal/pilot-ops.html`
+- `SER-/pilottilgang` er konkretisert til tilgang til denne SER-gruppen;
+- `Gate / styring` er erstattet med `Før oppstart`;
+- formelt `Pilot-GO` er beholdt og teksten sier fortsatt tydelig at det må være godkjent før SER starter;
+- pause, kortere etappe, transport og avbrudd står fortsatt som legitime sikkerhetstiltak.
+
+### `portal/qa-role-pack.html`
+- `Rolle- og scope-QA` → `Rolle- og tilgangstest (QA)`;
+- RLS/AAL2 beholdes, men får menneskelig forklaring først;
+- `staff-grants` / `rolle-grants` er erstattet med tilganger/rolletilganger;
+- Break-glass forklares som midlertidig nødtilgang, samtidig som det tekniske navnet beholdes;
+- `in-scope/out-of-scope`, `handoff` og `gate` i testrekkefølgen er erstattet med konkret tillatt/avvist tilgang, overgang og kontrollpunkt;
+- `Scope`-kolonnen heter nå `Tilgang`.
+
+## Test- og regresjonsvern
+Nye filer:
+- `portal/language-polish-smoke.mjs`
+- `.github/workflows/parallel-language-polish-smoke.yml`
+
+Smoken kontrollerer både klarspråksforbedringene og at nødvendige formelle/sikkerhetsmessige begreper ikke forsvinner, blant annet:
+- VÍA → SER → VIDA → ny VÍA,
+- GO/NO-GO,
+- navngitt VIDA-eier,
+- Pilot-GO,
+- AAL2,
+- RLS,
+- `system_admin`,
+- Break-glass og direkte-URL-negativtest i QA.
+
+## Tester/resultat på PR-head før dette resultatnotatet
+PASS:
+- `Parallel language polish smoke` run #1.
+- `Portal smoke` run #262.
+- `Netlify site-aware router QA` run #89.
+- `Portal invite and onboarding smoke` run #28, jobb `smoke` PASS.
+
+Ingen eksisterende test ble svekket eller slettet for å få grønt resultat.
+
+## Filer berørt
+- `.github/workflows/parallel-language-polish-smoke.yml` – ny, isolert copy-smoke.
+- `portal/PARALLEL_LANGUAGE_INVENTORY_2026-09-03.md` – nytt språk-inventar.
+- `portal/PARALLEL_LANGUAGE_POLISH_WORK_PACKAGE_2026-09-03.md` – dette resultatet.
+- `portal/admin.html` – statisk mikrocopy.
+- `portal/index.html` – statisk mikrocopy.
+- `portal/language-polish-smoke.mjs` – ny deterministisk klarspråk-smoke.
+- `portal/owners.html` – statisk mikrocopy.
+- `portal/pilot-ops.html` – statisk mikrocopy.
+- `portal/qa-role-pack.html` – QA/LAB-mikrocopy, ingen credential-/rollepakkeendring.
+- `portal/welcome.html` – onboarding-mikrocopy.
+
+## Kun foreslått / bevisst ikke endret
+- dynamisk copy i `app-context.js`, `app-return-context.js`, `app-go-decision.js`, `app-ser-vida*.js` og tilsvarende rolle-/handofflag;
+- aktive `form-runner`-tekster og formdefinisjoner under fysisk MYFB-008;
+- formelle status-/beslutningsverdier;
+- routing/deep-links/refresh-bevaring;
+- SOS-/lokasjonsavsnittet med DPIA/beredskaps-/tilgangsregler er ikke omskrevet autonomt fordi en klarspråksendring kan påvirke personvern-/sikkerhetsbetydning;
+- `Mottak og triage` beholdes foreløpig som intern staff-betegnelse; fysisk/eksisterende N2-smoke beskytter også denne implementeringsreferansen.
+
+## NEEDS_MAIN_CHAT
+1. Etter fysisk MYFB-008: vurder en kontrollert klarspråksrunde i dynamiske rolle-/kontekst-/handofftekster. Dette må gjøres sammen med eksisterende rolle- og workflow-smokes, ikke som global utskifting.
+2. Vurder brukerrettet klarspråk for SOS/lokasjon/DPIA-teksten sammen med personvern-/beredskapsansvarlig; juridisk/sikkerhetsmessig betydning skal ikke forenkles ved gjetning.
+3. Vurder om internbetegnelsen `triage` bør beholdes i staff-flaten eller forklares som `mottak og første vurdering`. Ingen endring er gjort fordi begrepet inngår i aktiv N2-implementerings-/QA-referanse.
+4. Dersom de samme tekstene senere får eksplisitte NO/EN-par, oppdater engelsk kontrollert etter norsk godkjenning. Det ble ikke gjettet frem nye engelske speil i dette sporet.
+
+## Konfliktkontroll mot `main`
+Ved siste read-only kontroll før dette resultatnotatet var `main` fortsatt nøyaktig baseline `09895d2ffe6c50cd9db56c361d1294fbbf46ff45`. Branchen var derfor `behind_by: 0`, og ingen nyere `main`-konflikt var til stede.
+
+## READY_TO_REVIEW
+**YES.**
+
+DRAFT PR: **#123 – `Polish: klarspråk og mikrocopy i portal`**
+- base: `main`
+- head: `qa/parallel-language-polish-20260903`
+- status: DRAFT / åpen / ikke merget
+
+Hovedchatten avgjør eventuell integrasjon. Ikke merge eller deploy fra dette parallellsporet.
