@@ -11,20 +11,20 @@
 </head>
 <body>
 <main class="qa-wrap">
-  <header class="topbar"><div><p class="eyebrow">LAB · kun syntetiske data</p><h1>Rolle- og scope-QA</h1></div><div class="top-actions"><span id="securityPill" class="security-pill">Kontrollerer…</span><a class="ghost" href="./admin.html">Administrasjon</a><a class="ghost" href="./">Portal</a></div></header>
-  <article class="preview-strip"><strong>Formål:</strong> Test den samme reisen som faktiske roller med ekte RLS og AAL2 – ikke bare visuell simulering. Trygghet følger VÍA, SER og VIDA; det er et fundament, ikke et fjerde steg.</article>
+  <header class="topbar"><div><p class="eyebrow">LAB · kun syntetiske data</p><h1>Rolle- og tilgangstest (QA)</h1></div><div class="top-actions"><span id="securityPill" class="security-pill">Kontrollerer…</span><a class="ghost" href="./admin.html">Administrasjon</a><a class="ghost" href="./">Portal</a></div></header>
+  <article class="preview-strip"><strong>Formål:</strong> Test den samme reisen som faktiske roller med de samme tilgangsreglene som i portalen (RLS) og tofaktor (AAL2) – ikke bare som visuell simulering. Trygghet følger VÍA, SER og VIDA; det er et fundament, ikke et fjerde steg.</article>
   <article id="blocked" class="panel-card warning-card hidden"><h2>Rolle-QA er låst</h2><p id="blockedText"></p></article>
   <section id="workspace" class="hidden">
     <article class="panel-card">
       <p class="eyebrow">Syntetisk testpakke</p><h2>Test portalen som faktiske roller</h2>
-      <p>Ny rollepakke oppretter eller oppdaterer fiktive <code>@example.invalid</code>-kontoer og sikrer staff-grants i minst én uke. Hver konto må sette opp sin egen Authenticator før sensitive AAL2-flater kan åpnes.</p>
-      <div class="qa-note"><strong>Ingen reelle data.</strong> Kontoene er kun koblet til DEMO-data. <strong>Opprett ny rollepakke</strong> kan rotere midlertidige passord og rolle-grants, men skal ikke slette nyttig syntetisk testhistorikk. <strong>Forny én uke</strong> forlenger bare eksisterende QA-grants og beholder passord, MFA og testdata.</div>
+      <p>Ny rollepakke oppretter eller oppdaterer fiktive <code>@example.invalid</code>-kontoer og sikrer tilganger for medarbeiderrollene i minst én uke. Hver konto må sette opp sin egen Authenticator før sensitive flater kan åpnes med bekreftet tofaktor (AAL2).</p>
+      <div class="qa-note"><strong>Ingen reelle data.</strong> Kontoene er kun koblet til DEMO-data. <strong>Opprett ny rollepakke</strong> kan rotere midlertidige passord og rolletilganger, men skal ikke slette nyttig syntetisk testhistorikk. <strong>Forny én uke</strong> forlenger bare eksisterende QA-tilganger og beholder passord, MFA og testdata.</div>
       <div class="qa-map" aria-label="Roller i syntetisk testpakke">
         <div><b>Deltaker + VÍA</b><span>Deltaker · VÍA-ansvarlig · relevant fagperson</span></div>
         <div><b>SER + beredskap</b><span>SER-/turleder · logistikk · programleder</span></div>
         <div><b>VIDA + styring</b><span>VIDA-eier · prosjekteier · observatør · evaluator</span></div>
       </div>
-      <p><strong>Systemadministrator</strong> testes med den eksisterende eier/admin-kontoen. <strong>Break-glass</strong> opprettes ikke som rutinekonto; nødtilgang skal være særskilt, tidsavgrenset, begrunnet og auditert.</p>
+      <p><strong>Systemadministrator</strong> testes med den eksisterende eier/admin-kontoen. <strong>Midlertidig nødtilgang (Break-glass)</strong> opprettes ikke som rutinekonto; nødtilgang skal være særskilt, tidsavgrenset, begrunnet og auditert.</p>
       <div class="qa-actions"><button id="createPack" class="primary">Opprett ny rollepakke</button><button id="renewPack" class="ghost hidden">Forny én uke</button><button id="hideCredentials" class="ghost hidden">Skjul passord</button><button id="cleanupPack" class="danger-soft">Deaktiver testkontoer</button></div>
       <p id="packStatus" class="privacy-note">Leser rollepakke-status…</p>
       <p id="message" class="message" aria-live="polite"></p>
@@ -32,9 +32,9 @@
     <article id="resultCard" class="panel-card hidden">
       <div class="card-head"><div><p class="eyebrow">Testkontoer</p><h2>Åpne privat vindu og logg inn rolle for rolle</h2></div></div>
       <p>Test først AAL1-begrensningen, sett deretter opp MFA og test AAL2. Kontroller også at direkte URL til en forbudt modul fortsatt avvises.</p>
-      <div style="overflow:auto"><table class="qa-table"><thead><tr><th>Rolle</th><th>Scope</th><th>E-post</th><th>Midlertidig passord</th><th>Utløp</th></tr></thead><tbody id="accounts"></tbody></table></div>
+      <div style="overflow:auto"><table class="qa-table"><thead><tr><th>Rolle</th><th>Tilgang</th><th>E-post</th><th>Midlertidig passord</th><th>Utløp</th></tr></thead><tbody id="accounts"></tbody></table></div>
     </article>
-    <article class="panel-card"><p class="eyebrow">Testrekkefølge</p><h2>Reise + positiv og negativ tilgang</h2><ol><li>Start med rollen slik den faktisk møter portalen: én tydelig neste handling, ikke dokumentmenyen.</li><li>Følg N1→N2-handoff: interesse → mottak/triage → VÍA, uten å anta at interesse betyr godkjenning.</li><li>Test riktig in-scope deltaker/pilot og følg indikator → kø → oppgave → kontekstfelt → eier/rute → riktig gate/skjema → tilbake.</li><li>Forsøk en out-of-scope deltaker eller direkte URL og kontroller at låst tilgang ikke lekker informasjon eller blir blindvei.</li><li>Test før og etter MFA/AAL2.</li><li>Kontroller at formelle beslutninger går via riktig skjema/gate og ikke gjennom tilfeldig feltredigering.</li><li>Kontroller SER fra mobilperspektiv: dagens etappe, kort innsjekk, pause/tilpasning og operativt minimum.</li><li>Kontroller SER→VIDA: navngitt VIDA-eier, første handling innen 72 timer og én levende 14/30/90-plan.</li><li>Noter alt som føles ulogisk selv om sikkerheten teknisk er korrekt.</li></ol></article>
+    <article class="panel-card"><p class="eyebrow">Testrekkefølge</p><h2>Reise + tillatt og avvist tilgang</h2><ol><li>Start med rollen slik den faktisk møter portalen: én tydelig neste handling, ikke dokumentmenyen.</li><li>Følg overgangen interesse → mottak → VÍA, uten å anta at interesse betyr godkjenning.</li><li>Test en deltaker/pilot rollen skal ha tilgang til, og følg indikator → kø → oppgave → relevant felt → eier/rute → riktig kontrollpunkt/skjema → tilbake.</li><li>Test deretter en deltaker/pilot rollen ikke skal ha tilgang til, eller bruk en direkte URL, og kontroller at låst tilgang ikke lekker informasjon eller blir en blindvei.</li><li>Test før og etter MFA/AAL2.</li><li>Kontroller at formelle beslutninger går via riktig skjema/kontrollpunkt og ikke gjennom tilfeldig feltredigering.</li><li>Kontroller SER fra mobilperspektiv: dagens etappe, kort innsjekk, pause/tilpasning og operativt minimum.</li><li>Kontroller SER→VIDA: navngitt VIDA-eier, første handling innen 72 timer og én levende 14/30/90-plan.</li><li>Noter alt som føles ulogisk selv om sikkerheten teknisk er korrekt.</li></ol></article>
   </section>
 </main>
 <script src="./qa-role-pack.js?v=20260903b"></script>

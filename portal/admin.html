@@ -26,7 +26,7 @@
       <a class="nav-item" href="./#settings"><span class="nav-num">09</span><b>Innstillinger</b></a>
     </nav>
     <div class="phase-key"><div><i class="dot via"></i>VÍA · Før</div><div><i class="dot ser"></i>SER · Under</div><div><i class="dot vida"></i>VIDA · Etter</div></div>
-    <p class="demo-note">Administrasjon krever AAL2 og aktiv systemadministratorrolle.</p>
+    <p class="demo-note">Administrasjon krever bekreftet tofaktor (AAL2) og aktiv systemadministratorrolle.</p>
   </aside>
 
   <main class="workspace">
@@ -45,7 +45,7 @@
             <label><span>Kontotype</span><select id="inviteType"><option value="participant">Deltaker</option><option value="staff">Medarbeider / partner</option></select></label>
             <label><span>E-post</span><input id="inviteEmail" type="email" autocomplete="off" required placeholder="navn@eksempel.no"></label>
             <div id="participantInviteFields" class="admin-subgrid">
-              <label><span>Kodenavn i operativ arbeidsflate</span><input id="inviteCodeName" maxlength="40" placeholder="f.eks. Nordlys-07"><small>Navn/identitet holdes separat. Kodenavnet brukes i operative deltakeroversikter.</small></label>
+              <label><span>Kodenavn i arbeidsflaten</span><input id="inviteCodeName" maxlength="40" placeholder="f.eks. Nordlys-07"><small>Navn/identitet holdes separat. Kodenavnet brukes i operative deltakeroversikter.</small></label>
               <label><span>Pilot / gruppe (valgfritt)</span><select id="invitePilot"><option value="">Ikke tildel ennå</option></select></label>
             </div>
             <input id="existingParticipantId" type="hidden">
@@ -80,7 +80,7 @@
         <div id="accessList" class="access-list"><p>Laster…</p></div>
       </article>
 
-      <article class="panel-card"><p class="eyebrow">Sikkerhetsregel</p><h2>Ingen skjult adminmakt i nettleseren</h2><p>Serverfunksjonene kontrollerer gyldig innlogging, AAL2 og aktiv <code>system_admin</code> før invitasjon, deltakerkobling, rolleendring eller tilbakekalling. Manipulerte knapper i nettleseren gir derfor ikke ekstra rettigheter.</p></article>
+      <article class="panel-card"><p class="eyebrow">Sikkerhetsregel</p><h2>Rettigheter kontrolleres på serveren</h2><p>Før invitasjon, deltakerkobling, rolleendring eller tilbakekalling kontrollerer systemet gyldig innlogging, bekreftet tofaktor (AAL2) og aktiv systemadministratorrolle (<code>system_admin</code>). Å endre knapper eller felter i nettleseren gir derfor ikke ekstra tilgang.</p></article>
     </section>
   </main>
 </div>

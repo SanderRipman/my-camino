@@ -71,7 +71,7 @@
       </div>
     </header>
 
-    <article class="preview-strip"><strong>Beta:</strong> Flyt, roller og UI testes med fiktive opplysninger. Reelle helse- og deltakeropplysninger er sperret inntil personvern-/produksjonsgatene er lukket.</article>
+    <article class="preview-strip"><strong>Beta:</strong> Vi tester fortsatt portalens flyt og roller med fiktive opplysninger. Reelle helse- og deltakeropplysninger er sperret til personvern- og produksjonskontrollene er godkjent.</article>
 
     <section class="view active" id="view-overview">
       <article id="accessPending" class="panel-card warning-card hidden"><p class="eyebrow">Tilgang</p><h2>Kontoen er ikke aktivert ennå</h2><p>Du er innlogget, men ingen deltakerreise eller arbeidsrolle er knyttet til kontoen.</p></article>
@@ -112,12 +112,12 @@
     </section>
 
     <section class="view" id="view-participants">
-      <div class="section-head"><div><p class="eyebrow">Deltakerløp</p><h2 id="participantsHeading">Deltakere</h2><p id="participantsIntro">Velg en deltaker for status, dagens kontekst og neste oppfølging.</p></div></div>
+      <div class="section-head"><div><p class="eyebrow">Deltakerløp</p><h2 id="participantsHeading">Deltakere</h2><p id="participantsIntro">Velg en deltaker for status, dagens situasjon og neste oppfølging.</p></div></div>
       <div class="participant-layout"><div id="participantList" class="participant-list"></div><article id="participantDetail" class="panel-card participant-detail"></article></div>
     </section>
 
     <section class="view" id="view-tasks">
-      <div class="section-head"><div><p class="eyebrow">Oppgaver</p><h2 id="tasksHeading">Tildelte oppgaver</h2><p>Trykk på en oppgave for kontekst, ansvar, rute og handling.</p></div></div>
+      <div class="section-head"><div><p class="eyebrow">Oppgaver</p><h2 id="tasksHeading">Tildelte oppgaver</h2><p>Trykk på en oppgave for å se hva den gjelder, hvem som har ansvar, eventuell rute og neste handling.</p></div></div>
       <article class="panel-card"><div class="task-filter-row"><button class="chip active" data-task-filter="OPEN">Åpne</button><button class="chip" data-task-filter="ALL">Alle</button></div><div id="taskList" class="task-list"></div></article>
     </section>
 
@@ -141,14 +141,14 @@
     </section>
 
     <section class="view" id="view-forms">
-      <div class="section-head"><div><p class="eyebrow">Skjema & rutiner</p><h2>Én reise · minst mulig dobbelføring</h2><p>Vi gjenbruker den digitaliserte malpakken fra tidligere arbeidsflate, men lagringen flyttes kontrollert til den nye rolle- og sikkerhetsmodellen.</p></div></div>
+      <div class="section-head"><div><p class="eyebrow">Skjema & rutiner</p><h2>Én reise · minst mulig dobbelføring</h2><p>Opplysninger skal registreres ett sted og bare vises til riktig rolle. Skjemaene følger den samme VÍA–SER–VIDA-reisen.</p></div></div>
       <div id="formLibrary" class="form-library"></div>
-      <article class="panel-card reference-card"><strong>Designreferanse tilgjengelig</strong><p>Den tidligere digitale skjemaflyten beholdes under utviklingen som referanse for felter, interaksjon og flyt. Den gamle lokale lagringen skal ikke brukes til reelle data.</p><a class="ghost link-btn" href="/vida/forms.html" target="_blank" rel="noopener">Åpne tidligere demo</a></article>
+      <article class="panel-card reference-card"><strong>Tidligere skjemademo</strong><p>Brukes bare som utviklingsreferanse for felter og flyt. Ikke legg inn reelle opplysninger.</p><a class="ghost link-btn" href="/vida/forms.html" target="_blank" rel="noopener">Åpne tidligere demo</a></article>
     </section>
 
     <section class="view" id="view-documents">
-      <div class="section-head"><div><p class="eyebrow">Personlig arbeidsarkiv</p><h2>Mine dokumenter</h2><p>Dokumenter, bilder og arbeidsrelaterte vedlegg skal kunne samles her med riktig tilgang og klassifisering.</p></div><button class="primary" disabled>Opplasting aktiveres etter lagrings-QA</button></div>
-      <article class="panel-card"><div id="documentList" class="document-list"></div><p class="privacy-note">Metadata er klargjort. Filopplasting åpnes først når lagringsområde, sletting, eksport og tilgangslogging er ferdig testet.</p></article>
+      <div class="section-head"><div><p class="eyebrow">Personlig arbeidsarkiv</p><h2>Mine dokumenter</h2><p>Dokumenter, bilder og arbeidsrelaterte vedlegg skal kunne samles her med riktig tilgang og klassifisering.</p></div><button class="primary" disabled>Opplasting er ikke åpnet ennå</button></div>
+      <article class="panel-card"><div id="documentList" class="document-list"></div><p class="privacy-note">Vi åpner filopplasting først når lagring, sletting, eksport og tilgangslogging er ferdig testet.</p></article>
     </section>
 
     <section class="view" id="view-settings">
@@ -162,14 +162,14 @@
 
     <section class="view" id="view-security">
       <div class="section-head"><div><p class="eyebrow">Sikkerhet</p><h2>Konto og tofaktor</h2></div></div>
-      <div class="two-col settings-grid"><article class="panel-card"><h3>Tofaktorautentisering</h3><p id="mfaStatus">Kontrollerer…</p><button id="startMfa" class="primary hidden">Sett opp Authenticator</button><button id="startChallenge" class="primary hidden">Bekreft med Authenticator</button><p class="privacy-note">Arbeidsroller og sensitive moduler krever AAL2.</p></article><article class="panel-card"><h3>Tilgangsprinsipp</h3><p>Deltakere ser egne opplysninger. Medarbeidere får tilgang etter rolle, mandat, pilot og/eller deltakeromfang. Systemadministrator er ikke automatisk faglig innsyn.</p></article></div>
+      <div class="two-col settings-grid"><article class="panel-card"><h3>Tofaktorautentisering</h3><p id="mfaStatus">Kontrollerer…</p><button id="startMfa" class="primary hidden">Sett opp Authenticator</button><button id="startChallenge" class="primary hidden">Bekreft med Authenticator</button><p class="privacy-note">Arbeidsroller og sensitive moduler krever bekreftet tofaktor (AAL2).</p></article><article class="panel-card"><h3>Tilgangsprinsipp</h3><p>Deltakere ser egne opplysninger. Medarbeidere får tilgang etter rolle, mandat, pilot og/eller deltakeromfang. Systemadministrator er ikke automatisk faglig innsyn.</p></article></div>
       <article id="mfaEnrollPanel" class="panel-card mfa-panel hidden"><h3>Koble Authenticator</h3><p>Skann QR-koden og bekreft med seks sifre.</p><div class="mfa-grid"><img id="mfaQr" class="mfa-qr" alt="QR-kode"><div><label><span>Manuell nøkkel</span><input id="mfaSecret" readonly></label><form id="mfaEnrollForm"><label><span>Bekreftelseskode</span><input id="mfaEnrollCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label><button class="primary" type="submit">Aktiver tofaktor</button></form></div></div><p id="mfaEnrollMessage" class="message"></p></article>
       <article id="mfaChallengePanel" class="panel-card mfa-panel hidden"><h3>Bekreft at det er deg</h3><form id="mfaChallengeForm"><label><span>Kode fra Authenticator</span><input id="mfaChallengeCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label><button class="primary" type="submit">Bekreft og fortsett</button></form><p id="mfaChallengeMessage" class="message"></p></article>
       <article class="panel-card mfa-panel"><h3>Bytt passord</h3><p>Lengde og blokkering av kjente kompromitterte passord er viktigere enn tvungne symbol-/tallmønstre. Begge felt må være identiske.</p><form id="changePasswordForm" class="password-grid"><label><span>Nytt passord</span><input id="newPassword" type="password" autocomplete="new-password" minlength="12" required></label><label><span>Gjenta nytt passord</span><input id="confirmPassword" type="password" autocomplete="new-password" minlength="12" required></label><button class="primary" type="submit">Bytt passord</button></form><p id="passwordMessage" class="message"></p></article>
     </section>
 
     <section class="view" id="view-help">
-      <div class="two-col"><article class="panel-card"><p class="eyebrow">Hjelp</p><h2>Be om kontakt</h2><p>Be om hjelp, pause eller avklaring uten å måtte forklare alt i et fritekstfelt.</p><button class="primary" disabled>Kontaktflyt kommer i neste blokk</button></article><article class="panel-card"><p class="eyebrow">Beredskap</p><h2>SOS / lokasjon</h2><p>Deltakerstyrt SOS med eksplisitt lokasjonsdeling er planlagt. Fjernlokalisering fra ansatte aktiveres ikke før egen DPIA, beredskapsprotokoll og tilgangs-/loggregler er godkjent.</p></article></div>
+      <div class="two-col"><article class="panel-card"><p class="eyebrow">Hjelp</p><h2>Be om kontakt</h2><p>Be om hjelp, pause eller avklaring uten å måtte forklare alt i et fritekstfelt.</p><button class="primary" disabled>Kontaktfunksjonen er ikke åpnet ennå</button></article><article class="panel-card"><p class="eyebrow">Beredskap</p><h2>SOS / lokasjon</h2><p>Deltakerstyrt SOS med eksplisitt lokasjonsdeling er planlagt. Fjernlokalisering fra ansatte aktiveres ikke før egen DPIA, beredskapsprotokoll og tilgangs-/loggregler er godkjent.</p></article></div>
     </section>
   </main>
 </div>
