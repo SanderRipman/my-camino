@@ -21,7 +21,7 @@ Canonical detailed QA baseline is stored in SharePoint as `MY_AIDME_ROLE_SCOPE_Q
 | project_owner | manage_program, view_case_status, view_reports |
 | program_lead | manage_intakes, manage_tasks, respond_sos, view_case_status, view_go, view_participant_core, view_ser, view_vida |
 | via_owner | decide_go, edit_via, manage_intakes, view_go, view_identity, view_operational_min, view_participant_core, view_sensitive_via |
-| clinical_professional | decide_go, edit_via, view_go, view_identity, view_incidents, view_sensitive_via |
+| clinical_professional | decide_go, edit_via, view_go, view_identity, view_incidents, view_participant_core, view_sensitive_via |
 | ser_lead | edit_incidents, edit_ser, manage_ser_tasks, respond_sos, view_incidents, view_operational_min, view_participant_core, view_ser |
 | vida_owner | edit_vida, view_participant_core, view_vida |
 | logistics | edit_logistics, respond_sos, view_operational_min, view_participant_core |
@@ -30,6 +30,8 @@ Canonical detailed QA baseline is stored in SharePoint as `MY_AIDME_ROLE_SCOPE_Q
 | break_glass | view_identity, view_incidents, view_operational_min, view_sensitive_via |
 
 Participant access is not a staff grant. It follows `participants.user_id` and own-resource RLS. Participant form writes are additionally stage-gated by `aidme_private.participant_form_allowed` so a direct form URL cannot jump ahead in the journey.
+
+`clinical_professional` needs `view_participant_core` within its existing grant scope so the relevant professional can resolve the assigned pseudonymized participant context before exercising form-specific `decide_go` / `edit_via`. This does not replace or broaden participant/pilot/org scope, AAL2, identity, sensitive VÍA or form-specific gates.
 
 ## Sensitive AAL2 tables
 
