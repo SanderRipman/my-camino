@@ -13,6 +13,10 @@ Canonical detailed QA baseline is stored in SharePoint as `MY_AIDME_ROLE_SCOPE_Q
 - Healthcare/journal data belongs to the responsible healthcare entity if healthcare is actually delivered.
 - Deltakerens SER-innsjekk og teamets `ser_daily`-operativlogg er to forskjellige spor; staff-felter skal ikke kunne nås via deltakerens direkte skjema-URL/API.
 
+### Runtime form authority during physical QA
+
+For field-by-field physical portal QA, the authoritative runtime source is the **currently published Supabase form version as rendered by `portal/form-runner.html`**. Historical/prototype surfaces such as `vida/forms.html` may be used for concept lineage, but must not be treated as the active field schema or used to instruct a tester about exact current inputs. When documentation and the rendered active form differ, verify the active version before changing either implementation or test instructions.
+
 ## Current backend capabilities
 
 | Role | Capabilities |
