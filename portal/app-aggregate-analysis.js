@@ -3,6 +3,7 @@
 
 let aggregatePilotId=null;
 let aggregateAnalysisRequest=0;
+let aggregateOverviewRequest=0;
 const aggregateMetricLabels={agency:'Egenkraft',belonging:'Tilhørighet',direction:'Retning / veivalg'};
 
 function aggregateAnalysisOnly(){return typeof aggregateOnlyLens==='function'&&aggregateOnlyLens()}
@@ -47,13 +48,16 @@ function renderAggregateEmpty(text){
   const host=aggregateStatusHost();if(host)host.innerHTML=`<div class="aggregate-analysis-note"><strong>Aggregert visning</strong>${escapeHtml(text)}</div>`;
   const summary=aggregateSummaryHost();if(summary)summary.innerHTML='';
 }
+async function invokeAggregate(metric='agency',days=30){
+  return client.functions.invoke('aggregate-analysis',{body:{metric,days,pilotId:aggregatePilotId}})
+}
 async function renderAggregateAnalysis(){
   adaptAggregateAnalysisPresentation();
   const metric=document.querySelector('#analysisMetric')?.value||'agency';
   const days=Number(document.querySelector('#analysisPeriod')?.value||30);
   const host=aggregateStatusHost();if(host)host.innerHTML='<div class="aggregate-analysis-note">Henter aggregert pilotdata…</div>';
   const request=++aggregateAnalysisRequest;
-  const {data,error}=await client.functions.invoke('aggregate-analysis',{body:{metric,days,pilotId:aggregatePilotId}});
+  const {data,error}=await invokeAggregate(metric,days);
   if(request!==aggregateAnalysisRequest)return;
   if(error||data?.error){renderAggregateEmpty('Aggregert analyse kunne ikke åpnes med denne tilgangen.');return}
   aggregatePilotId=data?.pilot?.id||aggregatePilotId;
@@ -67,9 +71,27 @@ async function renderAggregateAnalysis(){
   const summary=aggregateSummaryHost();
   if(summary)summary.innerHTML=points.length?'':'<div class="aggregate-analysis-note"><strong>Ingen visbare gruppemålinger i perioden</strong>Prøv en lengre periode. Systemet lager ikke kunstige eller interpolerte verdier.</div>';
 }
+async function renderAggregateOverview(){
+  const canvas=document.querySelector('#overviewChart');if(!canvas)return;
+  const request=++aggregateOverviewRequest;
+  const {data,error}=await invokeAggregate('agency',30);
+  if(request!==aggregateOverviewRequest)return;
+  if(error||data?.error){drawChart(canvas,[]);const legend=document.querySelector('#overviewLegend');if(legend)legend.innerHTML='<span class="privacy-note">Aggregert utvikling kunne ikke åpnes.</span>';return}
+  aggregatePilotId=data?.pilot?.id||aggregatePilotId;
+  const points=(data?.points||[]).map(p=>({date:p.date,value:Number(p.value)}));
+  drawChart(canvas,points.length?[{label:'Egenkraft · gruppesnitt',dashed:false,values:points}]:[]);
+  const legend=document.querySelector('#overviewLegend');
+  if(legend)legend.innerHTML=points.length?`<span class="legend-item">Egenkraft · gruppesnitt · ${points.length} måledatoer</span>`:'<span class="privacy-note">Ingen visbare gruppemålinger siste 30 dager.</span>';
+}
 
 const aggregateBaseRenderAnalysis=renderAnalysis;
 renderAnalysis=function(){if(!aggregateAnalysisOnly())return aggregateBaseRenderAnalysis();return renderAggregateAnalysis()};
-setTimeout(()=>{if(aggregateAnalysisOnly()&&document.querySelector('#view-analysis')?.classList.contains('active'))renderAnalysis()},260);
+const aggregateBaseRenderOverviewChart=renderOverviewChart;
+renderOverviewChart=function(){if(!aggregateAnalysisOnly())return aggregateBaseRenderOverviewChart();return renderAggregateOverview()};
+setTimeout(()=>{
+  if(!aggregateAnalysisOnly())return;
+  if(document.querySelector('#view-analysis')?.classList.contains('active'))renderAnalysis();
+  if(document.querySelector('#view-overview')?.classList.contains('active'))renderOverviewChart();
+},260);
 
 })();
