@@ -6,7 +6,7 @@ let aggregateAnalysisRequest=0;
 let aggregateOverviewRequest=0;
 const aggregateMetricLabels={agency:'Egenkraft',belonging:'Tilhørighet',direction:'Retning / veivalg'};
 
-function aggregateAnalysisOnly(){return typeof aggregateOnlyLens==='function'&&aggregateOnlyLens()}
+function aggregateAnalysisOnly(){return !!window.AidMeRoleLens?.aggregateOnly?.()}
 function ensureAggregateAnalysisStyle(){
   if(document.querySelector('#aggregate-analysis-style'))return;
   const style=document.createElement('style');style.id='aggregate-analysis-style';style.textContent=`
