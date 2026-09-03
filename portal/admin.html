@@ -7,6 +7,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>AidMe VIDA · Administrasjon</title>
 <link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./density.css?v=20260903a">
 <link rel="stylesheet" href="./admin.css?v=20260822a">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -78,6 +79,11 @@
         <div class="card-head"><div><p class="eyebrow">Aktive brukere</p><h2>Tilgang og ansvar</h2></div><button id="refreshAccess" class="ghost">Oppdater</button></div>
         <p>Navn brukes for medarbeidere når det er relevant for tydelig ansvar. Deltakerens operative visning bruker kodenavn.</p>
         <div id="accessList" class="access-list"><p>Laster…</p></div>
+      </article>
+
+      <article class="panel-card">
+        <div class="card-head"><div><p class="eyebrow">LAB · syntetisk rolle-QA</p><h2>Test portalen rolle for rolle</h2></div><a class="ghost link-btn" href="./qa-role-pack.html">Åpne rolle-QA</a></div>
+        <p>For systemadministrator med AAL2. LAB bruker kun syntetiske <code>@example.invalid</code>-kontoer og DEMO-data for realistisk positiv/negativ rolle- og scope-test.</p>
       </article>
 
       <article class="panel-card"><p class="eyebrow">Sikkerhetsregel</p><h2>Ingen skjult adminmakt i nettleseren</h2><p>Serverfunksjonene kontrollerer gyldig innlogging, AAL2 og aktiv <code>system_admin</code> før invitasjon, deltakerkobling, rolleendring eller tilbakekalling. Manipulerte knapper i nettleseren gir derfor ikke ekstra rettigheter.</p></article>

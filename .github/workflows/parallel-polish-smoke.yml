@@ -1,0 +1,31 @@
+name: Parallel polish smoke
+
+on:
+  pull_request:
+    paths:
+      - 'portal/index.html'
+      - 'portal/admin.html'
+      - 'portal/density.css'
+      - 'portal/app-parallel-polish.js'
+      - 'portal/qa-role-pack.html'
+      - 'portal/qa-role-pack.js'
+      - 'portal/parallel-polish-smoke.mjs'
+      - '.github/workflows/parallel-polish-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  presentation-invariants:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check polish JavaScript syntax
+        run: |
+          node --check portal/qa-role-pack.js
+          node --check portal/app-parallel-polish.js
+      - name: Verify isolated desktop/LAB polish invariants
+        run: node portal/parallel-polish-smoke.mjs
