@@ -1,6 +1,16 @@
 (()=>{
 'use strict';
 
+function scopePendingStyles(){
+  if(document.querySelector('#scope-pending-style'))return;
+  const style=document.createElement('style');style.id='scope-pending-style';
+  style.textContent=`html.scope-pending #mainNav .nav-item:not([data-view="overview"]):not([data-view="tasks"]){visibility:hidden!important;pointer-events:none!important}`;
+  document.head.appendChild(style);
+}
+function enterScopePending(){scopePendingStyles();document.documentElement.classList.add('scope-pending')}
+function leaveScopePending(){document.documentElement.classList.remove('scope-pending')}
+enterScopePending();
+
 function activeRoleCodes(){return new Set((accessGrants||[]).filter(activeGrant).map(g=>g.role_code))}
 function roleSetHas(set,codes){return codes.some(code=>set.has(code))}
 function roleHomeLens(){
@@ -113,7 +123,7 @@ renderTaskLists=function(){
 };
 
 const roleHomeRenderAll=renderAll;
-renderAll=function(){roleHomeRenderAll();applyRoleAwareHome()};
+renderAll=function(){roleHomeRenderAll();applyRoleAwareHome();leaveScopePending()};
 setTimeout(applyRoleAwareHome,180);
 
 if(!document.querySelector('script[data-aggregate-analysis]')){
