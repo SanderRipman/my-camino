@@ -21,7 +21,7 @@ function id(v:unknown){const s=String(v??'').trim();return /^[0-9a-f]{8}-[0-9a-f
 function same(a:unknown,b:unknown){return (a??null)===(b??null)}
 function safeCode(error:any){
   const message=String(error?.message??'')
-  for(const code of ['FORM_VERSION_NOT_ACTIVE','FORM_PAYLOAD_MUST_BE_OBJECT','UNEXPECTED_FORM_FIELD','REQUIRED_CONFIRMATION_MISSING','REQUIRED_SELECTION_MISSING','REQUIRED_ACTION_MISSING','REQUIRED_VALUE_MISSING','INDIVIDUAL_GO_REQUIRES_PARTICIPANT','INVALID_INDIVIDUAL_GO_DECISION','GO_REQUIRES_ALL_GATES_YES','CONDITIONAL_GO_REQUIRES_CORE_FIT_AND_CONDITIONS','PILOT_GO_REQUIRES_PILOT','INVALID_PILOT_GO_DECISION','PILOT_GO_REQUIRES_ALL_GATES_YES','PILOT_CONDITIONAL_GO_REQUIRES_CONDITIONS','PILOT_GO_REQUIRES_ALL_INDIVIDUAL_GATES_CLOSED','PILOT_GO_REQUIRES_NAMED_VIDA_OWNER_FOR_ALL','ACTIVE_PARTICIPANT_AGREEMENT_VERSION_REQUIRED','NAMED_VIDA_OWNER_REQUIRED']){
+  for(const code of ['FORM_VERSION_NOT_ACTIVE','FORM_PAYLOAD_MUST_BE_OBJECT','UNEXPECTED_FORM_FIELD','REQUIRED_CONFIRMATION_MISSING','REQUIRED_SELECTION_MISSING','REQUIRED_ACTION_MISSING','REQUIRED_VALUE_MISSING','INDIVIDUAL_GO_REQUIRES_PARTICIPANT','INVALID_INDIVIDUAL_GO_DECISION','GO_REQUIRES_ALL_GATES_YES','CONDITIONAL_GO_REQUIRES_CORE_FIT_AND_CONDITIONS','PILOT_GO_REQUIRES_PILOT','INVALID_PILOT_GO_DECISION','PILOT_GO_REQUIRES_ALL_GATES_YES','PILOT_CONDITIONAL_GO_REQUIRES_CONDITIONS','PILOT_GO_REQUIRES_ALL_INDIVIDUAL_GATES_CLOSED','PILOT_GO_REQUIRES_NAMED_VIDA_OWNER_FOR_ALL','PARTICIPANT_AGREEMENT_FORM_REQUIRED','ACTIVE_PARTICIPANT_AGREEMENT_VERSION_REQUIRED','PILOT_GO_REQUIRES_PARTICIPANT_AGREEMENT','PILOT_GO_REQUIRES_AGREEMENT_TASKS_CLOSED','PILOT_GO_REQUIRES_PARTICIPANT_CONSENT','NAMED_VIDA_OWNER_REQUIRED']){
     if(message.includes(code))return code
   }
   if(error?.code==='42501'||message.toLowerCase().includes('row-level security'))return 'FORBIDDEN'
@@ -77,13 +77,13 @@ Deno.serve(async(req:Request)=>{
     if(existing){
       const patch={status,payload:body.payload,updated_at:now,submitted_at:status==='SUBMITTED'?now:null}
       const {data,error}=await userClient.from('form_submissions').update(patch).eq('id',existing.id).eq('status','DRAFT').select('id,status,updated_at,submitted_at').maybeSingle()
-      if(error)return new Response(JSON.stringify({error:safeCode(error)}),{status:safeCode(error)==='FORBIDDEN'?403:409,headers})
+      if(error){const code=safeCode(error);return new Response(JSON.stringify({error:code}),{status:code==='FORBIDDEN'?403:409,headers})}
       if(!data)return new Response(JSON.stringify({error:'STALE_DRAFT'}),{status:409,headers})
       result=data
     }else{
       const row={organization_id:organizationId,participant_id:participantId,pilot_id:pilotId,form_version_id:formVersionId,submitted_by:userData.user.id,status,payload:body.payload,updated_at:now,submitted_at:status==='SUBMITTED'?now:null}
       const {data,error}=await userClient.from('form_submissions').insert(row).select('id,status,updated_at,submitted_at').single()
-      if(error)return new Response(JSON.stringify({error:safeCode(error)}),{status:safeCode(error)==='FORBIDDEN'?403:409,headers})
+      if(error){const code=safeCode(error);return new Response(JSON.stringify({error:code}),{status:code==='FORBIDDEN'?403:409,headers})}
       result=data
     }
     return new Response(JSON.stringify({ok:true,submission:result}),{status:200,headers})
