@@ -45,6 +45,7 @@ function roleHomeLens(){
   };
 }
 function aggregateOnlyLens(){return roleHomeLens()?.key==='aggregate'}
+window.AidMeRoleLens=Object.freeze({aggregateOnly:()=>aggregateOnlyLens()});
 
 function roleHomeStyles(){
   if(document.querySelector('#role-home-style'))return;
@@ -117,7 +118,7 @@ setTimeout(applyRoleAwareHome,180);
 
 if(!document.querySelector('script[data-aggregate-analysis]')){
   const aggregateScript=document.createElement('script');
-  aggregateScript.src='./app-aggregate-analysis.js?v=20260903a';
+  aggregateScript.src='./app-aggregate-analysis.js?v=20260903b';
   aggregateScript.defer=true;
   aggregateScript.dataset.aggregateAnalysis='1';
   document.head.appendChild(aggregateScript);
