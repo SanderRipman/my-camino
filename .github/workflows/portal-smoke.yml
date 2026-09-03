@@ -43,6 +43,7 @@ jobs:
             admin-invite-user
             admin-list-access
             admin-revoke-role
+            aggregate-analysis
             bootstrap-owner-once
             case-command
             demo-create-interest
@@ -53,6 +54,7 @@ jobs:
             public-intake
             qa-cleanup-role-pack
             qa-create-role-pack
+            qa-renew-role-pack
             rls-preview-selftest
             sos-command
             task-command
@@ -124,3 +126,5 @@ jobs:
         run: node portal/task-gate-return-smoke.mjs
       - name: Verify standalone workspace chrome invariants
         run: node portal/standalone-chrome-smoke.mjs
+      - name: Verify SER operational v3 invariants
+        run: node portal/ser-operational-v3-smoke.mjs

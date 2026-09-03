@@ -20,7 +20,12 @@ const FORM_ERROR_TEXT={
   ACTIVE_PARTICIPANT_AGREEMENT_VERSION_REQUIRED:'Aktiv versjon av deltakeravtalen mangler. Kontakt systemansvarlig.',
   CONTEXT_IMMUTABLE:'Utkastet tilhører en annen deltaker-/pilotkontekst. Åpne riktig skjema på nytt.',
   SUBMISSION_IMMUTABLE:'Et fullført skjema kan ikke overskrives. Opprett et nytt steg/ny versjon ved behov.',
-  STALE_DRAFT:'Utkastet ble endret et annet sted. Last inn skjemaet på nytt før du fortsetter.'
+  STALE_DRAFT:'Utkastet ble endret et annet sted. Last inn skjemaet på nytt før du fortsetter.',
+  SER_PILOT_REQUIRED:'SER-loggen må være knyttet til riktig pilot.',
+  SER_OPERATIONAL_STAFF_REQUIRED:'Velg godkjent medarbeider for alle operative roller.',
+  SER_OPERATIONAL_STAFF_INVALID:'Valgt operativ medarbeider er ugyldig.',
+  SER_OPERATIONAL_STAFF_NOT_ELIGIBLE:'Valgt medarbeider er ikke godkjent som operativ ressurs i denne piloten.',
+  SER_FOLLOWUP_SELECTION_INVALID:'Velg tydelig Ja eller Nei for behov for oppfølging.'
 };
 function formError(code){return FORM_ERROR_TEXT[code]||'Skjemaet kunne ikke lagres. Ingen alternativ direkte databasevei ble brukt.'}
 
