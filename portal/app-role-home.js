@@ -68,10 +68,13 @@ function setOverviewMetricLabel(index,label,hint){
   const l=card.querySelector('span'),s=card.querySelector('small');if(l)l.textContent=label;if(s&&hint)s.textContent=hint;
 }
 function adaptAggregateNavigation(lens){
+  const aggregate=lens.key==='aggregate';
   const participantNav=document.querySelector('.nav-item[data-view="participants"]');
   const checkinNav=document.querySelector('.nav-item[data-view="checkin"]');
-  if(participantNav)participantNav.classList.toggle('hidden',lens.key==='aggregate');
-  if(checkinNav)checkinNav.classList.toggle('hidden',lens.key==='aggregate');
+  const formsNav=document.querySelector('.nav-item[data-view="forms"]');
+  if(participantNav)participantNav.classList.toggle('hidden',aggregate);
+  if(checkinNav)checkinNav.classList.toggle('hidden',aggregate);
+  if(formsNav)formsNav.classList.toggle('hidden',aggregate);
 }
 function applyRoleAwareHome(){
   if(!isStaff())return;
