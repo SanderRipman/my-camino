@@ -47,7 +47,7 @@ Deno.serve(async(req:Request)=>{
    {key:'evaluator',email:'qa-evaluator@example.invalid',name:'QA Evaluator',role:'evaluator',participant:null,pilot:pilot.id,title:'Evaluator'}
   ];
   const {data:list,error:le}=await admin.auth.admin.listUsers({page:1,perPage:1000});if(le)throw le;const existing=new Map((list.users??[]).map((x:any)=>[String(x.email).toLowerCase(),x]));
-  const expires=new Date(now.getTime()+36*60*60*1000).toISOString();const result:any[]=[];let qaParticipantUserId:string|null=null;
+  const expires=new Date(now.getTime()+36*60*60*1000).toISOString();const result:any[]=[];let qaParticipantUserId:string|null=null;let waivedOnboarding=0;
   for(const s of specs){
    const password=makePassword();let user:any=existing.get(s.email.toLowerCase());
    if(user){const {data:upd,error}=await admin.auth.admin.updateUserById(user.id,{password,email_confirm:true,user_metadata:{qa_role_pack:true,qa_key:s.key}});if(error)throw error;user=upd.user}
@@ -55,7 +55,13 @@ Deno.serve(async(req:Request)=>{
    const {error:pre}=await admin.from('profiles').upsert({user_id:user.id,display_name:s.name,locale:'nb',active:true},{onConflict:'user_id'});if(pre)throw pre;
    if(s.role){
     const {error:sp}=await admin.from('staff_profiles').upsert({user_id:user.id,full_name:s.name,job_title:s.title,work_email:s.email,organization_id:org.id,active:true},{onConflict:'user_id'});if(sp)throw sp;
-    const {error:rv}=await admin.from('role_grants').update({revoked_at:nowIso}).eq('user_id',user.id).eq('reason','SYNTHETIC_QA_ROLE_PACK').is('revoked_at',null);if(rv)throw rv;
+    const {data:oldQaGrants,error:oldGrantError}=await admin.from('role_grants').select('id').eq('user_id',user.id).eq('reason','SYNTHETIC_QA_ROLE_PACK').is('revoked_at',null);if(oldGrantError)throw oldGrantError;
+    const oldGrantIds=(oldQaGrants??[]).map((g:any)=>g.id);
+    if(oldGrantIds.length){
+     const {error:rv}=await admin.from('role_grants').update({revoked_at:nowIso}).in('id',oldGrantIds);if(rv)throw rv;
+     const {data:waived,error:wo}=await admin.from('role_onboarding_items').update({status:'WAIVED',updated_at:nowIso}).in('role_grant_id',oldGrantIds).in('status',['OPEN','IN_PROGRESS']).select('id');if(wo)throw wo;
+     waivedOnboarding+=(waived??[]).length;
+    }
     const {error:ri}=await admin.from('role_grants').insert({organization_id:org.id,user_id:user.id,role_code:s.role,participant_id:s.participant?byCode[s.participant].id:null,pilot_id:s.pilot,reason:'SYNTHETIC_QA_ROLE_PACK',valid_from:nowIso,valid_until:expires,granted_by:u.user.id});if(ri)throw ri;
    } else {
     const p=byCode[s.participant];if(p.user_id&&p.user_id!==user.id)throw new Error('QA_PARTICIPANT_ALREADY_MAPPED');
@@ -74,7 +80,7 @@ Deno.serve(async(req:Request)=>{
    const {error:notifyError}=await admin.from('notifications').insert({user_id:qaParticipantUserId,task_id:createdStart.id,kind:'TASK',title:'Din VÍA er klar',safe_preview:'Du har et nytt steg i AidMe VIDA.'});if(notifyError)throw notifyError;
   }
 
-  await admin.from('audit_events').insert({organization_id:org.id,actor_user_id:u.user.id,action:'QA_ROLE_PACK_CREATED',resource_type:'qa_role_pack',purpose:'Synthetic role/scope E2E QA',metadata:{roles:specs.map(s=>s.key),fixtures:['QA-ROLE-VIA-01','QA-ROLE-VIDA-01'],expires_at:expires,participant_start_task_id:startTask?.id??null}});
-  return new Response(JSON.stringify({ok:true,synthetic:true,warning:'DEMO-NOT-REAL-DATA',expiresAt:expires,accounts:result,startTask}),{status:201,headers:h});
+  await admin.from('audit_events').insert({organization_id:org.id,actor_user_id:u.user.id,action:'QA_ROLE_PACK_CREATED',resource_type:'qa_role_pack',purpose:'Synthetic role/scope E2E QA',metadata:{roles:specs.map(s=>s.key),fixtures:['QA-ROLE-VIA-01','QA-ROLE-VIDA-01'],expires_at:expires,participant_start_task_id:startTask?.id??null,waived_onboarding_count:waivedOnboarding}});
+  return new Response(JSON.stringify({ok:true,synthetic:true,warning:'DEMO-NOT-REAL-DATA',expiresAt:expires,accounts:result,startTask,waivedOnboarding}),{status:201,headers:h});
  }catch(e){console.error(e);return new Response(JSON.stringify({error:'QA_ROLE_PACK_FAILED'}),{status:500,headers:h})}
 })
