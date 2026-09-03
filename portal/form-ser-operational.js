@@ -2,6 +2,7 @@
 'use strict';
 
 let serOperationalStaff=[];
+const SER_ROLE_KEYS=['front_anchor_user_id','rear_anchor_user_id','rover_user_id'];
 
 function currentSerPilotId(){
   return selectedPilot()?.id||null;
@@ -19,6 +20,38 @@ async function loadSerOperationalStaff(){
   serOperationalStaff=data||[];
 }
 
+function updateSerRoleOverlapWarning(){
+  const section=$('#formSections .form-section .dynamic-grid');
+  if(!section)return;
+  let warning=$('#serRoleOverlapWarning');
+  if(!warning){
+    warning=document.createElement('div');
+    warning.id='serRoleOverlapWarning';
+    warning.className='ser-role-overlap-warning hidden';
+    warning.setAttribute('role','status');
+    section.appendChild(warning);
+  }
+  const selected=SER_ROLE_KEYS.map(key=>document.querySelector(`[name="${CSS.escape(key)}"]`)?.value||'').filter(Boolean);
+  const unique=new Set(selected);
+  if(selected.length>=2&&unique.size<selected.length){
+    warning.textContent='Obs: Samme medarbeider er valgt i flere operative roller. Dette kan være riktig ved midlertidig bemanningsbehov – kontroller at det er tilsiktet.';
+    warning.classList.remove('hidden');
+  }else{
+    warning.classList.add('hidden');
+  }
+}
+
+function bindSerRoleOverlapWarning(){
+  SER_ROLE_KEYS.forEach(key=>{
+    const el=document.querySelector(`[name="${CSS.escape(key)}"]`);
+    if(el&&!el.dataset.overlapBound){
+      el.dataset.overlapBound='1';
+      el.addEventListener('change',updateSerRoleOverlapWarning);
+    }
+  });
+  updateSerRoleOverlapWarning();
+}
+
 const baseRenderField=renderField;
 renderField=function renderSerOperationalField(f){
   const required=f.required?' required':'';
@@ -31,7 +64,7 @@ renderField=function renderSerOperationalField(f){
     return `<div class="field-wrap"><label><span>${esc(f.label)}${f.required?' *':''}</span><select name="${esc(f.key)}"${required}>${empty}${options}</select>${f.help?`<small>${esc(f.help)}</small>`:''}</label></div>`;
   }
   if(f.type==='yes_no'){
-    return `<div class="field-wrap"><fieldset class="yes-no-field"><legend>${esc(f.label)}${f.required?' *':''}</legend><label><input type="radio" name="${esc(f.key)}" value="NO"${required}> Nei</label><label><input type="radio" name="${esc(f.key)}" value="YES"${required}> Ja</label>${f.help?`<small>${esc(f.help)}</small>`:''}</fieldset></div>`;
+    return `<div class="field-wrap"><fieldset class="yes-no-field"><legend>${esc(f.label)}${f.required?' *':''}</legend><div class="yes-no-options"><label><input type="radio" name="${esc(f.key)}" value="NO"${required}> <span>Nei</span></label><label><input type="radio" name="${esc(f.key)}" value="YES"${required}> <span>Ja</span></label></div>${f.help?`<small>${esc(f.help)}</small>`:''}</fieldset></div>`;
   }
   return baseRenderField(f);
 };
@@ -45,6 +78,7 @@ restorePayload=function restoreSerOperationalPayload(payload={}){
     const el=document.querySelector(`[name="${CSS.escape(f.key)}"][value="${CSS.escape(String(value))}"]`);
     if(el)el.checked=true;
   }
+  updateSerRoleOverlapWarning();
 };
 
 const baseChooseForm=chooseForm;
@@ -52,7 +86,9 @@ chooseForm=async function chooseFormWithOperationalStaff(){
   const nextDef=definitions.find(d=>d.id===$('#formSelect').value)||null;
   if(nextDef?.key==='ser_daily')await loadSerOperationalStaff();
   else serOperationalStaff=[];
-  return baseChooseForm();
+  const result=await baseChooseForm();
+  if(nextDef?.key==='ser_daily')bindSerRoleOverlapWarning();
+  return result;
 };
 
 // The initial init() has already started before this extension loads. Historically every
