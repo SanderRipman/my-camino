@@ -4,7 +4,7 @@
 function scopePendingStyles(){
   if(document.querySelector('#scope-pending-style'))return;
   const style=document.createElement('style');style.id='scope-pending-style';
-  style.textContent=`html.scope-pending #mainNav .nav-item:not([data-view="overview"]):not([data-view="tasks"]){visibility:hidden!important;pointer-events:none!important}`;
+  style.textContent=`html.scope-pending #mainNav .nav-item:not([data-view="overview"]):not([data-view="tasks"]){display:none!important;pointer-events:none!important}`;
   document.head.appendChild(style);
 }
 function enterScopePending(){scopePendingStyles();document.documentElement.classList.add('scope-pending')}
