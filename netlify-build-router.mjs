@@ -7,7 +7,7 @@ const out = resolve(root, '_netlify_publish');
 const PUBLIC_DEV_SITE_ID = '33549af8-6845-4c5b-b807-258ba5be1e99';
 const PUBLIC_PROD_SITE_ID = '1b763521-f8c0-462a-a0cc-915c1ae56d08';
 const PORTAL_SITE_ID = 'a90c686c-e9fc-4373-9956-629c9d31e622';
-const DENSITY_LINK = '<link rel="stylesheet" href="./density.css?v=20260903a">';
+const DENSITY_LINK = '<link rel="stylesheet" href="/portal/density.css?v=20260903a">';
 
 const siteId = (process.env.SITE_ID || process.env.NETLIFY_SITE_ID || '').trim();
 const siteName = (process.env.SITE_NAME || '').trim().toLowerCase();
