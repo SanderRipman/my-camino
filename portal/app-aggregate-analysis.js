@@ -5,6 +5,8 @@ let aggregatePilotId=null;
 let aggregateAnalysisRequest=0;
 let aggregateOverviewRequest=0;
 const aggregateMetricLabels={agency:'Egenkraft',belonging:'Tilhørighet',direction:'Retning / veivalg'};
+const aggregateFetchCache=new Map();
+const AGGREGATE_CACHE_MS=45000;
 
 function aggregateAnalysisOnly(){return !!window.AidMeRoleLens?.aggregateOnly?.()}
 function ensureAggregateAnalysisStyle(){
@@ -27,7 +29,7 @@ function ensureAggregatePilotSelect(pilots,selectedId){
   const select=label.querySelector('select');
   select.innerHTML=(pilots||[]).map(p=>`<option value="${escapeHtml(p.id)}">${escapeHtml(p.name||p.route_name||'Pilot')}</option>`).join('');
   if(selectedId)select.value=selectedId;
-  if(!select.dataset.bound){select.dataset.bound='1';select.addEventListener('change',()=>{aggregatePilotId=select.value;renderAnalysis()})}
+  if(!select.dataset.bound){select.dataset.bound='1';select.addEventListener('change',()=>{aggregatePilotId=select.value;aggregateFetchCache.clear();renderAnalysis()})}
   label.classList.toggle('hidden',(pilots||[]).length<2);
 }
 function adaptAggregateAnalysisPresentation(){
@@ -55,7 +57,17 @@ function renderAggregateEmpty(text){
   const summary=aggregateSummaryHost();if(summary)summary.innerHTML='';
 }
 async function invokeAggregate(metric='agency',days=30){
-  return client.functions.invoke('aggregate-analysis',{body:{metric,days,pilotId:aggregatePilotId}})
+  const key=`${aggregatePilotId||'auto'}:${metric}:${days}`;
+  const now=Date.now();
+  const hit=aggregateFetchCache.get(key);
+  if(hit&&now-hit.at<AGGREGATE_CACHE_MS)return hit.promise;
+  const promise=client.functions.invoke('aggregate-analysis',{body:{metric,days,pilotId:aggregatePilotId}}).then(result=>{
+    const resolvedPilotId=result?.data?.pilot?.id;
+    if(resolvedPilotId)aggregateFetchCache.set(`${resolvedPilotId}:${metric}:${days}`,{at:Date.now(),promise:Promise.resolve(result)});
+    return result;
+  });
+  aggregateFetchCache.set(key,{at:now,promise});
+  return promise;
 }
 async function renderAggregateAnalysis(){
   adaptAggregateAnalysisPresentation();
