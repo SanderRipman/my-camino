@@ -9,7 +9,7 @@ const migration=fs.readFileSync(new URL('../supabase/migrations/20260903183500_f
 function expect(label,condition){if(!condition){console.error(`FAIL ${label}`);process.exitCode=1}else console.log(`PASS ${label}`)}
 
 expect('runner loads current SER operational extension',html.includes('form-ser-operational.js?v=20260903b'));
-expect('runner cache-busts SER form styles',html.includes('form-runner.css?v=20260903a'));
+expect('runner cache-busts SER form styles',html.includes('form-runner.css?v=20260903c'));
 expect('staff selector uses scoped RPC',js.includes("client.rpc('eligible_ser_operational_staff'")&&js.includes("f.type==='staff_select'"));
 expect('staff selector presents name and job title',js.includes("person.full_name")&&js.includes("person.job_title"));
 expect('follow-up is explicit yes/no radio',js.includes("f.type==='yes_no'")&&js.includes('value="NO"')&&js.includes('value="YES"'));
