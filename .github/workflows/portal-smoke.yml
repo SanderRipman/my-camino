@@ -80,6 +80,8 @@ jobs:
         run: node --check portal/app.js
       - name: Verify clean bundle invariants
         run: node portal/smoke-test.mjs
+      - name: Verify isolated desktop/LAB polish invariants
+        run: node portal/parallel-polish-smoke.mjs
       - name: Verify context drilldown invariants
         run: node portal/context-drilldown-smoke.mjs
       - name: Verify N2 intake triage invariants
