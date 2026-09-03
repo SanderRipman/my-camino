@@ -13,6 +13,7 @@ const index=read('index.html');
 const admin=read('admin.html');
 const qaHtml=read('qa-role-pack.html');
 const qaJs=read('qa-role-pack.js');
+const taskPolish=read('app-parallel-polish.js');
 
 // Desktop density must be opt-in at desktop width and actually loaded by shared portal surfaces.
 must(/@media\s*\(min-width:\s*1100px\)/.test(density),'density.css must start at >=1100px');
@@ -20,10 +21,19 @@ must(!/@media\s*\([^)]*max-width/i.test(density),'density.css must not introduce
 includes(index,'./density.css?v=20260903a','portal index must load density.css');
 includes(admin,'./density.css?v=20260903a','admin shell must load density.css');
 
-// Workflow status and attention/priority are separate concepts in presentation copy.
+// Workflow status and attention/priority are separate concepts in static and dialog presentation.
 includes(index,'<strong>Arbeidsstatus:</strong> Åpen / I gang / Ferdig.','task view must name workflow status explicitly');
 includes(index,'<strong>Oppmerksomhet:</strong> Kritisk / Avklar / Normal.','task view must name attention explicitly');
 must(!index.includes('<small>rød status</small>')&&!index.includes('<small>gul status</small>'),'severity metrics must not be labelled as workflow status');
+includes(index,'./app-parallel-polish.js?v=20260903a','portal must load the isolated task presentation layer');
+must(index.indexOf('./app-parallel-polish.js?v=20260903a')>index.indexOf('./app.js?v=20260817b'),'task presentation layer must load after the final app bundle');
+includes(taskPolish,'Arbeidsstatus: ${statusText(task.status)} · Oppmerksomhet: ${attentionLabel(task)}','task dialog must separate workflow status from attention');
+includes(taskPolish,"if(label)label.textContent='Frist';",'route-less task context must use Frist');
+includes(taskPolish,"kind==='participant'&&value==='Ikke knyttet'",'unlinked participant without an action must be eligible for static presentation');
+includes(taskPolish,"(kind==='route'||kind==='stage')&&value==='Ikke angitt'&&state==='info'",'informational empty route/stage cells must be static');
+for(const boundary of ['client.','functions.invoke','role_code','ROLE_CAPABILITIES','canContext(','hasRole(','localStorage','sessionStorage','indexedDB']){
+  must(!taskPolish.includes(boundary),`task presentation layer must not cross backend/access boundary: ${boundary}`);
+}
 
 // LAB is discoverable only from inside the already gated admin workspace; QA page repeats its own AAL2/system_admin gate in JS.
 const adminWorkspaceStart=admin.indexOf('<section id="adminWorkspace" class="hidden">');
