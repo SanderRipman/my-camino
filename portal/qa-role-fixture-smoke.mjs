@@ -4,6 +4,7 @@ function read(path){return fs.readFileSync(new URL(path,import.meta.url),'utf8')
 function assert(ok,msg){if(!ok)throw new Error(msg)}
 
 const qaFunction=read('../supabase/functions/qa-create-role-pack/index.ts');
+const cleanupFunction=read('../supabase/functions/qa-cleanup-role-pack/index.ts');
 
 assert(qaFunction.includes("ensureQaParticipant('QA-ROLE-VIA-01','VIA')"),'QA role pack must reset a dedicated VÍA fixture to VIA');
 assert(qaFunction.includes("ensureQaParticipant('QA-ROLE-VIDA-01','VIDA')"),'QA role pack must reset a dedicated VIDA fixture to VIDA');
@@ -20,4 +21,13 @@ assert(qaFunction.includes("title:'Min VÍA – start her'")&&qaFunction.include
 assert(qaFunction.includes("title:'Din VÍA er klar'")&&qaFunction.includes("safe_preview:'Du har et nytt steg i AidMe VIDA.'"),'QA participant start must also exercise the safe notification surface');
 assert(qaFunction.includes('participant_start_task_id'),'QA audit evidence must record the canonical participant start task id');
 
-console.log('Phase-stable synthetic role fixture invariants passed');
+for(const source of [qaFunction,cleanupFunction]){
+  assert(source.includes("eq('reason','SYNTHETIC_QA_ROLE_PACK')"),'QA lifecycle hygiene must be restricted to explicitly synthetic role-pack grants');
+  assert(source.includes("from('role_onboarding_items').update({status:'WAIVED'"),'Inactive synthetic QA onboarding must be preserved as WAIVED history rather than left actionable');
+  assert(source.includes("in('status',['OPEN','IN_PROGRESS'])"),'Only unfinished synthetic onboarding may be auto-waived');
+  assert(!source.includes("from('role_onboarding_items').delete("),'QA lifecycle hygiene must never delete onboarding history');
+}
+assert(qaFunction.includes('waived_onboarding_count:waivedOnboarding'),'QA renewal audit must record how many stale onboarding items were waived');
+assert(cleanupFunction.includes('waived_onboarding_count:waivedOnboarding'),'QA cleanup audit must record how many stale onboarding items were waived');
+
+console.log('Phase-stable synthetic role fixture and onboarding-hygiene invariants passed');
