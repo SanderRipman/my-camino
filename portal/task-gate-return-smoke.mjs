@@ -6,6 +6,8 @@ const dir=path.dirname(fileURLToPath(import.meta.url));
 const app=fs.readFileSync(path.join(dir,'app-return-context.js'),'utf8');
 const form=fs.readFileSync(path.join(dir,'form-command-client.js'),'utf8');
 const formSer=fs.readFileSync(path.join(dir,'form-ser-operational.js'),'utf8');
+const formAuth=fs.readFileSync(path.join(dir,'form-auth-continuity.js'),'utf8');
+const formHtml=fs.readFileSync(path.join(dir,'form-runner.html'),'utf8');
 const css=fs.readFileSync(path.join(dir,'form-runner.css'),'utf8');
 const build=fs.readFileSync(path.join(dir,'build-app.mjs'),'utf8');
 
@@ -19,6 +21,11 @@ ok(app.includes("history.replaceState")&&app.includes("delete('returnTask')"),'R
 ok(!app.includes('client.')&&!app.includes('.from(')&&!app.includes('functions.invoke')&&!app.includes('fetch('),'Task return context must remain presentation/navigation-only');
 ok(formSer.includes("const AUTH_RETURN_KEY='aidme:return-intent:v1'")&&formSer.includes('captureInterruptedFormReturn()'),'Auth interruption must preserve exact form return intent');
 ok(formSer.includes('sessionStorage.setItem(AUTH_RETURN_KEY')&&formSer.indexOf('captureInterruptedFormReturn();')<formSer.indexOf("location.replace('./')"),'Interrupted form target must be captured before authentication redirect');
+ok(formAuth.includes("event==='SIGNED_OUT'")&&formAuth.includes('sessionStorage.setItem(AUTH_RETURN_KEY'),'Cross-tab logout must arm the same-tab exact form return target');
+ok(formAuth.includes("window.addEventListener('focus'")&&formAuth.includes("document.addEventListener('visibilitychange'")&&formAuth.includes("window.addEventListener('pageshow'"),'Mobile/background tab recovery must re-check auth when the protected form becomes active');
+ok(formAuth.includes("location.pathname.endsWith('/form-runner.html')")&&formAuth.includes("query.has('returnTask')"),'Auth continuity guard must preserve deep form/task context rather than a generic portal route');
+ok(!formAuth.includes('localStorage'),'Exact return intent must remain tab-scoped and must not be shared across old portal tabs');
+ok(formHtml.includes('form-auth-continuity.js?v=20260904a')&&formHtml.indexOf('form-auth-continuity.js')>formHtml.indexOf('form-runner.js'),'Dedicated continuity guard must load after the form client exists');
 ok(form.includes("client.functions.invoke('form-command'"),'Form save must continue through form-command');
 ok(form.includes("returnQuery.get('returnTask')")&&form.includes('Tilbake til oppgaven og se oppdatert status'),'Form runner must expose explicit return to the originating task');
 ok(form.includes("return{href:'./',label:'Til Oversikt'}"),'Completed staff forms without return context must go back to Overview');
@@ -27,6 +34,7 @@ ok(form.includes('submitted-locked')&&form.includes("querySelectorAll('input,sel
 ok(css.includes('.form-completion-backdrop')&&css.includes('.form-completion-dialog'),'Completion state must use the standard styled dialog surface');
 ok(!form.includes("client.from('form_submissions').insert")&&!form.includes("client.from('form_submissions').update"),'Command client must not add a direct form_submissions write fallback');
 ok(!formSer.includes("client.from('form_submissions')")&&!formSer.includes("functions.invoke('form-command'"),'Auth-return preservation must not add a form write path');
+ok(!formAuth.includes("client.from('form_submissions')")&&!formAuth.includes('functions.invoke'),'Cross-tab auth continuity must remain navigation-only');
 ok(build.includes("app-return-context.js")&&build.indexOf("+returnContext+'\\n'")>build.indexOf("+roleHome+'\\n'"),'Return-context layer must be last in deterministic build');
 
 console.log('task gate return-context smoke: OK');
