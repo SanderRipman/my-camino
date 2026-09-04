@@ -30,7 +30,7 @@ Deno.serve(async(req:Request)=>{
     const reason=String(body?.reason??'').trim()
     if(!grantId||!reason)return new Response(JSON.stringify({error:'GRANT_ID_AND_REASON_REQUIRED'}),{status:400,headers})
 
-    const {data:grant,error:grantError}=await admin.from('role_grants').select('id,user_id,role_code,revoked_at').eq('id',grantId).maybeSingle()
+    const {data:grant,error:grantError}=await admin.from('role_grants').select('id,user_id,organization_id,participant_id,pilot_id,role_code,revoked_at').eq('id',grantId).maybeSingle()
     if(grantError||!grant)return new Response(JSON.stringify({error:'GRANT_NOT_FOUND'}),{status:404,headers})
     if(grant.revoked_at)return new Response(JSON.stringify({ok:true,alreadyRevoked:true,grantId}),{status:200,headers})
     if(grant.role_code==='system_admin'&&grant.user_id===userData.user.id){
@@ -41,6 +41,17 @@ Deno.serve(async(req:Request)=>{
 
     const {data,error}=await admin.from('role_grants').update({revoked_at:now,reason:`${grant.role_code}: revoked – ${reason}`}).eq('id',grantId).select('id,role_code,revoked_at').single()
     if(error)throw error
-    return new Response(JSON.stringify({ok:true,grant:data}),{status:200,headers})
+    const {error:auditError}=await admin.from('audit_events').insert({
+      organization_id:grant.organization_id,
+      actor_user_id:userData.user.id,
+      action:'ROLE_REVOKED',
+      resource_type:'role_grant',
+      resource_id:grantId,
+      participant_id:grant.participant_id||null,
+      purpose:'Role access administration',
+      metadata:{role_code:grant.role_code,pilot_id:grant.pilot_id||null,reason}
+    })
+    if(auditError)console.error('ROLE_REVOKE_AUDIT_FAILED',auditError)
+    return new Response(JSON.stringify({ok:true,grant:data,auditLogged:!auditError}),{status:200,headers})
   }catch(error){console.error(error);return new Response(JSON.stringify({error:'REVOKE_FAILED'}),{status:500,headers})}
 })
