@@ -1,9 +1,14 @@
 (()=>{
 'use strict';
 
+const activeTaskStorageKey='aidme.portal.activeTask';
+function storedTaskId(){try{return sessionStorage.getItem(activeTaskStorageKey)||''}catch{return''}}
+function rememberTask(id){try{if(id)sessionStorage.setItem(activeTaskStorageKey,id)}catch{}}
+function forgetTask(){try{sessionStorage.removeItem(activeTaskStorageKey)}catch{}}
+
 function taskReturnParams(){
   const q=new URLSearchParams(location.search);
-  return{taskId:q.get('returnTask'),view:q.get('returnView')||'tasks'};
+  return{taskId:q.get('returnTask')||storedTaskId(),view:q.get('returnView')||'tasks'};
 }
 function decorateTaskFormLinks(){
   if(!selectedTaskId)return;
@@ -24,9 +29,12 @@ document.addEventListener('click',event=>{
   a.href=`${u.pathname}${u.search}`;
 },true);
 
+document.querySelector('#taskDialog')?.addEventListener('close',forgetTask);
+
 const returnContextOpenTask=openTask;
 openTask=function(id){
   returnContextOpenTask(id);
+  if((tasks||[]).some(t=>t.id===id))rememberTask(id);
   decorateTaskFormLinks();
 };
 
