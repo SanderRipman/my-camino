@@ -12,6 +12,8 @@ function ok(condition,message){if(!condition)throw new Error(message)}
 
 ok(app.includes("u.searchParams.set('returnTask',selectedTaskId)")&&app.includes("u.searchParams.set('returnView','tasks')"),'Task dialog form links must carry return context');
 ok(app.includes("openTask(taskId)")&&app.includes("show(view==='tasks'?'tasks':'overview')"),'Portal must resume the originating task after return');
+ok(app.includes("sessionStorage.setItem(activeTaskStorageKey,id)")&&app.includes("sessionStorage.getItem(activeTaskStorageKey)"),'Active task must survive a same-tab reload without backend state');
+ok(app.includes("addEventListener('close',forgetTask)")&&app.includes("sessionStorage.removeItem(activeTaskStorageKey)"),'Explicit dialog close must clear refresh-resume context');
 ok(app.includes("history.replaceState")&&app.includes("delete('returnTask')"),'Return parameters must be cleaned after resuming');
 ok(!app.includes('client.')&&!app.includes('.from(')&&!app.includes('functions.invoke')&&!app.includes('fetch('),'Task return context must remain presentation/navigation-only');
 ok(form.includes("client.functions.invoke('form-command'"),'Form save must continue through form-command');
