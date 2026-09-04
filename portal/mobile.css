@@ -1,8 +1,37 @@
-/* AidMe VIDA – mobile parity additions. Loaded after ux.css. */
+/* AidMe VIDA – mobile parity and daily-work density additions. Loaded after base portal/form CSS. */
 @media(max-width:780px){
+  /* Navigation: preserve touch targets, free horizontal width and make the active item easy to recover. */
   .sidebar{
+    padding:8px 8px!important;
+    gap:6px!important;
     transition:transform .2s ease,opacity .16s ease,box-shadow .16s ease;
     will-change:transform;
+  }
+  .sidebar .brand{flex:0 0 auto!important;margin:0!important}
+  .sidebar .brand>div{display:none!important}
+  .sidebar .brand img{width:34px!important;height:34px!important}
+  .sidebar nav{
+    flex:1 1 auto!important;
+    min-width:0!important;
+    max-width:none!important;
+    margin-left:0!important;
+    display:flex!important;
+    gap:3px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    overscroll-behavior-x:contain;
+    scroll-snap-type:x proximity;
+    scroll-padding-inline:8px;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+    padding-right:12px;
+  }
+  .sidebar nav::-webkit-scrollbar{display:none}
+  .sidebar .nav-item{
+    flex:0 0 auto!important;
+    min-height:44px;
+    padding:8px 9px!important;
+    scroll-snap-align:start;
   }
   .sidebar.mobile-nav-hidden{
     transform:translateY(calc(-100% - env(safe-area-inset-top,0px)));
@@ -10,11 +39,92 @@
     pointer-events:none;
     box-shadow:none;
   }
-  .sidebar.mobile-nav-hidden + .workspace{
-    /* Sticky sidebar leaves normal document flow behind at the top only; once scrolled,
-       translating it away frees the reading viewport without a layout jump. */
+
+  /* Daily work first: keep identity/security visible, but remove avoidable vertical chrome. */
+  .workspace{padding:0 10px 28px!important}
+  .topbar{
+    position:static!important;
+    display:block!important;
+    padding:8px 0 7px!important;
   }
+  .topbar>div:first-child{margin-bottom:6px!important;min-width:0}
+  .topbar .eyebrow{display:none!important}
+  .topbar h1{font-size:20px!important;line-height:1.08!important}
+  .top-actions{
+    width:100%;
+    display:flex!important;
+    flex-wrap:wrap!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:6px!important;
+  }
+  .top-actions .security-pill,
+  .top-actions .user-pill,
+  .top-actions .ghost{min-height:42px}
+  .top-actions .user-menu-wrap{margin-left:auto}
+  .demo-lens-control{
+    order:10!important;
+    flex:1 0 100%!important;
+    width:auto!important;
+    min-height:42px;
+    padding:4px 8px!important;
+    border-radius:11px!important;
+    gap:6px!important;
+  }
+  .demo-lens-control span{font-size:9px!important}
+  .demo-lens-control select{
+    min-width:0!important;
+    max-width:none!important;
+    padding:5px 3px!important;
+    font-size:11px!important;
+    text-align:right;
+  }
+  .preview-strip,
+  .demo-lens-banner{
+    margin-bottom:10px!important;
+    padding:8px 10px!important;
+    border-radius:11px!important;
+    font-size:11px!important;
+    line-height:1.35!important;
+  }
+  .demo-lens-banner{margin-top:0!important}
+
+  /* Content density: reduce explanation/card whitespace without shrinking core controls. */
+  .section-head{margin:8px 0 10px!important}
+  .section-head h2{margin-bottom:5px!important}
+  .section-head p:not(.eyebrow){font-size:13px;line-height:1.4}
+  .hero-panel{padding:16px!important;margin-bottom:10px!important;border-radius:20px!important}
+  .hero-panel h2{font-size:30px!important}
+  .metric-grid{gap:8px!important;margin:10px 0!important}
+  .metric{padding:13px 14px!important}
+  .panel-card{padding:16px!important;border-radius:18px!important}
+  .dashboard-bottom{margin-top:10px!important}
+
+  /* Long forms remain fully visible, but use less empty space between related fields/sections. */
+  .runner-controls{gap:8px!important;margin-bottom:10px!important}
+  .form-version{padding:8px 10px!important}
+  .runner-card{margin-bottom:10px!important}
+  .runner-head{padding-bottom:10px!important;margin-bottom:12px!important}
+  .runner-head p:not(.eyebrow){line-height:1.4}
+  .form-section{padding:13px!important;margin-bottom:10px!important;border-radius:15px!important}
+  .form-section h3{margin-bottom:10px!important}
+  .dynamic-grid,.action-fields{gap:10px!important}
+  .field-wrap small{margin-top:3px!important;line-height:1.35}
+  .runner-actions{padding-top:4px!important;gap:7px!important}
+  .submission-list{gap:6px!important;margin-top:8px!important}
+  .submission-row{padding:8px 0!important}
 }
+
+@media(max-width:470px){
+  .workspace{padding-left:8px!important;padding-right:8px!important}
+  .topbar h1{font-size:19px!important}
+  .top-actions{gap:5px!important}
+  .top-actions .security-pill{padding:7px 9px!important}
+  .top-actions .user-pill{padding:8px 10px!important}
+  .panel-card{padding:14px!important}
+  .form-section{padding:12px!important}
+}
+
 @media(prefers-reduced-motion:reduce){
   .sidebar{transition:none!important}
 }
