@@ -7,8 +7,7 @@ openTask=function(id){
   if(!isStaff())return;
   const task=tasks.find(x=>x.id===id),participant=participantById(task?.participant_id);
   if(!task||!participant)return;
-  const taskTitle=String(task.title||'').trim();
-  const firstReview=task.workflow_key==='via_roadmap_review'||taskTitle==='VÍA – vurder veikart før GO/NO-GO'||taskTitle==='Vurder VÍA-veikart';
+  const firstReview=task.workflow_key==='via_roadmap_review'||task.title==='VÍA – vurder veikart før GO/NO-GO';
   const newViaReview=task.workflow_key==='new_via_review';
   if(!firstReview&&!newViaReview)return;
   const body=document.querySelector('#taskDialogBody');if(!body||body.querySelector('[data-via-review-link]'))return;
