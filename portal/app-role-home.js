@@ -65,6 +65,11 @@ function roleHomeStyles(){
     #view-overview.role-home-aggregate .role-home-hide-aggregate{display:none!important}
     #view-overview.role-home-aggregate .metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
     #contextMini{max-width:240px;line-height:1.35}
+    #groupPulse .pulse-row[data-vida-participant-link="1"]{cursor:pointer;border-radius:12px;padding:8px;margin:-8px;transition:background .15s ease,box-shadow .15s ease}
+    #groupPulse .pulse-row[data-vida-participant-link="1"]:hover{background:rgba(18,63,61,.055)}
+    #groupPulse .pulse-row[data-vida-participant-link="1"]:focus-visible{outline:3px solid rgba(200,164,93,.55);outline-offset:3px}
+    #groupPulse .vida-open-cue{margin-left:auto;font-weight:700;color:#123f3d;white-space:nowrap}
+    .vida-owner-plan-action{border:1px solid rgba(18,63,61,.18);background:rgba(18,63,61,.035)}
     @media(max-width:760px){
       #view-overview .hero-panel.compact-hero{align-items:flex-start;gap:14px}
       #view-overview .hero-badge{min-width:0;max-width:46%;padding-left:12px}
@@ -77,6 +82,58 @@ function roleHomeStyles(){
 function setOverviewMetricLabel(index,label,hint){
   const card=document.querySelectorAll('#view-overview .metric-grid .metric')[index];if(!card)return;
   const l=card.querySelector('span'),s=card.querySelector('small');if(l)l.textContent=label;if(s&&hint)s.textContent=hint;
+}
+function vidaOwnerParticipants(){
+  if(roleHomeLens()?.key!=='vida')return[];
+  return (participants||[]).filter(p=>stageLabel(p.stage)==='VIDA');
+}
+function vidaPlanHref(p){return `./form-runner.html?key=vida_plan&participant=${encodeURIComponent(p.id)}`}
+function vidaPlanActionMarkup(p){
+  return `<a class="task-row vida-owner-plan-action" href="${vidaPlanHref(p)}" style="text-decoration:none;color:inherit"><i class="task-dot YELLOW"></i><div><b>Åpne VIDA-plan · ${escapeHtml(p.code_name)}</b><small>Én levende plan med første handling, 72 timer og videre 14/30/90-oppfølging.</small></div><div class="task-meta"><span class="pill YELLOW">Neste steg</span></div></a>`;
+}
+function openVidaParticipant(p){
+  if(!p)return;selectedParticipantId=p.id;show('participants');renderParticipants();
+}
+function bindVidaPulseDrilldown(){
+  if(roleHomeLens()?.key!=='vida')return;
+  const rows=[...document.querySelectorAll('#groupPulse .pulse-row')];
+  rows.forEach(row=>{
+    if(row.dataset.vidaParticipantLink==='1')return;
+    const code=row.querySelector('b')?.textContent?.trim();
+    const p=(participants||[]).find(x=>x.code_name===code&&stageLabel(x.stage)==='VIDA');
+    if(!p)return;
+    row.dataset.vidaParticipantLink='1';row.tabIndex=0;row.setAttribute('role','button');row.setAttribute('aria-label',`Åpne ${p.code_name} i VIDA-oppfølging`);
+    if(!row.querySelector('.vida-open-cue'))row.insertAdjacentHTML('beforeend','<span class="vida-open-cue">Åpne →</span>');
+    const open=()=>openVidaParticipant(p);
+    row.addEventListener('click',open);row.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
+  });
+}
+function injectVidaOverviewActions(){
+  if(roleHomeLens()?.key!=='vida')return;
+  const host=$('#priorityQueue');if(!host)return;
+  host.querySelectorAll('.vida-owner-plan-action').forEach(x=>x.remove());
+  const scoped=vidaOwnerParticipants();if(!scoped.length)return;
+  if(host.children.length===1&&host.firstElementChild?.tagName==='P')host.innerHTML='';
+  host.insertAdjacentHTML('afterbegin',scoped.map(vidaPlanActionMarkup).join(''));
+}
+function adaptVidaParticipantDetail(){
+  if(roleHomeLens()?.key!=='vida')return;
+  const p=participantById(selectedParticipantId);if(!p||stageLabel(p.stage)!=='VIDA')return;
+  const detail=$('#participantDetail');if(!detail)return;
+  const heading=[...detail.querySelectorAll('h3')].find(h=>h.textContent.trim()==='Neste handling');
+  const list=heading?.nextElementSibling;if(!list)return;
+  [...list.querySelectorAll('p')].forEach(x=>{if(x.textContent.trim()==='Ingen åpne oppgaver.')x.remove()});
+  if(!list.querySelector('.vida-owner-plan-action'))list.insertAdjacentHTML('afterbegin',vidaPlanActionMarkup(p));
+}
+function adaptVidaParticipantsView(){
+  if(roleHomeLens()?.key!=='vida')return;
+  const intro=$('#participantsIntro');if(intro)intro.textContent='Velg en deltaker for VIDA-plan, neste handling og avtalt oppfølging hjemme.';
+  document.querySelectorAll('#participantList .participant-card').forEach(card=>{
+    const code=card.querySelector('b')?.textContent?.trim();const p=(participants||[]).find(x=>x.code_name===code);
+    if(!p||stageLabel(p.stage)!=='VIDA')return;
+    const small=card.querySelector('small');if(small)small.textContent='VIDA · levende plan og oppfølging';
+  });
+  adaptVidaParticipantDetail();
 }
 function adaptAggregateNavigation(lens){
   const aggregate=lens.key==='aggregate';
@@ -103,8 +160,10 @@ function applyRoleAwareHome(){
     setOverviewMetricLabel(1,'Kritisk / forfalt','krever programoppmerksomhet');
     setOverviewMetricLabel(2,'Trenger avklaring','åpne programspørsmål');
   }else if(lens.key==='vida'){
-    setOverviewMetricLabel(0,'Åpne VIDA-steg','første handling og oppfølging');
+    setOverviewMetricLabel(0,'Åpne VIDA-steg','levende plan og neste handling');
     setOverviewMetricLabel(3,'Deltakere i scope','kun ditt eksisterende ansvar');
+    const scoped=vidaOwnerParticipants(),ids=new Set(scoped.map(p=>p.id)),openTasks=(tasks||[]).filter(t=>ids.has(t.participant_id)&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status)).length;
+    const openStrong=metrics[0]?.querySelector('strong');if(openStrong)openStrong.textContent=String(Math.max(openTasks,scoped.length));
   }else if(lens.key==='ser'){
     setOverviewMetricLabel(0,'Åpne SER-oppgaver','rute, sikkerhet og oppfølging');
     setOverviewMetricLabel(3,'Aktive deltakere','innen operativt scope');
@@ -112,6 +171,7 @@ function applyRoleAwareHome(){
     setOverviewMetricLabel(0,'Åpne VÍA-steg','avklaring, ansvar og beslutning');
     setOverviewMetricLabel(3,'Deltakere i VÍA','innen eksisterende scope');
   }
+  bindVidaPulseDrilldown();injectVidaOverviewActions();
 }
 
 const roleHomeRenderTaskLists=renderTaskLists;
@@ -121,6 +181,11 @@ renderTaskLists=function(){
   tasks=(allTasks||[]).filter(t=>!t.participant_id);
   try{return roleHomeRenderTaskLists()}finally{tasks=allTasks}
 };
+
+const roleHomeRenderParticipants=renderParticipants;
+renderParticipants=function(){roleHomeRenderParticipants();adaptVidaParticipantsView()};
+const roleHomeRenderParticipantDetail=renderParticipantDetail;
+renderParticipantDetail=function(){roleHomeRenderParticipantDetail();adaptVidaParticipantDetail()};
 
 const roleHomeRenderAll=renderAll;
 renderAll=function(){roleHomeRenderAll();applyRoleAwareHome();leaveScopePending()};
