@@ -128,3 +128,5 @@ jobs:
         run: node portal/standalone-chrome-smoke.mjs
       - name: Verify SER operational v3 invariants
         run: node portal/ser-operational-v3-smoke.mjs
+      - name: Verify time-limited data-free UI review invariants
+        run: node portal/ui-review-smoke.mjs
