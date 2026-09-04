@@ -3,9 +3,20 @@
 
 let serOperationalStaff=[];
 const SER_ROLE_KEYS=['front_anchor_user_id','rear_anchor_user_id','rover_user_id'];
+const AUTH_RETURN_KEY='aidme:return-intent:v1';
 
 function currentSerPilotId(){
   return selectedPilot()?.id||null;
+}
+
+function captureInterruptedFormReturn(){
+  try{
+    const q=new URLSearchParams(location.search);
+    const specific=location.pathname.endsWith('/form-runner.html')&&(q.has('key')||q.has('participant')||q.has('pilot')||q.has('returnTask'));
+    if(!specific)return;
+    const target=`${location.pathname}${location.search}${location.hash}`;
+    sessionStorage.setItem(AUTH_RETURN_KEY,JSON.stringify({target,createdAt:Date.now()}));
+  }catch{}
 }
 
 async function loadSerOperationalStaff(){
@@ -93,11 +104,15 @@ chooseForm=async function chooseFormWithOperationalStaff(){
 
 // The initial init() has already started before this extension loads. Historically every
 // auth event, including TOKEN_REFRESHED, called init() again and re-rendered the form.
-// Later auth events now only refresh the session reference; SIGNED_OUT still exits.
+// Later auth events only refresh the session reference. If the session disappears while
+// a specific form is open, preserve that exact target before leaving for authentication.
 init=async function refreshFormSessionWithoutRerender(){
   const {data:{session:s}}=await client.auth.getSession();
   session=s;
-  if(!session)location.replace('./');
+  if(!session){
+    captureInterruptedFormReturn();
+    location.replace('./');
+  }
 };
 
 setTimeout(()=>{
