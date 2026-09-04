@@ -10,9 +10,19 @@ assert(chrome.includes("aria-current','page'"),'Standalone chrome must identify 
 assert(!/supabase|role_grants|capabilit/i.test(chrome),'Standalone chrome must remain presentation-only and must not recreate authorization logic.');
 
 const mobile=read('./app-mobile.js');
+const mobileCss=read('./mobile.css');
 const navIa=read('./navigation-ia.js');
+assert(mobile.includes("MOBILE_UX_VERSION='2026-09-04c'"),'Shared portal shell must cache-bust the current mobile polish layer.');
 assert(mobile.includes("NAVIGATION_IA_VERSION='2026-09-02b'"),'Shared portal shell must cache-bust the current navigation IA layer.');
 assert(mobile.includes('navigation-ia.js'),'Shared portal shell must load the navigation IA layer.');
+assert(mobile.includes('userScrollSeen')&&mobile.includes('movingUp')&&mobile.includes('movingDown'),'Mobile navigation must distinguish restored scroll state from deliberate user scrolling.');
+assert(mobile.includes("window.addEventListener('pageshow'")&&mobile.includes("document.addEventListener('visibilitychange'"),'Mobile navigation must reveal safely after page/auth restoration.');
+assert(mobile.includes('centerActive')&&mobile.includes('nav.scrollTo'),'Active horizontal navigation item must be recoverable without changing routing.');
+assert(!/supabase|role_grants|client\.from|functions\.invoke|fetch\(/i.test(mobile),'Mobile shell polish must stay presentation-only and must not create a data or authorization path.');
+assert(mobileCss.includes('.sidebar .brand>div{display:none!important}')&&mobileCss.includes('max-width:none!important'),'Mobile navigation must free width from redundant brand text and use the available viewport.');
+assert(mobileCss.includes('scroll-snap-type:x proximity')&&mobileCss.includes('scrollbar-width:none'),'Horizontal navigation must remain deliberate and touch-friendly.');
+assert(mobileCss.includes('.demo-lens-control')&&mobileCss.includes('.preview-strip')&&mobileCss.includes('.form-section'),'Mobile polish must compact secondary chrome and long forms without removing them.');
+assert(!/display\s*:\s*none[^}]*\.form-section|\.form-section[^}]*display\s*:\s*none/i.test(mobileCss),'Mobile form sections must remain visible.');
 assert(navIa.includes('.sidebar{overflow-y:auto'),'Desktop/laptop sidebar must remain independently scrollable.');
 assert(navIa.includes("['analysis','documents','settings']"),'Analysis, document placeholder and settings must be demoted from main navigation.');
 for(const id of ['#demoJourneyNav','#notificationsNav','#auditNav','#documentsCenterNav','#onboardingNav'])assert(navIa.includes(id),`Navigation IA must demote ${id} from the main list.`);
