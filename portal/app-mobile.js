@@ -1,19 +1,19 @@
 (()=>{
 'use strict';
 
-const MOBILE_UX_VERSION='2026-09-05c';
+const MOBILE_UX_VERSION='2026-09-05e';
 const MOBILE_BREAKPOINT=780;
 const COLLAPSE_AFTER=84;
 const RESTORE_AT=20;
-const NAVIGATION_IA_VERSION='2026-09-05c';
-const WORKDAY_CHROME_VERSION='2026-09-05d';
+const NAVIGATION_IA_VERSION='2026-09-05e';
+const WORKDAY_CHROME_VERSION='2026-09-05e';
 
 function addMobileStyles(){
   if(document.querySelector('link[data-aidme-mobile]'))return;
   const link=document.createElement('link');link.rel='stylesheet';link.href=`./mobile.css?v=${MOBILE_UX_VERSION}`;link.dataset.aidmeMobile='1';document.head.appendChild(link);
 }
 function clearLegacyNavigationSnapshots(){
-  try{['aidme:navigation-snapshot:v1','aidme:navigation-snapshot:v2'].forEach(key=>sessionStorage.removeItem(key))}catch{}
+  try{['aidme:navigation-snapshot:v1','aidme:navigation-snapshot:v2','aidme:navigation-snapshot:v3'].forEach(key=>sessionStorage.removeItem(key))}catch{}
 }
 function addWorkdayChrome(){
   if(!document.querySelector('link[data-aidme-workday-mobile]')){
@@ -34,10 +34,18 @@ function installMobileNavAutoHide(){
   let ticking=false,userScrollSeen=false,lastY=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);
   const reveal=()=>{sidebar.classList.remove('mobile-nav-hidden');sidebar.removeAttribute('aria-hidden')};
   const conceal=()=>{sidebar.classList.add('mobile-nav-hidden');sidebar.setAttribute('aria-hidden','true')};
+  const activeIsOverview=active=>{
+    if(!active)return false;
+    if(active.dataset?.view==='overview')return true;
+    const label=active.querySelector('b')?.textContent?.trim();
+    const href=active.getAttribute('href')||'';
+    return label==='Oversikt'||href==='./'||href.endsWith('/portal/')||href.endsWith('/portal');
+  };
   const centerActive=({smooth=true}={})=>{
     if(window.innerWidth>MOBILE_BREAKPOINT||!nav)return;
     const active=nav.querySelector('.nav-item.active,[aria-current="page"]');if(!active)return;
-    const left=Math.max(0,active.offsetLeft-(nav.clientWidth-active.offsetWidth)/2);nav.scrollTo({left,behavior:smooth?'smooth':'auto'});
+    const left=activeIsOverview(active)?0:Math.max(0,active.offsetLeft-(nav.clientWidth-active.offsetWidth)/2);
+    nav.scrollTo({left,behavior:smooth?'smooth':'auto'});
   };
   const apply=()=>{
     ticking=false;if(window.innerWidth>MOBILE_BREAKPOINT){reveal();return}
