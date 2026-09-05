@@ -13,7 +13,7 @@ const mobile=read('./app-mobile.js');
 const mobileCss=read('./mobile.css');
 const navIa=read('./navigation-ia.js');
 assert(mobile.includes("MOBILE_UX_VERSION='2026-09-05c'"),'Shared portal shell must cache-bust the current mobile polish layer.');
-assert(mobile.includes("WORKDAY_CHROME_VERSION='2026-09-05c'")&&mobile.includes('app-workday-chrome.js')&&mobile.includes('workday-mobile.css'),'Shared portal shell must load the current workday chrome layer.');
+assert(mobile.includes("WORKDAY_CHROME_VERSION='2026-09-05d'")&&mobile.includes('app-workday-chrome.js')&&mobile.includes('workday-mobile.css'),'Shared portal shell must load the current workday chrome layer.');
 assert(mobile.includes("NAVIGATION_IA_VERSION='2026-09-05c'"),'Shared portal shell must cache-bust the current navigation IA layer.');
 assert(mobile.includes('navigation-ia.js'),'Shared portal shell must load the navigation IA layer.');
 assert(mobile.includes('userScrollSeen')&&mobile.includes('movingUp')&&mobile.includes('movingDown'),'Mobile navigation must distinguish restored scroll state from deliberate user scrolling.');
