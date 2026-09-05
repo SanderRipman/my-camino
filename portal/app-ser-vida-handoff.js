@@ -9,23 +9,24 @@ const SER_VIDA_HANDOFF_ERRORS={
   PARTICIPANT_NOT_FOUND:'Deltakeren er ikke tilgjengelig i denne konteksten.',
   STALE_STAGE:'Fasen ble endret et annet sted. Last arbeidsflaten på nytt.'
 };
-let participantInlineCollapsed=false;
+let participantInlineCollapsed=true;
 function serVidaHandoffError(code){return SER_VIDA_HANDOFF_ERRORS[code]||'VIDA kunne ikke startes. Ingen alternativ direkte databasevei ble brukt.'}
 function canStartVida(){return hasRole('program_lead')||hasRole('ser_lead')}
 function serVidaHandoffParticipant(){return canStartVida()?participantById(selectedParticipantId):null}
 function serVidaHandoffOpenSerTasks(p){return (tasks||[]).filter(t=>t.participant_id===p?.id&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status)&&String(t.workflow_key||'').startsWith('ser_'))}
+function participantRagText(value){return({GREEN:'Grønn',YELLOW:'Gul',RED:'Rød'})[String(value||'GREEN').toUpperCase()]||String(value||'Grønn')}
 
 async function startVidaHandoff(p,button,message){
   if(!p||p.stage!=='SER'){message.textContent='Deltakeren er ikke lenger i SER. Last arbeidsflaten på nytt.';return}
   const open=serVidaHandoffOpenSerTasks(p),pilot=participantPilot(p.id);
   const detail=open.length?` Det finnes ${open.length} åpne SER-oppgave${open.length===1?'':'r'}; de blir ikke automatisk markert ferdige.`:'';
-  const accepted=window.confirm(`Start VIDA for ${p.code_name}? Dette er en eksplisitt faseovergang fra SER til VIDA.${detail}`);
+  const accepted=window.confirm(`Fullfør SER og aktiver VIDA for ${p.code_name}? Bruk dette ved den faktiske overgangen når SER avsluttes. 72-timersbroen og videre VIDA-oppfølging starter fra dette tidspunktet.${detail}`);
   if(!accepted)return;
-  button.disabled=true;message.textContent='Kontrollerer tilgang og starter VIDA sikkert…';
+  button.disabled=true;message.textContent='Kontrollerer tilgang og aktiverer VIDA sikkert…';
   const {data,error}=await client.functions.invoke('workflow-command',{body:{action:'START_VIDA',participantId:p.id,pilotId:pilot?.id||null}});
   const code=data?.error||(!data?.ok&&error?'WORKFLOW_COMMAND_FAILED':null);
   if(error||code){message.textContent=serVidaHandoffError(code);button.disabled=false;return}
-  message.textContent='VIDA er startet. Oppdaterer deltaker, oppgaver og levende plan…';
+  message.textContent='VIDA er aktivert. Oppdaterer deltaker, oppgaver og levende plan…';
   await loadData();
   participantInlineCollapsed=false;
   renderAll();
@@ -46,7 +47,7 @@ function renderSerVidaHandoff(){
   if(!placement)return;
   const open=serVidaHandoffOpenSerTasks(p);
   const box=document.createElement('div');box.className='ser-vida-handoff';
-  box.innerHTML=`<div class="detail-stat"><span>Neste handling</span><strong>SER → VIDA</strong><small>Avslutt SER og start oppfølging hjemme. Overgangen skjer ikke automatisk; serveren kontrollerer rolle, sikker innlogging og navngitt VIDA-eier.</small></div>${open.length?`<p class="gate-hint">${open.length} åpne SER-oppgave${open.length===1?'':'r'} blir liggende synlig som kontekst og lukkes ikke automatisk.</p>`:''}<div class="form-actions"><button class="primary" type="button" data-start-vida>Avslutt SER og start VIDA</button></div><p class="message" data-ser-vida-handoff-message aria-live="polite"></p>`;
+  box.innerHTML=`<div class="detail-stat"><span>Neste handling</span><strong>SER → VIDA</strong><small>VIDA forberedes i siste del av SER. Fullfør faseovergangen først ved den faktiske avslutningen av SER; da starter 72-timersbroen og videre oppfølging hjemme.</small></div>${open.length?`<p class="gate-hint">${open.length} åpne SER-oppgave${open.length===1?'':'r'} blir liggende synlig som kontekst og lukkes ikke automatisk.</p>`:''}<div class="form-actions"><button class="primary" type="button" data-start-vida>Fullfør SER og aktiver VIDA</button></div><p class="message" data-ser-vida-handoff-message aria-live="polite"></p>`;
   if(placement.heading)placement.heading.insertAdjacentElement('afterend',box);else placement.detail.prepend(box);
   const empty=[...placement.detail.querySelectorAll('p')].find(el=>(el.textContent||'').trim()==='Ingen åpne oppgaver.');
   if(empty&&!open.length)empty.textContent='Ingen andre åpne SER-oppgaver.';
@@ -58,7 +59,10 @@ function installParticipantInlineStyles(){
   if(document.querySelector('#participant-inline-detail-style'))return;
   const style=document.createElement('style');style.id='participant-inline-detail-style';style.textContent=`
     @media(max-width:780px){
-      #participantList>#participantDetail.participant-detail-inline{width:100%;margin:0 0 12px;box-sizing:border-box;scroll-margin-top:84px}
+      #view-participants{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;padding-bottom:max(36px,env(safe-area-inset-bottom,0px))!important}
+      #view-participants .participant-layout{display:block!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
+      #participantList{display:grid!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;align-content:start!important}
+      #participantList>#participantDetail.participant-detail-inline{display:block;width:100%;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;margin:0 0 12px;padding-bottom:14px;box-sizing:border-box;scroll-margin-top:84px}
       #participantList>.participant-card.active{margin-bottom:0;border-bottom-left-radius:8px;border-bottom-right-radius:8px}
       #participantList>.participant-card.active+#participantDetail.participant-detail-inline{margin-top:6px}
       #participantList>#participantDetail.participant-detail-inline.participant-inline-collapsed{display:none!important}
@@ -96,9 +100,17 @@ function bindParticipantInlineToggle(){
     event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
   },true);
 }
+function localizeParticipantDetailRag(){
+  const p=participantById(selectedParticipantId),detail=document.querySelector('#participantDetail');if(!p||!detail)return;
+  const raw=latestCheckin(p.id)?.rag||'GREEN',text=participantRagText(raw),head=detail.querySelector('.card-head');if(!head)return;
+  const eyebrow=head.querySelector('.eyebrow'),pill=head.querySelector('.pill');
+  if(eyebrow)eyebrow.textContent=`${stageLabel(p.stage)} · ${text.toUpperCase()}`;
+  if(pill)pill.textContent=text;
+}
 function refreshSelectedParticipantAugmentations(){
   try{if(typeof renderSerVidaToday==='function')renderSerVidaToday()}catch{}
   renderSerVidaHandoff();
+  localizeParticipantDetailRag();
   placeParticipantDetailInline();
   bindParticipantInlineToggle();
 }
@@ -112,7 +124,6 @@ renderParticipants=function(){
 };
 const serVidaHandoffRenderAll=renderAll;
 renderAll=function(){
-  participantInlineCollapsed=false;
   restoreParticipantDetailHost();
   const result=serVidaHandoffRenderAll();
   setTimeout(refreshSelectedParticipantAugmentations,0);
