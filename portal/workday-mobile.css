@@ -2,61 +2,58 @@
 @media(max-width:780px){
   html.workday-mobile .sidebar{position:sticky!important;overflow:hidden!important}
 
-  /* Mobile branding is contextual: no separate logo block in the daily navigation. */
+  /* Daily mobile branding lives only in the active marker. */
   html.workday-mobile .sidebar .brand{display:none!important}
-  html.workday-mobile .sidebar nav{position:relative!important;z-index:1!important;margin-left:0!important}
+  html.workday-mobile .sidebar nav{position:relative!important;z-index:1!important;margin-left:0!important;padding-left:0!important;scroll-padding-left:0!important}
 
-  /* One stable baseline regardless of badges, role or main/standalone workspace. */
+  /* Stable, compact primary navigation. Numeric IA codes are intentionally hidden on mobile. */
   html.workday-mobile .sidebar .nav-item{
     position:relative!important;isolation:isolate!important;overflow:visible!important;
-    display:flex!important;grid-template-columns:none!important;align-items:center!important;gap:6px!important;
-    min-height:46px!important;padding:8px 10px!important;line-height:1.05!important;
+    display:flex!important;grid-template-columns:none!important;align-items:center!important;gap:5px!important;
+    min-height:58px!important;padding:7px 12px!important;line-height:1.05!important;
     border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
   }
-  html.workday-mobile .sidebar .nav-item:hover{background:rgba(255,255,255,.04)!important}
+  html.workday-mobile .sidebar .nav-item .nav-num{display:none!important}
+  html.workday-mobile .sidebar .nav-item:hover{background:rgba(255,255,255,.035)!important}
   html.workday-mobile .sidebar .nav-item.active,
   html.workday-mobile .sidebar .nav-item[aria-current="page"],
   html.workday-mobile .sidebar .nav-item.active:hover,
   html.workday-mobile .sidebar .nav-item[aria-current="page"]:hover{
-    background:transparent!important;border:0!important;box-shadow:none!important;color:#fff!important;
+    background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#fff!important;
   }
 
   /*
-     Active marker: the original AidMe mark itself, with its aspect ratio untouched.
-     The native green disc is darkened slightly against the menu; its original linework
-     remains visible instead of being blown out into a white circle. No rectangular tab marker.
+     Final logo-marker trial:
+     - entire original mark fits inside nav height (no top/bottom crop)
+     - native green body stays visible
+     - pale linework is deliberately quieter than the label
+     - no legacy rectangle/gold crescent is allowed to compete with the mark
   */
   html.workday-mobile .sidebar .nav-item.active::before,
   html.workday-mobile .sidebar .nav-item[aria-current="page"]::before{
     content:"";position:absolute!important;left:50%!important;top:50%!important;
-    width:82px!important;height:82px!important;transform:translate(-50%,-50%)!important;
+    width:54px!important;height:54px!important;transform:translate(-50%,-50%)!important;
     z-index:-1!important;pointer-events:none!important;
     background:url('/vida/assets/AIDME_Logo-original-web.webp') center/contain no-repeat!important;
-    opacity:.62!important;filter:saturate(.62) brightness(.80) contrast(1.28)!important;
+    opacity:.48!important;filter:saturate(.72) brightness(.79) contrast(1.08)!important;
   }
   html.workday-mobile .sidebar .nav-item.active::after,
   html.workday-mobile .sidebar .nav-item[aria-current="page"]::after{
     content:"";position:absolute!important;left:50%!important;top:50%!important;
-    width:72px!important;height:72px!important;transform:translate(-50%,-50%)!important;
+    width:50px!important;height:50px!important;transform:translate(-50%,-50%)!important;
     z-index:-2!important;pointer-events:none!important;border-radius:50%!important;
-    background:radial-gradient(circle,rgba(159,191,186,.10) 0%,rgba(14,49,48,.05) 58%,rgba(14,49,48,0) 74%)!important;
+    background:radial-gradient(circle,rgba(46,105,99,.54) 0%,rgba(32,82,78,.40) 55%,rgba(14,49,48,0) 74%)!important;
   }
   html.workday-mobile .sidebar .nav-item>*{position:relative!important;z-index:1!important}
-  html.workday-mobile .sidebar .nav-item .nav-num{
-    flex:0 0 22px!important;width:22px!important;text-align:center!important;
-    font-size:9px!important;line-height:1!important;opacity:.72!important;
-  }
   html.workday-mobile .sidebar .nav-item b{
     flex:0 0 auto!important;min-width:0!important;line-height:1.05!important;white-space:nowrap!important;
     font-size:13px!important;font-weight:720!important;letter-spacing:-.01em!important;
   }
   html.workday-mobile .sidebar .nav-item.active b,
   html.workday-mobile .sidebar .nav-item[aria-current="page"] b{
-    font-weight:820!important;text-shadow:0 1px 3px rgba(5,31,30,.72)!important;
+    font-weight:820!important;text-shadow:0 1px 3px rgba(5,31,30,.78)!important;
   }
-  html.workday-mobile .sidebar .nav-item.active .nav-num,
-  html.workday-mobile .sidebar .nav-item[aria-current="page"] .nav-num{text-shadow:0 1px 3px rgba(5,31,30,.72)!important}
-  html.workday-mobile .sidebar .nav-badges{display:flex!important;align-items:center!important;gap:3px!important;margin-left:2px!important;min-height:22px!important}
+  html.workday-mobile .sidebar .nav-badges{display:flex!important;align-items:center!important;gap:3px!important;margin-left:3px!important;min-height:22px!important}
   html.workday-mobile .sidebar .nav-badges:empty{display:none!important;min-height:0!important}
   html.workday-mobile .sidebar .nav-count{transform:none!important;margin:0!important}
 
@@ -83,14 +80,15 @@
   html.workday-mobile .section-head h2{font-size:27px!important;line-height:1.05!important;margin-bottom:4px!important}
   html.workday-mobile .section-head p:not(.eyebrow){margin-bottom:0!important;font-size:12px!important;line-height:1.35!important}
   html.workday-mobile #profileAccessSummary{grid-column:1/-1}
+  html.workday-mobile .profile-tool-links{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  html.workday-mobile .profile-tool-links a{min-height:38px;padding:8px 11px}
 }
 
 @media(max-width:470px){
-  html.workday-mobile .sidebar .nav-item{padding-left:8px!important;padding-right:8px!important;gap:5px!important}
-  html.workday-mobile .sidebar .nav-item .nav-num{flex-basis:20px!important;width:20px!important}
+  html.workday-mobile .sidebar .nav-item{min-height:56px!important;padding-left:10px!important;padding-right:10px!important;gap:4px!important}
   html.workday-mobile .sidebar .nav-item.active::before,
-  html.workday-mobile .sidebar .nav-item[aria-current="page"]::before{width:76px!important;height:76px!important;opacity:.60!important}
+  html.workday-mobile .sidebar .nav-item[aria-current="page"]::before{width:52px!important;height:52px!important;opacity:.46!important}
   html.workday-mobile .sidebar .nav-item.active::after,
-  html.workday-mobile .sidebar .nav-item[aria-current="page"]::after{width:66px!important;height:66px!important}
+  html.workday-mobile .sidebar .nav-item[aria-current="page"]::after{width:48px!important;height:48px!important}
   html.workday-mobile #view-overview>.hero-panel.compact-hero{margin-top:4px!important}
 }
