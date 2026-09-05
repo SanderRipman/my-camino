@@ -17,7 +17,11 @@ assert(layer.includes('loadData()')&&layer.includes('renderAll()'),'Successful t
 assert(layer.includes('ikke automatisk')&&layer.includes('åpne SER-oppgave'),'Handoff copy must make the human transition explicit and avoid silently closing SER work');
 assert(layer.includes("document.querySelector('#participantDetail')")&&layer.includes('Neste handling'),'SER→VIDA must be surfaced in the participant next-action area rather than buried after journey/status cards');
 assert(layer.includes("empty.textContent='Ingen andre åpne SER-oppgaver.'"),'Empty task copy must not contradict the explicit SER→VIDA next action');
+assert(layer.includes('const serVidaHandoffRenderParticipants=renderParticipants')&&layer.includes('refreshSelectedParticipantAugmentations'),'Changing the selected participant must rerender SER/VIDA augmentations without waiting for renderAll');
+assert(layer.includes("typeof renderSerVidaToday==='function'")&&layer.includes('renderSerVidaHandoff()'),'Participant selection must refresh both the phase card and explicit handoff');
+assert(layer.includes('restoreParticipantDetailHost()')&&layer.includes("active.insertAdjacentElement('afterend',detail)"),'Mobile participant detail must move inline under the selected participant and be restored safely before list rerender');
+assert(layer.includes('participantInlineCollapsed')&&layer.includes('participant-inline-collapsed'),'Selected participant must support inline expand/collapse on mobile');
 assert(layer.includes('window.confirm'),'Stage transition must require an explicit staff confirmation click');
 assert(ops.includes("p.stage==='SER'||p.stage==='VIDA'")&&!ops.includes("action='START_VIDA'")&&!ops.includes("action='START_NEW_VIA'"),'Generic ops layer must not render duplicate SER/VIDA transition controls');
 
-console.log('SER→VIDA explicit staff handoff, next-action placement, project-owner least-privilege and dedupe invariants OK');
+console.log('SER→VIDA explicit staff handoff, selection lifecycle, inline participant detail and least-privilege invariants OK');
