@@ -16,7 +16,12 @@ function addMobileStyles(){
   link.dataset.aidmeMobile='1';
   document.head.appendChild(link);
 }
-
+function migrateNavigationSnapshot(){
+  try{
+    const legacy=sessionStorage.getItem('aidme:navigation-snapshot:v1');
+    if(!sessionStorage.getItem('aidme:navigation-snapshot:v2')&&legacy)sessionStorage.setItem('aidme:navigation-snapshot:v2',legacy);
+  }catch{}
+}
 function addWorkdayChrome(){
   if(!document.querySelector('link[data-aidme-workday-mobile]')){
     const link=document.createElement('link');
@@ -29,64 +34,40 @@ function addWorkdayChrome(){
     document.head.appendChild(script);
   }
 }
-
 function addNavigationIa(){
+  migrateNavigationSnapshot();
   if(document.querySelector('script[data-aidme-navigation-ia]'))return;
   const script=document.createElement('script');
   script.src=`./navigation-ia.js?v=${NAVIGATION_IA_VERSION}`;
   script.dataset.aidmeNavigationIa='1';
   document.head.appendChild(script);
 }
-
 function installMobileNavAutoHide(){
   const sidebar=document.querySelector('.sidebar');
   if(!sidebar||sidebar.dataset.mobileAutoHide)return;
   sidebar.dataset.mobileAutoHide='1';
   const nav=sidebar.querySelector('nav');
-
-  let ticking=false;
-  let userScrollSeen=false;
-  let lastY=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);
-
-  const reveal=()=>{
-    sidebar.classList.remove('mobile-nav-hidden');
-    sidebar.removeAttribute('aria-hidden');
-  };
-  const conceal=()=>{
-    sidebar.classList.add('mobile-nav-hidden');
-    sidebar.setAttribute('aria-hidden','true');
-  };
+  let ticking=false,userScrollSeen=false,lastY=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);
+  const reveal=()=>{sidebar.classList.remove('mobile-nav-hidden');sidebar.removeAttribute('aria-hidden')};
+  const conceal=()=>{sidebar.classList.add('mobile-nav-hidden');sidebar.setAttribute('aria-hidden','true')};
   const centerActive=({smooth=true}={})=>{
     if(window.innerWidth>MOBILE_BREAKPOINT||!nav)return;
-    const active=nav.querySelector('.nav-item.active,[aria-current="page"]');
-    if(!active)return;
-    const left=Math.max(0,active.offsetLeft-(nav.clientWidth-active.offsetWidth)/2);
-    nav.scrollTo({left,behavior:smooth?'smooth':'auto'});
+    const active=nav.querySelector('.nav-item.active,[aria-current="page"]');if(!active)return;
+    const left=Math.max(0,active.offsetLeft-(nav.clientWidth-active.offsetWidth)/2);nav.scrollTo({left,behavior:smooth?'smooth':'auto'});
   };
   const apply=()=>{
-    ticking=false;
-    if(window.innerWidth>MOBILE_BREAKPOINT){reveal();return}
-    const y=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);
-    const focusInside=sidebar.contains(document.activeElement);
-    const movingUp=y<lastY-2;
-    const movingDown=y>lastY+2;
-    if(!userScrollSeen||y<=RESTORE_AT||focusInside||movingUp)reveal();
-    else if(movingDown&&y>=COLLAPSE_AFTER)conceal();
-    lastY=y;
+    ticking=false;if(window.innerWidth>MOBILE_BREAKPOINT){reveal();return}
+    const y=Math.max(0,window.scrollY||document.documentElement.scrollTop||0),focusInside=sidebar.contains(document.activeElement),movingUp=y<lastY-2,movingDown=y>lastY+2;
+    if(!userScrollSeen||y<=RESTORE_AT||focusInside||movingUp)reveal();else if(movingDown&&y>=COLLAPSE_AFTER)conceal();lastY=y;
   };
   const schedule=()=>{if(ticking)return;ticking=true;requestAnimationFrame(apply)};
-  const resetAndReveal=()=>{
-    userScrollSeen=false;lastY=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);reveal();
-    requestAnimationFrame(()=>centerActive({smooth:false}));
-  };
-
+  const resetAndReveal=()=>{userScrollSeen=false;lastY=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);reveal();requestAnimationFrame(()=>centerActive({smooth:false}))};
   window.addEventListener('scroll',()=>{userScrollSeen=true;schedule()},{passive:true});
   window.addEventListener('resize',schedule,{passive:true});
   window.addEventListener('pageshow',resetAndReveal);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)resetAndReveal()});
   sidebar.addEventListener('focusin',schedule);
   nav?.addEventListener('click',()=>{if(window.innerWidth<=MOBILE_BREAKPOINT){reveal();window.setTimeout(()=>centerActive(),0)}});
-
   if(typeof show==='function'){
     const mobileShow=show;
     show=function(name){mobileShow(name);if(window.innerWidth<=MOBILE_BREAKPOINT){reveal();window.setTimeout(()=>centerActive(),0)}};
@@ -94,8 +75,5 @@ function installMobileNavAutoHide(){
   resetAndReveal();
 }
 
-addMobileStyles();
-addWorkdayChrome();
-addNavigationIa();
-installMobileNavAutoHide();
+addMobileStyles();addWorkdayChrome();addNavigationIa();installMobileNavAutoHide();
 })();
