@@ -5,8 +5,9 @@ const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
 const js=read('./app-workday-chrome.js');
 const css=read('./workday-mobile.css');
 
-assert(js.includes("WORKDAY_CHROME_VERSION='2026-09-05c'"),'Workday chrome must be versioned for cache busting.');
+assert(js.includes("WORKDAY_CHROME_VERSION='2026-09-05d'"),'Workday chrome must be versioned for cache busting.');
 assert(js.includes("/^Beta:/i")&&js.includes(".demo-note")&&js.includes("workday-dev-ui"),'Non-final beta/demo chrome must be removed or hidden from everyday work views.');
+assert(js.includes('ensureMobileAttention()')&&js.includes("bar.id='mobileAttentionBar'")&&js.includes("typeof updateMobileAttention==='function'"),'Mobile task-status summary must have a stable host independent of the removed beta strip.');
 assert(js.includes("data-view=\"settings\"")&&js.includes("textContent='Profil'")&&js.includes("href='./#settings'"),'Profile must remain reachable after daily identity controls are removed.');
 assert(js.includes('Tilgang og roller')&&js.includes('safeActiveRoles()'),'Profile must expose active role context instead of repeating it in every work header.');
 assert(js.includes('Retning, ressurser, trygghet og neste gate.')&&js.includes('Neste handling, eier og 72t · 14 · 30 · 90.'),'VÍA/VIDA workday reminders must be concise.');
