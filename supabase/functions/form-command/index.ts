@@ -19,10 +19,6 @@ function claims(token:string){
 }
 function id(v:unknown){const s=String(v??'').trim();return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(s)?s:null}
 function same(a:unknown,b:unknown){return (a??null)===(b??null)}
-function grantActive(g:any,participantId:string|null,pilotId:string|null){
-  const now=new Date()
-  return !g.revoked_at&&(!g.valid_from||new Date(g.valid_from)<=now)&&(!g.valid_until||new Date(g.valid_until)>now)&&(!g.participant_id||g.participant_id===participantId)&&(!g.pilot_id||g.pilot_id===pilotId)
-}
 function safeCode(error:any){
   const message=String(error?.message??'')
   for(const code of ['FORM_VERSION_NOT_ACTIVE','FORM_PAYLOAD_MUST_BE_OBJECT','UNEXPECTED_FORM_FIELD','REQUIRED_CONFIRMATION_MISSING','REQUIRED_SELECTION_MISSING','REQUIRED_ACTION_MISSING','REQUIRED_VALUE_MISSING','INDIVIDUAL_GO_REQUIRES_PARTICIPANT','INVALID_INDIVIDUAL_GO_DECISION','GO_REQUIRES_ALL_GATES_YES','CONDITIONAL_GO_REQUIRES_CORE_FIT_AND_CONDITIONS','PILOT_GO_REQUIRES_PILOT','INVALID_PILOT_GO_DECISION','PILOT_GO_REQUIRES_ALL_GATES_YES','PILOT_CONDITIONAL_GO_REQUIRES_CONDITIONS','PILOT_GO_REQUIRES_ALL_INDIVIDUAL_GATES_CLOSED','PILOT_GO_REQUIRES_NAMED_VIDA_OWNER_FOR_ALL','PARTICIPANT_AGREEMENT_FORM_REQUIRED','ACTIVE_PARTICIPANT_AGREEMENT_VERSION_REQUIRED','PILOT_GO_REQUIRES_PARTICIPANT_AGREEMENT','PILOT_GO_REQUIRES_AGREEMENT_TASKS_CLOSED','PILOT_GO_REQUIRES_PARTICIPANT_CONSENT','NAMED_VIDA_OWNER_REQUIRED']){
@@ -30,30 +26,6 @@ function safeCode(error:any){
   }
   if(error?.code==='42501'||message.toLowerCase().includes('row-level security'))return 'FORBIDDEN'
   return 'FORM_SAVE_FAILED'
-}
-
-async function canonicalizeVidaOwner(admin:any,payload:Record<string,unknown>,organizationId:string,participantId:string|null,pilotId:string|null,formVersionId:string){
-  if(!participantId)return payload
-  const {data:fv,error:fve}=await admin.from('form_versions').select('form_definition_id').eq('id',formVersionId).maybeSingle()
-  if(fve)throw fve
-  if(!fv?.form_definition_id)return payload
-  const {data:fd,error:fde}=await admin.from('form_definitions').select('key').eq('id',fv.form_definition_id).maybeSingle()
-  if(fde)throw fde
-  if(fd?.key!=='vida_plan')return payload
-
-  const {data:assessment,error:ae}=await admin.from('via_assessments').select('vida_owner_user_id').eq('participant_id',participantId).order('updated_at',{ascending:false}).limit(1).maybeSingle()
-  if(ae)throw ae
-  const ownerId=assessment?.vida_owner_user_id??null
-  if(!ownerId)throw new Error('NAMED_VIDA_OWNER_REQUIRED')
-
-  const {data:grants,error:ge}=await admin.from('role_grants').select('role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at').eq('user_id',ownerId).eq('organization_id',organizationId).eq('role_code','vida_owner')
-  if(ge)throw ge
-  if(!(grants??[]).some((g:any)=>grantActive(g,participantId,pilotId)))throw new Error('NAMED_VIDA_OWNER_REQUIRED')
-
-  const {data:profile,error:pe}=await admin.from('staff_profiles').select('full_name,active').eq('user_id',ownerId).eq('active',true).maybeSingle()
-  if(pe)throw pe
-  if(!profile?.full_name)throw new Error('NAMED_VIDA_OWNER_REQUIRED')
-  return {...payload,vida_owner:profile.full_name}
 }
 
 Deno.serve(async(req:Request)=>{
@@ -65,12 +37,10 @@ Deno.serve(async(req:Request)=>{
     if(!token)return new Response(JSON.stringify({error:'UNAUTHORIZED'}),{status:401,headers})
     if(claims(token).aal!=='aal2')return new Response(JSON.stringify({error:'MFA_REQUIRED'}),{status:403,headers})
     const publishable=JSON.parse(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS')??'{}').default
-    const secret=JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS')??'{}').default
-    if(!publishable||!secret)throw new Error('Missing keys')
-    // Database writes still use the caller JWT so RLS/auth.uid()/validation remain authoritative.
-    // The service client is used read-only to canonicalize the already-assigned VIDA owner.
+    if(!publishable)throw new Error('Missing publishable key')
+    // Deliberately use the caller's JWT for database writes. Existing RLS, auth.uid(), validation,
+    // formal gate and audit triggers therefore remain the hard authorization boundary.
     const userClient=createClient(Deno.env.get('SUPABASE_URL')!,publishable,{global:{headers:{Authorization:authHeader}},auth:{persistSession:false}})
-    const admin=createClient(Deno.env.get('SUPABASE_URL')!,secret,{auth:{persistSession:false}})
     const {data:userData,error:userError}=await userClient.auth.getUser(token)
     if(userError||!userData.user)return new Response(JSON.stringify({error:'UNAUTHORIZED'}),{status:401,headers})
 
@@ -84,7 +54,6 @@ Deno.serve(async(req:Request)=>{
     const organizationId=id(body?.organizationId),participantId=body?.participantId?id(body.participantId):null,pilotId=body?.pilotId?id(body.pilotId):null,formVersionId=id(body?.formVersionId),requestedSubmissionId=body?.submissionId?id(body.submissionId):null
     if(!organizationId||!formVersionId||(body?.participantId&&!participantId)||(body?.pilotId&&!pilotId)||(body?.submissionId&&!requestedSubmissionId))return new Response(JSON.stringify({error:'INVALID_CONTEXT'}),{status:400,headers})
     const now=new Date().toISOString()
-    const payload=await canonicalizeVidaOwner(admin,{...body.payload},organizationId,participantId,pilotId,formVersionId)
 
     let existing:any=null
     if(requestedSubmissionId){
@@ -106,21 +75,17 @@ Deno.serve(async(req:Request)=>{
 
     let result:any
     if(existing){
-      const patch={status,payload,updated_at:now,submitted_at:status==='SUBMITTED'?now:null}
+      const patch={status,payload:body.payload,updated_at:now,submitted_at:status==='SUBMITTED'?now:null}
       const {data,error}=await userClient.from('form_submissions').update(patch).eq('id',existing.id).eq('status','DRAFT').select('id,status,updated_at,submitted_at').maybeSingle()
       if(error){const code=safeCode(error);return new Response(JSON.stringify({error:code}),{status:code==='FORBIDDEN'?403:409,headers})}
       if(!data)return new Response(JSON.stringify({error:'STALE_DRAFT'}),{status:409,headers})
       result=data
     }else{
-      const row={organization_id:organizationId,participant_id:participantId,pilot_id:pilotId,form_version_id:formVersionId,submitted_by:userData.user.id,status,payload,updated_at:now,submitted_at:status==='SUBMITTED'?now:null}
+      const row={organization_id:organizationId,participant_id:participantId,pilot_id:pilotId,form_version_id:formVersionId,submitted_by:userData.user.id,status,payload:body.payload,updated_at:now,submitted_at:status==='SUBMITTED'?now:null}
       const {data,error}=await userClient.from('form_submissions').insert(row).select('id,status,updated_at,submitted_at').single()
       if(error){const code=safeCode(error);return new Response(JSON.stringify({error:code}),{status:code==='FORBIDDEN'?403:409,headers})}
       result=data
     }
     return new Response(JSON.stringify({ok:true,submission:result}),{status:200,headers})
-  }catch(error){
-    console.error(error)
-    const code=safeCode(error)
-    return new Response(JSON.stringify({error:code==='FORM_SAVE_FAILED'?'FORM_COMMAND_FAILED':code}),{status:code==='NAMED_VIDA_OWNER_REQUIRED'?409:500,headers})
-  }
+  }catch(error){console.error(error);return new Response(JSON.stringify({error:'FORM_COMMAND_FAILED'}),{status:500,headers})}
 })
