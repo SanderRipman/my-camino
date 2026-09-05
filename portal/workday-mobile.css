@@ -6,6 +6,20 @@
   html.workday-mobile .sidebar .brand{display:none!important}
   html.workday-mobile .sidebar nav{position:relative!important;z-index:1!important;margin-left:0!important;padding-left:0!important;scroll-padding-left:0!important}
 
+  /* Secondary tools never reappear in the primary row, even after a late Profile render. */
+  html.workday-mobile #mainNav .nav-item[data-view="analysis"],
+  html.workday-mobile #mainNav .nav-item[data-view="forms"],
+  html.workday-mobile #mainNav .nav-item[data-view="documents"],
+  html.workday-mobile #mainNav #adminLink,
+  html.workday-mobile #mainNav #crmNav,
+  html.workday-mobile #mainNav #demoJourneyNav,
+  html.workday-mobile #mainNav #notificationsNav,
+  html.workday-mobile #mainNav #auditNav,
+  html.workday-mobile #mainNav #documentsCenterNav,
+  html.workday-mobile #mainNav #onboardingNav,
+  html.workday-mobile #mainNav .nav-mobile-secondary,
+  html.workday-mobile #mainNav .nav-ia-demoted{display:none!important}
+
   /* Stable, compact primary navigation. Numeric IA codes are intentionally hidden on mobile. */
   html.workday-mobile .sidebar .nav-item{
     position:relative!important;isolation:isolate!important;overflow:visible!important;
@@ -22,25 +36,19 @@
     background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#fff!important;
   }
 
-  /*
-     Final logo marker:
-     - entire original mark fits inside the unchanged nav height
-     - native green body stays visible
-     - pale linework is slightly quieter than the label
-     - no rectangle/gold crescent competes with the mark
-  */
+  /* Final logo marker: a little more visual volume, with the same nav-line height. */
   html.workday-mobile .sidebar .nav-item.active::before,
   html.workday-mobile .sidebar .nav-item[aria-current="page"]::before{
     content:"";position:absolute!important;left:50%!important;top:50%!important;
-    width:58px!important;height:58px!important;transform:translate(-50%,-50%)!important;
+    width:60px!important;height:60px!important;transform:translate(-50%,-50%)!important;
     z-index:-1!important;pointer-events:none!important;
     background:url('/vida/assets/AIDME_Logo-original-web.webp') center/contain no-repeat!important;
-    opacity:.44!important;filter:saturate(.73) brightness(.78) contrast(1.03)!important;
+    opacity:.42!important;filter:saturate(.73) brightness(.78) contrast(1.02)!important;
   }
   html.workday-mobile .sidebar .nav-item.active::after,
   html.workday-mobile .sidebar .nav-item[aria-current="page"]::after{
     content:"";position:absolute!important;left:50%!important;top:50%!important;
-    width:54px!important;height:54px!important;transform:translate(-50%,-50%)!important;
+    width:56px!important;height:56px!important;transform:translate(-50%,-50%)!important;
     z-index:-2!important;pointer-events:none!important;border-radius:50%!important;
     background:radial-gradient(circle,rgba(46,105,99,.54) 0%,rgba(32,82,78,.40) 55%,rgba(14,49,48,0) 74%)!important;
   }
@@ -50,9 +58,7 @@
     font-size:13px!important;font-weight:720!important;letter-spacing:-.01em!important;
   }
   html.workday-mobile .sidebar .nav-item.active b,
-  html.workday-mobile .sidebar .nav-item[aria-current="page"] b{
-    font-weight:820!important;text-shadow:0 1px 3px rgba(5,31,30,.78)!important;
-  }
+  html.workday-mobile .sidebar .nav-item[aria-current="page"] b{font-weight:820!important;text-shadow:0 1px 3px rgba(5,31,30,.78)!important}
   html.workday-mobile .sidebar .nav-badges{display:flex!important;align-items:center!important;gap:3px!important;margin-left:3px!important;min-height:22px!important}
   html.workday-mobile .sidebar .nav-badges:empty{display:none!important;min-height:0!important}
   html.workday-mobile .sidebar .nav-count{transform:none!important;margin:0!important}
@@ -62,38 +68,48 @@
   html.workday-mobile .workday-dev-ui{display:none!important}
 
   /* Phase reminder, not a second hero. */
-  html.workday-mobile #view-overview>.hero-panel.compact-hero{
-    display:block!important;min-height:0!important;margin:6px 0 8px!important;padding:8px 11px!important;
-    border-radius:12px!important;box-shadow:none!important;background:rgba(255,253,248,.72)!important;
-  }
+  html.workday-mobile #view-overview>.hero-panel.compact-hero{display:block!important;min-height:0!important;margin:6px 0 8px!important;padding:8px 11px!important;border-radius:12px!important;box-shadow:none!important;background:rgba(255,253,248,.72)!important}
   html.workday-mobile #view-overview>.hero-panel.compact-hero h2,
   html.workday-mobile #view-overview>.hero-panel.compact-hero .hero-badge{display:none!important}
   html.workday-mobile #view-overview>.hero-panel.compact-hero .eyebrow{margin:0 0 2px!important;font-size:9px!important;line-height:1.15!important}
-  html.workday-mobile #view-overview #homeIntro{
-    margin:0!important;max-width:none!important;font-size:12px!important;line-height:1.25!important;
-    white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;color:#53636a!important;
-  }
+  html.workday-mobile #view-overview #homeIntro{margin:0!important;max-width:none!important;font-size:12px!important;line-height:1.25!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;color:#53636a!important}
 
-  /* Reach useful content sooner. */
+  /* Reach useful content sooner and keep an empty overview finite. */
+  html.workday-mobile #view-overview{min-height:0!important;padding-bottom:20px!important}
   html.workday-mobile #view-overview .metric-grid{margin:8px 0!important}
+  html.workday-mobile #overviewChart{display:block;max-width:100%!important;max-height:260px!important;height:auto!important}
+  html.workday-mobile .overview-no-data{min-height:0!important}
+  html.workday-mobile .overview-no-data #overviewChart,
+  html.workday-mobile .overview-no-data #overviewLegend{display:none!important}
+  html.workday-mobile .overview-data-state{display:flex;flex-direction:column;gap:3px;margin-top:8px;padding:14px;border:1px solid #d8d3c8;border-radius:14px;background:rgba(255,253,248,.82);color:#5b656a;font-size:12px;line-height:1.4}
+  html.workday-mobile .overview-data-state strong{color:#173333;font-size:14px}
+  html.workday-mobile .overview-data-state.hidden{display:none!important}
+
   html.workday-mobile .section-head{margin-top:6px!important;margin-bottom:8px!important}
   html.workday-mobile .section-head h2{font-size:27px!important;line-height:1.05!important;margin-bottom:4px!important}
   html.workday-mobile .section-head p:not(.eyebrow){margin-bottom:0!important;font-size:12px!important;line-height:1.35!important}
-  html.workday-mobile #profileAccessSummary{grid-column:1/-1}
+
+  /* Profile is the secondary hub. Access, tools and logout are separate visual units. */
+  html.workday-mobile #profileAccessSummary,
+  html.workday-mobile #profileToolsSummary{grid-column:1/-1}
   html.workday-mobile .profile-tool-links{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
   html.workday-mobile .profile-tool-links a{min-height:38px;padding:8px 11px;display:flex;align-items:center;justify-content:center;text-align:center}
+  html.workday-mobile .profile-logout-card{margin-top:14px!important;border-color:rgba(171,47,55,.32)!important}
+  html.workday-mobile .profile-logout-button{width:100%;min-height:44px;border:1px solid rgba(171,47,55,.42);border-radius:999px;background:rgba(171,47,55,.06);color:#a42f36;font:inherit;font-weight:800;cursor:pointer}
+  html.workday-mobile .profile-logout-button:focus-visible{outline:3px solid rgba(171,47,55,.25);outline-offset:2px}
 
-  /* Rolleintroduksjon belongs inside the guide card, never outside its visual boundary. */
-  html.workday-mobile .card-head:has(>a[href="./onboarding.html"]){display:flex!important;flex-wrap:wrap!important;align-items:flex-start!important}
-  html.workday-mobile .card-head>a[href="./onboarding.html"]{flex:0 0 auto!important;max-width:100%!important;margin-top:8px!important;align-self:flex-start!important}
+  /* Rolleintroduksjon action is a full-width row inside its own card. */
+  html.workday-mobile .role-intro-card .card-head{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:0!important;align-items:start!important}
+  html.workday-mobile .role-intro-card .card-head>div{min-width:0!important;width:100%!important}
+  html.workday-mobile .role-intro-card a[href="./onboarding.html"]{display:inline-flex!important;width:auto!important;max-width:100%!important;margin-top:12px!important;white-space:normal!important;justify-self:start!important;align-self:start!important}
 }
 
 @media(max-width:470px){
   html.workday-mobile .sidebar .nav-item{min-height:56px!important;padding-left:10px!important;padding-right:10px!important;gap:4px!important}
   html.workday-mobile .sidebar .nav-item.active::before,
-  html.workday-mobile .sidebar .nav-item[aria-current="page"]::before{width:56px!important;height:56px!important;opacity:.42!important}
+  html.workday-mobile .sidebar .nav-item[aria-current="page"]::before{width:58px!important;height:58px!important;opacity:.40!important}
   html.workday-mobile .sidebar .nav-item.active::after,
-  html.workday-mobile .sidebar .nav-item[aria-current="page"]::after{width:52px!important;height:52px!important}
+  html.workday-mobile .sidebar .nav-item[aria-current="page"]::after{width:54px!important;height:54px!important}
   html.workday-mobile #view-overview>.hero-panel.compact-hero{margin-top:4px!important}
   html.workday-mobile .profile-tool-links{grid-template-columns:1fr!important}
 }
