@@ -23,24 +23,24 @@
   }
 
   /*
-     Final logo-marker trial:
-     - entire original mark fits inside nav height (no top/bottom crop)
+     Final logo marker:
+     - entire original mark fits inside the unchanged nav height
      - native green body stays visible
-     - pale linework is deliberately quieter than the label
-     - no legacy rectangle/gold crescent is allowed to compete with the mark
+     - pale linework is slightly quieter than the label
+     - no rectangle/gold crescent competes with the mark
   */
   html.workday-mobile .sidebar .nav-item.active::before,
   html.workday-mobile .sidebar .nav-item[aria-current="page"]::before{
     content:"";position:absolute!important;left:50%!important;top:50%!important;
-    width:54px!important;height:54px!important;transform:translate(-50%,-50%)!important;
+    width:58px!important;height:58px!important;transform:translate(-50%,-50%)!important;
     z-index:-1!important;pointer-events:none!important;
     background:url('/vida/assets/AIDME_Logo-original-web.webp') center/contain no-repeat!important;
-    opacity:.48!important;filter:saturate(.72) brightness(.79) contrast(1.08)!important;
+    opacity:.44!important;filter:saturate(.73) brightness(.78) contrast(1.03)!important;
   }
   html.workday-mobile .sidebar .nav-item.active::after,
   html.workday-mobile .sidebar .nav-item[aria-current="page"]::after{
     content:"";position:absolute!important;left:50%!important;top:50%!important;
-    width:50px!important;height:50px!important;transform:translate(-50%,-50%)!important;
+    width:54px!important;height:54px!important;transform:translate(-50%,-50%)!important;
     z-index:-2!important;pointer-events:none!important;border-radius:50%!important;
     background:radial-gradient(circle,rgba(46,105,99,.54) 0%,rgba(32,82,78,.40) 55%,rgba(14,49,48,0) 74%)!important;
   }
@@ -80,15 +80,20 @@
   html.workday-mobile .section-head h2{font-size:27px!important;line-height:1.05!important;margin-bottom:4px!important}
   html.workday-mobile .section-head p:not(.eyebrow){margin-bottom:0!important;font-size:12px!important;line-height:1.35!important}
   html.workday-mobile #profileAccessSummary{grid-column:1/-1}
-  html.workday-mobile .profile-tool-links{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
-  html.workday-mobile .profile-tool-links a{min-height:38px;padding:8px 11px}
+  html.workday-mobile .profile-tool-links{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+  html.workday-mobile .profile-tool-links a{min-height:38px;padding:8px 11px;display:flex;align-items:center;justify-content:center;text-align:center}
+
+  /* Rolleintroduksjon belongs inside the guide card, never outside its visual boundary. */
+  html.workday-mobile .card-head:has(>a[href="./onboarding.html"]){display:flex!important;flex-wrap:wrap!important;align-items:flex-start!important}
+  html.workday-mobile .card-head>a[href="./onboarding.html"]{flex:0 0 auto!important;max-width:100%!important;margin-top:8px!important;align-self:flex-start!important}
 }
 
 @media(max-width:470px){
   html.workday-mobile .sidebar .nav-item{min-height:56px!important;padding-left:10px!important;padding-right:10px!important;gap:4px!important}
   html.workday-mobile .sidebar .nav-item.active::before,
-  html.workday-mobile .sidebar .nav-item[aria-current="page"]::before{width:52px!important;height:52px!important;opacity:.46!important}
+  html.workday-mobile .sidebar .nav-item[aria-current="page"]::before{width:56px!important;height:56px!important;opacity:.42!important}
   html.workday-mobile .sidebar .nav-item.active::after,
-  html.workday-mobile .sidebar .nav-item[aria-current="page"]::after{width:48px!important;height:48px!important}
+  html.workday-mobile .sidebar .nav-item[aria-current="page"]::after{width:52px!important;height:52px!important}
   html.workday-mobile #view-overview>.hero-panel.compact-hero{margin-top:4px!important}
+  html.workday-mobile .profile-tool-links{grid-template-columns:1fr!important}
 }
