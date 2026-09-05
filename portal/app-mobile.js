@@ -1,11 +1,12 @@
 (()=>{
 'use strict';
 
-const MOBILE_UX_VERSION='2026-09-04c';
+const MOBILE_UX_VERSION='2026-09-05a';
 const MOBILE_BREAKPOINT=780;
 const COLLAPSE_AFTER=84;
 const RESTORE_AT=20;
 const NAVIGATION_IA_VERSION='2026-09-02b';
+const WORKDAY_CHROME_VERSION='2026-09-05a';
 
 function addMobileStyles(){
   if(document.querySelector('link[data-aidme-mobile]'))return;
@@ -14,6 +15,19 @@ function addMobileStyles(){
   link.href=`./mobile.css?v=${MOBILE_UX_VERSION}`;
   link.dataset.aidmeMobile='1';
   document.head.appendChild(link);
+}
+
+function addWorkdayChrome(){
+  if(!document.querySelector('link[data-aidme-workday-mobile]')){
+    const link=document.createElement('link');
+    link.rel='stylesheet';link.href=`./workday-mobile.css?v=${WORKDAY_CHROME_VERSION}`;link.dataset.aidmeWorkdayMobile='1';
+    document.head.appendChild(link);
+  }
+  if(!document.querySelector('script[data-aidme-workday-chrome]')){
+    const script=document.createElement('script');
+    script.src=`./app-workday-chrome.js?v=${WORKDAY_CHROME_VERSION}`;script.dataset.aidmeWorkdayChrome='1';
+    document.head.appendChild(script);
+  }
 }
 
 function addNavigationIa(){
@@ -113,6 +127,7 @@ function installMobileNavAutoHide(){
 }
 
 addMobileStyles();
+addWorkdayChrome();
 addNavigationIa();
 installMobileNavAutoHide();
 })();
