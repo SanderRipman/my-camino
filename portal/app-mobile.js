@@ -1,12 +1,12 @@
 (()=>{
 'use strict';
 
-const MOBILE_UX_VERSION='2026-09-05a';
+const MOBILE_UX_VERSION='2026-09-05b';
 const MOBILE_BREAKPOINT=780;
 const COLLAPSE_AFTER=84;
 const RESTORE_AT=20;
-const NAVIGATION_IA_VERSION='2026-09-02b';
-const WORKDAY_CHROME_VERSION='2026-09-05a';
+const NAVIGATION_IA_VERSION='2026-09-05b';
+const WORKDAY_CHROME_VERSION='2026-09-05b';
 
 function addMobileStyles(){
   if(document.querySelector('link[data-aidme-mobile]'))return;
@@ -65,35 +65,18 @@ function installMobileNavAutoHide(){
   };
   const apply=()=>{
     ticking=false;
-    if(window.innerWidth>MOBILE_BREAKPOINT){
-      reveal();
-      return;
-    }
-
+    if(window.innerWidth>MOBILE_BREAKPOINT){reveal();return}
     const y=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);
     const focusInside=sidebar.contains(document.activeElement);
     const movingUp=y<lastY-2;
     const movingDown=y>lastY+2;
-
-    // Browser/auth restoration may resume the page below the top. Keep navigation visible
-    // until the user actually scrolls; then reveal on upward motion and hide only while
-    // deliberately moving down past the chrome threshold.
-    if(!userScrollSeen||y<=RESTORE_AT||focusInside||movingUp){
-      reveal();
-    }else if(movingDown&&y>=COLLAPSE_AFTER){
-      conceal();
-    }
+    if(!userScrollSeen||y<=RESTORE_AT||focusInside||movingUp)reveal();
+    else if(movingDown&&y>=COLLAPSE_AFTER)conceal();
     lastY=y;
   };
-  const schedule=()=>{
-    if(ticking)return;
-    ticking=true;
-    requestAnimationFrame(apply);
-  };
+  const schedule=()=>{if(ticking)return;ticking=true;requestAnimationFrame(apply)};
   const resetAndReveal=()=>{
-    userScrollSeen=false;
-    lastY=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);
-    reveal();
+    userScrollSeen=false;lastY=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);reveal();
     requestAnimationFrame(()=>centerActive({smooth:false}));
   };
 
@@ -102,27 +85,12 @@ function installMobileNavAutoHide(){
   window.addEventListener('pageshow',resetAndReveal);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)resetAndReveal()});
   sidebar.addEventListener('focusin',schedule);
+  nav?.addEventListener('click',()=>{if(window.innerWidth<=MOBILE_BREAKPOINT){reveal();window.setTimeout(()=>centerActive(),0)}});
 
-  nav?.addEventListener('click',()=>{
-    if(window.innerWidth<=MOBILE_BREAKPOINT){
-      reveal();
-      window.setTimeout(()=>centerActive(),0);
-    }
-  });
-
-  // Programmatic view changes (task return, auth return, shortcuts) should keep the active
-  // mobile navigation item visible without changing any routing or authorization behavior.
   if(typeof show==='function'){
     const mobileShow=show;
-    show=function(name){
-      mobileShow(name);
-      if(window.innerWidth<=MOBILE_BREAKPOINT){
-        reveal();
-        window.setTimeout(()=>centerActive(),0);
-      }
-    };
+    show=function(name){mobileShow(name);if(window.innerWidth<=MOBILE_BREAKPOINT){reveal();window.setTimeout(()=>centerActive(),0)}};
   }
-
   resetAndReveal();
 }
 
