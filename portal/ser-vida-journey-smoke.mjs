@@ -14,7 +14,8 @@ assert(build.includes("app-ser-vida.js")&&build.includes("'+serVida+'"),'SER/VID
 assert(layer.includes("phase==='SER'")&&layer.includes("phase==='VIDA'"),'Layer must handle SER and VIDA explicitly');
 assert(layer.includes('Første SER-dag')||layer.includes('første dag'),'SER day-zero must be a first-class participant state');
 assert(layer.includes('Pause, kortere etappe, transport')||layer.includes('pause, kortere etappe, transport'),'SER must preserve legitimate adaptation language');
-assert(layer.includes('Én levende plan')&&layer.includes('parallelle planer'),'VIDA must be framed as one living plan, not duplicate plans');
+assert(layer.includes('Én levende plan')&&layer.includes('samme VIDA-plan'),'VIDA must be framed as one living plan, not duplicate plans');
+assert(layer.includes('VIDA · etter SER')&&layer.includes('første 72 timene er broen fra avsluttet SER og hjemover'),'VIDA must begin at the formal end of SER and treat the first 72 hours as the bridge home, not require physical arrival home first');
 assert(layer.includes("primaryView:participantMode?'checkin':null"),'Participant SER card must route to the dedicated check-in view');
 assert(layer.includes("participantMode?null:`./form-runner.html?key=ser_daily"),'Staff SER card must keep the canonical operational ser_daily log');
 assert(layer.includes('Deltakerens egen korte innsjekk er et separat spor'),'Staff SER copy must distinguish participant self-report from the operational log');
@@ -28,5 +29,6 @@ assert(participantNext.includes("view:'checkin'")&&!participantNext.includes('ke
 assert(participantNext.includes('key=vida_plan'),'Participant VIDA task routing must remain present');
 assert(formRunner.includes("stage==='POSTPONED'||stage==='NO_GO'||stage==='SER'"),'Direct form runner UI must deny participant form access during SER');
 assert(!participantStageBoundary.includes("fd.key='ser_daily'"),'RLS participant form helper must deny direct ser_daily writes');
+assert(participantStageBoundary.includes("fd.key='vida_plan' and upper(p.stage::text)='VIDA'"),'Participant VIDA plan write must remain behind formal VIDA activation rather than silently crossing the SER boundary');
 
-console.log('SER participant/staff boundary and VIDA living-plan invariants OK');
+console.log('SER participant/staff boundary, formal SER→VIDA bridge and VIDA living-plan invariants OK');
