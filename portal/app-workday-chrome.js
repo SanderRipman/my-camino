@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const WORKDAY_CHROME_VERSION='2026-09-05b';
+const WORKDAY_CHROME_VERSION='2026-09-05c';
 const MOBILE_BREAKPOINT=780;
 const ROLE_LABELS={
   system_admin:'Systemadministrator',project_owner:'Prosjekteier',program_lead:'Programleder',
@@ -77,6 +77,8 @@ observer.observe(document.body,{subtree:true,childList:true,attributes:true,attr
 window.addEventListener('resize',schedule,{passive:true});
 window.addEventListener('pageshow',schedule);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});
-[0,180,420,900].forEach(delay=>window.setTimeout(apply,delay));
+document.addEventListener('aidme:portal-rendered',schedule);
+document.addEventListener('aidme:navigation-normalized',schedule);
+[0,180,420,900,1500].forEach(delay=>window.setTimeout(apply,delay));
 
 })();
