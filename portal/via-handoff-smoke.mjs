@@ -25,7 +25,7 @@ assert(formHtml.includes('form-review.js'),'Canonical form runner must load read
 assert(formReview.includes("row.status==='SUBMITTED'"),'Only completed submissions need the read-only review CTA');
 assert(formReview.includes('Se fullført'),'Submission history must expose a clear review action');
 assert(formReview.includes('Fullført · skrivebeskyttet'),'Review surface must explain immutability');
-assert(formReview.includes('Formell beslutning tas i riktig senere gate'),'Review must not imply that the roadmap itself is the decision');
+assert(formReview.includes('Formell beslutning tas i riktig senere beslutningspunkt'),'Review must not imply that the roadmap itself is the decision');
 assert(formReview.includes("params.get('latest')==='1'"),'Staff task deep-link must support opening the latest completed roadmap');
 assert(formReview.includes('Du trenger ikke «godkjenne deg selv»'),'Participant must be told that staff owns the later formal decision');
 
