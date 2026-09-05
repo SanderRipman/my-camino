@@ -65,10 +65,10 @@ function roleHomeStyles(){
     #view-overview.role-home-aggregate .role-home-hide-aggregate{display:none!important}
     #view-overview.role-home-aggregate .metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
     #contextMini{max-width:240px;line-height:1.35}
-    #groupPulse .pulse-row[data-vida-participant-link="1"]{cursor:pointer;border-radius:12px;padding:8px;margin:-8px;transition:background .15s ease,box-shadow .15s ease}
-    #groupPulse .pulse-row[data-vida-participant-link="1"]:hover{background:rgba(18,63,61,.055)}
-    #groupPulse .pulse-row[data-vida-participant-link="1"]:focus-visible{outline:3px solid rgba(200,164,93,.55);outline-offset:3px}
-    #groupPulse .vida-open-cue{margin-left:auto;font-weight:700;color:#123f3d;white-space:nowrap}
+    #groupPulse .pulse-row[data-pulse-participant-link="1"]{cursor:pointer;border-radius:12px;padding:8px;margin:-8px;transition:background .15s ease,box-shadow .15s ease}
+    #groupPulse .pulse-row[data-pulse-participant-link="1"]:hover{background:rgba(18,63,61,.055)}
+    #groupPulse .pulse-row[data-pulse-participant-link="1"]:focus-visible{outline:3px solid rgba(200,164,93,.55);outline-offset:3px}
+    #groupPulse .pulse-open-cue{margin-left:auto;font-weight:700;color:#123f3d;white-space:nowrap}
     .vida-owner-plan-action{border:1px solid rgba(18,63,61,.18);background:rgba(18,63,61,.035)}
     @media(max-width:760px){
       #view-overview .hero-panel.compact-hero{align-items:flex-start;gap:14px}
@@ -91,20 +91,21 @@ function vidaPlanHref(p){return `./form-runner.html?key=vida_plan&participant=${
 function vidaPlanActionMarkup(p){
   return `<a class="task-row vida-owner-plan-action" href="${vidaPlanHref(p)}" style="text-decoration:none;color:inherit"><i class="task-dot YELLOW"></i><div><b>Åpne VIDA-plan · ${escapeHtml(p.code_name)}</b><small>Én levende plan med første handling, 72 timer og videre 14/30/90-oppfølging.</small></div><div class="task-meta"><span class="pill YELLOW">Neste steg</span></div></a>`;
 }
-function openVidaParticipant(p){
+function openPulseParticipant(p){
   if(!p)return;selectedParticipantId=p.id;show('participants');renderParticipants();
 }
-function bindVidaPulseDrilldown(){
-  if(roleHomeLens()?.key!=='vida')return;
+function bindScopedPulseDrilldown(){
+  const lens=roleHomeLens();
+  if(!lens||lens.key==='aggregate')return;
   const rows=[...document.querySelectorAll('#groupPulse .pulse-row')];
   rows.forEach(row=>{
-    if(row.dataset.vidaParticipantLink==='1')return;
+    if(row.dataset.pulseParticipantLink==='1')return;
     const code=row.querySelector('b')?.textContent?.trim();
-    const p=(participants||[]).find(x=>x.code_name===code&&stageLabel(x.stage)==='VIDA');
+    const p=(participants||[]).find(x=>x.code_name===code);
     if(!p)return;
-    row.dataset.vidaParticipantLink='1';row.tabIndex=0;row.setAttribute('role','button');row.setAttribute('aria-label',`Åpne ${p.code_name} i VIDA-oppfølging`);
-    if(!row.querySelector('.vida-open-cue'))row.insertAdjacentHTML('beforeend','<span class="vida-open-cue">Åpne →</span>');
-    const open=()=>openVidaParticipant(p);
+    row.dataset.pulseParticipantLink='1';row.tabIndex=0;row.setAttribute('role','button');row.setAttribute('aria-label',`Åpne ${p.code_name} i deltakeroversikten`);
+    if(!row.querySelector('.pulse-open-cue'))row.insertAdjacentHTML('beforeend','<span class="pulse-open-cue">Åpne →</span>');
+    const open=()=>openPulseParticipant(p);
     row.addEventListener('click',open);row.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
   });
 }
@@ -171,7 +172,7 @@ function applyRoleAwareHome(){
     setOverviewMetricLabel(0,'Åpne VÍA-steg','avklaring, ansvar og beslutning');
     setOverviewMetricLabel(3,'Deltakere i VÍA','innen eksisterende scope');
   }
-  bindVidaPulseDrilldown();injectVidaOverviewActions();
+  bindScopedPulseDrilldown();injectVidaOverviewActions();
 }
 
 const roleHomeRenderTaskLists=renderTaskLists;
