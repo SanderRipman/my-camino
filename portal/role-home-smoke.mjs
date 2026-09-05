@@ -17,9 +17,12 @@ ok(role.includes("role-home-hide-aggregate")&&role.includes("metric-grid"),'Aggr
 ok(role.includes('72 timer')&&role.includes('14, 30 og 90 dager'),'VIDA owner lens must preserve one living follow-up arc');
 ok(role.includes('Veikart, vurdering og GO/NO-GO er separate steg.'),'VÍA lens must preserve separate roadmap/assessment/decision semantics');
 ok(!role.includes('client.')&&!role.includes('.from(')&&!role.includes('functions.invoke')&&!role.includes('fetch('),'Role-aware home must remain presentation-only with no backend access');
-ok(access.includes('!!session&&!isStaff()&&!ownParticipant()'),'Revoked/expired sessions must require either an active staff grant or participant identity');
+ok(access.includes('accessStateSettled&&!!session&&!isStaff()&&!ownParticipant()'),'No-access state must wait until canonical role/participant state has settled');
 ok(access.includes('Tilgangen din er ikke aktiv')&&access.includes('Ingen deltaker- eller arbeidsdata åpnes'),'No-access state must be explicit and fail closed');
 ok(access.includes("!['overview','help','security'].includes(name)"),'No-access state must block ordinary portal navigation');
+ok(access.includes("document.dispatchEvent(new CustomEvent('aidme:portal-rendered'")&&access.includes('clearNoActiveAccess()'),'Settled access state must announce render completion and clear stale no-access presentation');
+ok(!access.includes('setTimeout(renderNoActiveAccess'),'Access denial must never be decided by a fixed startup timer');
+ok(access.includes("data-access-state-hidden=\"1\"")||access.includes("dataset.accessStateHidden='1'"),'No-access renderer must track only the nodes it hides so valid access can be restored deterministically');
 ok(!access.includes('client.')&&!access.includes('.from(')&&!access.includes('functions.invoke')&&!access.includes('fetch('),'No-access presentation layer must not add backend access');
 ok(build.includes("app-role-home.js")&&build.includes("+roleHome+'\\n'"),'Role-aware home module is not concatenated by the deterministic build');
 ok(build.includes("app-access-state.js")&&build.includes("+accessState+'\\n'"),'Revoked-access fail-closed layer is not concatenated by the deterministic build');
