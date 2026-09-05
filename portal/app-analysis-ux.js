@@ -27,6 +27,8 @@ function analysisEnsureUx(){
       #analysisParticipants .chip[data-has-data="false"]{opacity:.58}
       #analysisParticipants .chip .analysis-chip-count{font-size:9px;font-weight:850;opacity:.8}
       .analysis-card .chart-frame{min-height:300px;background:#fffdf8;border:1px solid #dedbd2;border-radius:16px;padding:6px;overflow:hidden}
+      #overviewLegend .analysis-legend-item{font-size:11px;font-weight:650}
+      #overviewLegend .analysis-legend-line{width:20px;flex-basis:20px}
       @media(max-width:700px){.analysis-card{padding:16px}.analysis-controls{grid-template-columns:1fr 1fr}.analysis-controls .toggle-label{grid-column:1/-1}.analysis-card .chart-frame{height:312px;min-height:312px}.analysis-legend-item{font-size:11px}}
     `;document.head.appendChild(style)
   }
@@ -37,9 +39,9 @@ function analysisDateLabel(value){
   return new Intl.DateTimeFormat('nb-NO',{day:'2-digit',month:'2-digit'}).format(d);
 }
 function analysisDrawReadable(canvas,series){
-  const frame=canvas.parentElement,rect=frame.getBoundingClientRect();
-  const w=Math.max(280,Math.floor(rect.width-12)),h=window.innerWidth<=700?300:360,dpr=Math.min(2.5,Math.max(1,window.devicePixelRatio||1));
-  canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);canvas.style.width='100%';canvas.style.height=`${h}px`;
+  const frame=canvas.parentElement,rect=frame.getBoundingClientRect(),compact=canvas.id==='overviewChart';
+  const w=Math.max(280,Math.floor(rect.width-12)),h=compact?(window.innerWidth<=700?220:260):(window.innerWidth<=700?300:360),dpr=Math.min(2.5,Math.max(1,window.devicePixelRatio||1));
+  canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);canvas.style.setProperty('width','100%','important');canvas.style.setProperty('height',`${h}px`,'important');
   const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
   const pad={l:38,r:14,t:16,b:34},cw=Math.max(1,w-pad.l-pad.r),ch=Math.max(1,h-pad.t-pad.b);
   ctx.font='600 11px system-ui';ctx.textBaseline='middle';ctx.textAlign='right';
@@ -67,12 +69,32 @@ function renderReadableAnalysis(){
   ux.state.classList.add('hidden');
   let plotted=[...selected];if(document.querySelector('#showAverage')?.checked){const avg=analysisAverage(selected);if(avg.length)plotted.push({label:'Gruppesnitt',color:'#111820',dashed:true,values:avg})}
   analysisDrawReadable(ux.canvas,plotted);
-  ux.legend.innerHTML=plotted.map((s,i)=>{const dashed=s.dashed?'dashed':'solid',count=s.values.length;return `<span class="analysis-legend-item"><i class="analysis-legend-line" style="color:${s.color};border-top-style:${dashed}"></i><span>${escapeHtml(s.label)} <small>(${count})</small></span></span>`}).join('');
+  ux.legend.innerHTML=plotted.map(s=>{const dashed=s.dashed?'dashed':'solid',count=s.values.length;return `<span class="analysis-legend-item"><i class="analysis-legend-line" style="color:${s.color};border-top-style:${dashed}"></i><span>${escapeHtml(s.label)} <small>(${count})</small></span></span>`}).join('');
+}
+function analysisAggregateOnly(){
+  try{
+    if(!isStaff())return false;
+    const roles=new Set((accessGrants||[]).filter(activeGrant).map(g=>g.role_code));
+    const operational=['program_lead','via_owner','clinical_professional','ser_lead','vida_owner','logistics'].some(role=>roles.has(role));
+    return !operational&&['project_owner','observer','evaluator'].some(role=>roles.has(role));
+  }catch{return false}
+}
+function renderReadableOverview(){
+  analysisEnsureUx();
+  const canvas=document.querySelector('#overviewChart'),legend=document.querySelector('#overviewLegend');if(!canvas||!legend)return;
+  const series=participantSeries('agency',30).slice(0,3).map((s,i)=>({...s,color:ANALYSIS_COLORS[i%ANALYSIS_COLORS.length]}));
+  analysisDrawReadable(canvas,series);
+  legend.innerHTML=series.map((s,i)=>`<span class="analysis-legend-item"><i class="analysis-legend-line" style="color:${s.color};border-top-style:${ANALYSIS_DASHES[i%ANALYSIS_DASHES.length].length?'dashed':'solid'}"></i><span>${escapeHtml(s.label)}</span></span>`).join('');
 }
 
+const readableOverviewBase=renderOverviewChart;
+renderOverviewChart=function(){
+  if(!isStaff()||analysisAggregateOnly())return readableOverviewBase();
+  return renderReadableOverview();
+};
 renderAnalysis=renderReadableAnalysis;
 ['analysisMetric','analysisPeriod','showAverage'].forEach(id=>document.querySelector(`#${id}`)?.addEventListener('change',()=>setTimeout(renderReadableAnalysis,0)));
-window.addEventListener('orientationchange',()=>setTimeout(renderReadableAnalysis,120));
-if('ResizeObserver'in window){const frame=document.querySelector('#analysisChart')?.parentElement;if(frame)new ResizeObserver(entries=>{const width=Math.round(entries[0]?.contentRect?.width||0);if(!width||Math.abs(width-analysisResizeWidth)<2)return;analysisResizeWidth=width;cancelAnimationFrame(analysisResizeFrame);analysisResizeFrame=requestAnimationFrame(()=>{if(document.querySelector('#view-analysis')?.classList.contains('active'))renderReadableAnalysis()})}).observe(frame)}
-setTimeout(()=>{if(document.querySelector('#view-analysis')?.classList.contains('active'))renderReadableAnalysis()},260);
+window.addEventListener('orientationchange',()=>setTimeout(()=>{renderReadableAnalysis();if(document.querySelector('#view-overview')?.classList.contains('active'))renderOverviewChart()},120));
+if('ResizeObserver'in window){const frame=document.querySelector('#analysisChart')?.parentElement;if(frame)new ResizeObserver(entries=>{const width=Math.round(entries[0]?.contentRect?.width||0);if(!width||Math.abs(width-analysisResizeWidth)<2)return;analysisResizeWidth=width;cancelAnimationFrame(analysisResizeFrame);analysisResizeFrame=requestAnimationFrame(()=>{if(document.querySelector('#view-analysis')?.classList.contains('active'))renderReadableAnalysis();if(document.querySelector('#view-overview')?.classList.contains('active'))renderOverviewChart()})}).observe(frame)}
+setTimeout(()=>{if(document.querySelector('#view-analysis')?.classList.contains('active'))renderReadableAnalysis();if(document.querySelector('#view-overview')?.classList.contains('active'))renderOverviewChart()},260);
 })();
