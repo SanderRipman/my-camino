@@ -33,19 +33,24 @@ function serVidaTodayModel(p){
       milestones:[],
       primary:participantMode?null:`./form-runner.html?key=ser_daily&participant=${encodeURIComponent(p.id)}`,
       primaryView:participantMode?'checkin':null,
-      primaryLabel:participantMode?(dayZero?'Gjør første SER-innsjekk':'Åpne dagens innsjekk'):'Åpne daglig SER-operativlogg'
+      primaryLabel:participantMode?(dayZero?'Gjør første SER-innsjekk':'Åpne dagens innsjekk'):'Åpne daglig SER-operativlogg',
+      handoffNote:null
     };
   }
-  if(phase==='VIDA')return{
-    phase,
-    kicker:'VIDA · etter SER',
-    title:'Én levende plan – neste konkrete handling',
-    body:'VIDA aktiveres ved den faktiske avslutningen av SER. De første 72 timene er broen fra avsluttet SER og hjemover; deretter holdes neste handling, ansvar og oppfølging levende i samme VIDA-plan. 14, 30 og 90 dager er oppfølgingstidspunkter for den samme planen – ikke fire nye planer.',
-    route:null,checkin,open,milestones:serVidaMilestones(p),
-    primary:`./form-runner.html?key=vida_plan&participant=${encodeURIComponent(p.id)}`,
-    primaryView:null,
-    primaryLabel:'Åpne min levende VIDA-plan'
-  };
+  if(phase==='VIDA'){
+    const canOpenVidaPlan=participantMode||hasRole('vida_owner');
+    return{
+      phase,
+      kicker:'VIDA · etter SER',
+      title:'Én levende plan – neste konkrete handling',
+      body:'VIDA aktiveres ved den faktiske avslutningen av SER. De første 72 timene er broen fra avsluttet SER og hjemover; deretter holdes neste handling, ansvar og oppfølging levende i samme VIDA-plan. 14, 30 og 90 dager er oppfølgingstidspunkter for den samme planen – ikke fire nye planer.',
+      route:null,checkin,open,milestones:serVidaMilestones(p),
+      primary:canOpenVidaPlan?`./form-runner.html?key=vida_plan&participant=${encodeURIComponent(p.id)}`:null,
+      primaryView:null,
+      primaryLabel:participantMode?'Åpne min levende VIDA-plan':'Åpne levende VIDA-plan',
+      handoffNote:canOpenVidaPlan?null:'SER-overgangen er fullført. Du beholder nødvendig operativ handoff-kontekst, mens selve VIDA-planen redigeres av navngitt VIDA-eier. Dette er en bevisst rollegrense – ikke en feil i overgangen.'
+    };
+  }
   return null;
 }
 function serVidaMilestoneHtml(m){
@@ -55,12 +60,15 @@ function serVidaMilestoneHtml(m){
 }
 function serVidaActionHtml(m){
   if(m.primaryView)return `<button class="primary" type="button" data-ser-vida-view="${escapeHtml(m.primaryView)}">${escapeHtml(m.primaryLabel)}</button>`;
-  return `<a class="primary" href="${m.primary}">${escapeHtml(m.primaryLabel)}</a>`;
+  if(m.primary)return `<a class="primary" href="${m.primary}">${escapeHtml(m.primaryLabel)}</a>`;
+  if(m.handoffNote)return `<p class="privacy-note ser-vida-handoff-note">${escapeHtml(m.handoffNote)}</p>`;
+  return'';
 }
 function serVidaCardHtml(m){
   const route=m.route?`<div class="detail-stat"><span>Dagens etappe</span><strong>${escapeHtml(`${m.route.from_place} → ${m.route.to_place}${m.route.distance_km?` · ${m.route.distance_km} km`:''}`)}</strong></div>`:'';
   const last=m.checkin?.checkin_date?escapeHtml(m.checkin.checkin_date):'Ingen ennå';
-  return `<section class="panel-card ser-vida-today" data-ser-vida-phase="${m.phase}"><div class="card-head"><div><p class="eyebrow">${escapeHtml(m.kicker)}</p><h3>${escapeHtml(m.title)}</h3></div><span class="pill">${escapeHtml(m.phase)}</span></div><p>${escapeHtml(m.body)}</p><div class="detail-grid">${route}<div class="detail-stat"><span>Siste innsjekk</span><strong>${last}</strong></div><div class="detail-stat"><span>Åpne steg</span><strong>${m.open.length}</strong></div></div>${serVidaMilestoneHtml(m)}<div class="form-actions">${serVidaActionHtml(m)}</div></section>`;
+  const action=serVidaActionHtml(m);
+  return `<section class="panel-card ser-vida-today" data-ser-vida-phase="${m.phase}"><div class="card-head"><div><p class="eyebrow">${escapeHtml(m.kicker)}</p><h3>${escapeHtml(m.title)}</h3></div><span class="pill">${escapeHtml(m.phase)}</span></div><p>${escapeHtml(m.body)}</p><div class="detail-grid">${route}<div class="detail-stat"><span>Siste innsjekk</span><strong>${last}</strong></div><div class="detail-stat"><span>Åpne steg</span><strong>${m.open.length}</strong></div></div>${serVidaMilestoneHtml(m)}${action?`<div class="form-actions">${action}</div>`:''}</section>`;
 }
 function renderSerVidaToday(){
   const p=serVidaParticipant(),m=serVidaTodayModel(p);
