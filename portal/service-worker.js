@@ -1,4 +1,4 @@
-const CACHE='aidme-vida-shell-v6-20260905e';
+const CACHE='aidme-vida-shell-v6-20260905f';
 const SHELL=['./','./index.html','./styles.css?v=20260817b','./app.js?v=20260817b','./manifest.webmanifest?v=20260817b'];
 
 self.addEventListener('install',event=>{
