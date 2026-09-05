@@ -6,7 +6,7 @@ const MOBILE_BREAKPOINT=780;
 const COLLAPSE_AFTER=84;
 const RESTORE_AT=20;
 const NAVIGATION_IA_VERSION='2026-09-05c';
-const WORKDAY_CHROME_VERSION='2026-09-05c';
+const WORKDAY_CHROME_VERSION='2026-09-05d';
 
 function addMobileStyles(){
   if(document.querySelector('link[data-aidme-mobile]'))return;
