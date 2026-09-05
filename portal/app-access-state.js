@@ -12,6 +12,7 @@ function accessStateStyles(){
   style.textContent=`
     html.portal-no-active-access #mainNav .nav-item:not([data-view="overview"]):not([data-view="help"]){display:none!important;pointer-events:none!important}
     html.portal-no-active-access #badgeOverview,html.portal-no-active-access #badgeTasks,html.portal-no-active-access #badgeParticipants{display:none!important}
+    html.portal-no-active-access #mobileAttentionBar{display:none!important}
     #accessPending.access-revoked-card{max-width:980px;margin:0 auto}
   `;
   document.head.appendChild(style);
