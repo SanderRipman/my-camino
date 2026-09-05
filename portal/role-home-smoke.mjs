@@ -14,6 +14,8 @@ ok(role.includes("['program_lead','via_owner','clinical_professional','ser_lead'
 ok(role.includes("tasks=(allTasks||[]).filter(t=>!t.participant_id)"),'Aggregate-only queue must exclude participant-linked tasks');
 ok(role.includes(".nav-item[data-view=\"participants\"]")&&role.includes(".nav-item[data-view=\"checkin\"]"),'Aggregate navigation must suppress participant casework/check-in entry points');
 ok(role.includes("role-home-hide-aggregate")&&role.includes("metric-grid"),'Aggregate home must hide participant-centric metric/pulse presentation');
+ok(role.includes('bindScopedPulseDrilldown')&&role.includes("lens.key==='aggregate'")&&role.includes("(participants||[]).find(x=>x.code_name===code)"),'Pulse drilldown must work only from already-visible scoped participant rows and remain disabled for aggregate-only roles');
+ok(role.includes('data-pulse-participant-link')&&role.includes('Åpne ${p.code_name} i deltakeroversikten'),'Scoped pulse rows must be keyboard/click navigable into the participant view');
 ok(role.includes('72 timer')&&role.includes('14, 30 og 90 dager'),'VIDA owner lens must preserve one living follow-up arc');
 ok(role.includes('Veikart, vurdering og GO/NO-GO er separate steg.'),'VÍA lens must preserve separate roadmap/assessment/decision semantics');
 ok(!role.includes('client.')&&!role.includes('.from(')&&!role.includes('functions.invoke')&&!role.includes('fetch('),'Role-aware home must remain presentation-only with no backend access');
