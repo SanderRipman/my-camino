@@ -12,9 +12,9 @@ assert(!/supabase|role_grants|capabilit/i.test(chrome),'Standalone chrome must r
 const mobile=read('./app-mobile.js');
 const mobileCss=read('./mobile.css');
 const navIa=read('./navigation-ia.js');
-assert(mobile.includes("MOBILE_UX_VERSION='2026-09-05f'"),'Shared portal shell must cache-bust the final mobile micro-polish layer.');
-assert(mobile.includes("WORKDAY_CHROME_VERSION='2026-09-05f'")&&mobile.includes('app-workday-chrome.js')&&mobile.includes('workday-mobile.css'),'Shared portal shell must load the current workday chrome layer.');
-assert(mobile.includes("NAVIGATION_IA_VERSION='2026-09-05f'"),'Shared portal shell must cache-bust the current navigation IA layer.');
+assert(mobile.includes("MOBILE_UX_VERSION='2026-09-05g'"),'Shared portal shell must cache-bust the final finish-pass layer.');
+assert(mobile.includes("WORKDAY_CHROME_VERSION='2026-09-05g'")&&mobile.includes('app-workday-chrome.js')&&mobile.includes('workday-mobile.css'),'Shared portal shell must load the current workday chrome layer.');
+assert(mobile.includes("NAVIGATION_IA_VERSION='2026-09-05f'"),'Shared portal shell must keep the current navigation IA layer.');
 assert(mobile.includes('BRANDED_LOADER_MIN_MS=1250')&&mobile.includes('Ve.</span><span>Sé.</span><span>Vive.'),'Portal loading must present the canonical motto sequentially with a short minimum brand moment.');
 assert(mobile.includes('wrapSubsequentPortalLoads()')&&mobile.includes('installBrandedLoader()'),'Branded loading must apply to both the initial and subsequent portal loads without changing auth/data logic.');
 assert(mobile.includes('navigation-ia.js'),'Shared portal shell must load the navigation IA layer.');
@@ -55,7 +55,7 @@ for(const page of sidebarPages){
 
 const guide=read('./guide.html');
 assert(guide.includes('app-mobile.js'),'Program guide must load the common mobile/navigation shell.');
-assert(guide.includes('Slik fungerer det')&&guide.includes('Hjelp & SOS')&&guide.includes('Åpne rolleintroduksjon'),'Program guide must own the role-introduction entry point.');
+assert(guide.includes('role-intro-card')&&guide.includes('Slik fungerer det')&&guide.includes('Hjelp & SOS')&&guide.includes('Åpne rolleintroduksjon'),'Program guide must own the role-introduction entry point inside its card.');
 const onboarding=read('./onboarding.html');
 assert(onboarding.includes('app-mobile.js')&&onboarding.includes('simple-sidebar sidebar'),'Role introduction must participate in the shared role-aware mobile navigation shell.');
 assert(!onboarding.includes('class="active" href="./onboarding.html"'),'Role introduction must not advertise itself as a separate primary top-nav destination.');
