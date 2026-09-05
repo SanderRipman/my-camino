@@ -1,13 +1,17 @@
 (()=>{
 'use strict';
 
-const WORKDAY_CHROME_VERSION='2026-09-05e';
+const WORKDAY_CHROME_VERSION='2026-09-05f';
 const MOBILE_BREAKPOINT=780;
 const ROLE_LABELS={
   system_admin:'Systemadministrator',project_owner:'Prosjekteier',program_lead:'Programleder',
   via_owner:'VÍA-eier',clinical_professional:'Fagperson',ser_lead:'SER-/turleder',
   logistics:'Logistikk',vida_owner:'VIDA-eier',observer:'Observatør',evaluator:'Evaluator'
 };
+const MOBILE_SECONDARY_LABELS=new Set([
+  'Analyse','Dokumenter','Mine filer','Mine dokumenter','Skjema & rutiner','Varsler','Revisjon',
+  'Rolleintro','Rolleintroduksjon','Demo-reise','Demo-reise (LAB)','Administrasjon','Mini CRM'
+]);
 
 function mobile(){return window.innerWidth<=MOBILE_BREAKPOINT}
 function mainPortal(){return !!document.querySelector('#mainNav')}
@@ -34,11 +38,13 @@ function cleanNonFinalChrome(){
   document.querySelectorAll('.demo-lens-control,.demo-lens-banner').forEach(el=>el.classList.add('workday-dev-ui'));
 }
 function secondaryToolLinks(roles){
-  const links=[
-    '<a class="ghost compact" href="./#forms">Skjema & rutiner</a>',
-    '<a class="ghost compact" href="./documents.html">Mine dokumenter</a>',
-    '<a class="ghost compact" href="./guide.html">Slik fungerer det</a>'
-  ];
+  const links=[];
+  if(roles.length)links.push('<a class="ghost compact" href="./#analysis">Analyse</a>');
+  links.push('<a class="ghost compact" href="./#forms">Skjema & rutiner</a>');
+  links.push('<a class="ghost compact" href="./documents.html">Mine dokumenter</a>');
+  links.push('<a class="ghost compact" href="./notifications.html">Varsler</a>');
+  links.push('<a class="ghost compact" href="./guide.html">Slik fungerer det</a>');
+  links.push('<a class="ghost compact" href="./onboarding.html">Rolleintroduksjon</a>');
   if(roles.includes('system_admin'))links.push('<a class="ghost compact" href="./admin.html">Administrasjon</a>');
   return links.join('');
 }
@@ -48,7 +54,7 @@ function ensureProfileAccessSummary(){
   let card=document.querySelector('#profileAccessSummary');if(!card){card=document.createElement('article');card.id='profileAccessSummary';card.className='panel-card';host.appendChild(card)}
   const roles=safeActiveRoles(),sig=roles.slice().sort().join('|');if(card.dataset.roleSig===sig)return;card.dataset.roleSig=sig;
   const labels=roles.map(r=>ROLE_LABELS[r]||r);
-  card.innerHTML=`<h3>Tilgang og roller</h3><p class="privacy-note">${labels.length?'Aktive roller: '+labels.join(' · '):'Ingen aktiv arbeidsrolle er synlig ennå.'}</p><p class="privacy-note">Tilgang følger rolle, mandat og konkret deltaker-/pilotomfang. Utvidet tilgang skal være begrunnet og godkjent – ikke gitt gjennom en skjult snarvei.</p><div class="profile-tool-links" aria-label="Sekundære verktøy">${secondaryToolLinks(roles)}</div>`;
+  card.innerHTML=`<h3>Tilgang og roller</h3><p class="privacy-note">${labels.length?'Aktive roller: '+labels.join(' · '):'Ingen aktiv arbeidsrolle er synlig ennå.'}</p><p class="privacy-note">Tilgang følger rolle, mandat og konkret deltaker-/pilotomfang. Utvidet tilgang skal være begrunnet og godkjent – ikke gitt gjennom en skjult snarvei.</p><h4 style="margin:14px 0 6px">Verktøy og snarveier</h4><p class="privacy-note" style="margin-top:0">Sekundære valg ligger her for å holde den daglige toppmenyen stabil.</p><div class="profile-tool-links" aria-label="Sekundære verktøy">${secondaryToolLinks(roles)}</div>`;
 }
 function existingProfileItem(nav){
   return [...(nav?.querySelectorAll?.('.nav-item')||[])].find(item=>{
@@ -70,6 +76,18 @@ function promoteProfileNav(){
   const nav=document.querySelector('.app-shell .sidebar nav,.sidebar nav');if(!nav||existingProfileItem(nav))return;
   const a=document.createElement('a');a.className='nav-item mobile-profile-link';a.href='./#settings';a.innerHTML='<span class="nav-num">P</span><b>Profil</b>';nav.appendChild(a);
 }
+function enforceStableMobilePrimaryNav(){
+  if(!mobile()||!mainPortal())return;
+  const nav=document.querySelector('#mainNav');if(!nav)return;
+  const profile=nav.querySelector('.nav-item[data-view="settings"]');
+  for(const item of nav.querySelectorAll('.nav-item')){
+    if(item===profile)continue;
+    const label=item.querySelector('b')?.textContent?.trim()||'';
+    if(MOBILE_SECONDARY_LABELS.has(label))item.classList.add('nav-mobile-secondary');
+  }
+  const profiles=[...nav.querySelectorAll('.nav-item')].filter(item=>item.querySelector('b')?.textContent?.trim()==='Profil');
+  profiles.slice(1).forEach(item=>item.remove());
+}
 function shortHomeReminder(){
   if(!mobile()||!mainPortal())return;
   const intro=document.querySelector('#view-overview #homeIntro');if(!intro)return;
@@ -86,7 +104,7 @@ function shortHomeReminder(){
 function apply(){
   document.documentElement.classList.toggle('workday-mobile',mobile());
   document.documentElement.dataset.workdayChrome=WORKDAY_CHROME_VERSION;
-  ensureMobileAttention();cleanNonFinalChrome();ensureProfileAccessSummary();promoteProfileNav();shortHomeReminder();
+  ensureMobileAttention();cleanNonFinalChrome();ensureProfileAccessSummary();promoteProfileNav();enforceStableMobilePrimaryNav();shortHomeReminder();
 }
 
 let scheduled=false;
