@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const WORKDAY_CHROME_VERSION='2026-09-05d';
+const WORKDAY_CHROME_VERSION='2026-09-05e';
 const MOBILE_BREAKPOINT=780;
 const ROLE_LABELS={
   system_admin:'Systemadministrator',project_owner:'Prosjekteier',program_lead:'Programleder',
@@ -21,48 +21,54 @@ function ensureMobileAttention(){
   if(!mobile()||!mainPortal())return;
   const workspace=document.querySelector('#appView .workspace');if(!workspace)return;
   let bar=document.querySelector('#mobileAttentionBar');
-  if(!bar){
-    bar=document.createElement('div');bar.id='mobileAttentionBar';bar.className='mobile-attention-bar';
-    const firstView=workspace.querySelector('.view');if(firstView)workspace.insertBefore(bar,firstView);else workspace.appendChild(bar);
-  }else{
-    const firstView=workspace.querySelector('.view');
-    if(firstView&&bar.parentElement===workspace&&bar.nextElementSibling!==firstView)workspace.insertBefore(bar,firstView);
-  }
+  if(!bar){bar=document.createElement('div');bar.id='mobileAttentionBar';bar.className='mobile-attention-bar';const firstView=workspace.querySelector('.view');if(firstView)workspace.insertBefore(bar,firstView);else workspace.appendChild(bar)}
+  else{const firstView=workspace.querySelector('.view');if(firstView&&bar.parentElement===workspace&&bar.nextElementSibling!==firstView)workspace.insertBefore(bar,firstView)}
   try{if(typeof updateMobileAttention==='function')updateMobileAttention()}catch{}
 }
 function cleanNonFinalChrome(){
-  const auth=document.querySelector('#authView');
-  const authEyebrow=auth?.querySelector('.eyebrow');
+  const auth=document.querySelector('#authView');const authEyebrow=auth?.querySelector('.eyebrow');
   if(authEyebrow&&/beta/i.test(authEyebrow.textContent||''))authEyebrow.textContent='Sikker portal';
   auth?.querySelector('.preview-note')?.remove();
   document.querySelectorAll('.demo-note').forEach(el=>el.remove());
   document.querySelectorAll('#appView .preview-strip').forEach(el=>{if(/^Beta:/i.test((el.textContent||'').trim()))el.remove()});
   document.querySelectorAll('.demo-lens-control,.demo-lens-banner').forEach(el=>el.classList.add('workday-dev-ui'));
 }
+function secondaryToolLinks(roles){
+  const links=[
+    '<a class="ghost compact" href="./#forms">Skjema & rutiner</a>',
+    '<a class="ghost compact" href="./documents.html">Mine dokumenter</a>',
+    '<a class="ghost compact" href="./guide.html">Slik fungerer det</a>'
+  ];
+  if(roles.includes('system_admin'))links.push('<a class="ghost compact" href="./admin.html">Administrasjon</a>');
+  return links.join('');
+}
 function ensureProfileAccessSummary(){
   if(!mainPortal())return;
   const host=document.querySelector('#view-settings .settings-grid');if(!host)return;
-  let card=document.querySelector('#profileAccessSummary');
-  if(!card){card=document.createElement('article');card.id='profileAccessSummary';card.className='panel-card';host.appendChild(card)}
-  const roles=safeActiveRoles(),sig=roles.slice().sort().join('|');
-  if(card.dataset.roleSig===sig)return;card.dataset.roleSig=sig;
+  let card=document.querySelector('#profileAccessSummary');if(!card){card=document.createElement('article');card.id='profileAccessSummary';card.className='panel-card';host.appendChild(card)}
+  const roles=safeActiveRoles(),sig=roles.slice().sort().join('|');if(card.dataset.roleSig===sig)return;card.dataset.roleSig=sig;
   const labels=roles.map(r=>ROLE_LABELS[r]||r);
-  card.innerHTML=`<h3>Tilgang og roller</h3><p class="privacy-note">${labels.length?'Aktive roller: '+labels.join(' · '):'Ingen aktiv arbeidsrolle er synlig ennå.'}</p><p class="privacy-note">Tilgang følger rolle, mandat og konkret deltaker-/pilotomfang. Utvidet tilgang skal være begrunnet og godkjent – ikke gitt gjennom en skjult snarvei.</p>`;
+  card.innerHTML=`<h3>Tilgang og roller</h3><p class="privacy-note">${labels.length?'Aktive roller: '+labels.join(' · '):'Ingen aktiv arbeidsrolle er synlig ennå.'}</p><p class="privacy-note">Tilgang følger rolle, mandat og konkret deltaker-/pilotomfang. Utvidet tilgang skal være begrunnet og godkjent – ikke gitt gjennom en skjult snarvei.</p><div class="profile-tool-links" aria-label="Sekundære verktøy">${secondaryToolLinks(roles)}</div>`;
+}
+function existingProfileItem(nav){
+  return [...(nav?.querySelectorAll?.('.nav-item')||[])].find(item=>{
+    const label=item.querySelector('b')?.textContent?.trim();const href=item.getAttribute('href')||'';
+    return label==='Profil'||item.dataset?.view==='settings'||href.includes('#settings');
+  })||null;
 }
 function promoteProfileNav(){
-  if(!mobile())return;
-  if(document.documentElement.classList.contains('scope-pending'))return;
+  if(!mobile())return;if(document.documentElement.classList.contains('scope-pending'))return;
   const main=document.querySelector('#mainNav');
   if(main){
     const item=main.querySelector('.nav-item[data-view="settings"]');if(!item)return;
-    item.classList.remove('nav-ia-demoted','hidden');
-    const num=item.querySelector('.nav-num'),label=item.querySelector('b');if(num)num.textContent='P';if(label)label.textContent='Profil';
+    item.classList.remove('nav-ia-demoted','nav-mobile-secondary','hidden');
+    const label=item.querySelector('b');if(label)label.textContent='Profil';
     if(main.lastElementChild!==item)main.appendChild(item);
+    [...main.querySelectorAll('.nav-item')].filter(x=>x!==item&&x.querySelector('b')?.textContent?.trim()==='Profil').forEach(x=>x.remove());
     return;
   }
-  const nav=document.querySelector('.app-shell .sidebar nav');if(!nav||nav.querySelector('.mobile-profile-link'))return;
-  const a=document.createElement('a');a.className='nav-item mobile-profile-link';a.href='./#settings';
-  a.innerHTML='<span class="nav-num">P</span><b>Profil</b>';nav.appendChild(a);
+  const nav=document.querySelector('.app-shell .sidebar nav,.sidebar nav');if(!nav||existingProfileItem(nav))return;
+  const a=document.createElement('a');a.className='nav-item mobile-profile-link';a.href='./#settings';a.innerHTML='<span class="nav-num">P</span><b>Profil</b>';nav.appendChild(a);
 }
 function shortHomeReminder(){
   if(!mobile()||!mainPortal())return;
@@ -85,13 +91,8 @@ function apply(){
 
 let scheduled=false;
 function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;apply()})}
-const observer=new MutationObserver(schedule);
-observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
-window.addEventListener('resize',schedule,{passive:true});
-window.addEventListener('pageshow',schedule);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});
-document.addEventListener('aidme:portal-rendered',schedule);
-document.addEventListener('aidme:navigation-normalized',schedule);
+const observer=new MutationObserver(schedule);observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+window.addEventListener('resize',schedule,{passive:true});window.addEventListener('pageshow',schedule);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});document.addEventListener('aidme:portal-rendered',schedule);document.addEventListener('aidme:navigation-normalized',schedule);
 [0,180,420,900,1500].forEach(delay=>window.setTimeout(apply,delay));
-
 })();
