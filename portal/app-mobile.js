@@ -1,52 +1,36 @@
 (()=>{
 'use strict';
 
-const MOBILE_UX_VERSION='2026-09-05b';
+const MOBILE_UX_VERSION='2026-09-05c';
 const MOBILE_BREAKPOINT=780;
 const COLLAPSE_AFTER=84;
 const RESTORE_AT=20;
-const NAVIGATION_IA_VERSION='2026-09-05b';
-const WORKDAY_CHROME_VERSION='2026-09-05b';
+const NAVIGATION_IA_VERSION='2026-09-05c';
+const WORKDAY_CHROME_VERSION='2026-09-05c';
 
 function addMobileStyles(){
   if(document.querySelector('link[data-aidme-mobile]'))return;
-  const link=document.createElement('link');
-  link.rel='stylesheet';
-  link.href=`./mobile.css?v=${MOBILE_UX_VERSION}`;
-  link.dataset.aidmeMobile='1';
-  document.head.appendChild(link);
+  const link=document.createElement('link');link.rel='stylesheet';link.href=`./mobile.css?v=${MOBILE_UX_VERSION}`;link.dataset.aidmeMobile='1';document.head.appendChild(link);
 }
-function migrateNavigationSnapshot(){
-  try{
-    const legacy=sessionStorage.getItem('aidme:navigation-snapshot:v1');
-    if(!sessionStorage.getItem('aidme:navigation-snapshot:v2')&&legacy)sessionStorage.setItem('aidme:navigation-snapshot:v2',legacy);
-  }catch{}
+function clearLegacyNavigationSnapshots(){
+  try{['aidme:navigation-snapshot:v1','aidme:navigation-snapshot:v2'].forEach(key=>sessionStorage.removeItem(key))}catch{}
 }
 function addWorkdayChrome(){
   if(!document.querySelector('link[data-aidme-workday-mobile]')){
-    const link=document.createElement('link');
-    link.rel='stylesheet';link.href=`./workday-mobile.css?v=${WORKDAY_CHROME_VERSION}`;link.dataset.aidmeWorkdayMobile='1';
-    document.head.appendChild(link);
+    const link=document.createElement('link');link.rel='stylesheet';link.href=`./workday-mobile.css?v=${WORKDAY_CHROME_VERSION}`;link.dataset.aidmeWorkdayMobile='1';document.head.appendChild(link);
   }
   if(!document.querySelector('script[data-aidme-workday-chrome]')){
-    const script=document.createElement('script');
-    script.src=`./app-workday-chrome.js?v=${WORKDAY_CHROME_VERSION}`;script.dataset.aidmeWorkdayChrome='1';
-    document.head.appendChild(script);
+    const script=document.createElement('script');script.src=`./app-workday-chrome.js?v=${WORKDAY_CHROME_VERSION}`;script.dataset.aidmeWorkdayChrome='1';document.head.appendChild(script);
   }
 }
 function addNavigationIa(){
-  migrateNavigationSnapshot();
+  clearLegacyNavigationSnapshots();
   if(document.querySelector('script[data-aidme-navigation-ia]'))return;
-  const script=document.createElement('script');
-  script.src=`./navigation-ia.js?v=${NAVIGATION_IA_VERSION}`;
-  script.dataset.aidmeNavigationIa='1';
-  document.head.appendChild(script);
+  const script=document.createElement('script');script.src=`./navigation-ia.js?v=${NAVIGATION_IA_VERSION}`;script.dataset.aidmeNavigationIa='1';document.head.appendChild(script);
 }
 function installMobileNavAutoHide(){
-  const sidebar=document.querySelector('.sidebar');
-  if(!sidebar||sidebar.dataset.mobileAutoHide)return;
-  sidebar.dataset.mobileAutoHide='1';
-  const nav=sidebar.querySelector('nav');
+  const sidebar=document.querySelector('.sidebar');if(!sidebar||sidebar.dataset.mobileAutoHide)return;
+  sidebar.dataset.mobileAutoHide='1';const nav=sidebar.querySelector('nav');
   let ticking=false,userScrollSeen=false,lastY=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);
   const reveal=()=>{sidebar.classList.remove('mobile-nav-hidden');sidebar.removeAttribute('aria-hidden')};
   const conceal=()=>{sidebar.classList.add('mobile-nav-hidden');sidebar.setAttribute('aria-hidden','true')};
@@ -66,6 +50,7 @@ function installMobileNavAutoHide(){
   window.addEventListener('resize',schedule,{passive:true});
   window.addEventListener('pageshow',resetAndReveal);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)resetAndReveal()});
+  document.addEventListener('aidme:navigation-normalized',()=>window.setTimeout(()=>centerActive({smooth:false}),0));
   sidebar.addEventListener('focusin',schedule);
   nav?.addEventListener('click',()=>{if(window.innerWidth<=MOBILE_BREAKPOINT){reveal();window.setTimeout(()=>centerActive(),0)}});
   if(typeof show==='function'){
