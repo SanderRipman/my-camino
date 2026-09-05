@@ -19,6 +19,9 @@ assert(layer.includes('VIDA · etter SER')&&layer.includes('første 72 timene er
 assert(layer.includes("primaryView:participantMode?'checkin':null"),'Participant SER card must route to the dedicated check-in view');
 assert(layer.includes("participantMode?null:`./form-runner.html?key=ser_daily"),'Staff SER card must keep the canonical operational ser_daily log');
 assert(layer.includes('Deltakerens egen korte innsjekk er et separat spor'),'Staff SER copy must distinguish participant self-report from the operational log');
+assert(layer.includes("participantMode||hasRole('vida_owner')"),'Only participant or a VIDA-owner role may receive the VIDA-plan action after transition');
+assert(layer.includes('Du beholder nødvendig operativ handoff-kontekst')&&layer.includes('selve VIDA-planen redigeres av navngitt VIDA-eier'),'SER handoff must preserve necessary context without exposing VIDA-plan editing');
+assert(layer.includes('if(m.primary)return')&&layer.includes('if(m.handoffNote)return'),'Unavailable VIDA plan actions must render a human handoff explanation instead of a dead link');
 assert(layer.includes('vida_plan'),'VIDA participant action must keep the canonical living-plan form');
 assert(layer.includes('vida_72h')&&layer.includes('vida_14d')&&layer.includes('vida_30d')&&layer.includes('vida_90d'),'VIDA must surface the canonical 72h/14d/30d/90d follow-up rhythm');
 assert(layer.includes('oppfølgingstidspunkter for den samme planen')&&layer.includes('ikke fire nye planer'),'VIDA milestones must be explicitly framed as follow-up of one plan');
