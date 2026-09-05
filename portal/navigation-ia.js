@@ -1,12 +1,13 @@
 (()=>{
 'use strict';
 
-const NAV_IA_VERSION='2026-09-05e';
-const NAV_SNAPSHOT_KEY='aidme:navigation-snapshot:v4';
+const NAV_IA_VERSION='2026-09-05f';
+const NAV_SNAPSHOT_KEY='aidme:navigation-snapshot:v5';
 const NAV_SNAPSHOT_MAX_AGE_MS=2*60*60*1000;
 const MOBILE_BREAKPOINT=780;
 const page=(location.pathname.split('/').filter(Boolean).pop()||'index.html').replace('.html','');
 const mobile=()=>window.innerWidth<=MOBILE_BREAKPOINT;
+const MOBILE_SECONDARY_LABELS=new Set(['Analyse','Dokumenter','Mine filer','Mine dokumenter','Skjema & rutiner','Varsler','Revisjon','Rolleintro','Rolleintroduksjon','Demo-reise','Demo-reise (LAB)','Administrasjon','Mini CRM']);
 
 function addStyles(){
   if(document.getElementById('aidme-navigation-ia-style'))return;
@@ -50,28 +51,30 @@ const PAGE_META={
 };
 const SECONDARY_DIRECT_VIEWS=new Set(['forms','analysis','documents','settings']);
 
-function navItemVisible(el){return !!el&&!el.classList.contains('hidden')&&!el.classList.contains('nav-ia-demoted')&&!el.classList.contains('nav-mobile-secondary')&&getComputedStyle(el).display!=='none'}
+function navLabel(el){return el?.querySelector?.('b')?.textContent?.trim()||''}
+function mobilePrimaryEligible(el){return !mobile()||!MOBILE_SECONDARY_LABELS.has(navLabel(el))}
+function navItemVisible(el){return !!el&&!el.classList.contains('hidden')&&!el.classList.contains('nav-ia-demoted')&&!el.classList.contains('nav-mobile-secondary')&&mobilePrimaryEligible(el)&&getComputedStyle(el).display!=='none'}
 function navItemHref(el){const href=el.getAttribute('href');if(href)return href;const view=el.dataset.view;return view?`./#${view}`:null}
 function itemKey(item){return `${String(item.label||'').trim().toLowerCase()}|${String(item.href||'').replace(location.origin,'')}`}
 function dedupeItems(items=[]){const seen=new Set();return items.filter(item=>{const key=itemKey(item);if(!item.label||!item.href||seen.has(key))return false;seen.add(key);return true})}
 function overviewFirst(items=[]){return [...items].sort((a,b)=>Number(a.label!=='Oversikt')-Number(b.label!=='Oversikt'))}
 function persistMainSnapshot(nav){
   try{
-    let items=[...nav.querySelectorAll('.nav-item')].filter(navItemVisible).map(el=>({num:el.querySelector('.nav-num')?.textContent?.trim()||'',label:el.querySelector('b')?.textContent?.trim()||'',href:navItemHref(el),sub:el.classList.contains('nav-subitem'),badges:snapshotBadges(el)}));
+    let items=[...nav.querySelectorAll('.nav-item')].filter(navItemVisible).map(el=>({num:el.querySelector('.nav-num')?.textContent?.trim()||'',label:navLabel(el),href:navItemHref(el),sub:el.classList.contains('nav-subitem'),badges:snapshotBadges(el)}));
     items=overviewFirst(dedupeItems(items));
     if(items.length>=2)sessionStorage.setItem(NAV_SNAPSHOT_KEY,JSON.stringify({createdAt:Date.now(),items}));
   }catch{}
 }
 function readMainSnapshot(){
-  try{const raw=sessionStorage.getItem(NAV_SNAPSHOT_KEY);if(!raw)return null;const data=JSON.parse(raw);if(!data?.createdAt||Date.now()-data.createdAt>NAV_SNAPSHOT_MAX_AGE_MS||!Array.isArray(data.items)){sessionStorage.removeItem(NAV_SNAPSHOT_KEY);return null}data.items=overviewFirst(dedupeItems(data.items));return data}catch{return null}
+  try{const raw=sessionStorage.getItem(NAV_SNAPSHOT_KEY);if(!raw)return null;const data=JSON.parse(raw);if(!data?.createdAt||Date.now()-data.createdAt>NAV_SNAPSHOT_MAX_AGE_MS||!Array.isArray(data.items)){sessionStorage.removeItem(NAV_SNAPSHOT_KEY);return null}data.items=overviewFirst(dedupeItems(data.items.filter(item=>!mobile()||!MOBILE_SECONDARY_LABELS.has(item.label))));return data}catch{return null}
 }
 function hrefPage(href){if(!href)return'';try{const u=new URL(href,location.href),parts=u.pathname.split('/').filter(Boolean),last=parts.pop()||'index.html';if(!last.includes('.'))return'index';return last.replace('.html','')}catch{return''}}
 function itemMatchesPage(item,currentPage,meta){if(!item)return false;if(currentPage==='onboarding')return item.label==='Slik fungerer det';if(hrefPage(item.href)===currentPage)return true;return !!meta&&item.label===meta.label}
 function standaloneFromSnapshot(nav,meta){
   const snapshot=readMainSnapshot();if(!snapshot?.items?.length)return false;let found=false;
   const items=snapshot.items.map(item=>{const active=itemMatchesPage(item,page,meta);if(active)found=true;return makeItem({href:active?null:item.href,num:item.num,label:item.label,active,sub:item.sub,badges:item.badges})});
-  if(!found&&meta&&page!=='onboarding'){
-    const current=makeItem({num:meta.num,label:meta.label,active:true});const helpIndex=items.findIndex(el=>el.querySelector('b')?.textContent?.trim()==='Hjelp & SOS');items.splice(helpIndex>=0?helpIndex:items.length,0,current);
+  if(!found&&meta&&page!=='onboarding'&&(!mobile()||!MOBILE_SECONDARY_LABELS.has(meta.label))){
+    const current=makeItem({num:meta.num,label:meta.label,active:true});const helpIndex=items.findIndex(el=>navLabel(el)==='Hjelp & SOS');items.splice(helpIndex>=0?helpIndex:items.length,0,current);
   }
   nav.replaceChildren(...items);nav.dataset.navigationIa=NAV_IA_VERSION;nav.setAttribute('aria-label','Navigasjon og gjeldende arbeidsflate');return true;
 }
@@ -79,11 +82,11 @@ function normalizeStandalone(){
   if(document.querySelector('#mainNav'))return false;
   const sidebar=document.querySelector('.sidebar'),nav=sidebar?.querySelector('nav');if(!nav)return false;
   const oldActive=nav.querySelector('.nav-item.active,[aria-current="page"]');
-  const meta=PAGE_META[page]||{num:oldActive?.querySelector('.nav-num')?.textContent?.trim()||'•',label:oldActive?.querySelector('b')?.textContent?.trim()||document.querySelector('h1')?.textContent?.trim()||'Arbeidsflate'};
+  const meta=PAGE_META[page]||{num:oldActive?.querySelector('.nav-num')?.textContent?.trim()||'•',label:navLabel(oldActive)||document.querySelector('h1')?.textContent?.trim()||'Arbeidsflate'};
   if(standaloneFromSnapshot(nav,meta))return true;
   const items=[makeItem({href:'./',num:'01',label:'Oversikt'})];
   if(['guide','onboarding'].includes(page))items.push(makeItem({num:'00',label:'Slik fungerer det',active:true}));else items.push(makeItem({href:'./guide.html',num:'00',label:'Slik fungerer det'}));
-  if(!['guide','onboarding','sos'].includes(page))items.push(makeItem({num:meta.num,label:meta.label,active:true}));
+  if(!['guide','onboarding','sos'].includes(page)&&(!mobile()||!MOBILE_SECONDARY_LABELS.has(meta.label)))items.push(makeItem({num:meta.num,label:meta.label,active:true}));
   if(page==='sos')items.push(makeItem({num:'10',label:'Hjelp & SOS',active:true}));else items.push(makeItem({href:'./sos.html',num:'10',label:'Hjelp & SOS'}));
   nav.replaceChildren(...items);nav.dataset.navigationIa=NAV_IA_VERSION;nav.setAttribute('aria-label','Navigasjon og gjeldende arbeidsflate');return true;
 }
@@ -92,6 +95,7 @@ function menuLink(menu,id,label,href){if(!menu)return null;let a=document.getEle
 function badgeCount(el){const raw=el?.querySelector('.nav-count')?.textContent?.trim();return /^\d+$/.test(raw||'')?Number(raw):0}
 function mainNode(nav,key){if(key.startsWith('#'))return document.querySelector(key);return nav.querySelector(`.nav-item[data-view="${key}"]`)}
 function setMobileSecondary(el,on=mobile()){if(el)el.classList.toggle('nav-mobile-secondary',!!on)}
+function markSecondaryByLabel(nav){if(!mobile())return;for(const item of nav.querySelectorAll('.nav-item'))if(MOBILE_SECONDARY_LABELS.has(navLabel(item)))item.classList.add('nav-mobile-secondary')}
 function applyHashView(nav){
   const raw=location.hash.slice(1);if(!raw||!/^[a-z-]+$/.test(raw))return;
   const target=nav.querySelector(`.nav-item[data-view="${raw}"]`);if(!target)return;
@@ -120,6 +124,7 @@ function normalizeMain(){
   const secondaryOrder=['forms','#adminLink','#crmNav','analysis','documents','#demoJourneyNav','#notificationsNav','#auditNav','#documentsCenterNav','#onboardingNav'];
   primaryOrder.map(key=>mainNode(nav,key)).filter(Boolean).forEach(el=>nav.appendChild(el));
   secondaryOrder.map(key=>mainNode(nav,key)).filter(Boolean).forEach(el=>nav.appendChild(el));
+  markSecondaryByLabel(nav);
   nav.dataset.navigationIa=NAV_IA_VERSION;persistMainSnapshot(nav);
   if(!nav.dataset.snapshotBound){nav.dataset.snapshotBound='1';nav.addEventListener('click',()=>window.setTimeout(()=>persistMainSnapshot(nav),0),{capture:true})}
   applyHashView(nav);normalizedEvent();return true;
