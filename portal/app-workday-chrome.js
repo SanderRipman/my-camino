@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const WORKDAY_CHROME_VERSION='2026-09-05c';
+const WORKDAY_CHROME_VERSION='2026-09-05d';
 const MOBILE_BREAKPOINT=780;
 const ROLE_LABELS={
   system_admin:'Systemadministrator',project_owner:'Prosjekteier',program_lead:'Programleder',
@@ -16,6 +16,19 @@ function safeActiveRoles(){
     if(!Array.isArray(accessGrants)||typeof activeGrant!=='function')return[];
     return [...new Set(accessGrants.filter(activeGrant).map(g=>String(g.role_code||'')).filter(Boolean))];
   }catch{return[]}
+}
+function ensureMobileAttention(){
+  if(!mobile()||!mainPortal())return;
+  const workspace=document.querySelector('#appView .workspace');if(!workspace)return;
+  let bar=document.querySelector('#mobileAttentionBar');
+  if(!bar){
+    bar=document.createElement('div');bar.id='mobileAttentionBar';bar.className='mobile-attention-bar';
+    const firstView=workspace.querySelector('.view');if(firstView)workspace.insertBefore(bar,firstView);else workspace.appendChild(bar);
+  }else{
+    const firstView=workspace.querySelector('.view');
+    if(firstView&&bar.parentElement===workspace&&bar.nextElementSibling!==firstView)workspace.insertBefore(bar,firstView);
+  }
+  try{if(typeof updateMobileAttention==='function')updateMobileAttention()}catch{}
 }
 function cleanNonFinalChrome(){
   const auth=document.querySelector('#authView');
@@ -67,7 +80,7 @@ function shortHomeReminder(){
 function apply(){
   document.documentElement.classList.toggle('workday-mobile',mobile());
   document.documentElement.dataset.workdayChrome=WORKDAY_CHROME_VERSION;
-  cleanNonFinalChrome();ensureProfileAccessSummary();promoteProfileNav();shortHomeReminder();
+  ensureMobileAttention();cleanNonFinalChrome();ensureProfileAccessSummary();promoteProfileNav();shortHomeReminder();
 }
 
 let scheduled=false;
