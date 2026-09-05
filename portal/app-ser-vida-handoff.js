@@ -29,17 +29,25 @@ async function startVidaHandoff(p,button,message){
   renderAll();
 }
 
+function serVidaHandoffPlacement(){
+  const detail=document.querySelector('#participantDetail');
+  if(!detail)return null;
+  const heading=[...detail.querySelectorAll('h3')].find(h=>/^(Neste handling|Din neste handling|Neste steg)$/i.test((h.textContent||'').trim()));
+  return{detail,heading};
+}
 function renderSerVidaHandoff(){
   document.querySelectorAll('.ser-vida-handoff').forEach(el=>el.remove());
   if(!canStartVida())return;
   const p=serVidaHandoffParticipant();
   if(!p||p.stage!=='SER')return;
-  const card=document.querySelector('.ser-vida-today[data-ser-vida-phase="SER"]');
-  if(!card)return;
+  const placement=serVidaHandoffPlacement();
+  if(!placement)return;
   const open=serVidaHandoffOpenSerTasks(p);
   const box=document.createElement('div');box.className='ser-vida-handoff';
-  box.innerHTML=`<div class="detail-stat"><span>Neste fase</span><strong>SER → VIDA</strong></div><p class="privacy-note">VIDA starter ved en eksplisitt staff-handoff – ikke automatisk etter en innsjekk eller siste etappe. Serveren kontrollerer rolle og fase før overgangen. Eksisterende VIDA-arbeidsflyt og den kanoniske <code>vida_plan</code> beholdes.</p>${open.length?`<p class="gate-hint">${open.length} åpne SER-oppgave${open.length===1?'':'r'} er synlige som kontekst. De lukkes ikke automatisk av faseovergangen.</p>`:''}<div class="form-actions"><button class="primary" type="button" data-start-vida>Avslutt SER og start VIDA</button></div><p class="message" data-ser-vida-handoff-message aria-live="polite"></p>`;
-  card.appendChild(box);
+  box.innerHTML=`<div class="detail-stat"><span>Neste handling</span><strong>SER → VIDA</strong><small>Avslutt SER og start oppfølging hjemme. Serveren kontrollerer rolle, sikker innlogging og navngitt VIDA-eier før overgangen.</small></div>${open.length?`<p class="gate-hint">${open.length} åpne SER-oppgave${open.length===1?'':'r'} blir liggende synlig som kontekst og lukkes ikke automatisk.</p>`:''}<div class="form-actions"><button class="primary" type="button" data-start-vida>Avslutt SER og start VIDA</button></div><p class="message" data-ser-vida-handoff-message aria-live="polite"></p>`;
+  if(placement.heading)placement.heading.insertAdjacentElement('afterend',box);else placement.detail.prepend(box);
+  const empty=[...placement.detail.querySelectorAll('p')].find(el=>(el.textContent||'').trim()==='Ingen åpne oppgaver.');
+  if(empty&&!open.length)empty.textContent='Ingen andre åpne SER-oppgaver.';
   const button=box.querySelector('[data-start-vida]'),message=box.querySelector('[data-ser-vida-handoff-message]');
   button?.addEventListener('click',()=>startVidaHandoff(p,button,message));
 }
