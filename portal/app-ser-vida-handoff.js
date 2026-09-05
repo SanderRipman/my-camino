@@ -9,6 +9,7 @@ const SER_VIDA_HANDOFF_ERRORS={
   PARTICIPANT_NOT_FOUND:'Deltakeren er ikke tilgjengelig i denne konteksten.',
   STALE_STAGE:'Fasen ble endret et annet sted. Last arbeidsflaten på nytt.'
 };
+let participantInlineCollapsed=false;
 function serVidaHandoffError(code){return SER_VIDA_HANDOFF_ERRORS[code]||'VIDA kunne ikke startes. Ingen alternativ direkte databasevei ble brukt.'}
 function canStartVida(){return hasRole('program_lead')||hasRole('ser_lead')}
 function serVidaHandoffParticipant(){return canStartVida()?participantById(selectedParticipantId):null}
@@ -26,6 +27,7 @@ async function startVidaHandoff(p,button,message){
   if(error||code){message.textContent=serVidaHandoffError(code);button.disabled=false;return}
   message.textContent='VIDA er startet. Oppdaterer deltaker, oppgaver og levende plan…';
   await loadData();
+  participantInlineCollapsed=false;
   renderAll();
 }
 
@@ -52,8 +54,71 @@ function renderSerVidaHandoff(){
   button?.addEventListener('click',()=>startVidaHandoff(p,button,message));
 }
 
+function installParticipantInlineStyles(){
+  if(document.querySelector('#participant-inline-detail-style'))return;
+  const style=document.createElement('style');style.id='participant-inline-detail-style';style.textContent=`
+    @media(max-width:780px){
+      #participantList>#participantDetail.participant-detail-inline{width:100%;margin:0 0 12px;box-sizing:border-box;scroll-margin-top:84px}
+      #participantList>.participant-card.active{margin-bottom:0;border-bottom-left-radius:8px;border-bottom-right-radius:8px}
+      #participantList>.participant-card.active+#participantDetail.participant-detail-inline{margin-top:6px}
+      #participantList>#participantDetail.participant-detail-inline.participant-inline-collapsed{display:none!important}
+    }
+  `;document.head.appendChild(style);
+}
+function restoreParticipantDetailHost(){
+  const detail=document.querySelector('#participantDetail'),layout=document.querySelector('#view-participants .participant-layout');
+  if(detail&&layout&&detail.parentElement!==layout)layout.appendChild(detail);
+  detail?.classList.remove('participant-detail-inline','participant-inline-collapsed');
+}
+function placeParticipantDetailInline(){
+  installParticipantInlineStyles();
+  const detail=document.querySelector('#participantDetail');
+  if(!detail)return;
+  if(window.innerWidth>780||!isStaff()){restoreParticipantDetailHost();return}
+  const list=document.querySelector('#participantList'),active=list?.querySelector('.participant-card.active');
+  if(!list||!active)return;
+  active.insertAdjacentElement('afterend',detail);
+  detail.classList.add('participant-detail-inline');
+  detail.classList.toggle('participant-inline-collapsed',participantInlineCollapsed);
+}
+function bindParticipantInlineToggle(){
+  const list=document.querySelector('#participantList');if(!list||list.dataset.inlineToggleBound==='1')return;
+  list.dataset.inlineToggleBound='1';
+  list.addEventListener('click',event=>{
+    if(window.innerWidth>780||!isStaff())return;
+    const card=event.target.closest('.participant-card');if(!card)return;
+    const same=card.classList.contains('active')&&card.dataset.participantId===selectedParticipantId;
+    if(!same){participantInlineCollapsed=false;return}
+    const detail=document.querySelector('#participantDetail');
+    if(!detail?.classList.contains('participant-detail-inline'))return;
+    participantInlineCollapsed=!participantInlineCollapsed;
+    detail.classList.toggle('participant-inline-collapsed',participantInlineCollapsed);
+    event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+  },true);
+}
+function refreshSelectedParticipantAugmentations(){
+  try{if(typeof renderSerVidaToday==='function')renderSerVidaToday()}catch{}
+  renderSerVidaHandoff();
+  placeParticipantDetailInline();
+  bindParticipantInlineToggle();
+}
+
+const serVidaHandoffRenderParticipants=renderParticipants;
+renderParticipants=function(){
+  restoreParticipantDetailHost();
+  const result=serVidaHandoffRenderParticipants();
+  setTimeout(refreshSelectedParticipantAugmentations,0);
+  return result;
+};
 const serVidaHandoffRenderAll=renderAll;
-renderAll=function(){serVidaHandoffRenderAll();setTimeout(renderSerVidaHandoff,0)};
-setTimeout(renderSerVidaHandoff,180);
+renderAll=function(){
+  participantInlineCollapsed=false;
+  restoreParticipantDetailHost();
+  const result=serVidaHandoffRenderAll();
+  setTimeout(refreshSelectedParticipantAugmentations,0);
+  return result;
+};
+window.addEventListener('resize',()=>setTimeout(placeParticipantDetailInline,80),{passive:true});
+setTimeout(refreshSelectedParticipantAugmentations,180);
 
 })();
