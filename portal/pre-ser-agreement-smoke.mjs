@@ -25,6 +25,6 @@ assert(decision.includes('Se fullført avtale / beredskap'),'Staff agreement-rev
 assert(decision.includes("key=participant_agreement")&&decision.includes('latest=1'),'Staff review must open the latest read-only agreement submission');
 assert(review.includes("key==='participant_agreement'"),'Participant submission must have an explicit agreement handoff');
 assert(review.includes('dette betyr ikke at SER har startet'),'Participant must be told agreement completion is not SER start');
-assert(review.includes('Neste formelle gate:')&&review.includes('samlet Pilot-GO'),'Staff read-only review must explain the next formal gate');
+assert(review.includes('Neste formelle beslutningspunkt:')&&review.includes('samlet Pilot-GO'),'Staff read-only review must explain the next formal decision point');
 
 console.log('Pre-SER agreement/readiness v2 invariants OK');
