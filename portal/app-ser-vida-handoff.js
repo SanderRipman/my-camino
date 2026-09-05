@@ -44,7 +44,7 @@ function renderSerVidaHandoff(){
   if(!placement)return;
   const open=serVidaHandoffOpenSerTasks(p);
   const box=document.createElement('div');box.className='ser-vida-handoff';
-  box.innerHTML=`<div class="detail-stat"><span>Neste handling</span><strong>SER → VIDA</strong><small>Avslutt SER og start oppfølging hjemme. Serveren kontrollerer rolle, sikker innlogging og navngitt VIDA-eier før overgangen.</small></div>${open.length?`<p class="gate-hint">${open.length} åpne SER-oppgave${open.length===1?'':'r'} blir liggende synlig som kontekst og lukkes ikke automatisk.</p>`:''}<div class="form-actions"><button class="primary" type="button" data-start-vida>Avslutt SER og start VIDA</button></div><p class="message" data-ser-vida-handoff-message aria-live="polite"></p>`;
+  box.innerHTML=`<div class="detail-stat"><span>Neste handling</span><strong>SER → VIDA</strong><small>Avslutt SER og start oppfølging hjemme. Overgangen skjer ikke automatisk; serveren kontrollerer rolle, sikker innlogging og navngitt VIDA-eier.</small></div>${open.length?`<p class="gate-hint">${open.length} åpne SER-oppgave${open.length===1?'':'r'} blir liggende synlig som kontekst og lukkes ikke automatisk.</p>`:''}<div class="form-actions"><button class="primary" type="button" data-start-vida>Avslutt SER og start VIDA</button></div><p class="message" data-ser-vida-handoff-message aria-live="polite"></p>`;
   if(placement.heading)placement.heading.insertAdjacentElement('afterend',box);else placement.detail.prepend(box);
   const empty=[...placement.detail.querySelectorAll('p')].find(el=>(el.textContent||'').trim()==='Ingen åpne oppgaver.');
   if(empty&&!open.length)empty.textContent='Ingen andre åpne SER-oppgaver.';
