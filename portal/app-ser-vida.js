@@ -38,9 +38,9 @@ function serVidaTodayModel(p){
   }
   if(phase==='VIDA')return{
     phase,
-    kicker:'VIDA · hjemme',
+    kicker:'VIDA · etter SER',
     title:'Én levende plan – neste konkrete handling',
-    body:'VIDA-planen skal være stedet du og avtalt oppfølgingskontakt holder neste handling, ansvar og oppfølging levende. 72 timer, 14, 30 og 90 dager er oppfølgingstidspunkter for den samme planen – ikke fire nye planer.',
+    body:'VIDA aktiveres ved den faktiske avslutningen av SER. De første 72 timene er broen fra avsluttet SER og hjemover; deretter holdes neste handling, ansvar og oppfølging levende i samme VIDA-plan. 14, 30 og 90 dager er oppfølgingstidspunkter for den samme planen – ikke fire nye planer.',
     route:null,checkin,open,milestones:serVidaMilestones(p),
     primary:`./form-runner.html?key=vida_plan&participant=${encodeURIComponent(p.id)}`,
     primaryView:null,
