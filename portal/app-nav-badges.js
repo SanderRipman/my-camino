@@ -108,4 +108,13 @@ renderTaskLists=function(){
 setTimeout(renderSemanticNavigationBadges,120);
 window.addEventListener('pageshow',()=>setTimeout(renderSemanticNavigationBadges,30));
 
+// The next-step cue is intentionally loaded as a presentation-only layer after semantic badges.
+// It marks at most one adjacent work surface and never auto-navigates or changes access/data.
+if(!document.querySelector('script[data-aidme-next-nav]')){
+  const next=document.createElement('script');
+  next.src='./app-next-nav.js?v=20260906a';
+  next.dataset.aidmeNextNav='1';
+  document.head.appendChild(next);
+}
+
 })();
