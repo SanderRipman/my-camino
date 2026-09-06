@@ -1,11 +1,11 @@
 (()=>{
 'use strict';
 
-const MOBILE_UX_VERSION='2026-09-06a';
+const MOBILE_UX_VERSION='2026-09-06b';
 const MOBILE_BREAKPOINT=780;
 const COLLAPSE_AFTER=84;
 const RESTORE_AT=20;
-const NAVIGATION_IA_VERSION='2026-09-06a';
+const NAVIGATION_IA_VERSION='2026-09-06b';
 const WORKDAY_CHROME_VERSION='2026-09-06a';
 const BRANDED_LOADER_MIN_MS=1250;
 
@@ -55,7 +55,7 @@ function addMobileStyles(){
   const link=document.createElement('link');link.rel='stylesheet';link.href=`./mobile.css?v=${MOBILE_UX_VERSION}`;link.dataset.aidmeMobile='1';document.head.appendChild(link);
 }
 function clearLegacyNavigationSnapshots(){
-  try{['aidme:navigation-snapshot:v1','aidme:navigation-snapshot:v2','aidme:navigation-snapshot:v3','aidme:navigation-snapshot:v4'].forEach(key=>sessionStorage.removeItem(key))}catch{}
+  try{['aidme:navigation-snapshot:v1','aidme:navigation-snapshot:v2','aidme:navigation-snapshot:v3','aidme:navigation-snapshot:v4','aidme:navigation-snapshot:v5'].forEach(key=>sessionStorage.removeItem(key))}catch{}
 }
 function addWorkdayChrome(){
   if(!document.querySelector('link[data-aidme-workday-mobile]')){
@@ -109,6 +109,17 @@ function installMobileNavAutoHide(){
   resetAndReveal();
 }
 
+function prefetchVisibleStandalone(){
+  const nav=document.querySelector('.sidebar nav');if(!nav)return;
+  for(const item of nav.querySelectorAll('a.nav-item[href]')){
+    if(item.classList.contains('hidden')||item.classList.contains('nav-mobile-secondary')||item.classList.contains('nav-ia-demoted')||getComputedStyle(item).display==='none')continue;
+    let url;try{url=new URL(item.href,location.href)}catch{continue}
+    if(url.origin!==location.origin||url.pathname===location.pathname||url.hash)continue;
+    const key=`aidme-prefetch-${url.pathname.replace(/[^a-z0-9]/gi,'-')}`;if(document.getElementById(key))continue;
+    const link=document.createElement('link');link.id=key;link.rel='prefetch';link.as='document';link.href=url.href;document.head.appendChild(link);
+  }
+}
+
 // Shared swipe follows the actual visible top-nav sequence. It deliberately does
 // not care whether an item is a data-view button, a role-injected link, or has a
 // badge. This keeps Interest/VÍA and other real primary tabs from being skipped.
@@ -159,8 +170,8 @@ function installSharedPrimarySwipe(){
   },{capture:true});
 }
 
-function installSharedMobileBehaviors(){installMobileNavAutoHide();installSharedPrimarySwipe()}
+function installSharedMobileBehaviors(){installMobileNavAutoHide();installSharedPrimarySwipe();prefetchVisibleStandalone()}
 installBrandedLoader();wrapSubsequentPortalLoads();addMobileStyles();addWorkdayChrome();addNavigationIa();installSharedMobileBehaviors();
-document.addEventListener('aidme:navigation-normalized',()=>window.setTimeout(installSharedPrimarySwipe,0));
-window.addEventListener('pageshow',()=>window.setTimeout(installSharedPrimarySwipe,30));
+document.addEventListener('aidme:navigation-normalized',()=>window.setTimeout(()=>{installSharedPrimarySwipe();prefetchVisibleStandalone()},0));
+window.addEventListener('pageshow',()=>window.setTimeout(()=>{installSharedPrimarySwipe();prefetchVisibleStandalone()},30));
 })();
