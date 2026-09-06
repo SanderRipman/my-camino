@@ -105,7 +105,10 @@
 }
 
 @media(max-width:470px){
-  html.workday-mobile .sidebar .nav-item{min-height:56px!important;padding-left:10px!important;padding-right:10px!important;gap:4px!important}
+  html.workday-mobile .sidebar .nav-item{min-height:58px!important;padding-left:10px!important;padding-right:10px!important;gap:1px!important;flex-direction:column!important;justify-content:center!important}
+  html.workday-mobile .sidebar .nav-item b{line-height:1!important}
+  html.workday-mobile .sidebar .nav-badges{margin-left:0!important;min-height:18px!important;justify-content:center!important}
+  html.workday-mobile .sidebar .nav-count{font-size:9px!important;min-width:18px!important;height:18px!important;line-height:18px!important}
   html.workday-mobile .sidebar .nav-item.active::before,
   html.workday-mobile .sidebar .nav-item[aria-current="page"]::before{width:58px!important;height:58px!important;opacity:.40!important}
   html.workday-mobile .sidebar .nav-item.active::after,
