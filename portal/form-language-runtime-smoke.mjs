@@ -5,6 +5,7 @@ function assert(ok,msg){if(!ok)throw new Error(msg)}
 
 const optionLabels=read('./form-option-labels-nb.js');
 const contextLabels=read('./context-labels-nb.js');
+const copyPolish=read('./form-copy-polish-nb.js');
 const formHtml=read('./form-runner.html');
 const ownersHtml=read('./owners.html');
 
@@ -17,4 +18,10 @@ assert(formHtml.includes('context-labels-nb.js?v=20260906a'),'Canonical form run
 assert(ownersHtml.includes('context-labels-nb.js?v=20260906a'),'Owner workspace must use the same stage context localization');
 assert(formHtml.includes('form-option-labels-nb.js?v=20260906b'),'Form runner must load the mobile-safe decision-label revision');
 
-console.log('Norwegian form/stage runtime language invariants OK');
+assert(copyPolish.includes('Min VÍA-intensjon'),'VÍA sentence must be presented as a clearer working intention in Norwegian UI');
+assert(copyPolish.includes('Ikke et motto eller prestasjonsmål.'),'VÍA intention help must explain that it is not a motto or performance target');
+assert(copyPolish.includes('videre til VIDA som konkret handling hjemme'),'VÍA intention copy must preserve the VÍA→SER→VIDA red thread');
+assert(!copyPolish.includes('client.')&&!copyPolish.includes('.from(')&&!copyPolish.includes('functions.invoke'),'Copy polish must not create a data or authorization path');
+assert(formHtml.includes('form-copy-polish-nb.js?v=20260906a'),'Canonical form runner must load the presentation-only VÍA intention copy polish');
+
+console.log('Norwegian form/stage/copy runtime language invariants OK');
