@@ -12,9 +12,9 @@ assert(!/supabase|role_grants|capabilit/i.test(chrome),'Standalone chrome must r
 const mobile=read('./app-mobile.js');
 const mobileCss=read('./mobile.css');
 const navIa=read('./navigation-ia.js');
-assert(mobile.includes("MOBILE_UX_VERSION='2026-09-06a'"),'Shared portal shell must cache-bust the all-primary-tab swipe correction.');
+assert(mobile.includes("MOBILE_UX_VERSION='2026-09-06a'"),'Shared portal shell must cache-bust the current mobile QA layer.');
 assert(mobile.includes("WORKDAY_CHROME_VERSION='2026-09-06a'")&&mobile.includes('app-workday-chrome.js')&&mobile.includes('workday-mobile.css'),'Shared portal shell must load the current workday chrome layer.');
-assert(mobile.includes("NAVIGATION_IA_VERSION='2026-09-05f'"),'Shared portal shell must keep the current navigation IA layer.');
+assert(mobile.includes("NAVIGATION_IA_VERSION='2026-09-06a'"),'Shared portal shell must load the reordered current navigation IA layer.');
 assert(mobile.includes('BRANDED_LOADER_MIN_MS=1250')&&mobile.includes('Ve.</span><span>Sé.</span><span>Vive.'),'Portal loading must present the canonical motto sequentially with a short minimum brand moment.');
 assert(mobile.includes('wrapSubsequentPortalLoads()')&&mobile.includes('installBrandedLoader()'),'Branded loading must apply to both the initial and subsequent portal loads without changing auth/data logic.');
 assert(mobile.includes('navigation-ia.js'),'Shared portal shell must load the navigation IA layer.');
@@ -31,10 +31,12 @@ assert(mobileCss.includes('scroll-snap-type:x proximity')&&mobileCss.includes('s
 assert(mobileCss.includes('.demo-lens-control')&&mobileCss.includes('.preview-strip')&&mobileCss.includes('.form-section'),'Mobile polish must compact secondary chrome and long forms without removing them.');
 assert(!/display\s*:\s*none[^}]*\.form-section|\.form-section[^}]*display\s*:\s*none/i.test(mobileCss),'Mobile form sections must remain visible.');
 
+assert(navIa.includes("NAV_IA_VERSION='2026-09-06a'"),'Navigation IA must be cache-busted after primary order change.');
 assert(navIa.includes('.sidebar{overflow-y:auto'),'Desktop/laptop sidebar must remain independently scrollable.');
 assert(navIa.includes("['analysis','documents']"),'Analysis and document placeholder must remain demoted from primary navigation.');
 assert(navIa.includes("const forms=mainNode(nav,'forms');setMobileSecondary(forms,true)"),'Skjema & rutiner must be secondary rather than permanent primary mobile navigation.');
 assert(navIa.includes('MOBILE_SECONDARY_LABELS')&&navIa.includes('markSecondaryByLabel(nav)'),'Secondary tools injected late must still be excluded from primary mobile navigation.');
+assert(navIa.includes("const primaryOrder=['overview','participants','tasks','checkin','#intakeNav','#ownersNav','#pilotOpsNav','#guideNav','#sosNav','settings']"),'Primary order must prioritize Oversikt, Deltakere, Oppgaver and Innsjekk before Interesse/VÍA.');
 assert(navIa.includes("NAV_SNAPSHOT_KEY='aidme:navigation-snapshot:v5'")&&navIa.includes('overviewFirst(dedupeItems(items))')&&navIa.includes('standaloneFromSnapshot(nav,meta)'),'Standalone workspaces must restore a deduplicated role-aware snapshot with Oversikt first.');
 assert(navIa.includes('snapshotBadges(el)')&&navIa.includes('appendBadges(el,badges)'),'Role-aware standalone continuity must preserve visible navigation badge state.');
 assert(navIa.includes("document.addEventListener('aidme:portal-rendered'")&&navIa.includes("'aidme:navigation-normalized'"),'Navigation must normalize again after canonical portal data and role state settle.');
@@ -72,4 +74,4 @@ assert(documents.includes('class="doc-shell"'),'Documents must retain its intent
 assert(documents.includes('href="./">Til portal</a>'),'Documents must keep a direct return to the role-aware portal hub.');
 assert(documentsCss.includes('@media(max-width:720px)'),'Documents must retain its dedicated responsive layout.');
 
-console.log('Standalone/navigation IA, shared swipe and lightweight owner-tool smoke: OK');
+console.log('Standalone/navigation IA, reordered primary nav, shared swipe and lightweight owner-tool smoke: OK');
