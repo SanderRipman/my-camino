@@ -13,7 +13,10 @@ const LABELS={
 function apply(root=document){
   root.querySelectorAll?.('select option').forEach(option=>{
     const label=LABELS[option.value];
-    if(label)option.textContent=label;
+    // Important: only mutate when the visible label actually differs.
+    // The observer watches childList/subtree, so unconditional textContent writes
+    // can retrigger the observer indefinitely on some mobile browsers.
+    if(label&&option.textContent!==label)option.textContent=label;
   });
 }
 apply();
