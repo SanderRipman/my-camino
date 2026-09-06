@@ -36,6 +36,7 @@ assert(revisionUi.includes("currentDef?.key!=='vida_plan'"),'Plan revision prese
 assert(revisionUi.includes('Planversjon'),'VIDA header must distinguish plan revision from template revision');
 assert(revisionUi.includes('Gjeldende · Plan v'),'Latest VIDA revision must be visibly marked current');
 assert(revisionUi.includes('Skjemamal v'),'Technical template provenance must remain available without masquerading as plan revision');
+assert(revisionUi.includes("q.get('returnTask')")&&revisionUi.includes('stopImmediatePropagation')&&revisionUi.includes('location.assign(href)'),'Task-origin VIDA review close must return to the originating task context');
 assert(!/\.(insert|update|upsert|delete)\s*\(/.test(revisionUi),'Revision presentation helper must remain read-only');
 assert(reviewCss.includes('#closeSubmissionReview')&&reviewCss.includes('@media(max-width:420px)'),'Mobile review close action must remain contained');
 
