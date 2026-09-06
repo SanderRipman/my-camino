@@ -59,4 +59,14 @@ renderTaskLists=function(){nextCueRenderTaskLists();setTimeout(applyNextCue,0)};
 document.querySelector('#taskDialog')?.addEventListener('close',()=>setTimeout(applyNextCue,0));
 window.addEventListener('pageshow',()=>setTimeout(applyNextCue,30));
 setTimeout(applyNextCue,240);
+
+// Physical mobile QA requested horizontal movement between adjacent primary work surfaces.
+// Keep it as a separate guarded presentation layer: no forms/dialogs/controls, no edge gestures,
+// no preventDefault and no direct data/auth behavior.
+if(!document.querySelector('script[data-aidme-mobile-swipe]')){
+  const swipe=document.createElement('script');
+  swipe.src='./app-mobile-swipe.js?v=20260906a';
+  swipe.dataset.aidmeMobileSwipe='1';
+  document.head.appendChild(swipe);
+}
 })();
