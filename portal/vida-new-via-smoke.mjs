@@ -15,6 +15,8 @@ assert(!layer.includes('client.from('),'Optional new VÍA layer must not add dir
 assert(layer.includes('ikke et obligatorisk fjerde programsteg')&&layer.includes('aldri automatisk'),'UI must preserve the three-step public journey and optional nature of new VÍA');
 assert(layer.includes('window.confirm'),'New VÍA stage transition must require an explicit staff confirmation');
 assert(layer.includes('loadData()')&&layer.includes('renderAll()'),'Successful transition must reload canonical portal state');
+assert(layer.includes("document.querySelector('#participantDetail')"),'Optional new VÍA must be visible in the selected VIDA participant detail');
+assert(layer.includes('newViaRenderParticipantDetail')&&layer.includes('renderParticipantDetail=function()'),'Participant-detail re-render must restore the optional new VÍA control after participant selection');
 assert(journey.includes('ny VÍA')&&journey.includes('ikke et obligatorisk fjerde steg'),'Implementation must remain aligned with the documented journey rule');
 
 console.log('Optional new VÍA capable-role handoff invariants OK');
