@@ -4,6 +4,11 @@
 function staffDecisionTaskGate(task,participant){
   if(!task||!participant)return null;
   const pilot=participantPilot(participant.id);
+  if(task.workflow_key==='go_conditions'&&participant.stage==='GO_WITH_CONDITIONS')return{
+    label:'Avklar vilkår i ny GO / NO-GO-vurdering',
+    href:`./form-runner.html?key=individual_go_no_go&participant=${encodeURIComponent(participant.id)}${pilot?.id?`&pilot=${encodeURIComponent(pilot.id)}`:''}&returnTask=${encodeURIComponent(task.id)}&returnView=tasks&reviseLatest=1`,
+    hint:'GO med vilkår er foreløpig. Oppgaven lukkes først når en ny formell vurdering er sendt; tidligere beslutning beholdes som historikk.'
+  };
   if(participant.stage==='POSTPONED')return{
     label:'Åpne ny GO / NO-GO-vurdering',
     href:`./form-runner.html?key=individual_go_no_go&participant=${encodeURIComponent(participant.id)}`,
@@ -40,6 +45,9 @@ openTask=function(id){
   decisionJourneyOpenTask(id);
   if(!isStaff())return;
   const task=tasks.find(item=>item.id===id),participant=participantById(task?.participant_id),gate=staffDecisionTaskGate(task,participant),body=document.querySelector('#taskDialogBody');
+  if(task?.workflow_key==='go_conditions'){
+    const done=document.querySelector('#taskDone');if(done)done.classList.add('hidden');
+  }
   if(!gate||!body)return;
   const grid=body.querySelector('.crosslink-grid')||body.querySelector('.task-crosslinks');if(!grid)return;
   let link=body.querySelector('.gate-link');
