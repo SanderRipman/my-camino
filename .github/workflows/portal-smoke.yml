@@ -136,5 +136,7 @@ jobs:
         run: node portal/form-participant-minimal-smoke.mjs
       - name: Verify mobile workday chrome invariants
         run: node portal/workday-chrome-smoke.mjs
+      - name: Verify form runner stability and standalone transitions
+        run: node portal/form-runner-stability-smoke.mjs
       - name: Verify SER operational v3 invariants
         run: node portal/ser-operational-v3-smoke.mjs
