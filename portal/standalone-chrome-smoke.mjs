@@ -53,6 +53,17 @@ for(const page of sidebarPages){
   assert(html.includes('app-mobile.js'),`${page} must use the common mobile/navigation shell.`);
 }
 
+// Owner workspace had a physical mobile freeze/stale-shell regression. Keep its
+// initialization single-flight and its standalone mobile shell explicitly cache-busted.
+const ownersHtml=read('./owners.html');
+const ownersJs=read('./owners.js');
+assert(ownersHtml.includes('owners.js?v=20260906b'),'Owners workspace must cache-bust stabilized owner logic.');
+assert(ownersHtml.includes('app-mobile.js?v=20260906h'),'Owners workspace must cache-bust the shared mobile/navigation shell.');
+assert(ownersJs.includes('initPromise')&&ownersJs.includes('if(initPromise)return initPromise'),'Owner initialization must be single-flight.');
+assert(ownersJs.includes('contextSeq')&&ownersJs.includes('seq!==contextSeq'),'Owner context updates must ignore stale concurrent responses.');
+assert(ownersJs.includes("['SIGNED_IN','TOKEN_REFRESHED','USER_UPDATED','MFA_CHALLENGE_VERIFIED']"),'Owner auth refresh must react only to explicit relevant events.');
+assert(!ownersJs.includes('onAuthStateChange(()=>setTimeout(init,0))'),'Owner workspace must not reinitialize on every auth callback indiscriminately.');
+
 const guide=read('./guide.html');
 assert(guide.includes('app-mobile.js'),'Program guide must load the common mobile/navigation shell.');
 assert(guide.includes('role-intro-card')&&guide.includes('Slik fungerer det')&&guide.includes('Hjelp & SOS')&&guide.includes('Åpne rolleintroduksjon'),'Program guide must own the role-introduction entry point inside its card.');
@@ -69,4 +80,4 @@ assert(documents.includes('class="doc-shell"'),'Documents must retain its intent
 assert(documents.includes('href="./">Til portal</a>'),'Documents must keep a direct return to the role-aware portal hub.');
 assert(documentsCss.includes('@media(max-width:720px)'),'Documents must retain its dedicated responsive layout.');
 
-console.log('Standalone/navigation IA smoke: OK');
+console.log('Standalone/navigation IA and owner stability smoke: OK');
