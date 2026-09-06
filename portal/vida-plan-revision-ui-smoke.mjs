@@ -10,10 +10,15 @@ must(ui,"currentDef?.key!=='vida_plan'",'VIDA-only guard');
 must(ui,"Planversjon",'living-plan version label');
 must(ui,"Gjeldende · Plan v",'current revision marker');
 must(ui,"Skjemamal v",'template version provenance');
+must(ui,'vidaRevisionBaseLoadSubmissions','event-driven history hook');
+must(ui,'vidaRevisionBaseChooseForm','event-driven form switch hook');
+must(ui,'requestAnimationFrame','single-frame UI scheduling');
+must(ui,"dataset.vidaReviewReturnBound==='1'",'single return-handler binding');
 must(html,'vida-plan-revision-ui.js?v=20260906a','revision UI loader');
 must(html,'form-review.css?v=20260906a','review CSS cache bust');
 must(css,'#closeSubmissionReview','mobile close containment');
 must(css,'@media(max-width:420px)','narrow mobile fallback');
+if(/MutationObserver|characterData|queueMicrotask/.test(ui))throw new Error('VIDA revision UI must not continuously observe the large form DOM; this previously caused mobile renderer storms/freezes.');
 if(/\.(insert|update|upsert|delete)\s*\(/.test(ui))throw new Error('Revision UI helper must remain read-only');
 
-console.log('VIDA living-plan revision UI invariants passed.');
+console.log('VIDA living-plan revision UI and mobile-freeze regression invariants passed.');
