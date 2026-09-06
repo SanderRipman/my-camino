@@ -128,6 +128,8 @@ jobs:
         run: node portal/task-gate-return-smoke.mjs
       - name: Verify standalone workspace chrome invariants
         run: node portal/standalone-chrome-smoke.mjs
+      - name: Verify required-field validation UX invariants
+        run: node portal/form-validation-ux-smoke.mjs
       - name: Verify mobile workday chrome invariants
         run: node portal/workday-chrome-smoke.mjs
       - name: Verify SER operational v3 invariants
