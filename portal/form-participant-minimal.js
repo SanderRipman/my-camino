@@ -15,7 +15,8 @@ style.id='participant-form-minimal-style';
 style.textContent=`
   body.participant-form-minimal .runner-controls>label:nth-of-type(1),
   body.participant-form-minimal .runner-controls>label:nth-of-type(2),
-  body.participant-form-minimal .runner-controls>.form-version{display:none}
+  body.participant-form-minimal .runner-controls>.form-version,
+  body.participant-form-minimal #scopeLabel{display:none}
   body.participant-form-minimal.participant-single-form .runner-controls{display:none}
   body.participant-form-minimal:not(.participant-single-form) .runner-controls{grid-template-columns:minmax(0,1fr)}
   body.participant-form-minimal:not(.participant-single-form) .runner-controls>label:nth-of-type(3){max-width:520px}
