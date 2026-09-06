@@ -1,4 +1,10 @@
 /* AidMe VIDA – mobile workday polish. Presentation only; no authorization or data logic. */
+
+/* Badge meaning must survive standalone/snapshot navigation as well as the main portal. */
+.nav-count.nav-count-total,.nav-count.blue{background:#dbe5ec!important;color:#23435d!important}
+.nav-count.red{background:#b4433f!important;color:#fff!important}
+.nav-count.yellow{background:#f4e4bd!important;color:#775616!important}
+
 @media(max-width:780px){
   html.workday-mobile .sidebar{position:sticky!important;overflow:hidden!important}
 
@@ -6,10 +12,12 @@
   html.workday-mobile .sidebar .brand{display:none!important}
   html.workday-mobile .sidebar nav{position:relative!important;z-index:1!important;margin-left:0!important;padding-left:0!important;scroll-padding-left:0!important}
 
-  /* Secondary tools never reappear in the primary row, even after a late Profile render. */
+  /* Secondary/specialist tools do not compete with the main daily work row. */
   html.workday-mobile #mainNav .nav-item[data-view="analysis"],
   html.workday-mobile #mainNav .nav-item[data-view="forms"],
   html.workday-mobile #mainNav .nav-item[data-view="documents"],
+  html.workday-mobile #mainNav #ownersNav,
+  html.workday-mobile #mainNav #pilotOpsNav,
   html.workday-mobile #mainNav #adminLink,
   html.workday-mobile #mainNav #crmNav,
   html.workday-mobile #mainNav #demoJourneyNav,
@@ -36,7 +44,7 @@
     background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#fff!important;
   }
 
-  /* Final logo marker: a little more visual volume, with the same nav-line height. */
+  /* Final logo marker: visual location only, not another box around the tab. */
   html.workday-mobile .sidebar .nav-item.active::before,
   html.workday-mobile .sidebar .nav-item[aria-current="page"]::before{
     content:"";position:absolute!important;left:50%!important;top:50%!important;
@@ -88,6 +96,14 @@
   html.workday-mobile .section-head{margin-top:6px!important;margin-bottom:8px!important}
   html.workday-mobile .section-head h2{font-size:27px!important;line-height:1.05!important;margin-bottom:4px!important}
   html.workday-mobile .section-head p:not(.eyebrow){margin-bottom:0!important;font-size:12px!important;line-height:1.35!important}
+
+  /* A selected participant is already named in the list; keep identity compact and one-line. */
+  html.workday-mobile #participantDetail .card-head{min-width:0!important}
+  html.workday-mobile #participantDetail .card-head>div{min-width:0!important;max-width:calc(100% - 78px)!important}
+  html.workday-mobile #participantDetail .card-head h2{
+    margin:0!important;font-size:clamp(20px,5.6vw,27px)!important;line-height:1.05!important;
+    white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:100%!important;
+  }
 
   /* Profile is the secondary hub. Access, tools and logout are separate visual units. */
   html.workday-mobile #profileAccessSummary,
