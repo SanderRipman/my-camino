@@ -12,7 +12,7 @@ assert(!/supabase|role_grants|capabilit/i.test(chrome),'Standalone chrome must r
 const mobile=read('./app-mobile.js');
 const mobileCss=read('./mobile.css');
 const navIa=read('./navigation-ia.js');
-assert(mobile.includes("MOBILE_UX_VERSION='2026-09-05g'"),'Shared portal shell must keep the stable mobile UX layer.');
+assert(mobile.includes("MOBILE_UX_VERSION='2026-09-06a'"),'Shared portal shell must cache-bust the all-primary-tab swipe correction.');
 assert(mobile.includes("WORKDAY_CHROME_VERSION='2026-09-06a'")&&mobile.includes('app-workday-chrome.js')&&mobile.includes('workday-mobile.css'),'Shared portal shell must load the current workday chrome layer.');
 assert(mobile.includes("NAVIGATION_IA_VERSION='2026-09-05f'"),'Shared portal shell must keep the current navigation IA layer.');
 assert(mobile.includes('BRANDED_LOADER_MIN_MS=1250')&&mobile.includes('Ve.</span><span>Sé.</span><span>Vive.'),'Portal loading must present the canonical motto sequentially with a short minimum brand moment.');
@@ -23,6 +23,8 @@ assert(mobile.includes("window.addEventListener('pageshow'")&&mobile.includes("d
 assert(mobile.includes('activeIsOverview')&&mobile.includes("activeIsOverview(active)?0")&&mobile.includes('nav.scrollTo'),'Oversikt must be the hard left/start anchor while other active items remain recoverable.');
 assert(mobile.includes("'aidme:navigation-snapshot:v1','aidme:navigation-snapshot:v2','aidme:navigation-snapshot:v3','aidme:navigation-snapshot:v4'")&&mobile.includes('removeItem(key)'),'Legacy navigation snapshots must be discarded instead of contaminating the final role menu.');
 assert(mobile.includes("document.addEventListener('aidme:navigation-normalized'"),'Mobile navigation must recenter only after the normalized menu exists.');
+assert(mobile.includes('installSharedPrimarySwipe')&&mobile.includes("nav.querySelectorAll('.nav-item')"),'Shared swipe must follow every visible primary nav item, including href-based standalone destinations.');
+assert(!mobile.includes("querySelectorAll('.nav-item[data-view]')"),'Shared swipe must not skip primary links without data-view.');
 assert(!/supabase|role_grants|client\.from|functions\.invoke|fetch\(/i.test(mobile),'Mobile shell polish must stay presentation-only and must not create a data or authorization path.');
 assert(mobileCss.includes('.sidebar .brand>div{display:none!important}')&&mobileCss.includes('max-width:none!important'),'Base mobile navigation must free width from redundant brand text and use the available viewport.');
 assert(mobileCss.includes('scroll-snap-type:x proximity')&&mobileCss.includes('scrollbar-width:none'),'Horizontal navigation must remain deliberate and touch-friendly.');
@@ -47,8 +49,6 @@ for(const page of sidebarPages){
   assert(html.includes('app-mobile.js'),`${page} must use the common mobile/navigation shell.`);
 }
 
-// Owner management is intentionally a lightweight secondary/admin tool. It no
-// longer loads a second standalone navigation/chrome stack.
 const ownersHtml=read('./owners.html');
 const ownersJs=read('./owners.js');
 assert(ownersHtml.includes('Administrativt verktøy · ansvar'),'Owners must identify itself as a secondary tool.');
@@ -72,4 +72,4 @@ assert(documents.includes('class="doc-shell"'),'Documents must retain its intent
 assert(documents.includes('href="./">Til portal</a>'),'Documents must keep a direct return to the role-aware portal hub.');
 assert(documentsCss.includes('@media(max-width:720px)'),'Documents must retain its dedicated responsive layout.');
 
-console.log('Standalone/navigation IA and lightweight owner-tool smoke: OK');
+console.log('Standalone/navigation IA, shared swipe and lightweight owner-tool smoke: OK');
