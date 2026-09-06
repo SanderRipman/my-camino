@@ -20,8 +20,7 @@ function polishViaIntention(root=document){
 
 function apply(){polishViaIntention(document)}
 apply();
-['formSections','submissionReviewPanel'].forEach(id=>{
-  const node=document.getElementById(id);if(node)new MutationObserver(apply).observe(node,{childList:true,subtree:true,characterData:true});
-});
+const runner=document.getElementById('runner');
+if(runner)new MutationObserver(apply).observe(runner,{childList:true,subtree:true,characterData:true});
 document.addEventListener('aidme:portal-rendered',apply);
 })();
