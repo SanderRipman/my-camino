@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 
 const src=fs.readFileSync(new URL('./app-nav-badges.js',import.meta.url),'utf8');
+const next=fs.readFileSync(new URL('./app-next-nav.js',import.meta.url),'utf8');
 const participant=fs.readFileSync(new URL('./app-participant.js',import.meta.url),'utf8');
 const styles=fs.readFileSync(new URL('./styles.css',import.meta.url),'utf8');
 const build=fs.readFileSync(new URL('./build-app.mjs',import.meta.url),'utf8');
@@ -37,10 +38,23 @@ must(src,".pill.RED{background:#b4433f;color:#fff}",'strong red participant pill
 must(src,".attention-chip.red{border-color:#a83e3a;background:#b4433f;color:#fff}",'strong red mobile attention chip');
 must(participant,"setCard(2,'Neste steg'",'yellow overview metric');
 must(participant,"setCard(3,'Info / valgfritt'",'blue overview metric');
+
+// Exactly one subtle next-work-surface cue may appear. It never auto-navigates,
+// never overrides an open task card, and respects reduced-motion preferences.
+must(src,"next.src='./app-next-nav.js?v=20260906a'",'next-step presentation layer loader');
+must(next,"if(document.querySelector('#taskDialog')?.open)return''",'open task card owns the next action');
+must(next,"return'tasks'",'open staff/participant task target');
+must(next,"return'forms'",'participant form next target');
+must(next,"target===active",'do not mark the already active work surface');
+must(next,"cue.textContent='Neste'",'clear Norwegian next-step label');
+must(next,"prefers-reduced-motion:reduce",'reduced motion support');
+for(const forbidden of ['location.href','location.assign','location.replace','client.from(','functions.invoke(','role_grants','service_role']){
+  if(next.includes(forbidden))throw new Error(`next-step cue must remain presentation-only and non-navigating: ${forbidden}`);
+}
 for(const forbidden of ['role_grants','client.from(','functions.invoke(','SUPABASE_SECRET_KEYS','service_role']){
   if(src.includes(forbidden))throw new Error(`navigation badge presentation must not create authorization/data path: ${forbidden}`);
 }
 if(src.includes("$('#badgeTasks').innerHTML=navBadgeMarkup(red,yellow);$('#badgeOverview').innerHTML=navBadgeMarkup(red,yellow);$('#badgeParticipants').innerHTML=navBadgeMarkup(red,yellow);")){
   throw new Error('semantic badge extension must not reproduce the legacy identical-badge assignment');
 }
-console.log('Semantic navigation badge, critical-copy and long-label sidebar clearance invariants passed.');
+console.log('Semantic navigation badge, next-step cue, critical-copy and long-label sidebar clearance invariants passed.');
