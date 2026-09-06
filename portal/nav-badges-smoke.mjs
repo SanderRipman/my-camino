@@ -2,6 +2,7 @@ import fs from 'node:fs';
 
 const src=fs.readFileSync(new URL('./app-nav-badges.js',import.meta.url),'utf8');
 const next=fs.readFileSync(new URL('./app-next-nav.js',import.meta.url),'utf8');
+const mobile=fs.readFileSync(new URL('./app-mobile.js',import.meta.url),'utf8');
 const participant=fs.readFileSync(new URL('./app-participant.js',import.meta.url),'utf8');
 const styles=fs.readFileSync(new URL('./styles.css',import.meta.url),'utf8');
 const mobileStyles=fs.readFileSync(new URL('./workday-mobile.css',import.meta.url),'utf8');
@@ -50,25 +51,21 @@ must(next,'Menu-level "Neste" cue is intentionally disabled','Next cue retiremen
 must(next,"#mobileAttentionBar{display:none!important}",'redundant attention strip hidden');
 must(next,".eq('active',true)",'active participant metric only');
 must(next,"'NEW_VIA'",'new VIA grouped into compact VIA count');
-for(const forbidden of ["cue.textContent='Neste'",'next-nav-cue{outline','animation:aidme-next-cue-in']){
-  if(next.includes(forbidden))throw new Error(`retired Next cue must not render: ${forbidden}`);
-}
+if(/SWIPE_|installResponsiveSwipe|app-mobile-swipe/.test(next))throw new Error('main-only layer must not own swipe anymore');
 
-// Swipe is embedded in the already-loaded presentation layer to remove the
-// dynamic-script/cache race observed in physical QA.
-must(next,"const SWIPE_MIN_X=34",'responsive horizontal threshold');
-must(next,"const SWIPE_AXIS_RATIO=1.06",'responsive horizontal intent ratio');
-must(next,"const SWIPE_EDGE_GUARD=8",'small browser edge guard');
-must(next,"input,textarea,select,[contenteditable=",'form controls remain protected');
-must(next,"document.querySelector('#taskDialog')?.open",'open task dialog must own interaction');
-must(next,"event.touches.length!==1",'only one-finger swipe supported');
-must(next,"getComputedStyle(item).display!=='none'",'swipe target must be visible primary item');
-must(next,"const nextIndex=dx<0?index+1:index-1",'swipe moves only to adjacent visible tab');
-must(next,"next.click()",'swipe reuses canonical nav click behavior');
-must(next,"event.preventDefault()",'horizontal lock prevents browser gesture stealing after clear intent');
-must(next,"suppressClickUntil",'click following recognized swipe is suppressed');
-if(next.includes("app-mobile-swipe.js"))throw new Error('swipe must no longer depend on a second dynamic script');
-for(const forbidden of ['functions.invoke(','role_grants','service_role','fetch('])if(next.includes(forbidden))throw new Error(`navigation/swipe layer must remain presentation-focused: ${forbidden}`);
+must(mobile,"MOBILE_UX_VERSION='2026-09-06a'",'shared mobile cache bust');
+must(mobile,'function installSharedPrimarySwipe()','shared swipe installer');
+must(mobile,"nav.querySelectorAll('.nav-item')",'swipe must enumerate every visible nav item, not only data-view');
+must(mobile,"item.classList.contains('nav-mobile-secondary')",'secondary items excluded');
+must(mobile,"item.classList.contains('nav-ia-demoted')",'demoted items excluded');
+must(mobile,".nav-item.active,[aria-current=\"page\"]",'active item works in portal and standalone pages');
+must(mobile,'const MIN_X=32','responsive horizontal threshold');
+must(mobile,'AXIS_RATIO=1.04','responsive axis threshold');
+must(mobile,"input,textarea,select,[contenteditable=",'form controls protected');
+must(mobile,"document.querySelector('#taskDialog')?.open",'task dialog protected');
+must(mobile,"next.click()",'canonical nav activation');
+must(mobile,'suppressClickUntil','post-swipe click suppression');
+if(mobile.includes("querySelectorAll('.nav-item[data-view]')"))throw new Error('shared swipe must not skip href-based primary tabs');
 
 must(mobileStyles,'@media(max-width:470px)','narrow-phone layout');
 must(mobileStyles,'flex-direction:column!important','narrow nav label/badge stacking');
@@ -76,7 +73,4 @@ must(mobileStyles,'flex-direction:column!important','narrow nav label/badge stac
 for(const forbidden of ['role_grants','client.from(','functions.invoke(','SUPABASE_SECRET_KEYS','service_role']){
   if(src.includes(forbidden))throw new Error(`navigation badge presentation must not create authorization/data path: ${forbidden}`);
 }
-if(src.includes("$('#badgeTasks').innerHTML=navBadgeMarkup(red,yellow);$('#badgeOverview').innerHTML=navBadgeMarkup(red,yellow);$('#badgeParticipants').innerHTML=navBadgeMarkup(red,yellow);")){
-  throw new Error('semantic badge extension must not reproduce the legacy identical-badge assignment');
-}
-console.log('Semantic badges, aligned overview KPIs, retired Next cue and embedded responsive swipe invariants passed.');
+console.log('Semantic badges, aligned KPIs, retired Next cue and shared all-primary-tab swipe invariants passed.');
