@@ -53,7 +53,7 @@ must(next,".eq('active',true)",'active participant metric only');
 must(next,"'NEW_VIA'",'new VIA grouped into compact VIA count');
 if(/SWIPE_|installResponsiveSwipe|app-mobile-swipe/.test(next))throw new Error('main-only layer must not own swipe anymore');
 
-must(mobile,"MOBILE_UX_VERSION='2026-09-06a'",'shared mobile cache bust');
+must(mobile,"MOBILE_UX_VERSION='2026-09-06b'",'shared mobile cache bust');
 must(mobile,'function installSharedPrimarySwipe()','shared swipe installer');
 must(mobile,"nav.querySelectorAll('.nav-item')",'swipe must enumerate every visible nav item, not only data-view');
 must(mobile,"item.classList.contains('nav-mobile-secondary')",'secondary items excluded');
@@ -65,6 +65,7 @@ must(mobile,"input,textarea,select,[contenteditable=",'form controls protected')
 must(mobile,"document.querySelector('#taskDialog')?.open",'task dialog protected');
 must(mobile,"next.click()",'canonical nav activation');
 must(mobile,'suppressClickUntil','post-swipe click suppression');
+must(mobile,'function prefetchVisibleStandalone()','standalone transition prefetch');
 if(mobile.includes("querySelectorAll('.nav-item[data-view]')"))throw new Error('shared swipe must not skip href-based primary tabs');
 
 must(mobileStyles,'@media(max-width:470px)','narrow-phone layout');
