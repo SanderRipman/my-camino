@@ -11,9 +11,31 @@ const NEW_VIA_ERRORS={
 function newViaError(code){return NEW_VIA_ERRORS[code]||'Ny VÍA kunne ikke startes. Ingen alternativ direkte databasevei ble brukt.'}
 function canStartNewVia(){return hasRole('project_owner')||hasRole('vida_owner')}
 
+function confirmOptionalNewVia(p){
+  return new Promise(resolve=>{
+    const dialog=document.createElement('dialog');
+    dialog.className='task-dialog new-via-confirm-dialog';
+    dialog.setAttribute('aria-labelledby','newViaConfirmTitle');
+    dialog.innerHTML=`<div class="dialog-shell"><div class="dialog-head"><div><p class="eyebrow">Valgfritt nytt startpunkt</p><h2 id="newViaConfirmTitle">Starte ny VÍA?</h2></div><button class="icon-btn" type="button" data-new-via-cancel aria-label="Lukk">×</button></div><p><strong>${escapeHtml(p.code_name)}</strong> er ferdig med ordinær VIDA-oppfølging. Start bare ny VÍA når deltakeren og ansvarlig faktisk trenger et nytt veivalg.</p><p class="privacy-note">Dette er ikke et obligatorisk fjerde programsteg. Tidligere VIDA-planer og historikk beholdes uendret.</p><div class="dialog-actions"><button class="ghost" type="button" data-new-via-cancel>Avbryt</button><button class="primary" type="button" data-new-via-confirm>Start ny VÍA</button></div></div>`;
+    document.body.appendChild(dialog);
+    let settled=false;
+    const finish=accepted=>{
+      if(settled)return;
+      settled=true;
+      if(dialog.open)dialog.close();
+      dialog.remove();
+      resolve(accepted);
+    };
+    dialog.querySelectorAll('[data-new-via-cancel]').forEach(b=>b.addEventListener('click',()=>finish(false)));
+    dialog.querySelector('[data-new-via-confirm]')?.addEventListener('click',()=>finish(true));
+    dialog.addEventListener('cancel',event=>{event.preventDefault();finish(false)},{once:true});
+    dialog.showModal();
+  });
+}
+
 async function startOptionalNewVia(p,button,message){
   if(!p||p.stage!=='VIDA'){message.textContent='Deltakeren er ikke lenger i VIDA. Last arbeidsflaten på nytt.';return}
-  const accepted=window.confirm(`Starte ny VÍA for ${p.code_name}? Dette er et valgfritt nytt startpunkt når retningen må justeres – ikke et obligatorisk fjerde programsteg.`);
+  const accepted=await confirmOptionalNewVia(p);
   if(!accepted)return;
   button.disabled=true;message.textContent='Kontrollerer tilgang og starter ny VÍA…';
   const pilot=participantPilot(p.id);
