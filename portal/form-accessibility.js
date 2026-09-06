@@ -1,6 +1,12 @@
 (()=>{
 'use strict';
 
+const OPTION_LABELS_NB={
+  CONTINUE:'Fortsett',
+  ADJUST:'Juster',
+  PAUSE:'Pause',
+  STOP:'Stopp'
+};
 function fieldId(key,suffix=''){
   const safe=String(key||'field').replace(/[^a-zA-Z0-9_-]/g,'-');
   return `field-${safe}${suffix}`;
@@ -8,6 +14,16 @@ function fieldId(key,suffix=''){
 function helpMarkup(f,id){return f.help?`<small id="${id}">${esc(f.help)}</small>`:''}
 function describedBy(f,id){return f.help?` aria-describedby="${id}"`:''}
 function fieldLegend(f){return `${esc(f.label)}${f.required?' *':''}`}
+function optionLabel(f,option){
+  const raw=String(option??'');
+  const lang=(document.documentElement.lang||'nb').toLowerCase();
+  if(lang.startsWith('nb')||lang.startsWith('no')){
+    const explicit=f?.option_labels_nb?.[raw]||f?.option_labels_no?.[raw];
+    if(explicit)return String(explicit);
+    if(f?.key==='next_decision'&&OPTION_LABELS_NB[raw])return OPTION_LABELS_NB[raw];
+  }
+  return raw.replaceAll('_',' ');
+}
 
 renderField=function renderAccessibleField(f){
   const full=['textarea','action','multi_select'].includes(f.type)?' full':'';
@@ -27,7 +43,7 @@ renderField=function renderAccessibleField(f){
   if(f.type==='multi_select'){
     const options=(f.options||[]).map((option,index)=>{
       const optionId=`${id}-${index}`;
-      return `<label for="${optionId}"><input id="${optionId}" type="checkbox" name="${esc(f.key)}" value="${esc(option)}"${desc}> ${esc(String(option).replaceAll('_',' '))}</label>`;
+      return `<label for="${optionId}"><input id="${optionId}" type="checkbox" name="${esc(f.key)}" value="${esc(option)}"${desc}> ${esc(optionLabel(f,option))}</label>`;
     }).join('');
     return `${wrapOpen}<fieldset class="field-group"><legend>${legend}</legend><div class="multi-select">${options}</div>${help}</fieldset></div>`;
   }
@@ -43,7 +59,7 @@ renderField=function renderAccessibleField(f){
 
   let control='';
   if(f.type==='textarea')control=`<textarea id="${id}" name="${esc(f.key)}" rows="4"${required}${desc}></textarea>`;
-  else if(f.type==='select')control=`<select id="${id}" name="${esc(f.key)}"${required}${desc}><option value="">Velg</option>${(f.options||[]).map(option=>`<option value="${esc(option)}">${esc(String(option).replaceAll('_',' '))}</option>`).join('')}</select>`;
+  else if(f.type==='select')control=`<select id="${id}" name="${esc(f.key)}"${required}${desc}><option value="">Velg</option>${(f.options||[]).map(option=>`<option value="${esc(option)}">${esc(optionLabel(f,option))}</option>`).join('')}</select>`;
   else if(f.type==='range')control=`<input id="${id}" type="range" name="${esc(f.key)}" min="${f.min??0}" max="${f.max??10}" value="5"${desc}><small data-range-for="${esc(f.key)}">5</small>`;
   else if(f.type==='datetime')control=`<input id="${id}" type="datetime-local" name="${esc(f.key)}"${required}${desc}>`;
   else control=`<input id="${id}" type="text" name="${esc(f.key)}"${required}${desc}>`;
