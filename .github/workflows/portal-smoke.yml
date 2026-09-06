@@ -132,6 +132,8 @@ jobs:
         run: node portal/form-validation-ux-smoke.mjs
       - name: Verify Norwegian form and stage runtime language invariants
         run: node portal/form-language-runtime-smoke.mjs
+      - name: Verify participant-only minimal form chrome invariants
+        run: node portal/form-participant-minimal-smoke.mjs
       - name: Verify mobile workday chrome invariants
         run: node portal/workday-chrome-smoke.mjs
       - name: Verify SER operational v3 invariants
