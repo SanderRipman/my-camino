@@ -1,6 +1,8 @@
 (()=>{
 'use strict';
 
+let vidaRevisionScheduled=false;
+
 function vidaRevisionRows(){
   return [...document.querySelectorAll('#submissionList .submission-row')]
     .filter(row=>row.querySelector('b')?.textContent?.trim()==='Fullført');
@@ -24,6 +26,8 @@ function vidaTaskReturnHref(){
 }
 
 function bindVidaReviewReturn(){
+  if(document.documentElement.dataset.vidaReviewReturnBound==='1')return;
+  document.documentElement.dataset.vidaReviewReturnBound='1';
   document.addEventListener('click',event=>{
     const button=event.target.closest?.('#closeSubmissionReview');
     if(!button||typeof currentDef==='undefined'||currentDef?.key!=='vida_plan')return;
@@ -35,8 +39,19 @@ function bindVidaReviewReturn(){
   },true);
 }
 
+function resetVidaRevisionLabel(){
+  const versionBox=document.querySelector('.form-version');
+  const label=versionBox?.querySelector('span');
+  const value=document.querySelector('#versionLabel');
+  if(label?.textContent==='Planversjon')label.textContent='Versjon';
+  if(value?.title?.startsWith('Skjemamal v'))value.removeAttribute('title');
+}
+
 function applyVidaRevisionUi(){
-  if(typeof currentDef==='undefined'||currentDef?.key!=='vida_plan')return;
+  if(typeof currentDef==='undefined'||currentDef?.key!=='vida_plan'){
+    resetVidaRevisionLabel();
+    return;
+  }
   const revision=latestVidaRevision();
   if(!revision)return;
 
@@ -65,14 +80,38 @@ function applyVidaRevisionUi(){
   });
 }
 
-function observeVidaRevisionUi(){
-  const target=document.querySelector('#runner')||document.body;
-  const observer=new MutationObserver(()=>queueMicrotask(applyVidaRevisionUi));
-  observer.observe(target,{subtree:true,childList:true,characterData:true});
-  bindVidaReviewReturn();
-  applyVidaRevisionUi();
+function scheduleVidaRevisionUi(){
+  if(vidaRevisionScheduled)return;
+  vidaRevisionScheduled=true;
+  requestAnimationFrame(()=>{
+    vidaRevisionScheduled=false;
+    applyVidaRevisionUi();
+  });
 }
 
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observeVidaRevisionUi,{once:true});
-else observeVidaRevisionUi();
+function installVidaRevisionUi(){
+  bindVidaReviewReturn();
+
+  const vidaRevisionBaseLoadSubmissions=loadSubmissions;
+  loadSubmissions=async function(...args){
+    const result=await vidaRevisionBaseLoadSubmissions.apply(this,args);
+    scheduleVidaRevisionUi();
+    return result;
+  };
+
+  const vidaRevisionBaseChooseForm=chooseForm;
+  chooseForm=async function(...args){
+    const result=await vidaRevisionBaseChooseForm.apply(this,args);
+    scheduleVidaRevisionUi();
+    return result;
+  };
+
+  window.addEventListener('pageshow',scheduleVidaRevisionUi);
+  document.addEventListener('aidme:portal-rendered',scheduleVidaRevisionUi);
+  setTimeout(scheduleVidaRevisionUi,0);
+  setTimeout(scheduleVidaRevisionUi,240);
+}
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installVidaRevisionUi,{once:true});
+else installVidaRevisionUi();
 })();
