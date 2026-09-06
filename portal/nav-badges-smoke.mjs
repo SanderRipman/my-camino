@@ -2,7 +2,6 @@ import fs from 'node:fs';
 
 const src=fs.readFileSync(new URL('./app-nav-badges.js',import.meta.url),'utf8');
 const next=fs.readFileSync(new URL('./app-next-nav.js',import.meta.url),'utf8');
-const swipe=fs.readFileSync(new URL('./app-mobile-swipe.js',import.meta.url),'utf8');
 const participant=fs.readFileSync(new URL('./app-participant.js',import.meta.url),'utf8');
 const styles=fs.readFileSync(new URL('./styles.css',import.meta.url),'utf8');
 const mobileStyles=fs.readFileSync(new URL('./workday-mobile.css',import.meta.url),'utf8');
@@ -38,7 +37,6 @@ must(src,".pill.RED{background:#b4433f;color:#fff}",'strong red participant pill
 must(participant,"setCard(2,'Neste steg'",'yellow overview metric');
 must(participant,"setCard(3,'Info / valgfritt'",'blue overview metric');
 
-// Staff overview must use the same attention semantics as task badges.
 must(src,"badgeOverdue(task)?'RED':severity(task)",'overdue tasks become red attention');
 must(src,"harmonizeStaffKpis(open,taskCounts)",'KPI and badge semantic alignment');
 must(src,"label.textContent='Kritisk / forfalt'",'clear critical/overdue KPI label');
@@ -47,34 +45,31 @@ must(src,"metricYellow.textContent=String(taskCounts.yellow)",'yellow KPI uses s
 must(src,"@media(max-width:780px)",'mobile badge layout');
 must(src,"flex-direction:column!important",'mobile badges stack under nav labels');
 
-// Menu-level Next cue is explicitly retired; post-badge layer remains for the
-// active-participant KPI consistency and the final responsive swipe prototype.
 must(src,"next.src='./app-next-nav.js?v=20260906c'",'post-badge layer loader');
 must(next,'Menu-level "Neste" cue is intentionally disabled','Next cue retirement');
 must(next,"#mobileAttentionBar{display:none!important}",'redundant attention strip hidden');
 must(next,".eq('active',true)",'active participant metric only');
 must(next,"'NEW_VIA'",'new VIA grouped into compact VIA count');
-must(next,"swipe.src='./app-mobile-swipe.js?v=20260906b'",'responsive mobile swipe loader');
-for(const forbidden of ['cue.textContent=\'Neste\'','next-nav-cue{outline','animation:aidme-next-cue-in']){
+for(const forbidden of ["cue.textContent='Neste'",'next-nav-cue{outline','animation:aidme-next-cue-in']){
   if(next.includes(forbidden))throw new Error(`retired Next cue must not render: ${forbidden}`);
 }
 
-// Final swipe attempt is intentionally more responsive than the prior prototype.
-// It may start over normal links/cards, but actual form inputs/dialogs remain blocked.
-must(swipe,"const MIN_X=38",'responsive horizontal threshold');
-must(swipe,"const AXIS_RATIO=1.12",'responsive horizontal intent ratio');
-must(swipe,"const EDGE_GUARD=12",'small browser edge guard');
-must(swipe,"input,textarea,select,[contenteditable=",'form controls remain protected');
-must(swipe,"document.querySelector('#taskDialog')?.open",'open task dialog must own interaction');
-must(swipe,"event.touches.length!==1",'only one-finger swipe supported');
-must(swipe,"getComputedStyle(item).display!=='none'",'swipe target must be visible primary item');
-must(swipe,"const nextIndex=dx<0?index+1:index-1",'swipe moves only to adjacent visible tab');
-must(swipe,"next.click()",'swipe reuses canonical nav click behavior');
-must(swipe,"event.preventDefault()",'horizontal lock prevents browser gesture stealing after clear intent');
-must(swipe,"suppressClickUntil",'click following recognized swipe is suppressed');
-for(const forbidden of ['client.from(','functions.invoke(','role_grants','service_role','fetch('])if(swipe.includes(forbidden))throw new Error(`mobile swipe must stay presentation-only: ${forbidden}`);
+// Swipe is embedded in the already-loaded presentation layer to remove the
+// dynamic-script/cache race observed in physical QA.
+must(next,"const SWIPE_MIN_X=34",'responsive horizontal threshold');
+must(next,"const SWIPE_AXIS_RATIO=1.06",'responsive horizontal intent ratio');
+must(next,"const SWIPE_EDGE_GUARD=8",'small browser edge guard');
+must(next,"input,textarea,select,[contenteditable=",'form controls remain protected');
+must(next,"document.querySelector('#taskDialog')?.open",'open task dialog must own interaction');
+must(next,"event.touches.length!==1",'only one-finger swipe supported');
+must(next,"getComputedStyle(item).display!=='none'",'swipe target must be visible primary item');
+must(next,"const nextIndex=dx<0?index+1:index-1",'swipe moves only to adjacent visible tab');
+must(next,"next.click()",'swipe reuses canonical nav click behavior');
+must(next,"event.preventDefault()",'horizontal lock prevents browser gesture stealing after clear intent');
+must(next,"suppressClickUntil",'click following recognized swipe is suppressed');
+if(next.includes("app-mobile-swipe.js"))throw new Error('swipe must no longer depend on a second dynamic script');
+for(const forbidden of ['functions.invoke(','role_grants','service_role','fetch('])if(next.includes(forbidden))throw new Error(`navigation/swipe layer must remain presentation-focused: ${forbidden}`);
 
-// Existing mobile workday shell still supports narrow-phone stacking as a fallback.
 must(mobileStyles,'@media(max-width:470px)','narrow-phone layout');
 must(mobileStyles,'flex-direction:column!important','narrow nav label/badge stacking');
 
@@ -84,4 +79,4 @@ for(const forbidden of ['role_grants','client.from(','functions.invoke(','SUPABA
 if(src.includes("$('#badgeTasks').innerHTML=navBadgeMarkup(red,yellow);$('#badgeOverview').innerHTML=navBadgeMarkup(red,yellow);$('#badgeParticipants').innerHTML=navBadgeMarkup(red,yellow);")){
   throw new Error('semantic badge extension must not reproduce the legacy identical-badge assignment');
 }
-console.log('Semantic badges, aligned overview KPIs, retired Next cue, responsive swipe and mobile stacking invariants passed.');
+console.log('Semantic badges, aligned overview KPIs, retired Next cue and embedded responsive swipe invariants passed.');
