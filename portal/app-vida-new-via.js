@@ -30,7 +30,7 @@ function renderOptionalNewVia(){
   if(!canStartNewVia())return;
   const p=participantById(selectedParticipantId);
   if(!p||p.stage!=='VIDA')return;
-  const card=document.querySelector('.ser-vida-today[data-ser-vida-phase="VIDA"]');
+  const card=document.querySelector('#participantDetail')||document.querySelector('.ser-vida-today[data-ser-vida-phase="VIDA"]');
   if(!card)return;
   const box=document.createElement('div');box.className='vida-new-via';
   box.innerHTML=`<div class="detail-stat"><span>Ved behov</span><strong>Ny VÍA · nytt startpunkt</strong></div><p class="privacy-note">VIDA er siste steg i den ordinære trestegsreisen. Ny VÍA brukes bare når deltakeren og ansvarlig oppfølging trenger et nytt veivalg. Det skjer aldri automatisk ved 90 dager eller fordi en oppfølgingsoppgave er ferdig.</p><div class="form-actions"><button class="secondary" type="button" data-start-new-via>Start ny VÍA ved behov</button></div><p class="message" data-new-via-message aria-live="polite"></p>`;
@@ -38,6 +38,9 @@ function renderOptionalNewVia(){
   const button=box.querySelector('[data-start-new-via]'),message=box.querySelector('[data-new-via-message]');
   button?.addEventListener('click',()=>startOptionalNewVia(p,button,message));
 }
+
+const newViaRenderParticipantDetail=renderParticipantDetail;
+renderParticipantDetail=function(){newViaRenderParticipantDetail();setTimeout(renderOptionalNewVia,0)};
 
 const newViaRenderAll=renderAll;
 renderAll=function(){newViaRenderAll();setTimeout(renderOptionalNewVia,0)};
