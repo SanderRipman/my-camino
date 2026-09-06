@@ -19,7 +19,7 @@ function semanticBadgeMarkup(kind,counts){
   if(kind==='overview'&&isStaff())return counts.total?`<span class="nav-count nav-count-total" aria-label="${counts.total} åpne totalt">${counts.total}</span>`:'';
   let html='';
   if(counts.red)html+=`<span class="nav-count red" aria-label="${counts.red} ${kind==='participants'?'deltakere':'steg'} kritisk / blokkerende / forfalt">${counts.red}</span>`;
-  if(counts.yellow)html+=`<span class="nav-count yellow" aria-label="${counts.yellow} ${kind==='participants'?'deltakere':'steg'} er neste handling">${counts.yellow}</span>`;
+  if(counts.yellow)html+=`<span class="nav-count yellow" aria-label="${counts.yellow} ${kind==='participants'?'deltakere':'steg'} trenger avklaring">${counts.yellow}</span>`;
   if(counts.blue)html+=`<span class="nav-count blue" aria-label="${counts.blue} informative eller valgfrie steg">${counts.blue}</span>`;
   return html;
 }
@@ -56,65 +56,61 @@ function renderParticipantNavigationBadges(){
   polishParticipantAttentionCopy();
   return true;
 }
+function harmonizeStaffKpis(open,taskCounts){
+  const metricOpen=document.querySelector('#metricOpen'),metricRed=document.querySelector('#metricRed'),metricYellow=document.querySelector('#metricYellow');
+  if(metricOpen)metricOpen.textContent=String(open.length);
+  if(metricRed)metricRed.textContent=String(taskCounts.red);
+  if(metricYellow)metricYellow.textContent=String(taskCounts.yellow);
+  const redCard=metricRed?.closest('.metric'),yellowCard=metricYellow?.closest('.metric'),openCard=metricOpen?.closest('.metric'),participantCard=document.querySelector('#metricParticipants')?.closest('.metric');
+  if(redCard){redCard.classList.add('metric-attention-red');const label=redCard.querySelector('span'),hint=redCard.querySelector('small');if(label)label.textContent='Kritisk / forfalt';if(hint)hint.textContent='krever oppmerksomhet'}
+  if(yellowCard){yellowCard.classList.add('metric-attention-yellow');const hint=yellowCard.querySelector('small');if(hint)hint.textContent='trenger avklaring'}
+  openCard?.classList.add('metric-attention-open');participantCard?.classList.add('metric-attention-participants');
+}
 function renderSemanticNavigationBadges(){
   if(!isStaff()&&renderParticipantNavigationBadges())return;
   const visible=badgeVisibleTasks();
   const open=visible.filter(t=>badgeOpenStatus(t.status));
-  const taskCounts={
-    red:open.filter(t=>badgeTaskSeverity(t)==='RED').length,
-    yellow:open.filter(t=>badgeTaskSeverity(t)==='YELLOW').length
-  };
-  const overview=document.querySelector('#badgeOverview');
-  const taskBadge=document.querySelector('#badgeTasks');
-  const participantBadge=document.querySelector('#badgeParticipants');
+  const taskCounts={red:open.filter(t=>badgeTaskSeverity(t)==='RED').length,yellow:open.filter(t=>badgeTaskSeverity(t)==='YELLOW').length};
+  const overview=document.querySelector('#badgeOverview'),taskBadge=document.querySelector('#badgeTasks'),participantBadge=document.querySelector('#badgeParticipants');
   ensureFormsBadge()?.replaceChildren();
-  if(overview){
-    overview.innerHTML=semanticBadgeMarkup('overview',{total:open.length});
-    overview.title=`Samlet oversikt: ${open.length} åpne oppgaver`;
-  }
-  if(taskBadge){
-    taskBadge.innerHTML=semanticBadgeMarkup('tasks',taskCounts);
-    taskBadge.title=`Oppgaver: ${taskCounts.red} kritisk/forfalt · ${taskCounts.yellow} trenger avklaring`;
-  }
+  if(overview){overview.innerHTML=semanticBadgeMarkup('overview',{total:open.length});overview.title=`Samlet oversikt: ${open.length} åpne oppgaver`}
+  if(taskBadge){taskBadge.innerHTML=semanticBadgeMarkup('tasks',taskCounts);taskBadge.title=`Oppgaver: ${taskCounts.red} kritisk/forfalt · ${taskCounts.yellow} trenger avklaring`}
   if(participantBadge){
     const attention=(participants||[]).map(p=>badgeParticipantSeverity(p,open)).filter(s=>s==='RED'||s==='YELLOW');
     const participantCounts={red:attention.filter(s=>s==='RED').length,yellow:attention.filter(s=>s==='YELLOW').length};
     participantBadge.innerHTML=semanticBadgeMarkup('participants',participantCounts);
     participantBadge.title=`Deltakere: ${participantCounts.red} kritisk · ${participantCounts.yellow} trenger oppmerksomhet`;
   }
+  harmonizeStaffKpis(open,taskCounts);
 }
 
 if(!document.querySelector('#semantic-nav-badge-style')){
-  const style=document.createElement('style');
-  style.id='semantic-nav-badge-style';
+  const style=document.createElement('style');style.id='semantic-nav-badge-style';
   style.textContent=`
     .sidebar .nav-item{grid-template-columns:18px minmax(0,1fr) auto;gap:4px;padding-left:8px;padding-right:8px}
     .sidebar .nav-item b{min-width:0}.sidebar .nav-badges{flex:0 0 auto;flex-wrap:nowrap;justify-self:end}
     .nav-count.red{background:#b4433f;color:#fff}.pill.RED{background:#b4433f;color:#fff}
     .nav-count.nav-count-total{background:#dbe5ec;color:#23435d}.nav-count.blue{background:#dbe5ec;color:#23435d}.nav-badges:empty{display:none}
     .task-dot.BLUE{background:#5f7f9b}.pill.BLUE{background:#dbe5ec;color:#23435d}
-    .mobile-attention-bar .attention-chip.red{border-color:#a83e3a;background:#b4433f;color:#fff}
-    .mobile-attention-bar .attention-chip.neutral{border-color:#b9c9d7;background:#edf3f8;color:#23435d}
-  `;
-  document.head.appendChild(style);
+    #view-overview .metric.metric-attention-red{border-color:rgba(180,67,63,.28);background:linear-gradient(180deg,rgba(180,67,63,.055),rgba(255,253,248,.92))}
+    #view-overview .metric.metric-attention-yellow{border-color:rgba(200,164,93,.36);background:linear-gradient(180deg,rgba(200,164,93,.07),rgba(255,253,248,.92))}
+    #view-overview .metric.metric-attention-open{border-color:rgba(95,127,155,.25)}
+    #view-overview .metric.metric-attention-participants{border-color:rgba(23,104,94,.24)}
+    @media(max-width:780px){
+      .sidebar .nav-item{display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;gap:1px!important}
+      .sidebar .nav-badges{margin-left:0!important;justify-content:center!important;min-height:18px!important}
+    }
+  `;document.head.appendChild(style);
 }
 
 const priorRenderTaskLists=renderTaskLists;
-renderTaskLists=function(){
-  priorRenderTaskLists();
-  renderSemanticNavigationBadges();
-  setTimeout(renderSemanticNavigationBadges,0);
-};
+renderTaskLists=function(){priorRenderTaskLists();renderSemanticNavigationBadges();setTimeout(renderSemanticNavigationBadges,0)};
 setTimeout(renderSemanticNavigationBadges,120);
 window.addEventListener('pageshow',()=>setTimeout(renderSemanticNavigationBadges,30));
 
-// The next-step cue is intentionally loaded as a presentation-only layer after semantic badges.
-// It marks at most one adjacent work surface and never auto-navigates or changes access/data.
+// Post-badge presentation layer: retired menu-level Next cue, consistent active
+// participant KPI, and the current physical-QA swipe prototype.
 if(!document.querySelector('script[data-aidme-next-nav]')){
-  const next=document.createElement('script');
-  next.src='./app-next-nav.js?v=20260906a';
-  next.dataset.aidmeNextNav='1';
-  document.head.appendChild(next);
+  const next=document.createElement('script');next.src='./app-next-nav.js?v=20260906c';next.dataset.aidmeNextNav='1';document.head.appendChild(next);
 }
-
 })();
