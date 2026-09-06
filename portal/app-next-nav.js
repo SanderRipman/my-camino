@@ -1,72 +1,43 @@
 (()=>{
 'use strict';
 
-const OPEN_STATUSES=new Set(['OPEN','IN_PROGRESS','WAITING']);
-let lastCue='';
+// The experimental menu-level "Neste" cue is intentionally disabled.
+// Guidance belongs in contextual task/action cards until a later IA pass.
+document.querySelectorAll('#mainNav .nav-item.next-nav-cue').forEach(el=>el.classList.remove('next-nav-cue'));
+document.querySelectorAll('#mainNav .nav-next-cue,#next-nav-cue-style').forEach(el=>el.remove());
 
-function cueTarget(){
-  if(document.querySelector('#taskDialog')?.open)return'';
-  try{
-    if(!isStaff()){
-      const snap=typeof window.aidmeParticipantAttentionSnapshot==='function'?window.aidmeParticipantAttentionSnapshot():null;
-      if(!snap)return'';
-      if((snap.tasks||[]).some(item=>item.tone==='RED'||item.tone==='YELLOW'))return'tasks';
-      if((snap.forms||[]).some(item=>item.tone==='YELLOW'))return'forms';
-      return'';
-    }
-    if((tasks||[]).some(task=>OPEN_STATUSES.has(task.status)))return'tasks';
-  }catch{}
-  return'';
+// Remove the redundant mobile attention strip. Navigation badges remain the
+// compact attention signal; KPI cards remain the explanatory/drilldown layer.
+function removeAttentionStrip(){document.querySelector('#mobileAttentionBar')?.remove()}
+try{updateMobileAttention=removeAttentionStrip}catch{}
+removeAttentionStrip();
+
+// Keep the overview participant total and phase mix mathematically consistent.
+// NEW_VIA is a new VÍA cycle and is therefore grouped into VÍA in the compact KPI.
+function renderConsistentParticipantMetric(){
+  if(!Array.isArray(participants))return;
+  const buckets={via:0,ser:0,vida:0};
+  for(const p of participants){
+    const raw=String(p?.stage||'').toUpperCase();
+    if(['VIA','INTEREST','READY_FOR_GO','GO','GO_WITH_CONDITIONS','NEW_VIA'].includes(raw))buckets.via++;
+    else if(raw==='SER')buckets.ser++;
+    else if(raw==='VIDA')buckets.vida++;
+  }
+  const total=buckets.via+buckets.ser+buckets.vida;
+  const metric=document.querySelector('#metricParticipants');
+  const mix=document.querySelector('#metricPhaseMix');
+  if(metric)metric.textContent=String(total);
+  if(mix)mix.textContent=`VÍA ${buckets.via} · SER ${buckets.ser} · VIDA ${buckets.vida}`;
 }
 
-function clearCue(){
-  document.querySelectorAll('#mainNav .nav-item.next-nav-cue').forEach(nav=>nav.classList.remove('next-nav-cue'));
-  document.querySelectorAll('#mainNav .nav-next-cue').forEach(el=>el.remove());
-  lastCue='';
+if(typeof renderMetrics==='function'){
+  const baseRenderMetrics=renderMetrics;
+  renderMetrics=function(){baseRenderMetrics();renderConsistentParticipantMetric();removeAttentionStrip()};
 }
-
-function applyNextCue(){
-  const target=cueTarget();
-  const active=document.querySelector('#mainNav .nav-item.active')?.dataset.view||'';
-  const nav=target?document.querySelector(`#mainNav .nav-item[data-view="${CSS.escape(target)}"]`):null;
-  if(!target||target===active||!nav||nav.classList.contains('demo-lens-hidden')){clearCue();return}
-  if(lastCue===target&&nav.classList.contains('next-nav-cue')&&nav.querySelector('.nav-next-cue'))return;
-  clearCue();
-  nav.classList.add('next-nav-cue');
-  const cue=document.createElement('span');
-  cue.className='nav-next-cue';
-  cue.textContent='Neste';
-  cue.setAttribute('aria-hidden','true');
-  nav.appendChild(cue);
-  nav.title=nav.title?`${nav.title} · Anbefalt neste arbeidsflate`:'Anbefalt neste arbeidsflate';
-  lastCue=target;
+if(typeof renderAll==='function'){
+  const baseRenderAll=renderAll;
+  renderAll=function(){const out=baseRenderAll();renderConsistentParticipantMetric();removeAttentionStrip();return out};
 }
-
-const style=document.createElement('style');
-style.id='next-nav-cue-style';
-style.textContent=`
-  #mainNav .nav-item.next-nav-cue{outline:2px solid rgba(200,164,93,.55);outline-offset:-2px}
-  #mainNav .nav-next-cue{justify-self:end;border:1px solid rgba(200,164,93,.55);border-radius:999px;padding:2px 6px;background:rgba(200,164,93,.13);font-size:9px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;animation:aidme-next-cue-in .35s ease-out 1}
-  @keyframes aidme-next-cue-in{from{opacity:.25;transform:translateY(2px)}to{opacity:1;transform:none}}
-  @media(prefers-reduced-motion:reduce){#mainNav .nav-next-cue{animation:none}}
-`;
-document.head.appendChild(style);
-
-const nextCueShow=show;
-show=function(name){nextCueShow(name);setTimeout(applyNextCue,0)};
-const nextCueRenderTaskLists=renderTaskLists;
-renderTaskLists=function(){nextCueRenderTaskLists();setTimeout(applyNextCue,0)};
-document.querySelector('#taskDialog')?.addEventListener('close',()=>setTimeout(applyNextCue,0));
-window.addEventListener('pageshow',()=>setTimeout(applyNextCue,30));
-setTimeout(applyNextCue,240);
-
-// Physical mobile QA requested horizontal movement between adjacent primary work surfaces.
-// Keep it as a separate guarded presentation layer: no forms/dialogs/controls, no edge gestures,
-// no preventDefault and no direct data/auth behavior.
-if(!document.querySelector('script[data-aidme-mobile-swipe]')){
-  const swipe=document.createElement('script');
-  swipe.src='./app-mobile-swipe.js?v=20260906a';
-  swipe.dataset.aidmeMobileSwipe='1';
-  document.head.appendChild(swipe);
-}
+window.addEventListener('pageshow',()=>{removeAttentionStrip();renderConsistentParticipantMetric()});
+setTimeout(()=>{removeAttentionStrip();renderConsistentParticipantMetric()},220);
 })();
