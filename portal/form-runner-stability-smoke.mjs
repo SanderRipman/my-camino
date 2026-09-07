@@ -17,10 +17,12 @@ must(!runner.includes('onAuthStateChange(()=>setTimeout(init,0))'),'form runner 
 must(!runner.includes("FORM_REINIT_EVENTS=new Set(['TOKEN_REFRESHED'"),'token refresh must not trigger full form reload');
 must(!runner.includes("FORM_REINIT_EVENTS=new Set(['INITIAL_SESSION'"),'initial session event must not duplicate explicit init');
 
-must(runnerHtml.includes('form-runner-task-fastpath.js?v=20260907a'),'targeted task form routes must load the bounded fast-path bootstrap');
-must(taskFast.includes("client.functions.invoke('case-command'"),'targeted task bootstrap must use server-side participant context instead of broad participant reads');
-must(taskFast.includes("action:'LIST_CONTEXT'"),'targeted task bootstrap must resolve the exact requested participant context');
-must(taskFast.includes('const seq=++initSeq;initPromise=null'),'targeted task bootstrap must invalidate a stale broad initialization');
+must(runnerHtml.includes('form-runner-task-fastpath.js?v=20260907b'),'targeted task form routes must load the current bounded bootstrap');
+must(taskFast.includes("client.functions.invoke('case-command'"),'staff targeted task bootstrap must use server-side participant context instead of broad participant reads');
+must(taskFast.includes("action:'LIST_CONTEXT'"),'staff targeted task bootstrap must resolve the exact requested participant context');
+must(taskFast.includes('const preflightGrants=gRes.data||[]')&&taskFast.includes('if(!preflightGrants.some(active))'),'targeted bootstrap must distinguish real participant sessions before invoking staff-only LIST_CONTEXT');
+must(taskFast.indexOf('if(!preflightGrants.some(active))')<taskFast.indexOf('const seq=++initSeq;initPromise=null'),'participant RLS bootstrap must remain alive; broad init may only be invalidated after staff scope is proven');
+must(taskFast.includes('if(!initPromise)await init()'),'participant route must fall back to the ordinary caller-RLS form bootstrap');
 must(taskFast.includes('FORM_TASK_BOOTSTRAP_TIMEOUT')&&taskFast.includes('showFailure'),'targeted task bootstrap must fail visibly instead of leaving a blank page');
 
 for(const html of [runnerHtml,intake]){
@@ -36,4 +38,4 @@ must(mobile.includes("'aidme:navigation-snapshot:v5'"),'mobile shell must purge 
 must(mobile.includes('function prefetchVisibleStandalone()'),'visible standalone primary pages should be prefetched');
 must(mobile.includes("nav.querySelectorAll('a.nav-item[href]')"),'prefetch must follow visible standalone nav links');
 
-console.log('Form runner single-flight, targeted task bootstrap and standalone transition invariants: PASS');
+console.log('Form runner single-flight, participant-safe targeted bootstrap and standalone transition invariants: PASS');
