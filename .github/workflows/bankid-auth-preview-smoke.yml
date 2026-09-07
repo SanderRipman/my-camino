@@ -1,0 +1,39 @@
+name: BankID Auth Preview Smoke
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'portal/bankid-auth-test.html'
+      - 'portal/bankid-auth-test.js'
+      - 'portal/bankid-auth-preview-smoke.mjs'
+      - 'ops/bankid-auth-preview/functions/**'
+      - '.github/workflows/bankid-auth-preview-smoke.yml'
+      - 'docs/BANKID_AUTH_PREVIEW_TEST.md'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Static BankID/Auth safety smoke
+        run: node portal/bankid-auth-preview-smoke.mjs
+      - name: Verify isolated change surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "${{ github.base_ref }}"
+          changed="$(git diff --name-only "origin/${{ github.base_ref }}...HEAD")"
+          echo "$changed"
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            case "$file" in
+              portal/bankid-auth-test.html|portal/bankid-auth-test.js|portal/bankid-auth-preview-smoke.mjs|ops/bankid-auth-preview/functions/*/*|.github/workflows/bankid-auth-preview-smoke.yml|docs/BANKID_AUTH_PREVIEW_TEST.md) ;;
+              *) echo "Forbidden change outside isolated BankID/Auth test surface: $file" >&2; exit 1 ;;
+            esac
+          done <<< "$changed"
