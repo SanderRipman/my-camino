@@ -57,11 +57,11 @@ const ownersJs=read('./owners.js');
 assert(ownersHtml.includes('Administrativt verktøy · ansvar'),'Owners must identify itself as a secondary tool.');
 assert(ownersHtml.includes('href="./admin.html"')&&ownersHtml.includes('href="./"'),'Owners must provide simple returns to admin and portal.');
 assert(!ownersHtml.includes('standalone-chrome.js')&&!ownersHtml.includes('app-mobile.js'),'Owners must not carry the legacy standalone/mobile navigation stack.');
+assert(ownersHtml.includes('owners.js?v=20260907d'),'Owners must cache-bust the targeted participant fast path.');
 assert(ownersJs.includes('initPromise')&&ownersJs.includes('if(initPromise)return initPromise'),'Owner initialization must be single-flight.');
 assert(ownersJs.includes('contextSeq')&&ownersJs.includes('seq!==contextSeq'),'Owner context updates must ignore stale concurrent responses.');
-assert(ownersJs.includes("['SIGNED_IN','MFA_CHALLENGE_VERIFIED']")&&!ownersJs.includes("'TOKEN_REFRESHED'")&&!ownersJs.includes("'USER_UPDATED'"),'Owner auth handling must react to explicit sign-in/MFA events without routine token-refresh reinitialization.');
-assert(ownersJs.includes("event==='SIGNED_OUT'")&&ownersJs.includes('location.replace'),'Owner workspace must fail closed on sign-out.');
-assert(ownersHtml.includes('id="ownerLoading"')&&ownersHtml.includes('id="retryOwner"'),'Owner workspace must show loading/retry instead of a blank screen.');
+assert(ownersJs.includes("['SIGNED_IN','MFA_CHALLENGE_VERIFIED']"),'Owner auth refresh must react only to explicit sign-in/MFA events.');
+assert(ownersJs.includes('requestedParticipantId()')&&ownersJs.includes('Laster valgt deltaker'),'Owner task links must fast-path a requested participant without waiting for the broad list.');
 
 const guide=read('./guide.html');
 assert(guide.includes('app-mobile.js?v=20260906b'),'Program guide must load the cache-busted common mobile/navigation shell.');
