@@ -52,11 +52,11 @@ assert(conditionGuardMigration.includes("old.workflow_key = 'go_conditions'"),'C
 assert(conditionGuardMigration.includes("latest_decision is distinct from 'GO'"),'Conditional task may close only after a newer formal GO decision');
 assert(conditionGuardMigration.includes('GO_CONDITION_REQUIRES_REASSESSMENT'),'Manual task completion must fail closed with a stable guard code');
 assert(staffRouting.includes("task.workflow_key==='go_conditions'"),'Conditional GO task must route to formal reassessment');
-assert(staffRouting.includes('reviseLatest=1'),'Conditional GO reassessment must request safe prefill of the latest immutable decision');
+assert(!staffRouting.includes('reviseLatest=1')&&staffRouting.includes('returnTask='),'Conditional GO reassessment must open a fresh immutable decision while preserving task return context');
 assert(staffRouting.includes("done.classList.add('hidden')"),'Conditional GO task must not present generic Mark done as a valid closure path');
-assert(runnerHtml.includes('form-go-reassessment.js'),'Form runner must load conditional GO reassessment support');
-assert(reassessment.includes("data.payload.decision!=='GO_WITH_CONDITIONS'"),'Prefill must only reuse a previous conditional decision');
-assert(reassessment.includes('restorePayload(data.payload)'),'Reassessment should prefill previous answers without mutating history');
+assert(runnerHtml.includes('form-go-reassessment.js'),'Form runner may retain conditional GO reassessment support for controlled uses');
+assert(reassessment.includes("data.payload.decision!=='GO_WITH_CONDITIONS'"),'Prefill support must only reuse a previous conditional decision when explicitly requested');
+assert(reassessment.includes('restorePayload(data.payload)'),'Optional reassessment support must prefill previous answers without mutating history');
 assert(reassessment.includes('conditions.required=conditional'),'Conditional GO explanation must be required in the UI when that decision is selected');
 
 assert(participant.includes("if(stage==='GO')return'VÍA · avklart'"),'Participant UI must translate raw GO into a human phase label');
