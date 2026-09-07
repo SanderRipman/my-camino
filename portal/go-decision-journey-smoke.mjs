@@ -8,6 +8,8 @@ const participantNext=read('./app-participant-next.js');
 const ops=read('./app-ops.js');
 const staffRouting=read('./app-go-decision.js');
 const runner=read('./form-runner.js');
+const runnerHtml=read('./form-runner.html');
+const reassessment=read('./form-go-reassessment.js');
 const formCommandClient=read('./form-command-client.js');
 const build=read('./build-app.mjs');
 const workflow=read('../supabase/functions/workflow-command/index.ts');
@@ -15,6 +17,7 @@ const formCommand=read('../supabase/functions/form-command/index.ts');
 const decisionMigration=read('../supabase/migrations/20260822023000_go_decision_participant_handoff_v1.sql');
 const pilotMigration=read('../supabase/migrations/20260822024000_pilot_go_to_ser_ready_v1.sql');
 const demoPilotGateMigration=read('../supabase/migrations/20260903201000_pilot_go_demo_lab_exception_v1.sql');
+const conditionGuardMigration=read('../supabase/migrations/20260906180500_go_conditions_require_reassessment_v1.sql');
 
 assert(decisionMigration.includes('INDIVIDUAL_GO_REQUIRES_PARTICIPANT_SUMMARY'),'Formal individual decision must require participant-safe communication');
 assert(decisionMigration.includes("'participant_agreement_ack'"),'GO must materialise the participant agreement handoff');
@@ -45,6 +48,17 @@ assert(workflow.includes("error:'PARTICIPANT_AGREEMENT_REQUIRED'"),'START_SER mu
 assert(workflow.includes('pilotGoApproved'),'START_SER must still require final Pilot-GO');
 assert(workflow.includes("'GO_CONDITIONS_OPEN'"),'Conditional GO must still block SER while conditions remain open');
 
+assert(conditionGuardMigration.includes("old.workflow_key = 'go_conditions'"),'Conditional GO task must have a dedicated database completion guard');
+assert(conditionGuardMigration.includes("latest_decision is distinct from 'GO'"),'Conditional task may close only after a newer formal GO decision');
+assert(conditionGuardMigration.includes('GO_CONDITION_REQUIRES_REASSESSMENT'),'Manual task completion must fail closed with a stable guard code');
+assert(staffRouting.includes("task.workflow_key==='go_conditions'"),'Conditional GO task must route to formal reassessment');
+assert(!staffRouting.includes('reviseLatest=1')&&staffRouting.includes('returnTask='),'Conditional GO reassessment must open a fresh immutable decision while preserving task return context');
+assert(staffRouting.includes("done.classList.add('hidden')"),'Conditional GO task must not present generic Mark done as a valid closure path');
+assert(runnerHtml.includes('form-go-reassessment.js'),'Form runner may retain conditional GO reassessment support for controlled uses');
+assert(reassessment.includes("data.payload.decision!=='GO_WITH_CONDITIONS'"),'Prefill support must only reuse a previous conditional decision when explicitly requested');
+assert(reassessment.includes('restorePayload(data.payload)'),'Optional reassessment support must prefill previous answers without mutating history');
+assert(reassessment.includes('conditions.required=conditional'),'Conditional GO explanation must be required in the UI when that decision is selected');
+
 assert(participant.includes("if(stage==='GO')return'VÍA · avklart'"),'Participant UI must translate raw GO into a human phase label');
 assert(participant.includes("if(stage==='POSTPONED')return'VÍA · utsatt'"),'Participant UI must not expose raw POSTPONED enum');
 assert(participant.includes("if(stage==='NO_GO')return'VÍA · annen vei nå'"),'Participant UI must not expose raw NO_GO enum');
@@ -70,4 +84,4 @@ assert(build.includes("app-go-decision.js")&&build.includes("+goDecision+"),'GO 
 assert(!participant.includes('go_no_go_decisions'),'Participant presentation must not read the staff decision table directly');
 assert(!participantNext.includes('go_no_go_decisions'),'Participant next action must not read the staff decision table directly');
 
-console.log('GO decision → participant handoff → agreement → Pilot-GO → SER invariants OK');
+console.log('GO decision → conditional reassessment → participant handoff → agreement → Pilot-GO → SER invariants OK');

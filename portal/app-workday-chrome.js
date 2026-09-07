@@ -1,8 +1,10 @@
 (()=>{
 'use strict';
 
-const WORKDAY_CHROME_VERSION='2026-09-05g';
+const WORKDAY_CHROME_VERSION='2026-09-07b';
 const MOBILE_BREAKPOINT=780;
+const PROFILE_RETURN_KEY='aidme:profile-tools-return:v1';
+let samePageProfileReturnArmed=false;
 const ROLE_LABELS={
   system_admin:'Systemadministrator',project_owner:'Prosjekteier',program_lead:'Programleder',
   via_owner:'VÍA-eier',clinical_professional:'Fagperson',ser_lead:'SER-/turleder',
@@ -10,7 +12,8 @@ const ROLE_LABELS={
 };
 const MOBILE_SECONDARY_LABELS=new Set([
   'Analyse','Dokumenter','Mine filer','Mine dokumenter','Skjema & rutiner','Varsler','Revisjon',
-  'Rolleintro','Rolleintroduksjon','Demo-reise','Demo-reise (LAB)','Administrasjon','Mini CRM'
+  'Rolleintro','Rolleintroduksjon','Demo-reise','Demo-reise (LAB)','Administrasjon','Mini CRM',
+  'Ansvar / eiere','Operativ dag','Operativ i dag'
 ]);
 
 function mobile(){return window.innerWidth<=MOBILE_BREAKPOINT}
@@ -21,14 +24,15 @@ function safeActiveRoles(){
     return [...new Set(accessGrants.filter(activeGrant).map(g=>String(g.role_code||'')).filter(Boolean))];
   }catch{return[]}
 }
-function ensureMobileAttention(){
-  if(!mobile()||!mainPortal())return;
-  const workspace=document.querySelector('#appView .workspace');if(!workspace)return;
-  let bar=document.querySelector('#mobileAttentionBar');
-  if(!bar){bar=document.createElement('div');bar.id='mobileAttentionBar';bar.className='mobile-attention-bar';const firstView=workspace.querySelector('.view');if(firstView)workspace.insertBefore(bar,firstView);else workspace.appendChild(bar)}
-  else{const firstView=workspace.querySelector('.view');if(firstView&&bar.parentElement===workspace&&bar.nextElementSibling!==firstView)workspace.insertBefore(bar,firstView)}
-  try{if(typeof updateMobileAttention==='function')updateMobileAttention()}catch{}
+function selectedOwnerParticipantId(){
+  try{
+    const selected=String(selectedParticipantId||'').trim();
+    if(selected&&Array.isArray(participants)&&participants.some(p=>String(p.id)===selected))return selected;
+    const own=typeof ownParticipant==='function'?ownParticipant():null;if(own?.id)return String(own.id);
+    const first=Array.isArray(participants)?participants.find(p=>p?.id):null;return first?.id?String(first.id):'';
+  }catch{return''}
 }
+function retireMobileAttention(){document.querySelector('#mobileAttentionBar')?.remove()}
 function cleanNonFinalChrome(){
   const auth=document.querySelector('#authView');const authEyebrow=auth?.querySelector('.eyebrow');
   if(authEyebrow&&/beta/i.test(authEyebrow.textContent||''))authEyebrow.textContent='Sikker portal';
@@ -44,6 +48,10 @@ function secondaryToolLinks(roles){
   const items=[],seen=new Set();
   if(roles.length)addToolLink(items,seen,'Analyse','./#analysis');
   addToolLink(items,seen,'Skjema & rutiner','./#forms');
+  const ownerRoles=['system_admin','project_owner','program_lead','via_owner','clinical_professional','vida_owner'];
+  const ownerParticipant=selectedOwnerParticipantId();
+  addToolLink(items,seen,'Ansvar / eiere',ownerParticipant?`./owners.html?participant=${encodeURIComponent(ownerParticipant)}`:'./#participants',roles.some(r=>ownerRoles.includes(r)));
+  addToolLink(items,seen,'Operativ dag','./pilot-ops.html',roles.some(r=>['system_admin','program_lead','ser_lead','logistics'].includes(r)));
   addToolLink(items,seen,'Mine dokumenter','./documents.html');
   addToolLink(items,seen,'Varsler','./notifications.html');
   addToolLink(items,seen,'Slik fungerer det','./guide.html');
@@ -54,6 +62,42 @@ function secondaryToolLinks(roles){
   const crm=document.querySelector('#crmNav');addToolLink(items,seen,'Mini CRM','./crm.html',!!crm&&!crm.classList.contains('hidden'));
   return items.join('');
 }
+function showBrandedToolTransition(){
+  const loader=document.querySelector('#loading');if(!loader)return;
+  loader.classList.add('aidme-brand-loader');loader.classList.remove('hidden');
+  loader.style.position='fixed';loader.style.inset='0';loader.style.zIndex='9999';loader.style.width='100vw';loader.style.height='100vh';
+}
+function rememberProfileToolsReturn(){
+  try{sessionStorage.setItem(PROFILE_RETURN_KEY,JSON.stringify({createdAt:Date.now()}))}catch{}
+}
+function scrollToProfileTools(){
+  if(!mainPortal()||typeof show!=='function')return;
+  show('settings');
+  window.setTimeout(()=>document.querySelector('#profileToolsSummary')?.scrollIntoView({block:'start',behavior:'auto'}),50);
+}
+function restoreProfileToolsReturn(){
+  if(!mainPortal())return;
+  let data=null;try{const raw=sessionStorage.getItem(PROFILE_RETURN_KEY);if(raw)data=JSON.parse(raw)}catch{}
+  if(!data?.createdAt)return;
+  try{sessionStorage.removeItem(PROFILE_RETURN_KEY)}catch{}
+  if(Date.now()-Number(data.createdAt)>10*60*1000)return;
+  scrollToProfileTools();
+}
+function bindProfileToolNavigation(tools){
+  if(!tools||tools.dataset.toolNavBound==='1')return;tools.dataset.toolNavBound='1';
+  tools.addEventListener('click',event=>{
+    const link=event.target.closest?.('.profile-tool-links a[href]');if(!link||!tools.contains(link))return;
+    let url;try{url=new URL(link.href,location.href)}catch{return}
+    if(url.origin!==location.origin)return;
+    const samePortal=url.pathname===location.pathname&&['#analysis','#forms','#participants'].includes(url.hash);
+    if(samePortal&&typeof show==='function'){
+      event.preventDefault();samePageProfileReturnArmed=true;
+      history.pushState({aidmeProfileTool:true,view:url.hash.slice(1)},'',`${location.pathname}${location.search}${url.hash}`);
+      show(url.hash.slice(1));return;
+    }
+    if(url.pathname!==location.pathname){rememberProfileToolsReturn();showBrandedToolTransition()}
+  });
+}
 function ensureProfileCards(){
   if(!mainPortal())return;
   const view=document.querySelector('#view-settings'),host=view?.querySelector('.settings-grid');if(!view||!host)return;
@@ -63,6 +107,7 @@ function ensureProfileCards(){
   const labels=roles.map(r=>ROLE_LABELS[r]||r);
   if(access.dataset.roleSig!==sig){access.dataset.roleSig=sig;access.innerHTML=`<p class="eyebrow">Tilgang</p><h3>Tilgang og roller</h3><p class="privacy-note">${labels.length?'Aktive roller: '+labels.join(' · '):'Ingen aktiv arbeidsrolle er synlig ennå.'}</p><p class="privacy-note">Tilgang følger rolle, mandat og konkret deltaker-/pilotomfang. Forespørsel om utvidet tilgang skal være begrunnet, godkjent og loggført.</p>`}
   const toolHtml=secondaryToolLinks(roles);if(tools.dataset.toolSig!==toolHtml){tools.dataset.toolSig=toolHtml;tools.innerHTML=`<p class="eyebrow">Snarveier</p><h3>Verktøy og snarveier</h3><div class="profile-tool-links" aria-label="Verktøy og snarveier">${toolHtml}</div>`}
+  bindProfileToolNavigation(tools);
   let logout=document.querySelector('#profileLogoutSummary');if(!logout){logout=document.createElement('article');logout.id='profileLogoutSummary';logout.className='panel-card profile-logout-card';logout.innerHTML='<p class="eyebrow">Konto</p><h3>Avslutt økten</h3><button type="button" class="profile-logout-button">Logg ut</button>';view.appendChild(logout);logout.querySelector('button')?.addEventListener('click',()=>document.querySelector('#logout')?.click())}
 }
 function existingProfileItem(nav){
@@ -92,7 +137,7 @@ function enforceStableMobilePrimaryNav(){
   for(const item of nav.querySelectorAll('.nav-item')){
     if(item===profile)continue;
     const label=item.querySelector('b')?.textContent?.trim()||'';
-    if(MOBILE_SECONDARY_LABELS.has(label))item.classList.add('nav-mobile-secondary');
+    if(MOBILE_SECONDARY_LABELS.has(label)||['ownersNav','pilotOpsNav'].includes(item.id))item.classList.add('nav-mobile-secondary');
   }
   const profiles=[...nav.querySelectorAll('.nav-item')].filter(item=>item.querySelector('b')?.textContent?.trim()==='Profil');profiles.slice(1).forEach(item=>item.remove());
 }
@@ -131,13 +176,16 @@ function shortHomeReminder(){
 }
 function apply(){
   document.documentElement.classList.toggle('workday-mobile',mobile());document.documentElement.dataset.workdayChrome=WORKDAY_CHROME_VERSION;
-  ensureMobileAttention();cleanNonFinalChrome();ensureProfileCards();promoteProfileNav();enforceStableMobilePrimaryNav();ensureOverviewDataState();polishNorwegianUiTerms();shortHomeReminder();
+  retireMobileAttention();cleanNonFinalChrome();ensureProfileCards();promoteProfileNav();enforceStableMobilePrimaryNav();ensureOverviewDataState();polishNorwegianUiTerms();shortHomeReminder();
 }
 
 let scheduled=false;
 function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;apply()})}
-const observer=new MutationObserver(schedule);observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
-window.addEventListener('resize',schedule,{passive:true});window.addEventListener('pageshow',schedule);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});document.addEventListener('aidme:portal-rendered',schedule);document.addEventListener('aidme:navigation-normalized',schedule);
-[0,180,420,900,1500].forEach(delay=>window.setTimeout(apply,delay));
+window.addEventListener('resize',schedule,{passive:true});
+window.addEventListener('pageshow',()=>{schedule();window.setTimeout(restoreProfileToolsReturn,80)});
+window.addEventListener('popstate',()=>{if(!samePageProfileReturnArmed)return;samePageProfileReturnArmed=false;window.setTimeout(scrollToProfileTools,0)});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});
+document.addEventListener('aidme:portal-rendered',()=>{schedule();window.setTimeout(restoreProfileToolsReturn,80)});
+document.addEventListener('aidme:navigation-normalized',schedule);
+[0,120,300,700,1400].forEach(delay=>window.setTimeout(apply,delay));
 })();

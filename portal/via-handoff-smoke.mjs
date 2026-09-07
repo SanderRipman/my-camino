@@ -37,8 +37,10 @@ assert(build.includes("app-task-workflow-context.js")&&build.includes("+taskWork
 // Staff review task leads to the actual submitted roadmap and then explicitly onward to the
 // separate individual decision gate. A later optional new VÍA review routes back to the same
 // canonical roadmap rather than a parallel flow.
-assert(viaHandoff.includes("task.workflow_key==='via_roadmap_review'")||viaHandoff.includes("task.title==='VÍA – vurder veikart før GO/NO-GO'"),'Initial VÍA review must remain narrowly routed');
+assert(viaHandoff.includes("['via_go_review','via_roadmap_review'].includes(task.workflow_key)"),'Canonical via_go_review key must be recognized explicitly; legacy key may remain compatible');
 assert(viaHandoff.includes("task.workflow_key==='new_via_review'"),'Optional new VÍA staff task must have an explicit handoff');
+assert(viaHandoff.includes("document.querySelector('#taskDone')")&&viaHandoff.includes("done.classList.add('hidden')"),'Roadmap review must not expose manual completion that can bypass the formal decision gate');
+assert(viaHandoff.includes('Review-oppgaven lukkes av den formelle GO/NO-GO-beslutningen'),'Review UI must explain automatic completion semantics');
 assert(viaHandoff.includes('key=via_roadmap')&&viaHandoff.includes('latest=1'),'Initial staff review task must deep-link to latest completed roadmap');
 assert(viaHandoff.includes('data-via-go-gate')&&viaHandoff.includes('key=individual_go_no_go'),'Staff review must expose the next separate individual GO/NO-GO gate');
 assert(viaHandoff.includes('veikartet er ikke selve beslutningen'),'Review-to-decision copy must preserve the decision boundary');

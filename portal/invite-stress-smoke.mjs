@@ -47,6 +47,6 @@ must(participant.includes("PARTICIPANT_VIA_START_READY")&&participant.includes("
 must(participantNext.includes('participant_via_start')&&participantNext.includes('key=via_roadmap'),'participant VÍA start must route to the canonical VÍA roadmap');
 must(viaMigration.includes("workflow_key = 'participant_via_start'")&&viaMigration.includes("'PARTICIPANT_VIA_ROADMAP_COMPLETED'"),'roadmap completion must close/audit the N3 start task');
 must(viaMigration.includes("'via_go_review'")&&viaMigration.includes("'formal_go_no_go', false"),'roadmap completion must create staff review without prematurely deciding GO/NO-GO');
-must(viaHandoff.includes("task.workflow_key==='via_roadmap_review'")&&viaHandoff.includes('latest=1'),'staff review must open the completed roadmap before the decision gate');
+must(viaHandoff.includes("['via_go_review','via_roadmap_review'].includes(task.workflow_key)")&&viaHandoff.includes('latest=1'),'staff review must open the completed roadmap before the decision gate');
 if(errors.length){console.error(errors.map(x=>'FAIL: '+x).join('\n'));process.exit(1)}
 console.log('Invite/onboarding + N2→N3→VÍA continuity smoke: PASS');

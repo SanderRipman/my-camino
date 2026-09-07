@@ -13,8 +13,12 @@ assert(layer.includes("p.stage!=='VIDA'")||layer.includes("p.stage==='VIDA'"),'N
 assert(layer.includes("client.functions.invoke('workflow-command'")&&layer.includes("action:'START_NEW_VIA'"),'Transition must use existing workflow command START_NEW_VIA');
 assert(!layer.includes('client.from('),'Optional new VÍA layer must not add direct database writes');
 assert(layer.includes('ikke et obligatorisk fjerde programsteg')&&layer.includes('aldri automatisk'),'UI must preserve the three-step public journey and optional nature of new VÍA');
-assert(layer.includes('window.confirm'),'New VÍA stage transition must require an explicit staff confirmation');
+assert(!layer.includes('window.confirm'),'Optional new VÍA must not depend on browser-native confirmation chrome');
+assert(layer.includes("document.createElement('dialog')")&&layer.includes('Starte ny VÍA?')&&layer.includes('Avbryt')&&layer.includes('Start ny VÍA'),'New VÍA transition must use a branded explicit Norwegian confirmation dialog');
+assert(layer.includes('dialog.addEventListener(\'cancel\'')&&layer.includes('finish(false)'),'Dialog dismissal must fail closed without starting new VÍA');
 assert(layer.includes('loadData()')&&layer.includes('renderAll()'),'Successful transition must reload canonical portal state');
+assert(layer.includes("document.querySelector('#participantDetail')"),'Optional new VÍA must be visible in the selected VIDA participant detail');
+assert(layer.includes('newViaRenderParticipantDetail')&&layer.includes('renderParticipantDetail=function()'),'Participant-detail re-render must restore the optional new VÍA control after participant selection');
 assert(journey.includes('ny VÍA')&&journey.includes('ikke et obligatorisk fjerde steg'),'Implementation must remain aligned with the documented journey rule');
 
 console.log('Optional new VÍA capable-role handoff invariants OK');

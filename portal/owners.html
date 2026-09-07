@@ -1,1 +1,60 @@
-<!doctype html><html lang="nb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#123f3d"><meta name="robots" content="noindex,nofollow"><title>AidMe VIDA · Ansvar og eierskap</title><link rel="stylesheet" href="./styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body><div class="app-shell"><aside class="sidebar"><div class="brand"><img src="/vida/assets/AIDME_Logo-original-web.webp" alt="AidMe"><div><strong>AidMe VIDA</strong><span>Ve. Sé. Vive.</span></div></div><nav><a class="nav-item" href="./"><span class="nav-num">01</span><b>Oversikt</b></a><a class="nav-item" href="./#participants"><span class="nav-num">02</span><b>Deltakere</b></a><a class="nav-item active" href="./owners.html"><span class="nav-num">02A</span><b>Ansvar / eiere</b></a><a class="nav-item" href="./form-runner.html"><span class="nav-num">06</span><b>Skjema & rutiner</b></a></nav><div class="phase-key"><div><i class="dot via"></i>VÍA · Før</div><div><i class="dot ser"></i>SER · Under</div><div><i class="dot vida"></i>VIDA · Etter</div></div></aside><main class="workspace"><header class="topbar"><div><p class="eyebrow">Tydelig ansvar</p><h1>Navngitt VÍA- og VIDA-eier</h1></div><div class="top-actions"><span id="securityPill" class="security-pill">Kontrollerer…</span><a class="ghost" href="./">Til portal</a></div></header><article class="preview-strip"><strong>Sikkerhetsregel:</strong> SER skal ikke startes uten navngitt VIDA-eier. Rolle og tilgang kontrolleres på serveren før ansvar kan tildeles.</article><section id="blocked" class="panel-card warning-card hidden"><h2>Tilgang mangler</h2><p>Bekreft Authenticator og bruk en rolle med mandat til å forvalte VÍA/ansvar.</p></section><section id="work" class="hidden"><div class="runner-controls panel-card"><label><span>Deltaker</span><select id="participantSelect"></select></label><div class="form-version"><span>Fase</span><b id="stage">–</b></div><div class="form-version"><span>Pilot</span><b id="pilot">–</b></div></div><div class="two-col"><article class="panel-card"><p class="eyebrow">Før / VÍA</p><h2>Hvem eier VÍA?</h2><p>VÍA-eier følger avklaring, beredskap og veien frem mot formell GO/NO-GO innenfor sin rolle.</p><label><span>Navngitt VÍA-eier</span><select id="viaOwner"></select></label><div class="form-actions"><button class="primary" id="saveVia">Lagre VÍA-eier</button></div><p id="viaMessage" class="message"></p></article><article class="panel-card"><p class="eyebrow">Etter / VIDA</p><h2>Hvem eier broen hjem?</h2><p>VIDA-eier skal være kjent før SER og eie den avtalte oppfølgingen hjemme – blant annet 72 timer og 14/30/90 dager.</p><label><span>Navngitt VIDA-eier</span><select id="vidaOwner"></select></label><div class="form-actions"><button class="primary" id="saveVida">Lagre VIDA-eier</button></div><p id="vidaMessage" class="message"></p></article></div><article class="panel-card"><p class="eyebrow">Hvorfor dette må være på plass</p><h3>VIDA-eier må være navngitt</h3><p>Navngitt VIDA-eier brukes i overganger og oppgaver. Det er ikke nok å skrive et navn i et fritekstfelt; ansvaret må være knyttet til en godkjent brukerkonto og rolle.</p></article></section></main></div><script src="./owners.js"></script><script src="./standalone-chrome.js?v=20260824a"></script><script src="./app-mobile.js"></script></body></html>
+<!doctype html>
+<html lang="nb">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#123f3d">
+  <meta name="robots" content="noindex,nofollow">
+  <title>AidMe VIDA · Ansvar og eierskap</title>
+  <link rel="stylesheet" href="./styles.css?v=20260906a">
+  <link rel="stylesheet" href="./form-runner.css?v=20260906b">
+  <style>
+    body{min-height:100vh}
+    .owner-tool-shell{width:min(1080px,100%);margin:0 auto;padding:18px clamp(14px,4vw,30px) 42px}
+    .owner-tool-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+    .owner-tool-head h1{font-size:clamp(30px,7vw,46px);line-height:1.02}
+    .owner-tool-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .owner-tool-actions .ghost{white-space:nowrap}
+    .owner-tool-shell .two-col{grid-template-columns:1fr 1fr}
+    .owner-tool-shell .runner-controls{margin-bottom:14px}
+    #ownerLoading{margin-top:14px}
+    @media(max-width:760px){
+      .owner-tool-shell{padding-top:12px}
+      .owner-tool-head{display:block}
+      .owner-tool-actions{justify-content:flex-start;margin-top:10px}
+      .owner-tool-shell .two-col{grid-template-columns:1fr}
+      .owner-tool-shell .runner-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+      .owner-tool-shell .runner-controls label{grid-column:1/-1}
+      .owner-tool-shell .panel-card{padding:16px}
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<main class="owner-tool-shell">
+  <header class="owner-tool-head">
+    <div><p class="eyebrow">Administrativt verktøy · ansvar</p><h1>Navngitt VÍA- og VIDA-eier</h1></div>
+    <div class="owner-tool-actions"><span id="securityPill" class="security-pill">Kontrollerer…</span><a class="ghost" href="./admin.html">Administrasjon</a><a class="ghost" href="./">Til portal</a></div>
+  </header>
+
+  <article class="preview-strip"><strong>Sikkerhetsregel:</strong> SER skal ikke startes uten navngitt VIDA-eier. Rolle og tilgang kontrolleres på serveren før ansvar kan tildeles.</article>
+  <section id="ownerLoading" class="panel-card">Laster ansvar…</section>
+  <section id="blocked" class="panel-card warning-card hidden"><h2>Tilgang / lasting</h2><p id="blockedText">Bekreft Authenticator og bruk en rolle med mandat til å forvalte VÍA/ansvar.</p><div class="form-actions"><button id="retryOwner" class="ghost" type="button">Prøv igjen</button></div></section>
+
+  <section id="work" class="hidden">
+    <div class="runner-controls panel-card">
+      <label><span>Deltaker</span><select id="participantSelect"></select></label>
+      <div class="form-version"><span>Fase</span><b id="stage">–</b></div>
+      <div class="form-version"><span>Pilot</span><b id="pilot">–</b></div>
+    </div>
+    <div class="two-col">
+      <article class="panel-card"><p class="eyebrow">Før / VÍA</p><h2>Hvem eier VÍA?</h2><p>VÍA-eier følger avklaring, beredskap og veien frem mot formell GO/NO-GO innenfor sin rolle.</p><label><span>Navngitt VÍA-eier</span><select id="viaOwner"></select></label><div class="form-actions"><button class="primary" id="saveVia">Lagre VÍA-eier</button></div><p id="viaMessage" class="message"></p></article>
+      <article class="panel-card"><p class="eyebrow">Etter / VIDA</p><h2>Hvem eier broen hjem?</h2><p>VIDA-eier skal være kjent før SER og eie den avtalte oppfølgingen hjemme – blant annet 72 timer og 14/30/90 dager.</p><label><span>Navngitt VIDA-eier</span><select id="vidaOwner"></select></label><div class="form-actions"><button class="primary" id="saveVida">Lagre VIDA-eier</button></div><p id="vidaMessage" class="message"></p></article>
+    </div>
+    <article class="panel-card" style="margin-top:14px"><p class="eyebrow">Hvorfor dette må være på plass</p><h3>VIDA-eier må være navngitt</h3><p>Navngitt eier brukes i overganger og oppgaver. Det er ikke nok å skrive et navn i et fritekstfelt; ansvaret må være knyttet til en godkjent brukerkonto og rolle.</p></article>
+  </section>
+</main>
+<script src="./owners.js?v=20260907e"></script>
+<script src="./context-labels-nb.js?v=20260906a"></script>
+</body>
+</html>

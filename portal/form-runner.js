@@ -3,6 +3,8 @@ const SUPABASE_PUBLISHABLE_KEY='sb_publishable_JtNmgzTLlepPhKDCVsn6CA_Vk7BCClv';
 const client=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s);
 let session=null,participants=[],pilots=[],pilotParticipants=[],grants=[],definitions=[],versions=[],currentDef=null,currentVersion=null,currentDraft=null;
+let initPromise=null,initSeq=0;
+const FORM_REINIT_EVENTS=new Set(['SIGNED_IN','USER_UPDATED','MFA_CHALLENGE_VERIFIED']);
 const ROLE_KEYS={
  project_owner:['pilot_go','pilot_evaluation'],
  program_lead:['interest_referral','pilot_go'],
@@ -13,7 +15,7 @@ const ROLE_KEYS={
 const PARTICIPANT_KEYS=['info_before_via','via_roadmap','participant_agreement','vida_plan'];
 const PILOT_LEVEL_KEYS=new Set(['pilot_go','pilot_evaluation']);
 const PARTICIPANT_REQUIRED_KEYS=new Set(['info_before_via','interest_referral','via_roadmap','individual_go_no_go','participant_agreement','ser_daily','vida_plan']);
-function esc(v=''){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function esc(v=''){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt',"'":'&#39;','"':'&quot;'}[c]))}
 function active(g){const n=new Date();return !g.revoked_at&&(!g.valid_from||new Date(g.valid_from)<=n)&&(!g.valid_until||new Date(g.valid_until)>n)}
 function ownParticipant(){return participants.find(p=>p.user_id===session?.user?.id)||null}
 function isStaff(){return grants.some(active)}
@@ -44,17 +46,23 @@ function blockUnavailableRequestedContext(q){
 }
 
 async function init(){
- const {data:{session:s}}=await client.auth.getSession();session=s;if(!session){location.replace('./');return}
- const aal=await client.auth.mfa.getAuthenticatorAssuranceLevel();const aal2=aal.data?.currentLevel==='aal2';$('#securityPill').textContent=aal2?'AAL2 · bekreftet':'AAL1 · utilstrekkelig';$('#securityPill').classList.toggle('secure',aal2);$('#securityPill').classList.toggle('attention',!aal2);if(!aal2){$('#blocked').classList.remove('hidden');$('#blockedText').textContent='Versjonerte programskjema krever at denne innloggingen er bekreftet med Authenticator.';return}
- const uid=session.user.id;const [pRes,gRes,dRes,vRes,pilotRes,ppRes]=await Promise.all([
-  client.from('participants').select('id,organization_id,code_name,stage,user_id,active').eq('active',true),
-  client.from('role_grants').select('id,organization_id,role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at').eq('user_id',uid),
-  client.from('form_definitions').select('id,key,title_no,scope').order('created_at'),
-  client.from('form_versions').select('id,form_definition_id,version,schema_json,published_at,retired_at').order('version',{ascending:false}),
-  client.from('pilots').select('id,organization_id,name,status,route_name,start_date,end_date').order('start_date',{ascending:false}),
-  client.from('pilot_participants').select('pilot_id,participant_id,status')
- ]);participants=pRes.data||[];grants=gRes.data||[];definitions=dRes.data||[];versions=vRes.data||[];pilots=pilotRes.data||[];pilotParticipants=ppRes.data||[];
- $('#runner').classList.remove('hidden');fillParticipants();fillPilots();fillForms();if(!applyQuery())return;syncPilotFromParticipant();await chooseForm();
+ if(initPromise)return initPromise;
+ const seq=++initSeq;
+ initPromise=(async()=>{
+  const {data:{session:s}}=await client.auth.getSession();if(seq!==initSeq)return;session=s;if(!session){location.replace('./');return}
+  const aal=await client.auth.mfa.getAuthenticatorAssuranceLevel();if(seq!==initSeq)return;const aal2=aal.data?.currentLevel==='aal2';$('#securityPill').textContent=aal2?'AAL2 · bekreftet':'AAL1 · utilstrekkelig';$('#securityPill').classList.toggle('secure',aal2);$('#securityPill').classList.toggle('attention',!aal2);if(!aal2){$('#blocked').classList.remove('hidden');$('#blockedText').textContent='Versjonerte programskjema krever at denne innloggingen er bekreftet med Authenticator.';return}
+  const uid=session.user.id;const [pRes,gRes,dRes,vRes,pilotRes,ppRes]=await Promise.all([
+   client.from('participants').select('id,organization_id,code_name,stage,user_id,active').eq('active',true),
+   client.from('role_grants').select('id,organization_id,role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at').eq('user_id',uid),
+   client.from('form_definitions').select('id,key,title_no,scope').order('created_at'),
+   client.from('form_versions').select('id,form_definition_id,version,schema_json,published_at,retired_at').order('version',{ascending:false}),
+   client.from('pilots').select('id,organization_id,name,status,route_name,start_date,end_date').order('start_date',{ascending:false}),
+   client.from('pilot_participants').select('pilot_id,participant_id,status')
+  ]);if(seq!==initSeq)return;
+  participants=pRes.data||[];grants=gRes.data||[];definitions=dRes.data||[];versions=vRes.data||[];pilots=pilotRes.data||[];pilotParticipants=ppRes.data||[];
+  $('#runner').classList.remove('hidden');fillParticipants();fillPilots();fillForms();if(!applyQuery())return;syncPilotFromParticipant();await chooseForm();
+ })();
+ try{return await initPromise}finally{if(seq===initSeq)initPromise=null}
 }
 function fillParticipants(){const own=ownParticipant(),staff=isStaff(),list=staff?participants:(own?[own]:[]);$('#participantSelect').innerHTML=(staff?'<option value="">Ingen enkelt deltaker / pilotnivå</option>':'')+list.map(p=>`<option value="${p.id}">${esc(p.code_name)} · ${esc(p.stage)}</option>`).join('')}
 function fillPilots(){const visible=isStaff()?pilots:pilots.filter(p=>pilotParticipants.some(x=>x.pilot_id===p.id&&x.participant_id===ownParticipant()?.id));$('#pilotSelect').innerHTML='<option value="">Avledes fra deltaker / ikke valgt</option>'+visible.map(p=>`<option value="${p.id}">${esc(p.name)}${p.route_name?` · ${esc(p.route_name)}`:''}</option>`).join('')}
@@ -86,4 +94,6 @@ async function loadSubmissions(){
  if(currentDraft){const {data:draft,error:draftError}=await client.from('form_submissions').select('id,payload').eq('id',currentDraft.id).single();if(!draftError&&draft){restorePayload(draft.payload||{});$('#formMessage').textContent='Eget tidligere utkast er hentet inn.'}}
  bindRanges();
 }
-$('#formSelect').addEventListener('change',chooseForm);$('#participantSelect').addEventListener('change',()=>{syncPilotFromParticipant();chooseForm()});$('#pilotSelect').addEventListener('change',chooseForm);$('#saveDraft').addEventListener('click',()=>save('DRAFT'));$('#dynamicForm').addEventListener('submit',e=>{e.preventDefault();save('SUBMITTED')});client.auth.onAuthStateChange(()=>setTimeout(init,0));init();
+$('#formSelect').addEventListener('change',chooseForm);$('#participantSelect').addEventListener('change',()=>{syncPilotFromParticipant();chooseForm()});$('#pilotSelect').addEventListener('change',chooseForm);$('#saveDraft').addEventListener('click',()=>save('DRAFT'));$('#dynamicForm').addEventListener('submit',e=>{e.preventDefault();save('SUBMITTED')});
+client.auth.onAuthStateChange((event,nextSession)=>{if(!FORM_REINIT_EVENTS.has(event)||!nextSession)return;if(event==='SIGNED_IN'&&session?.user?.id===nextSession.user.id)return;setTimeout(()=>init(),0)});
+init();

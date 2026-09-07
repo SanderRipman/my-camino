@@ -1,12 +1,12 @@
 (()=>{
 'use strict';
 
-const MOBILE_UX_VERSION='2026-09-05g';
+const MOBILE_UX_VERSION='2026-09-06b';
 const MOBILE_BREAKPOINT=780;
 const COLLAPSE_AFTER=84;
 const RESTORE_AT=20;
-const NAVIGATION_IA_VERSION='2026-09-05f';
-const WORKDAY_CHROME_VERSION='2026-09-05g';
+const NAVIGATION_IA_VERSION='2026-09-06b';
+const WORKDAY_CHROME_VERSION='2026-09-07b';
 const BRANDED_LOADER_MIN_MS=1250;
 
 function installBrandedLoader(){
@@ -29,8 +29,6 @@ function installBrandedLoader(){
   }
   loader.classList.add('aidme-brand-loader');
 
-  /* The first loadPortal() has already started when this extension is concatenated.
-     Keep its brand moment visible just long enough for all three words to register. */
   const started=performance.now();let enforcing=false,timer=null;
   const observer=new MutationObserver(()=>{
     if(enforcing||!loader.classList.contains('hidden'))return;
@@ -57,7 +55,7 @@ function addMobileStyles(){
   const link=document.createElement('link');link.rel='stylesheet';link.href=`./mobile.css?v=${MOBILE_UX_VERSION}`;link.dataset.aidmeMobile='1';document.head.appendChild(link);
 }
 function clearLegacyNavigationSnapshots(){
-  try{['aidme:navigation-snapshot:v1','aidme:navigation-snapshot:v2','aidme:navigation-snapshot:v3','aidme:navigation-snapshot:v4'].forEach(key=>sessionStorage.removeItem(key))}catch{}
+  try{['aidme:navigation-snapshot:v1','aidme:navigation-snapshot:v2','aidme:navigation-snapshot:v3','aidme:navigation-snapshot:v4','aidme:navigation-snapshot:v5'].forEach(key=>sessionStorage.removeItem(key))}catch{}
 }
 function addWorkdayChrome(){
   if(!document.querySelector('link[data-aidme-workday-mobile]')){
@@ -111,5 +109,69 @@ function installMobileNavAutoHide(){
   resetAndReveal();
 }
 
-installBrandedLoader();wrapSubsequentPortalLoads();addMobileStyles();addWorkdayChrome();addNavigationIa();installMobileNavAutoHide();
+function prefetchVisibleStandalone(){
+  const nav=document.querySelector('.sidebar nav');if(!nav)return;
+  for(const item of nav.querySelectorAll('a.nav-item[href]')){
+    if(item.classList.contains('hidden')||item.classList.contains('nav-mobile-secondary')||item.classList.contains('nav-ia-demoted')||getComputedStyle(item).display==='none')continue;
+    let url;try{url=new URL(item.href,location.href)}catch{continue}
+    if(url.origin!==location.origin||url.pathname===location.pathname||url.hash)continue;
+    const key=`aidme-prefetch-${url.pathname.replace(/[^a-z0-9]/gi,'-')}`;if(document.getElementById(key))continue;
+    const link=document.createElement('link');link.id=key;link.rel='prefetch';link.as='document';link.href=url.href;document.head.appendChild(link);
+  }
+}
+
+// Shared swipe follows the actual visible top-nav sequence. It deliberately does
+// not care whether an item is a data-view button, a role-injected link, or has a
+// badge. This keeps Interest/VÍA and other real primary tabs from being skipped.
+function installSharedPrimarySwipe(){
+  const host=document.querySelector('#appView .workspace,.app-shell .workspace');
+  const sidebar=document.querySelector('.sidebar'),nav=sidebar?.querySelector('nav');
+  if(!host||!nav||host.dataset.aidmeSharedSwipe==='1')return;
+  host.dataset.aidmeSharedSwipe='1';
+  const MIN_X=32,AXIS_RATIO=1.04,EDGE_GUARD=8,MAX_MS=1000;
+  const BLOCKED='input,textarea,select,[contenteditable="true"],dialog,.task-dialog,.runner-card,.chart-frame,canvas,.participant-chips';
+  let start=null,locked=false,suppressClickUntil=0;
+  const mobile=()=>window.innerWidth<=MOBILE_BREAKPOINT;
+  const reset=()=>{start=null;locked=false};
+  const visiblePrimary=()=>[...nav.querySelectorAll('.nav-item')].filter(item=>{
+    if(item.classList.contains('hidden')||item.classList.contains('nav-mobile-secondary')||item.classList.contains('nav-ia-demoted'))return false;
+    const style=getComputedStyle(item);return style.display!=='none'&&style.visibility!=='hidden';
+  });
+  const activeItem=()=>nav.querySelector('.nav-item.active,[aria-current="page"]');
+  const blocked=target=>!!target?.closest?.(BLOCKED);
+  host.addEventListener('touchstart',event=>{
+    reset();
+    if(!mobile()||document.querySelector('#taskDialog')?.open||event.touches.length!==1||blocked(event.target))return;
+    const touch=event.touches[0],width=window.innerWidth;
+    if(touch.clientX<EDGE_GUARD||touch.clientX>width-EDGE_GUARD)return;
+    start={x:touch.clientX,y:touch.clientY,t:performance.now()};
+  },{passive:true,capture:true});
+  host.addEventListener('touchmove',event=>{
+    if(!start||event.touches.length!==1)return;
+    const touch=event.touches[0],dx=touch.clientX-start.x,dy=touch.clientY-start.y;
+    if(!locked&&Math.abs(dx)>=16&&Math.abs(dx)>Math.abs(dy)*AXIS_RATIO)locked=true;
+    if(locked&&event.cancelable)event.preventDefault();
+  },{passive:false,capture:true});
+  host.addEventListener('touchend',event=>{
+    if(!start||!mobile()||event.changedTouches.length!==1){reset();return}
+    const touch=event.changedTouches[0],snapshot=start;reset();
+    const dx=touch.clientX-snapshot.x,dy=touch.clientY-snapshot.y,dt=performance.now()-snapshot.t;
+    if(dt>MAX_MS||Math.abs(dx)<MIN_X||Math.abs(dx)<=Math.abs(dy)*AXIS_RATIO)return;
+    const items=visiblePrimary(),active=activeItem(),index=items.indexOf(active);
+    if(index<0||items.length<2)return;
+    const next=items[dx<0?index+1:index-1];if(!next)return;
+    suppressClickUntil=performance.now()+450;
+    next.click();
+  },{passive:true,capture:true});
+  host.addEventListener('touchcancel',reset,{passive:true,capture:true});
+  host.addEventListener('click',event=>{
+    if(performance.now()>suppressClickUntil)return;
+    event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+  },{capture:true});
+}
+
+function installSharedMobileBehaviors(){installMobileNavAutoHide();installSharedPrimarySwipe();prefetchVisibleStandalone()}
+installBrandedLoader();wrapSubsequentPortalLoads();addMobileStyles();addWorkdayChrome();addNavigationIa();installSharedMobileBehaviors();
+document.addEventListener('aidme:navigation-normalized',()=>window.setTimeout(()=>{installSharedPrimarySwipe();prefetchVisibleStandalone()},0));
+window.addEventListener('pageshow',()=>window.setTimeout(()=>{installSharedPrimarySwipe();prefetchVisibleStandalone()},30));
 })();

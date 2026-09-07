@@ -1,8 +1,8 @@
 (()=>{
 'use strict';
 
-const NAV_IA_VERSION='2026-09-05f';
-const NAV_SNAPSHOT_KEY='aidme:navigation-snapshot:v5';
+const NAV_IA_VERSION='2026-09-06b';
+const NAV_SNAPSHOT_KEY='aidme:navigation-snapshot:v6';
 const NAV_SNAPSHOT_MAX_AGE_MS=2*60*60*1000;
 const MOBILE_BREAKPOINT=780;
 const page=(location.pathname.split('/').filter(Boolean).pop()||'index.html').replace('.html','');
@@ -120,7 +120,7 @@ function normalizeMain(){
   const notifications=document.querySelector('#notificationsNav'),unread=badgeCount(notifications),notificationsMenu=document.querySelector('#userNotificationLink');if(notificationsMenu){notificationsMenu.textContent=unread?`Varsler (${unread})`:'Varsler';notificationsMenu.classList.add('nav-ia-link')}
   const guide=document.querySelector('#userGuideLink');if(guide)guide.classList.add('nav-ia-link');const sos=document.querySelector('#userSosLink');if(sos)sos.classList.add('nav-ia-link');
 
-  const primaryOrder=['overview','participants','#intakeNav','#ownersNav','tasks','checkin','#pilotOpsNav','#guideNav','#sosNav','settings'];
+  const primaryOrder=['overview','participants','tasks','checkin','#intakeNav','#ownersNav','#pilotOpsNav','#guideNav','#sosNav','settings'];
   const secondaryOrder=['forms','#adminLink','#crmNav','analysis','documents','#demoJourneyNav','#notificationsNav','#auditNav','#documentsCenterNav','#onboardingNav'];
   primaryOrder.map(key=>mainNode(nav,key)).filter(Boolean).forEach(el=>nav.appendChild(el));
   secondaryOrder.map(key=>mainNode(nav,key)).filter(Boolean).forEach(el=>nav.appendChild(el));

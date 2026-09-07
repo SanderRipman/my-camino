@@ -7,10 +7,17 @@ const SER_VIDA_HANDOFF_ERRORS={
   VIDA_REQUIRES_SER:'Deltakeren er ikke lenger i SER. Last arbeidsflaten på nytt.',
   NAMED_VIDA_OWNER_REQUIRED:'Navngitt VIDA-eier mangler. Avklar ansvar før VIDA starter.',
   PARTICIPANT_NOT_FOUND:'Deltakeren er ikke tilgjengelig i denne konteksten.',
-  STALE_STAGE:'Fasen ble endret et annet sted. Last arbeidsflaten på nytt.'
+  STALE_STAGE:'Fasen ble endret et annet sted. Last arbeidsflaten på nytt.',
+  WORKFLOW_COMMAND_FAILED:'VIDA-overgangen svarte ikke som forventet. Ingen data ble endret.'
 };
 let participantInlineCollapsed=true;
-function serVidaHandoffError(code){return SER_VIDA_HANDOFF_ERRORS[code]||'VIDA kunne ikke startes. Ingen alternativ direkte databasevei ble brukt.'}
+function serVidaHandoffError(code){return SER_VIDA_HANDOFF_ERRORS[code]||`VIDA kunne ikke startes (${code||'ukjent årsak'}). Ingen alternativ direkte databasevei ble brukt.`}
+async function serVidaWorkflowErrorCode(data,error){
+  if(data?.error)return String(data.error);
+  const response=error?.context;
+  if(response){try{const payload=await (typeof response.clone==='function'?response.clone():response).json();if(payload?.error)return String(payload.error)}catch{}}
+  return error?'WORKFLOW_COMMAND_FAILED':null;
+}
 function canStartVida(){return hasRole('program_lead')||hasRole('ser_lead')}
 function serVidaHandoffParticipant(){return canStartVida()?participantById(selectedParticipantId):null}
 function serVidaHandoffOpenSerTasks(p){return (tasks||[]).filter(t=>t.participant_id===p?.id&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status)&&String(t.workflow_key||'').startsWith('ser_'))}
@@ -24,7 +31,7 @@ async function startVidaHandoff(p,button,message){
   if(!accepted)return;
   button.disabled=true;message.textContent='Kontrollerer tilgang og aktiverer VIDA sikkert…';
   const {data,error}=await client.functions.invoke('workflow-command',{body:{action:'START_VIDA',participantId:p.id,pilotId:pilot?.id||null}});
-  const code=data?.error||(!data?.ok&&error?'WORKFLOW_COMMAND_FAILED':null);
+  const code=await serVidaWorkflowErrorCode(data,error);
   if(error||code){message.textContent=serVidaHandoffError(code);button.disabled=false;return}
   message.textContent='VIDA er aktivert. Oppdaterer deltaker, oppgaver og levende plan…';
   await loadData();
