@@ -24,11 +24,12 @@ ok(decision.includes("pilotById(task?.pilot_id)||participantPilot(participant.id
 ok(decision.includes('isGoConditionTask(task)||isVidaOwnerGateTask(task)')&&decision.includes("done.classList.add('hidden')"),'Formal blocker tasks must not expose generic manual completion');
 
 ok(owners.includes("cmd('LIST_CONTEXT',{participantId})"),'Owner workspace must keep server-authoritative scoped owner context');
+ok(owners.includes('requestedParticipantId()')&&owners.includes("if(requested){"),'Owner task entry must fast-path the exact requested participant rather than wait for a broad list');
 ok(owners.includes('withTimeout')&&owners.includes('OWNER_CONTEXT_TIMEOUT'),'Owner context must fail visibly instead of hanging forever');
 ok(!owners.includes("'TOKEN_REFRESHED'")&&!owners.includes("'USER_UPDATED'"),'Routine token refresh/user events must not reinitialize the owner workspace and create a load storm');
 ok(owners.includes("event==='SIGNED_OUT'")&&owners.includes('MFA_CHALLENGE_VERIFIED'),'Owner workspace must still fail closed on sign-out and recover after explicit MFA verification');
 ok(ownersHtml.includes('id="ownerLoading"')&&ownersHtml.includes('id="retryOwner"'),'Owner workspace must expose loading and retry states instead of a blank screen');
-ok(ownersHtml.includes('owners.js?v=20260907c'),'Owner workspace must cache-bust the stabilized client');
+ok(ownersHtml.includes('owners.js?v=20260907d'),'Owner workspace must cache-bust the targeted fast-path client');
 
 ok(ops.includes('async function workflowErrorCode')&&ops.includes('error?.context')&&ops.includes("response.clone"),'START_SER must recover structured Edge Function errors from non-2xx responses');
 ok(ops.includes('SER kan ikke startes: navngitt VIDA-eier mangler')&&ops.includes('SER kan ikke startes: minst ett GO-vilkår er fortsatt åpent'),'START_SER must explain actionable blockers instead of a generic failure');
