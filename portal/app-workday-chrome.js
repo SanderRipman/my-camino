@@ -1,8 +1,10 @@
 (()=>{
 'use strict';
 
-const WORKDAY_CHROME_VERSION='2026-09-07a';
+const WORKDAY_CHROME_VERSION='2026-09-07b';
 const MOBILE_BREAKPOINT=780;
+const PROFILE_RETURN_KEY='aidme:profile-tools-return:v1';
+let samePageProfileReturnArmed=false;
 const ROLE_LABELS={
   system_admin:'Systemadministrator',project_owner:'Prosjekteier',program_lead:'Programleder',
   via_owner:'VÍA-eier',clinical_professional:'Fagperson',ser_lead:'SER-/turleder',
@@ -22,6 +24,14 @@ function safeActiveRoles(){
     return [...new Set(accessGrants.filter(activeGrant).map(g=>String(g.role_code||'')).filter(Boolean))];
   }catch{return[]}
 }
+function selectedOwnerParticipantId(){
+  try{
+    const selected=String(selectedParticipantId||'').trim();
+    if(selected&&Array.isArray(participants)&&participants.some(p=>String(p.id)===selected))return selected;
+    const own=typeof ownParticipant==='function'?ownParticipant():null;if(own?.id)return String(own.id);
+    const first=Array.isArray(participants)?participants.find(p=>p?.id):null;return first?.id?String(first.id):'';
+  }catch{return''}
+}
 function retireMobileAttention(){document.querySelector('#mobileAttentionBar')?.remove()}
 function cleanNonFinalChrome(){
   const auth=document.querySelector('#authView');const authEyebrow=auth?.querySelector('.eyebrow');
@@ -39,7 +49,8 @@ function secondaryToolLinks(roles){
   if(roles.length)addToolLink(items,seen,'Analyse','./#analysis');
   addToolLink(items,seen,'Skjema & rutiner','./#forms');
   const ownerRoles=['system_admin','project_owner','program_lead','via_owner','clinical_professional','vida_owner'];
-  addToolLink(items,seen,'Ansvar / eiere','./owners.html',roles.some(r=>ownerRoles.includes(r)));
+  const ownerParticipant=selectedOwnerParticipantId();
+  addToolLink(items,seen,'Ansvar / eiere',ownerParticipant?`./owners.html?participant=${encodeURIComponent(ownerParticipant)}`:'./#participants',roles.some(r=>ownerRoles.includes(r)));
   addToolLink(items,seen,'Operativ dag','./pilot-ops.html',roles.some(r=>['system_admin','program_lead','ser_lead','logistics'].includes(r)));
   addToolLink(items,seen,'Mine dokumenter','./documents.html');
   addToolLink(items,seen,'Varsler','./notifications.html');
@@ -56,17 +67,35 @@ function showBrandedToolTransition(){
   loader.classList.add('aidme-brand-loader');loader.classList.remove('hidden');
   loader.style.position='fixed';loader.style.inset='0';loader.style.zIndex='9999';loader.style.width='100vw';loader.style.height='100vh';
 }
+function rememberProfileToolsReturn(){
+  try{sessionStorage.setItem(PROFILE_RETURN_KEY,JSON.stringify({createdAt:Date.now()}))}catch{}
+}
+function scrollToProfileTools(){
+  if(!mainPortal()||typeof show!=='function')return;
+  show('settings');
+  window.setTimeout(()=>document.querySelector('#profileToolsSummary')?.scrollIntoView({block:'start',behavior:'auto'}),50);
+}
+function restoreProfileToolsReturn(){
+  if(!mainPortal())return;
+  let data=null;try{const raw=sessionStorage.getItem(PROFILE_RETURN_KEY);if(raw)data=JSON.parse(raw)}catch{}
+  if(!data?.createdAt)return;
+  try{sessionStorage.removeItem(PROFILE_RETURN_KEY)}catch{}
+  if(Date.now()-Number(data.createdAt)>10*60*1000)return;
+  scrollToProfileTools();
+}
 function bindProfileToolNavigation(tools){
   if(!tools||tools.dataset.toolNavBound==='1')return;tools.dataset.toolNavBound='1';
   tools.addEventListener('click',event=>{
     const link=event.target.closest?.('.profile-tool-links a[href]');if(!link||!tools.contains(link))return;
     let url;try{url=new URL(link.href,location.href)}catch{return}
     if(url.origin!==location.origin)return;
-    const samePortal=url.pathname===location.pathname&&['#analysis','#forms'].includes(url.hash);
+    const samePortal=url.pathname===location.pathname&&['#analysis','#forms','#participants'].includes(url.hash);
     if(samePortal&&typeof show==='function'){
-      event.preventDefault();show(url.hash.slice(1));history.replaceState(null,'',location.pathname+location.search);return;
+      event.preventDefault();samePageProfileReturnArmed=true;
+      history.pushState({aidmeProfileTool:true,view:url.hash.slice(1)},'',`${location.pathname}${location.search}${url.hash}`);
+      show(url.hash.slice(1));return;
     }
-    if(url.pathname!==location.pathname)showBrandedToolTransition();
+    if(url.pathname!==location.pathname){rememberProfileToolsReturn();showBrandedToolTransition()}
   });
 }
 function ensureProfileCards(){
@@ -152,7 +181,11 @@ function apply(){
 
 let scheduled=false;
 function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;apply()})}
-window.addEventListener('resize',schedule,{passive:true});window.addEventListener('pageshow',schedule);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});document.addEventListener('aidme:portal-rendered',schedule);document.addEventListener('aidme:navigation-normalized',schedule);
+window.addEventListener('resize',schedule,{passive:true});
+window.addEventListener('pageshow',()=>{schedule();window.setTimeout(restoreProfileToolsReturn,80)});
+window.addEventListener('popstate',()=>{if(!samePageProfileReturnArmed)return;samePageProfileReturnArmed=false;window.setTimeout(scrollToProfileTools,0)});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});
+document.addEventListener('aidme:portal-rendered',()=>{schedule();window.setTimeout(restoreProfileToolsReturn,80)});
+document.addEventListener('aidme:navigation-normalized',schedule);
 [0,120,300,700,1400].forEach(delay=>window.setTimeout(apply,delay));
 })();
