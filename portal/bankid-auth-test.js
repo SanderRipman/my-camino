@@ -5,7 +5,7 @@ const PREVIEW_HOST=/^deploy-preview-\d+--mycamino\.netlify\.app$/;
 const client=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s);
 let session=null,grants=[],assurance={currentLevel:'aal1',nextLevel:'aal1'},identities=[],attestation=null;
-let loadFlight=null,loadQueued=false,loadEpoch=0;
+let loadFlight=null,loadQueued=false,loadEpoch=0,inviteAttempted=false;
 const RELOAD_AUTH_EVENTS=new Set(['SIGNED_IN','SIGNED_OUT','USER_UPDATED','MFA_CHALLENGE_VERIFIED']);
 
 function isPreview(){return location.protocol==='https:'&&PREVIEW_HOST.test(location.hostname)}
@@ -17,6 +17,7 @@ function isStaff(){return activeGrants().length>0}
 function setMessage(selector,text,kind=''){const el=$(selector);el.textContent=text||'';el.className=`message ${kind}`.trim()}
 function showGlobal(text){$('#globalMessage').textContent=text;$('#globalMessage').classList.remove('hidden')}
 function stale(epoch){return epoch!==loadEpoch}
+function lockInviteAttempt(){inviteAttempted=true;$('#inviteButton').disabled=true;$('#inviteEmail').readOnly=true;$('#testOnly').disabled=true}
 
 function failClosedEnvironment(){
   if(isPreview())return true;
@@ -113,9 +114,10 @@ function render(){
   else if(bankidLinked)setMessage('#linkMessage','BankID test-identitet er allerede koblet. Ingen rolle eller scope er endret.');
   else setMessage('#linkMessage','');
 
-  const canInvite=!!session&&assurance.currentLevel==='aal2'&&hasRole('system_admin');
+  const canInvite=!inviteAttempted&&!!session&&assurance.currentLevel==='aal2'&&hasRole('system_admin');
   $('#inviteButton').disabled=!canInvite;
-  if(!canInvite)setMessage('#inviteMessage','Preview-invitasjon krever AAL2 og aktiv systemadministrator.');
+  if(inviteAttempted)setMessage('#inviteMessage','Ett invitasjonsforsøk er allerede brukt i denne sideøkten. Kontroller e-post, auth-bruker og audit før eventuell eksplisitt reload.');
+  else if(!canInvite)setMessage('#inviteMessage','Preview-invitasjon krever AAL2 og aktiv systemadministrator.');
   else setMessage('#inviteMessage','Klar for syntetisk preview-invitasjon.');
 }
 
@@ -144,20 +146,20 @@ async function linkBankid(){
 async function sendInvite(event){
   event.preventDefault();
   if(!isPreview())return;
+  if(inviteAttempted){setMessage('#inviteMessage','Invitasjonsforsøket er låst for denne sideøkten. Kontroller read-back før eventuell reload.');return}
   const email=$('#inviteEmail').value.trim().toLowerCase();
   if(!$('#testOnly').checked){setMessage('#inviteMessage','Bekreft syntetisk test før utsending.');return}
   if(!session||assurance.currentLevel!=='aal2'||!hasRole('system_admin')){setMessage('#inviteMessage','AAL2 + systemadministrator kreves.');return}
-  $('#inviteButton').disabled=true;setMessage('#inviteMessage','Sender preview-invitasjon…');
+  lockInviteAttempt();setMessage('#inviteMessage','Sender ett kontrollert preview-invitasjonsforsøk…');
   const {data,error}=await client.functions.invoke('admin-invite-user-preview',{body:{email,testOnly:true}});
   if(error||data?.error){
     const detail=data?.error||error?.message||'INVITE_FAILED';
-    const suffix=data?.inviteCreated?' Invitasjonen ble opprettet, men audit feilet; ikke send ny invitasjon før audit er avklart.':'';
+    const suffix=data?.inviteCreated?' Invitasjonen ble opprettet, men audit feilet; ikke send ny invitasjon før audit er avklart.':' Ikke prøv på nytt blindt; kontroller auth/audit før eventuell reload.';
     setMessage('#inviteMessage',`Invitasjon ikke fullført: ${detail}.${suffix}`);
   }else{
-    setMessage('#inviteMessage',`Invitasjon sendt og auditert. Forventet retur: ${data.redirectTo}`);
+    setMessage('#inviteMessage',`Invitasjon sendt og auditert. Testflaten er låst mot nytt forsøk. Forventet retur: ${data.redirectTo}`);
     $('#redirectState').textContent=`Invitasjonsretur · ${data.redirectTo}`;
   }
-  $('#inviteButton').disabled=false;
 }
 
 $('#bankidSignIn').addEventListener('click',signInBankid);
