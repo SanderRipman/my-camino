@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const WORKDAY_CHROME_VERSION='2026-09-06a';
+const WORKDAY_CHROME_VERSION='2026-09-07a';
 const MOBILE_BREAKPOINT=780;
 const ROLE_LABELS={
   system_admin:'Systemadministrator',project_owner:'Prosjekteier',program_lead:'Programleder',
@@ -51,6 +51,24 @@ function secondaryToolLinks(roles){
   const crm=document.querySelector('#crmNav');addToolLink(items,seen,'Mini CRM','./crm.html',!!crm&&!crm.classList.contains('hidden'));
   return items.join('');
 }
+function showBrandedToolTransition(){
+  const loader=document.querySelector('#loading');if(!loader)return;
+  loader.classList.add('aidme-brand-loader');loader.classList.remove('hidden');
+  loader.style.position='fixed';loader.style.inset='0';loader.style.zIndex='9999';loader.style.width='100vw';loader.style.height='100vh';
+}
+function bindProfileToolNavigation(tools){
+  if(!tools||tools.dataset.toolNavBound==='1')return;tools.dataset.toolNavBound='1';
+  tools.addEventListener('click',event=>{
+    const link=event.target.closest?.('.profile-tool-links a[href]');if(!link||!tools.contains(link))return;
+    let url;try{url=new URL(link.href,location.href)}catch{return}
+    if(url.origin!==location.origin)return;
+    const samePortal=url.pathname===location.pathname&&['#analysis','#forms'].includes(url.hash);
+    if(samePortal&&typeof show==='function'){
+      event.preventDefault();show(url.hash.slice(1));history.replaceState(null,'',location.pathname+location.search);return;
+    }
+    if(url.pathname!==location.pathname)showBrandedToolTransition();
+  });
+}
 function ensureProfileCards(){
   if(!mainPortal())return;
   const view=document.querySelector('#view-settings'),host=view?.querySelector('.settings-grid');if(!view||!host)return;
@@ -60,6 +78,7 @@ function ensureProfileCards(){
   const labels=roles.map(r=>ROLE_LABELS[r]||r);
   if(access.dataset.roleSig!==sig){access.dataset.roleSig=sig;access.innerHTML=`<p class="eyebrow">Tilgang</p><h3>Tilgang og roller</h3><p class="privacy-note">${labels.length?'Aktive roller: '+labels.join(' · '):'Ingen aktiv arbeidsrolle er synlig ennå.'}</p><p class="privacy-note">Tilgang følger rolle, mandat og konkret deltaker-/pilotomfang. Forespørsel om utvidet tilgang skal være begrunnet, godkjent og loggført.</p>`}
   const toolHtml=secondaryToolLinks(roles);if(tools.dataset.toolSig!==toolHtml){tools.dataset.toolSig=toolHtml;tools.innerHTML=`<p class="eyebrow">Snarveier</p><h3>Verktøy og snarveier</h3><div class="profile-tool-links" aria-label="Verktøy og snarveier">${toolHtml}</div>`}
+  bindProfileToolNavigation(tools);
   let logout=document.querySelector('#profileLogoutSummary');if(!logout){logout=document.createElement('article');logout.id='profileLogoutSummary';logout.className='panel-card profile-logout-card';logout.innerHTML='<p class="eyebrow">Konto</p><h3>Avslutt økten</h3><button type="button" class="profile-logout-button">Logg ut</button>';view.appendChild(logout);logout.querySelector('button')?.addEventListener('click',()=>document.querySelector('#logout')?.click())}
 }
 function existingProfileItem(nav){
@@ -134,7 +153,6 @@ function apply(){
 let scheduled=false;
 function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;apply()})}
 window.addEventListener('resize',schedule,{passive:true});window.addEventListener('pageshow',schedule);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});
-document.addEventListener('aidme:portal-rendered',schedule);document.addEventListener('aidme:navigation-normalized',schedule);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});document.addEventListener('aidme:portal-rendered',schedule);document.addEventListener('aidme:navigation-normalized',schedule);
 [0,120,300,700,1400].forEach(delay=>window.setTimeout(apply,delay));
 })();
