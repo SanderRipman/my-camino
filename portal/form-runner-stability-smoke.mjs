@@ -24,6 +24,7 @@ must(taskFast.includes('const preflightGrants=gRes.data||[]')&&taskFast.includes
 must(taskFast.indexOf('if(!preflightGrants.some(active))')<taskFast.indexOf('const seq=++initSeq;initPromise=null'),'participant RLS bootstrap must remain alive; broad init may only be invalidated after staff scope is proven');
 must(taskFast.includes('if(!initPromise)await init()'),'participant route must fall back to the ordinary caller-RLS form bootstrap');
 must(taskFast.includes('function showSecurityStep()')&&taskFast.includes("link.href='./#security'")&&taskFast.includes("link.textContent='Bekreft Authenticator og fortsett'"),'AAL1 participant form must route to MFA security instead of looping back to the task');
+must(taskFast.indexOf("if(!aal2){showSecurityStep();return}")>=0,'AAL1 exact form route must use the dedicated security action, not generic return/failure behavior');
 must(taskFast.includes('FORM_TASK_BOOTSTRAP_TIMEOUT')&&taskFast.includes('showFailure'),'targeted task bootstrap must fail visibly instead of leaving a blank page');
 
 for(const html of [runnerHtml,intake]){
