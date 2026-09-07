@@ -4,6 +4,7 @@ import {fileURLToPath} from 'node:url';
 
 const dir=path.dirname(fileURLToPath(import.meta.url));
 const app=fs.readFileSync(path.join(dir,'app-return-context.js'),'utf8');
+const notifications=fs.readFileSync(path.join(dir,'notifications.js'),'utf8');
 const form=fs.readFileSync(path.join(dir,'form-command-client.js'),'utf8');
 const formSer=fs.readFileSync(path.join(dir,'form-ser-operational.js'),'utf8');
 const formAuth=fs.readFileSync(path.join(dir,'form-auth-continuity.js'),'utf8');
@@ -20,6 +21,8 @@ ok(app.includes("sessionStorage.setItem(activeTaskStorageKey,id)")&&app.includes
 ok(app.includes("addEventListener('close',forgetTask)")&&app.includes("sessionStorage.removeItem(activeTaskStorageKey)"),'Explicit dialog close must clear refresh-resume context');
 ok(app.includes("history.replaceState")&&app.includes("delete('returnTask')"),'Return parameters must be cleaned after resuming');
 ok(!app.includes('client.')&&!app.includes('.from(')&&!app.includes('functions.invoke')&&!app.includes('fetch('),'Task return context must remain presentation/navigation-only');
+ok(notifications.includes("new URLSearchParams({returnTask:taskId,returnView:'tasks'})")&&notifications.includes("location.href=`./?${q.toString()}`"),'Task notifications must deep-link back to the exact own task context instead of only opening the generic task list');
+ok(notifications.includes("update({read_at:new Date().toISOString()})")&&notifications.includes(".eq('id',id)"),'Opening a notification must retain own-row unread-to-read persistence before task navigation');
 ok(formSer.includes("const AUTH_RETURN_KEY='aidme:return-intent:v1'")&&formSer.includes('captureInterruptedFormReturn()'),'Auth interruption must preserve exact form return intent');
 ok(formSer.includes('sessionStorage.setItem(AUTH_RETURN_KEY')&&formSer.indexOf('captureInterruptedFormReturn();')<formSer.indexOf("location.replace('./')"),'Interrupted form target must be captured before authentication redirect');
 ok(formAuth.includes("event==='SIGNED_OUT'")&&formAuth.includes('sessionStorage.setItem(AUTH_RETURN_KEY'),'Cross-tab logout must arm the same-tab exact form return target');
@@ -42,4 +45,4 @@ ok(!reviewReturn.includes('client.')&&!reviewReturn.includes('.from(')&&!reviewR
 ok(formHtml.includes('form-review-return.js?v=20260906a')&&formHtml.indexOf('form-review-return.js')>formHtml.indexOf('form-review.js'),'Readonly review return layer must load after review behavior');
 ok(build.includes("app-return-context.js")&&build.indexOf("+returnContext+'\\n'")>build.indexOf("+roleHome+'\\n'"),'Return-context layer must be last in deterministic build');
 
-console.log('task gate return-context smoke: OK');
+console.log('task gate and notification return-context smoke: OK');
