@@ -4,6 +4,7 @@ const must=(ok,msg)=>{if(!ok)throw new Error(msg)};
 
 const runner=read('./form-runner.js');
 const runnerHtml=read('./form-runner.html');
+const taskFast=read('./form-runner-task-fastpath.js');
 const intake=read('./intake.html');
 const mobile=read('./app-mobile.js');
 const nav=read('./navigation-ia.js');
@@ -16,11 +17,17 @@ must(!runner.includes('onAuthStateChange(()=>setTimeout(init,0))'),'form runner 
 must(!runner.includes("FORM_REINIT_EVENTS=new Set(['TOKEN_REFRESHED'"),'token refresh must not trigger full form reload');
 must(!runner.includes("FORM_REINIT_EVENTS=new Set(['INITIAL_SESSION'"),'initial session event must not duplicate explicit init');
 
+must(runnerHtml.includes('form-runner-task-fastpath.js?v=20260907a'),'targeted task form routes must load the bounded fast-path bootstrap');
+must(taskFast.includes("client.functions.invoke('case-command'"),'targeted task bootstrap must use server-side participant context instead of broad participant reads');
+must(taskFast.includes("action:'LIST_CONTEXT'"),'targeted task bootstrap must resolve the exact requested participant context');
+must(taskFast.includes('const seq=++initSeq;initPromise=null'),'targeted task bootstrap must invalidate a stale broad initialization');
+must(taskFast.includes('FORM_TASK_BOOTSTRAP_TIMEOUT')&&taskFast.includes('showFailure'),'targeted task bootstrap must fail visibly instead of leaving a blank page');
+
 for(const html of [runnerHtml,intake]){
   for(const label of ['Oversikt','Deltakere','Oppgaver','Innsjekk','Interesse / VÍA'])must(html.includes(`<b>${label}</b>`),`standalone first paint missing ${label}`);
   must(html.includes('app-mobile.js?v=20260906b'),'standalone must cache-bust current mobile shell');
 }
-must(runnerHtml.includes('form-runner.js?v=20260906c'),'form runner must cache-bust stabilized runtime');
+must(runnerHtml.includes('form-runner.js?v=20260906c'),'form runner must keep stabilized base runtime');
 must(runnerHtml.includes('standalone-chrome.js?v=20260906b')&&intake.includes('standalone-chrome.js?v=20260906b'),'standalone chrome must be cache-busted');
 
 must(nav.includes("NAV_SNAPSHOT_KEY='aidme:navigation-snapshot:v6'"),'navigation snapshot must invalidate pre-final ordering');
@@ -29,4 +36,4 @@ must(mobile.includes("'aidme:navigation-snapshot:v5'"),'mobile shell must purge 
 must(mobile.includes('function prefetchVisibleStandalone()'),'visible standalone primary pages should be prefetched');
 must(mobile.includes("nav.querySelectorAll('a.nav-item[href]')"),'prefetch must follow visible standalone nav links');
 
-console.log('Form runner single-flight and standalone transition invariants: PASS');
+console.log('Form runner single-flight, targeted task bootstrap and standalone transition invariants: PASS');
