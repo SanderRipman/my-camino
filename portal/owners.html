@@ -17,6 +17,7 @@
     .owner-tool-actions .ghost{white-space:nowrap}
     .owner-tool-shell .two-col{grid-template-columns:1fr 1fr}
     .owner-tool-shell .runner-controls{margin-bottom:14px}
+    #ownerLoading{margin-top:14px}
     @media(max-width:760px){
       .owner-tool-shell{padding-top:12px}
       .owner-tool-head{display:block}
@@ -37,7 +38,8 @@
   </header>
 
   <article class="preview-strip"><strong>Sikkerhetsregel:</strong> SER skal ikke startes uten navngitt VIDA-eier. Rolle og tilgang kontrolleres på serveren før ansvar kan tildeles.</article>
-  <section id="blocked" class="panel-card warning-card hidden"><h2>Tilgang mangler</h2><p>Bekreft Authenticator og bruk en rolle med mandat til å forvalte VÍA/ansvar.</p></section>
+  <section id="ownerLoading" class="panel-card">Laster ansvar…</section>
+  <section id="blocked" class="panel-card warning-card hidden"><h2>Tilgang / lasting</h2><p id="blockedText">Bekreft Authenticator og bruk en rolle med mandat til å forvalte VÍA/ansvar.</p><div class="form-actions"><button id="retryOwner" class="ghost" type="button">Prøv igjen</button></div></section>
 
   <section id="work" class="hidden">
     <div class="runner-controls panel-card">
@@ -52,7 +54,7 @@
     <article class="panel-card" style="margin-top:14px"><p class="eyebrow">Hvorfor dette må være på plass</p><h3>VIDA-eier må være navngitt</h3><p>Navngitt eier brukes i overganger og oppgaver. Det er ikke nok å skrive et navn i et fritekstfelt; ansvaret må være knyttet til en godkjent brukerkonto og rolle.</p></article>
   </section>
 </main>
-<script src="./owners.js?v=20260906b"></script>
+<script src="./owners.js?v=20260907c"></script>
 <script src="./context-labels-nb.js?v=20260906a"></script>
 </body>
 </html>
