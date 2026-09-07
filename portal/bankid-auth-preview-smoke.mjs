@@ -44,6 +44,9 @@ must(app.includes('RELOAD_AUTH_EVENTS'),'auth test must use an explicit relevant
 must(app.includes('loadFlight')&&app.includes('loadEpoch')&&app.includes('stale(epoch)'),'auth test must use single-flight and stale-state guards');
 must(!app.includes('onAuthStateChange(()=>setTimeout(loadState,0))'),'broad auth-state full reload regression detected');
 must(!/RELOAD_AUTH_EVENTS[^;]*TOKEN_REFRESHED/.test(app),'token refresh must not trigger full auth-test state reload');
+must(app.includes('inviteAttempted=false')&&app.includes('function lockInviteAttempt()'),'preview invitation UI must lock after one server attempt');
+must(app.includes("if(inviteAttempted){setMessage('#inviteMessage'"),'repeated invitation submit must fail closed in-page');
+must(!app.includes("$('#inviteButton').disabled=false"),'preview invitation must not re-enable after a server attempt');
 must(page.includes('Bruk eksisterende innlogging'),'Authenticator/email fallback must remain visible');
 
 must(!/fødselsnummer|national[ _-]?identity|\bnnin\b/i.test(all),'test track must not collect or model national identity number');
