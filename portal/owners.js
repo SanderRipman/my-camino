@@ -4,28 +4,45 @@ const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=s=>document.querySelector(s);
 let session=null,participants=[],context=null,initPromise=null,contextSeq=0;
 
-function esc(v=''){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function esc(v=''){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt',"'":'&#39;','"':'&quot;'}[c]))}
 async function cmd(action,body={}){return client.functions.invoke('case-command',{body:{action,...body}})}
 function loading(message='Laster ansvar…',visible=true){const el=$('#ownerLoading');if(!el)return;el.textContent=message;el.classList.toggle('hidden',!visible)}
 function blocked(message){const text=$('#blockedText');if(text)text.textContent=message;$('#blocked')?.classList.remove('hidden');$('#work')?.classList.add('hidden');loading('',false)}
-async function withTimeout(promise,ms=12000){let timer;try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('OWNER_CONTEXT_TIMEOUT')),ms)})])}finally{clearTimeout(timer)}}
+async function withTimeout(promise,ms=10000){let timer;try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('OWNER_CONTEXT_TIMEOUT')),ms)})])}finally{clearTimeout(timer)}}
+function requestedParticipantId(){return new URLSearchParams(location.search).get('participant')||''}
 
 async function initCore(){
   loading('Kontrollerer tilgang…',true);$('#blocked')?.classList.add('hidden');$('#work')?.classList.add('hidden');
-  const {data:{session:s}}=await client.auth.getSession();session=s;
+  const sessionRes=await withTimeout(client.auth.getSession(),8000);const s=sessionRes?.data?.session;session=s;
   if(!session){location.replace('./');return}
-  const aal=await client.auth.mfa.getAuthenticatorAssuranceLevel(),ok=aal.data?.currentLevel==='aal2';
+  const aal=await withTimeout(client.auth.mfa.getAuthenticatorAssuranceLevel(),8000),ok=aal.data?.currentLevel==='aal2';
   $('#securityPill').textContent=ok?'AAL2 · bekreftet':'AAL1 · utilstrekkelig';
   $('#securityPill').classList.toggle('secure',ok);
   if(!ok){blocked('Bekreft Authenticator og bruk en rolle med mandat til å forvalte VÍA/ansvar.');return}
+
+  const select=$('#participantSelect'),requested=requestedParticipantId();
+  if(requested){
+    loading('Laster valgt deltaker…',true);
+    participants=[{id:requested,code_name:'Valgt deltaker',stage:''}];
+    select.innerHTML=`<option value="${esc(requested)}">Laster valgt deltaker…</option>`;
+    select.value=requested;
+    const probe=await loadContext();
+    if(!probe){blocked('Valgt deltaker eller ansvarskontekst kunne ikke lastes. Ingen data er endret. Trykk «Prøv igjen» eller gå tilbake til portalen.');return}
+    const p=context?.participant||{};
+    participants=[{id:requested,code_name:p.code_name||'Valgt deltaker',stage:p.stage||''}];
+    select.innerHTML=`<option value="${esc(requested)}">${esc(p.code_name||'Valgt deltaker')} · ${esc(p.stage||'')}</option>`;
+    select.value=requested;
+    $('#blocked').classList.add('hidden');$('#work').classList.remove('hidden');loading('',false);return;
+  }
+
   loading('Laster deltakere…',true);
-  const {data,error}=await client.from('participants').select('id,code_name,stage,updated_at').eq('active',true).order('updated_at',{ascending:false});
-  participants=data||[];
+  let participantRes;
+  try{participantRes=await withTimeout(client.from('participants').select('id,code_name,stage,updated_at').eq('active',true).order('updated_at',{ascending:false}),10000)}catch{blocked('Deltakerlisten svarte ikke innen fristen. Ingen data er endret. Trykk «Prøv igjen» eller åpne verktøyet fra en konkret deltakeroppgave.');return}
+  const {data,error}=participantRes||{};participants=data||[];
   if(error||!participants.length){blocked('Deltakerlisten kunne ikke lastes med denne tilgangen. Gå tilbake til portalen og prøv igjen.');return}
-  const select=$('#participantSelect'),previous=select.value;
+  const previous=select.value;
   select.innerHTML=participants.map(p=>`<option value="${p.id}">${esc(p.code_name)} · ${esc(p.stage)}</option>`).join('');
-  const q=new URLSearchParams(location.search).get('participant');
-  if(q&&participants.some(p=>p.id===q))select.value=q;else if(previous&&participants.some(p=>p.id===previous))select.value=previous;
+  if(previous&&participants.some(p=>p.id===previous))select.value=previous;
   const probe=await loadContext();
   if(!probe){blocked('Ansvar og eierkontekst kunne ikke lastes. Ingen data er endret. Trykk «Prøv igjen» eller gå tilbake til portalen.');return}
   $('#blocked').classList.add('hidden');$('#work').classList.remove('hidden');loading('',false);
@@ -42,7 +59,7 @@ async function loadContext(){
   const participantId=$('#participantSelect').value;if(!participantId)return false;
   const seq=++contextSeq;loading('Laster ansvar og eiere…',true);
   let response;
-  try{response=await withTimeout(cmd('LIST_CONTEXT',{participantId}))}catch{return false}
+  try{response=await withTimeout(cmd('LIST_CONTEXT',{participantId}),10000)}catch{return false}
   if(seq!==contextSeq)return true;
   const {data,error}=response||{};
   if(error||data?.error)return false;
@@ -60,7 +77,9 @@ async function save(action,selectId,messageId){
   const participantId=$('#participantSelect').value,targetUserId=$(selectId).value;
   if(!targetUserId){$(messageId).textContent='Velg en ansvarlig først.';return}
   $(messageId).textContent='Lagrer…';
-  const {data,error}=await cmd(action,{participantId,targetUserId});
+  let response;
+  try{response=await withTimeout(cmd(action,{participantId,targetUserId}),10000)}catch{$(messageId).textContent='Lagringen svarte ikke innen fristen. Ingen bekreftet endring er registrert i visningen; prøv igjen.';return}
+  const {data,error}=response||{};
   if(error||data?.error){$(messageId).textContent='Eierskapet kunne ikke lagres med valgt rolle/scope.';return}
   $(messageId).textContent='Ansvar lagret og revisjonsført.';await loadContext();
 }
