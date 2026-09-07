@@ -5,13 +5,15 @@ const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
 const js=read('./app-workday-chrome.js');
 const css=read('./workday-mobile.css');
 
-assert(js.includes("WORKDAY_CHROME_VERSION='2026-09-06a'"),'Workday chrome must be versioned for cache busting.');
+assert(js.includes("WORKDAY_CHROME_VERSION='2026-09-07a'"),'Workday chrome must be versioned for cache busting.');
 assert(js.includes("/^Beta:/i")&&js.includes(".demo-note")&&js.includes("workday-dev-ui"),'Non-final beta/demo chrome must be removed or hidden from everyday work views.');
 assert(js.includes('retireMobileAttention()')&&!js.includes("bar.id='mobileAttentionBar'"),'Redundant mobile attention strip must stay retired rather than recreated.');
 assert(js.includes("data-view=\"settings\"")&&js.includes("label.textContent='Profil'")&&js.includes("href='./#settings'"),'Profile must remain reachable after daily identity controls are removed.');
 assert(js.includes('existingProfileItem(nav)')&&js.includes("textContent?.trim()==='Profil'"),'Mobile profile navigation must explicitly prevent duplicate Profile items.');
 assert(js.includes('MOBILE_SECONDARY_LABELS')&&js.includes('enforceStableMobilePrimaryNav()'),'Late-rendered secondary tools must not reappear in the mobile primary navigation.');
 for(const label of ['Analyse','Skjema & rutiner','Mine dokumenter','Varsler','Slik fungerer det','Rolleintroduksjon','Ansvar / eiere','Operativ dag'])assert(js.includes(label),`Profile tools must retain ${label}.`);
+assert(js.includes('bindProfileToolNavigation')&&js.includes("['#analysis','#forms'].includes(url.hash)")&&js.includes("show(url.hash.slice(1))"),'Top profile tools that target portal views must route directly instead of waiting on same-document hash normalization.');
+assert(js.includes('showBrandedToolTransition')&&js.includes("loader.style.position='fixed'")&&js.includes("loader.classList.remove('hidden')"),'Standalone profile tools must show the canonical branded transition instead of appearing frozen.');
 assert(js.includes("['ownersNav','pilotOpsNav'].includes(item.id)"),'Owners and pilot operations must be specialist tools rather than permanent primary mobile tabs.');
 assert(js.includes('profileAccessSummary')&&js.includes('profileToolsSummary')&&js.includes('Tilgang og roller')&&js.includes('Verktøy og snarveier'),'Profile access and tool areas must be separate cards.');
 assert(js.includes('profileLogoutSummary')&&js.includes('profile-logout-button')&&js.includes("document.querySelector('#logout')?.click()"),'Profile must expose an explicit mobile logout action without duplicating auth logic.');
