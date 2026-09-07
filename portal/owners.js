@@ -21,30 +21,18 @@ async function initCore(){
   if(!ok){blocked('Bekreft Authenticator og bruk en rolle med mandat til å forvalte VÍA/ansvar.');return}
 
   const select=$('#participantSelect'),requested=requestedParticipantId();
-  if(requested){
-    loading('Laster valgt deltaker…',true);
-    participants=[{id:requested,code_name:'Valgt deltaker',stage:''}];
-    select.innerHTML=`<option value="${esc(requested)}">Laster valgt deltaker…</option>`;
-    select.value=requested;
-    const probe=await loadContext();
-    if(!probe){blocked('Valgt deltaker eller ansvarskontekst kunne ikke lastes. Ingen data er endret. Trykk «Prøv igjen» eller gå tilbake til portalen.');return}
-    const p=context?.participant||{};
-    participants=[{id:requested,code_name:p.code_name||'Valgt deltaker',stage:p.stage||''}];
-    select.innerHTML=`<option value="${esc(requested)}">${esc(p.code_name||'Valgt deltaker')} · ${esc(p.stage||'')}</option>`;
-    select.value=requested;
-    $('#blocked').classList.add('hidden');$('#work').classList.remove('hidden');loading('',false);return;
-  }
+  if(!requested){blocked('Velg først deltakeren i portalen og åpne deretter «Ansvar / eiere». Dette verktøyet åpner én navngitt deltaker om gangen og laster ikke en bred deltakerliste.');return}
 
-  loading('Laster deltakere…',true);
-  let participantRes;
-  try{participantRes=await withTimeout(client.from('participants').select('id,code_name,stage,updated_at').eq('active',true).order('updated_at',{ascending:false}),10000)}catch{blocked('Deltakerlisten svarte ikke innen fristen. Ingen data er endret. Trykk «Prøv igjen» eller åpne verktøyet fra en konkret deltakeroppgave.');return}
-  const {data,error}=participantRes||{};participants=data||[];
-  if(error||!participants.length){blocked('Deltakerlisten kunne ikke lastes med denne tilgangen. Gå tilbake til portalen og prøv igjen.');return}
-  const previous=select.value;
-  select.innerHTML=participants.map(p=>`<option value="${p.id}">${esc(p.code_name)} · ${esc(p.stage)}</option>`).join('');
-  if(previous&&participants.some(p=>p.id===previous))select.value=previous;
+  loading('Laster valgt deltaker…',true);
+  participants=[{id:requested,code_name:'Valgt deltaker',stage:''}];
+  select.innerHTML=`<option value="${esc(requested)}">Laster valgt deltaker…</option>`;
+  select.value=requested;
   const probe=await loadContext();
-  if(!probe){blocked('Ansvar og eierkontekst kunne ikke lastes. Ingen data er endret. Trykk «Prøv igjen» eller gå tilbake til portalen.');return}
+  if(!probe){blocked('Valgt deltaker eller ansvarskontekst kunne ikke lastes. Ingen data er endret. Trykk «Prøv igjen» eller gå tilbake til portalen.');return}
+  const p=context?.participant||{};
+  participants=[{id:requested,code_name:p.code_name||'Valgt deltaker',stage:p.stage||''}];
+  select.innerHTML=`<option value="${esc(requested)}">${esc(p.code_name||'Valgt deltaker')} · ${esc(p.stage||'')}</option>`;
+  select.value=requested;
   $('#blocked').classList.add('hidden');$('#work').classList.remove('hidden');loading('',false);
 }
 function init(){
