@@ -107,7 +107,12 @@ Deno.serve(async(req:Request)=>{
       if(error)throw error
       row=data
     }
+    const changedAt=new Date().toISOString()
     await admin.from('workflow_events').insert({organization_id:p.organization_id,participant_id:pid,pilot_id:pilot,actor_user_id:u.user.id,event_type:action,source_type:'via_assessment',source_id:row.id,metadata:{target_user_id:target}})
+    if(action==='SET_VIDA_OWNER'){
+      const {error:taskError}=await admin.from('tasks').update({status:'DONE',updated_at:changedAt}).eq('participant_id',pid).eq('task_type','VIDA_OWNER_GATE').in('status',['OPEN','IN_PROGRESS','WAITING'])
+      if(taskError)throw taskError
+    }
     return new Response(JSON.stringify({ok:true,assessment:row}),{headers})
   }catch(error){
     console.error(error)
