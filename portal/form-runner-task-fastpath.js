@@ -20,6 +20,17 @@ function showFailure(message){
   const link=blocked?.querySelector('a.primary');
   if(link){link.href=requestedContextReturnHref(q);link.textContent=q.get('returnTask')?'Tilbake til oppgaven':'Tilbake til portalen'}
 }
+function showSecurityStep(){
+  marker?.classList.add('hidden');
+  const blocked=document.querySelector('#blocked'),text=document.querySelector('#blockedText'),link=blocked?.querySelector('a.primary');
+  document.querySelector('#runner')?.classList.add('hidden');
+  if(blocked)blocked.classList.remove('hidden');
+  if(text)text.textContent='Versjonerte programskjema krever at denne innloggingen er bekreftet med Authenticator.';
+  // form-auth-return-capture has already stored the exact form/task target for this tab.
+  // Keep the action on the security route; do not rewrite it to the originating task,
+  // otherwise AAL1 participant flows loop task <-> locked form without ever reaching MFA.
+  if(link){link.href='./#security';link.textContent='Bekreft Authenticator og fortsett'}
+}
 async function bounded(promise,ms=10000){let timer;try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('FORM_TASK_BOOTSTRAP_TIMEOUT')),ms)})])}finally{clearTimeout(timer)}}
 
 async function bootstrap(){
@@ -32,7 +43,7 @@ async function bootstrap(){
     const aal=await bounded(client.auth.mfa.getAuthenticatorAssuranceLevel(),8000);
     const aal2=aal.data?.currentLevel==='aal2';
     $('#securityPill').textContent=aal2?'AAL2 · bekreftet':'AAL1 · utilstrekkelig';$('#securityPill').classList.toggle('secure',aal2);$('#securityPill').classList.toggle('attention',!aal2);
-    if(!aal2){showFailure('Versjonerte programskjema krever at denne innloggingen er bekreftet med Authenticator.');return}
+    if(!aal2){showSecurityStep();return}
 
     const uid=session.user.id;
     const gRes=await bounded(client.from('role_grants').select('id,organization_id,role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at').eq('user_id',uid),8000);
