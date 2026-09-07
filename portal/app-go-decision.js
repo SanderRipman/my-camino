@@ -24,7 +24,7 @@ function staffDecisionTaskGate(task,participant){
   };
   if(isGoConditionTask(task)&&participant.stage==='GO_WITH_CONDITIONS')return{
     label:'Avklar vilkår i ny GO / NO-GO-vurdering',
-    href:`./form-runner.html?key=individual_go_no_go&participant=${encodeURIComponent(participant.id)}${pilot?.id?`&pilot=${encodeURIComponent(pilot.id)}`:''}&returnTask=${encodeURIComponent(task.id)}&returnView=tasks&reviseLatest=1`,
+    href:`./form-runner.html?key=individual_go_no_go&participant=${encodeURIComponent(participant.id)}${pilot?.id?`&pilot=${encodeURIComponent(pilot.id)}`:''}&returnTask=${encodeURIComponent(task.id)}&returnView=tasks`,
     hint:'GO med vilkår er foreløpig. Oppgaven lukkes først når en ny formell vurdering er sendt; tidligere beslutning beholdes som historikk.'
   };
   if(participant.stage==='POSTPONED')return{
