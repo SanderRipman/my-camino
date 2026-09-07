@@ -6,9 +6,16 @@ const NEW_VIA_ERRORS={
   FORBIDDEN:'Din rolle har ikke tilgang til å starte ny VÍA for denne deltakeren.',
   NEW_VIA_REQUIRES_VIDA:'Ny VÍA kan bare startes fra aktiv VIDA-fase.',
   PARTICIPANT_NOT_FOUND:'Deltakeren er ikke tilgjengelig i denne konteksten.',
-  STALE_STAGE:'Fasen ble endret et annet sted. Last arbeidsflaten på nytt.'
+  STALE_STAGE:'Fasen ble endret et annet sted. Last arbeidsflaten på nytt.',
+  WORKFLOW_COMMAND_FAILED:'Ny VÍA-overgangen svarte ikke som forventet. Ingen data ble endret.'
 };
-function newViaError(code){return NEW_VIA_ERRORS[code]||'Ny VÍA kunne ikke startes. Ingen alternativ direkte databasevei ble brukt.'}
+function newViaError(code){return NEW_VIA_ERRORS[code]||`Ny VÍA kunne ikke startes (${code||'ukjent årsak'}). Ingen alternativ direkte databasevei ble brukt.`}
+async function newViaWorkflowErrorCode(data,error){
+  if(data?.error)return String(data.error);
+  const response=error?.context;
+  if(response){try{const payload=await (typeof response.clone==='function'?response.clone():response).json();if(payload?.error)return String(payload.error)}catch{}}
+  return error?'WORKFLOW_COMMAND_FAILED':null;
+}
 function canStartNewVia(){return hasRole('project_owner')||hasRole('vida_owner')}
 
 function confirmOptionalNewVia(p){
@@ -40,7 +47,7 @@ async function startOptionalNewVia(p,button,message){
   button.disabled=true;message.textContent='Kontrollerer tilgang og starter ny VÍA…';
   const pilot=participantPilot(p.id);
   const {data,error}=await client.functions.invoke('workflow-command',{body:{action:'START_NEW_VIA',participantId:p.id,pilotId:pilot?.id||null}});
-  const code=data?.error||(!data?.ok&&error?'WORKFLOW_COMMAND_FAILED':null);
+  const code=await newViaWorkflowErrorCode(data,error);
   if(error||code){message.textContent=newViaError(code);button.disabled=false;return}
   message.textContent='Ny VÍA er startet som nytt veivalg. Oppdaterer arbeidsflaten…';
   await loadData();
