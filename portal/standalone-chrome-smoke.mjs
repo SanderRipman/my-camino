@@ -59,7 +59,9 @@ assert(ownersHtml.includes('href="./admin.html"')&&ownersHtml.includes('href="./
 assert(!ownersHtml.includes('standalone-chrome.js')&&!ownersHtml.includes('app-mobile.js'),'Owners must not carry the legacy standalone/mobile navigation stack.');
 assert(ownersJs.includes('initPromise')&&ownersJs.includes('if(initPromise)return initPromise'),'Owner initialization must be single-flight.');
 assert(ownersJs.includes('contextSeq')&&ownersJs.includes('seq!==contextSeq'),'Owner context updates must ignore stale concurrent responses.');
-assert(ownersJs.includes("['SIGNED_IN','TOKEN_REFRESHED','USER_UPDATED','MFA_CHALLENGE_VERIFIED']"),'Owner auth refresh must react only to explicit relevant events.');
+assert(ownersJs.includes("['SIGNED_IN','MFA_CHALLENGE_VERIFIED']")&&!ownersJs.includes("'TOKEN_REFRESHED'")&&!ownersJs.includes("'USER_UPDATED'"),'Owner auth handling must react to explicit sign-in/MFA events without routine token-refresh reinitialization.');
+assert(ownersJs.includes("event==='SIGNED_OUT'")&&ownersJs.includes('location.replace'),'Owner workspace must fail closed on sign-out.');
+assert(ownersHtml.includes('id="ownerLoading"')&&ownersHtml.includes('id="retryOwner"'),'Owner workspace must show loading/retry instead of a blank screen.');
 
 const guide=read('./guide.html');
 assert(guide.includes('app-mobile.js?v=20260906b'),'Program guide must load the cache-busted common mobile/navigation shell.');
