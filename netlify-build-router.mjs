@@ -7,6 +7,7 @@ const out = resolve(root, '_netlify_publish');
 const PUBLIC_DEV_SITE_ID = '33549af8-6845-4c5b-b807-258ba5be1e99';
 const PUBLIC_PROD_SITE_ID = '1b763521-f8c0-462a-a0cc-915c1ae56d08';
 const PORTAL_SITE_ID = 'a90c686c-e9fc-4373-9956-629c9d31e622';
+const PORTAL_DEMO_SITE_ID = '2c6fd4eb-8bca-47a4-aeaf-933cc7cf85c9';
 
 const siteId = (process.env.SITE_ID || process.env.NETLIFY_SITE_ID || '').trim();
 const siteName = (process.env.SITE_NAME || '').trim().toLowerCase();
@@ -20,7 +21,7 @@ for (const key of ['URL', 'DEPLOY_PRIME_URL', 'DEPLOY_URL']) {
 
 const isPublicDev = siteId === PUBLIC_DEV_SITE_ID || siteName === 'dev-aidme-no' || host === 'dev.aidme.no';
 const isPublicProd = siteId === PUBLIC_PROD_SITE_ID || siteName === 'aidme-public-candidate-20260817' || host === 'www.aidme.no' || host === 'aidme.no';
-const isPortal = siteId === PORTAL_SITE_ID || siteName === 'mycamino' || host === 'my.aidme.no' || host.endsWith('--mycamino.netlify.app') || host === 'mycamino.netlify.app';
+const isPortal = siteId === PORTAL_SITE_ID || siteId === PORTAL_DEMO_SITE_ID || siteName === 'mycamino' || siteName === 'mycamino-demo' || host === 'my.aidme.no' || host === 'demo.aidme.no' || host.endsWith('--mycamino.netlify.app') || host === 'mycamino.netlify.app' || host.endsWith('--mycamino-demo.netlify.app') || host === 'mycamino-demo.netlify.app';
 const matchCount = [isPublicDev, isPublicProd, isPortal].filter(Boolean).length;
 
 if (matchCount > 1) throw new Error(`Ambiguous Netlify target: siteId=${siteId} siteName=${siteName} host=${host}`);
