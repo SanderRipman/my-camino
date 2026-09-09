@@ -43,6 +43,7 @@ jobs:
             admin-invite-user
             admin-list-access
             admin-revoke-role
+            admin-update-role
             aggregate-analysis
             bootstrap-owner-once
             case-command
@@ -82,6 +83,8 @@ jobs:
         run: node --check portal/app.js
       - name: Verify clean bundle invariants
         run: node portal/smoke-test.mjs
+      - name: Verify admin multi-role/access management invariants
+        run: node portal/admin-access-management-smoke.mjs
       - name: Verify context drilldown invariants
         run: node portal/context-drilldown-smoke.mjs
       - name: Verify N2 intake triage invariants
