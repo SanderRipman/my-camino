@@ -85,6 +85,8 @@ jobs:
         run: node portal/smoke-test.mjs
       - name: Verify admin multi-role/access management invariants
         run: node portal/admin-access-management-smoke.mjs
+      - name: Verify participant phase filter/badge invariants
+        run: node portal/participant-phase-smoke.mjs
       - name: Verify context drilldown invariants
         run: node portal/context-drilldown-smoke.mjs
       - name: Verify N2 intake triage invariants
