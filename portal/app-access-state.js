@@ -37,5 +37,5 @@ const accessStateLoadPortal=loadPortal;loadPortal=async function(){accessStateSe
 if(!document.querySelector('script[data-uat-followup]')){const followup=document.createElement('script');followup.src='./uat-followup.js?v=20260909a';followup.dataset.uatFollowup='1';document.head.appendChild(followup)}
 if(!document.querySelector('script[data-uat-extras]')){const extras=document.createElement('script');extras.src='./uat-extras.js?v=20260909a';extras.dataset.uatExtras='1';document.head.appendChild(extras)}
 if(!document.querySelector('script[data-aidme-phase-workspace]')){const workspace=document.createElement('script');workspace.src='./app-phase-workspace.js?v=20260909c';workspace.dataset.aidmePhaseWorkspace='1';document.head.appendChild(workspace)}
-if(!document.querySelector('script[data-aidme-mobile-nav-scroll]')){const navScroll=document.createElement('script');navScroll.src='./app-mobile-nav-scroll.js?v=20260909a';navScroll.dataset.aidmeMobileNavScroll='1';document.head.appendChild(navScroll)}
+if(!document.querySelector('script[data-aidme-mobile-nav-scroll]')){const navScroll=document.createElement('script');navScroll.src='./app-mobile-nav-scroll.js?v=20260909b';navScroll.dataset.aidmeMobileNavScroll='1';document.head.appendChild(navScroll)}
 })();
