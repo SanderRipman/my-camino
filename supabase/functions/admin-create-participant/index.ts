@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
-function allowedOrigin(origin:string){return ['https://my.aidme.no','https://main--mycamino.netlify.app','http://localhost:8888','http://localhost:3000'].includes(origin)||/^https:\/\/deploy-preview-\d+--mycamino\.netlify\.app$/.test(origin)}
+function allowedOrigin(origin:string){return ['https://my.aidme.no','https://main--mycamino.netlify.app','https://demo.aidme.no','https://mycamino-demo.netlify.app','http://localhost:8888','http://localhost:3000'].includes(origin)||/^https:\/\/deploy-preview-\d+--mycamino\.netlify\.app$/.test(origin)||/^https:\/\/[a-z0-9-]+--mycamino-demo\.netlify\.app$/.test(origin)}
 function cors(req:Request){const o=req.headers.get('origin')??'';return {'Access-Control-Allow-Origin':allowedOrigin(o)?o:'https://my.aidme.no','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json','Vary':'Origin','Cache-Control':'no-store'}}
 function decodeClaims(token:string){const p=token.split('.')[1];if(!p)return{};const n=p.replace(/-/g,'+').replace(/_/g,'/');return JSON.parse(atob(n+'='.repeat((4-n.length%4)%4)))}
 function text(v:any,max:number){if(v==null)return null;const s=String(v).trim();return s?s.slice(0,max):null}
@@ -67,8 +67,6 @@ Deno.serve(async(req:Request)=>{
 
   if(pilotId){const {data:existingPilotLink,error:pilotLookupError}=await admin.from('pilot_participants').select('pilot_id,participant_id').eq('pilot_id',pilotId).eq('participant_id',participant.id).maybeSingle();if(pilotLookupError)throw pilotLookupError;if(!existingPilotLink){const {error:linkError}=await admin.from('pilot_participants').insert({pilot_id:pilotId,participant_id:participant.id,status:'ACTIVE'});if(linkError)throw linkError}}
 
-  // N3 must end in a real participant action, not merely an account link. Reuse any open
-  // participant_via_start task so repeated admin operations cannot create duplicate starts.
   let startTask:any=null
   const {data:existingStart,error:startLookupError}=await admin.from('tasks').select('id,status,due_at').eq('participant_id',participant.id).eq('assignee_user_id',targetUserId).eq('workflow_key','participant_via_start').in('status',['OPEN','IN_PROGRESS','WAITING']).order('created_at',{ascending:false}).limit(1).maybeSingle()
   if(startLookupError)throw startLookupError
