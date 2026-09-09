@@ -1,0 +1,22 @@
+import fs from 'node:fs';
+const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8');
+const html=read('./admin.html');
+const ui=read('./admin-access-management.js');
+const backend=fs.readFileSync(new URL('../supabase/functions/admin-update-role/index.ts',import.meta.url),'utf8');
+const errors=[];
+const must=(ok,msg)=>{if(!ok)errors.push(msg)};
+must(html.includes('admin-access-management.js?v=20260909a'),'admin access management script not wired');
+must(html.includes('flere eksplisitte roller'),'multi-role admin copy missing');
+must(ui.includes("client.functions.invoke('admin-update-role'"),'role update backend not wired');
+must(ui.includes("textContent='Legg til rolle'"),'add-role action missing');
+must(ui.includes("textContent='Endre'"),'edit-role action missing');
+must(ui.includes("textContent='Vis inaktive'"),'inactive-user toggle missing');
+must(ui.includes('Eksisterende roller beholdes')||ui.includes('Eksisterende roller beholdes'.toLowerCase())||ui.includes('Eksisterende roller'),'multi-role preservation guidance missing');
+must(!ui.includes('early-uat')&&!ui.includes('Early-UAT'),'promoted UI still carries UAT-only naming');
+must(backend.includes("aal!=='aal2'")&&backend.includes("role_code','system_admin'"),'role update lacks AAL2/system-admin gate');
+must(backend.includes("BREAK_GLASS_REQUIRES_EXPIRY"),'break-glass expiry invariant missing');
+must(backend.includes("SYSTEM_ADMIN_MUST_BE_UNSCOPED"),'system-admin scope invariant missing');
+must(backend.includes("action:'ROLE_UPDATED'")&&backend.includes('previous:')&&backend.includes('next:'),'role update audit trail missing');
+must(backend.includes("'https://my.aidme.no'")&&backend.includes("'https://demo.aidme.no'"),'shared runtime origins missing');
+if(errors.length){console.error(errors.map(x=>'FAIL: '+x).join('\n'));process.exit(1)}
+console.log('Admin multi-role/access management smoke: PASS');
