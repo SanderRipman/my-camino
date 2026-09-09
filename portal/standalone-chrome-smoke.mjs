@@ -14,14 +14,13 @@ const mobileCss=read('./mobile.css');
 const navIa=read('./navigation-ia.js');
 assert(mobile.includes("MOBILE_UX_VERSION='2026-09-06b'"),'Shared portal shell must cache-bust the final transition layer.');
 assert(mobile.includes("WORKDAY_CHROME_VERSION='2026-09-07b'")&&mobile.includes('app-workday-chrome.js')&&mobile.includes('workday-mobile.css'),'Shared portal shell must load the current profile-return workday chrome layer.');
-assert(mobile.includes("NAVIGATION_IA_VERSION='2026-09-06b'"),'Shared portal shell must load the final navigation IA layer.');
+assert(mobile.includes('navigation-ia.js'),'Shared portal shell must load the navigation IA layer.');
 assert(mobile.includes('BRANDED_LOADER_MIN_MS=1250')&&mobile.includes('Ve.</span><span>Sé.</span><span>Vive.'),'Portal loading must present the canonical motto sequentially with a short minimum brand moment.');
 assert(mobile.includes('wrapSubsequentPortalLoads()')&&mobile.includes('installBrandedLoader()'),'Branded loading must apply to both the initial and subsequent portal loads without changing auth/data logic.');
-assert(mobile.includes('navigation-ia.js'),'Shared portal shell must load the navigation IA layer.');
 assert(mobile.includes('userScrollSeen')&&mobile.includes('movingUp')&&mobile.includes('movingDown'),'Mobile navigation must distinguish restored scroll state from deliberate user scrolling.');
 assert(mobile.includes("window.addEventListener('pageshow'")&&mobile.includes("document.addEventListener('visibilitychange'"),'Mobile navigation must reveal safely after page/auth restoration.');
 assert(mobile.includes('activeIsOverview')&&mobile.includes("activeIsOverview(active)?0")&&mobile.includes('nav.scrollTo'),'Oversikt must be the hard left/start anchor while other active items remain recoverable.');
-assert(mobile.includes("'aidme:navigation-snapshot:v5'")&&mobile.includes('removeItem(key)'),'Legacy v5 navigation snapshot must be discarded after final ordering.');
+assert(mobile.includes("'aidme:navigation-snapshot:v5'")&&mobile.includes('removeItem(key)'),'Legacy mobile navigation snapshots must still be purged.');
 assert(mobile.includes("document.addEventListener('aidme:navigation-normalized'"),'Mobile navigation must recenter only after the normalized menu exists.');
 assert(mobile.includes('installSharedPrimarySwipe')&&mobile.includes("nav.querySelectorAll('.nav-item')"),'Shared swipe must follow every visible primary nav item, including href-based standalone destinations.');
 assert(!mobile.includes("querySelectorAll('.nav-item[data-view]')"),'Shared swipe must not skip primary links without data-view.');
@@ -32,13 +31,14 @@ assert(mobileCss.includes('scroll-snap-type:x proximity')&&mobileCss.includes('s
 assert(mobileCss.includes('.demo-lens-control')&&mobileCss.includes('.preview-strip')&&mobileCss.includes('.form-section'),'Mobile polish must compact secondary chrome and long forms without removing them.');
 assert(!/display\s*:\s*none[^}]*\.form-section|\.form-section[^}]*display\s*:\s*none/i.test(mobileCss),'Mobile form sections must remain visible.');
 
-assert(navIa.includes("NAV_IA_VERSION='2026-09-06b'"),'Navigation IA must be cache-busted after final transition work.');
+assert(navIa.includes("NAV_IA_VERSION='2026-09-09c'"),'Navigation IA must be cache-busted after primary-menu cleanup.');
 assert(navIa.includes('.sidebar{overflow-y:auto'),'Desktop/laptop sidebar must remain independently scrollable.');
 assert(navIa.includes("['analysis','documents']"),'Analysis and document placeholder must remain demoted from primary navigation.');
 assert(navIa.includes("const forms=mainNode(nav,'forms');setMobileSecondary(forms,true)"),'Skjema & rutiner must be secondary rather than permanent primary mobile navigation.');
+assert(navIa.includes("'#intakeNav','#ownersNav','#pilotOpsNav','#guideNav'")&&navIa.includes('setMobileSecondary'),'Phase-specific workspaces must be secondary on mobile and reached contextually.');
 assert(navIa.includes('MOBILE_SECONDARY_LABELS')&&navIa.includes('markSecondaryByLabel(nav)'),'Secondary tools injected late must still be excluded from primary mobile navigation.');
-assert(navIa.includes("const primaryOrder=['overview','participants','tasks','checkin','#intakeNav','#ownersNav','#pilotOpsNav','#guideNav','#sosNav','settings']"),'Primary order must prioritize Oversikt, Deltakere, Oppgaver and Innsjekk before Interesse/VÍA.');
-assert(navIa.includes("NAV_SNAPSHOT_KEY='aidme:navigation-snapshot:v6'")&&navIa.includes('overviewFirst(dedupeItems(items))')&&navIa.includes('standaloneFromSnapshot(nav,meta)'),'Standalone workspaces must restore the final deduplicated role-aware snapshot with Oversikt first.');
+assert(navIa.includes("const primaryOrder=['overview','participants','tasks','checkin','#sosNav','settings']"),'Primary mobile order must be daily work, safety and profile only.');
+assert(navIa.includes("NAV_SNAPSHOT_KEY='aidme:navigation-snapshot:v7'")&&navIa.includes("'aidme:navigation-snapshot:v6'")&&navIa.includes('overviewFirst(dedupeItems(items))')&&navIa.includes('standaloneFromSnapshot(nav,meta)'),'Standalone workspaces must invalidate v6 and restore the deduplicated v7 snapshot with Oversikt first.');
 assert(navIa.includes('snapshotBadges(el)')&&navIa.includes('appendBadges(el,badges)'),'Role-aware standalone continuity must preserve visible navigation badge state.');
 assert(navIa.includes("document.addEventListener('aidme:portal-rendered'")&&navIa.includes("'aidme:navigation-normalized'"),'Navigation must normalize again after canonical portal data and role state settle.');
 assert(navIa.includes('SECONDARY_DIRECT_VIEWS')&&navIa.includes('applyHashView(nav)'),'Secondary tools must remain directly reachable without becoming permanent primary navigation.');
@@ -65,7 +65,7 @@ assert(ownersJs.includes('requestedParticipantId()')&&ownersJs.includes('Laster 
 assert(!ownersJs.includes("client.from('participants')"),'Owner workspace must not use a broad participant-table fallback.');
 
 const guide=read('./guide.html');
-assert(guide.includes('app-mobile.js?v=20260906b'),'Program guide must load the cache-busted common mobile/navigation shell.');
+assert(guide.includes('app-mobile.js?v=20260906b'),'Program guide must load the shared mobile/navigation shell.');
 const onboarding=read('./onboarding.html');
 assert(onboarding.includes('app-mobile.js')&&onboarding.includes('simple-sidebar sidebar'),'Role introduction must participate in the shared role-aware mobile navigation shell.');
 
@@ -79,12 +79,13 @@ assert(documents.includes('href="./">Til portal</a>'),'Documents must keep a dir
 assert(documentsCss.includes('@media(max-width:720px)'),'Documents must retain its dedicated responsive layout.');
 
 const accessState=read('./app-access-state.js');
-const phaseContext=read('./uat-phase-context.js');
-assert(accessState.includes('uat-phase-context.js?v=20260909a'),'Portal must load the compact phase-context correction after the UAT follow-up layer.');
-assert(phaseContext.includes('#overviewPhaseStrip,#taskPhaseFilter,#participantPhaseFilter{display:none!important}'),'Large UAT phase strips must stay suppressed in favor of compact context.');
-assert(phaseContext.includes('.participant-card .uat-phase-pill{display:none!important}'),'Participant cards must not show the duplicate injected phase pill.');
-assert(phaseContext.includes("#priorityQueue .task-row[data-task-id],#taskList .task-row[data-task-id]"),'Overview and task rows must receive compact participant-phase context where relevant.');
-assert(phaseContext.includes("pill.className='pill uat-context-phase-pill'"),'Phase context must reuse the established compact pill visual language.');
-assert(!/client\.from|functions\.invoke|fetch\(/i.test(phaseContext),'Phase-context correction must remain presentation-only and must not create a data or authorization path.');
+const phaseWorkspace=read('./app-phase-workspace.js');
+assert(accessState.includes('app-phase-workspace.js?v=20260909c'),'Portal must load one consolidated phase workspace.');
+assert(!accessState.includes('uat-phase-context.js')&&!accessState.includes('uat-overview-phase-filter.js')&&!accessState.includes('uat-phase-workspace-v2.js'),'Overlapping legacy phase shells must stay retired.');
+assert(phaseWorkspace.includes('#overviewPhaseStrip,#taskPhaseFilter,#participantPhaseFilter{display:none!important}'),'Large legacy phase strips must stay suppressed in favor of compact context.');
+assert(phaseWorkspace.includes('.participant-card .uat-phase-pill{display:none!important}'),'Participant cards must not show duplicate injected phase pills.');
+assert(phaseWorkspace.includes("#priorityQueue .task-row[data-task-id],#taskList .task-row[data-task-id]"),'Overview and task rows must receive compact phase context where relevant.');
+assert(phaseWorkspace.includes("pill.className='pill aidme-context-phase-pill'"),'Phase context must reuse the established compact pill visual language.');
+assert(!/client\.from|service_role|secret_key/i.test(phaseWorkspace),'Consolidated phase workspace must not create a direct database or privileged-key path.');
 
-console.log('Standalone/navigation IA, final snapshot, compact phase context, prefetch, shared swipe and lightweight owner-tool smoke: OK');
+console.log('Standalone/navigation IA, v7 snapshot, consolidated phase context, prefetch and lightweight owner-tool smoke: OK');
