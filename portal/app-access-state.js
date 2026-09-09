@@ -85,5 +85,11 @@ if(!document.querySelector('script[data-aidme-mobile-nav-scroll]')){
   navScroll.dataset.aidmeMobileNavScroll='1';
   document.head.appendChild(navScroll);
 }
+if(!document.querySelector('script[data-aidme-participant-actions]')){
+  const actions=document.createElement('script');
+  actions.src='./app-participant-actions.js?v=20260909a';
+  actions.dataset.aidmeParticipantActions='1';
+  document.head.appendChild(actions);
+}
 
 })();
