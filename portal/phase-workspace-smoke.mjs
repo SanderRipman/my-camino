@@ -4,8 +4,8 @@ const ok=(x,m)=>{if(!x)throw new Error(`Phase workspace invariant failed: ${m}`)
 const ui=read('./uat-phase-workspace-v2.js');
 const access=read('./app-access-state.js');
 const edge=read('../supabase/functions/uat-continuity-command/index.ts');
-ok(access.includes('uat-phase-workspace-v2.js?v=20260909a'),'loader must cache-bust the role-aware workspace layer');
-ok(ui.includes("VERSION='2026-09-09a'")&&ui.includes("uat-continuity-command"),'workspace and continuity endpoint must be versioned/wired');
+ok(access.includes('uat-phase-workspace-v2.js?v=20260909b'),'loader must cache-bust the role-aware workspace layer');
+ok(ui.includes("VERSION='2026-09-09b'")&&ui.includes("uat-continuity-command"),'workspace and continuity endpoint must be versioned/wired');
 ok(ui.includes('[data-uat-phase-workspace-hidden="1"]{display:none!important}'),'phase filtering must hide cross-phase rows deterministically');
 ok(ui.includes('function clarification(t)')&&ui.includes("String(t?.status).toUpperCase()==='WAITING'")&&ui.includes("new_via_review"),'clarification must follow decision/gate semantics, including green new-VIA work');
 ok(!ui.includes("severity(t)==='YELLOW'"),'clarification must not collapse to yellow severity');
