@@ -79,5 +79,11 @@ if(!document.querySelector('script[data-aidme-phase-workspace]')){
   workspace.dataset.aidmePhaseWorkspace='1';
   document.head.appendChild(workspace);
 }
+if(!document.querySelector('script[data-aidme-mobile-nav-scroll]')){
+  const navScroll=document.createElement('script');
+  navScroll.src='./app-mobile-nav-scroll.js?v=20260909a';
+  navScroll.dataset.aidmeMobileNavScroll='1';
+  document.head.appendChild(navScroll);
+}
 
 })();
