@@ -5,7 +5,8 @@ const UAT_PHASE_CONTEXT_VERSION='2026-09-09a';
 let applying=false;
 
 function staffPortal(){
-  try{return !!document.querySelector('#mainNav')&&typeof isStaff==='function'&&isStaff()}catch{return false}}
+  try{return !!document.querySelector('#mainNav')&&typeof isStaff==='function'&&isStaff()}catch{return false}
+}
 function allParticipants(){try{return Array.isArray(participants)?participants:[]}catch{return[]}}
 function allTasks(){try{return Array.isArray(tasks)?tasks:[]}catch{return[]}}
 function phaseOfParticipant(p){
