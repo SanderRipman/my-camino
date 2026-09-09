@@ -73,4 +73,11 @@ loadPortal=async function(){
   return accessStateLoadPortal();
 };
 
+if(!document.querySelector('script[data-aidme-phase-workspace]')){
+  const workspace=document.createElement('script');
+  workspace.src='./app-phase-workspace.js?v=20260909c';
+  workspace.dataset.aidmePhaseWorkspace='1';
+  document.head.appendChild(workspace);
+}
+
 })();
