@@ -1,14 +1,15 @@
 (()=>{
 'use strict';
 
-const NAV_IA_VERSION='2026-09-06b';
-const NAV_SNAPSHOT_KEY='aidme:navigation-snapshot:v6';
+const NAV_IA_VERSION='2026-09-09c';
+const NAV_SNAPSHOT_KEY='aidme:navigation-snapshot:v7';
 const NAV_SNAPSHOT_MAX_AGE_MS=2*60*60*1000;
 const MOBILE_BREAKPOINT=780;
 const page=(location.pathname.split('/').filter(Boolean).pop()||'index.html').replace('.html','');
 const mobile=()=>window.innerWidth<=MOBILE_BREAKPOINT;
-const MOBILE_SECONDARY_LABELS=new Set(['Analyse','Dokumenter','Mine filer','Mine dokumenter','Skjema & rutiner','Varsler','Revisjon','Rolleintro','Rolleintroduksjon','Demo-reise','Demo-reise (LAB)','Administrasjon','Mini CRM']);
+const MOBILE_SECONDARY_LABELS=new Set(['Analyse','Dokumenter','Mine filer','Mine dokumenter','Skjema & rutiner','Varsler','Revisjon','Rolleintro','Rolleintroduksjon','Demo-reise','Demo-reise (LAB)','Administrasjon','Mini CRM','Interesse / VÍA','Ansvar / eiere','Operativ dag','Slik fungerer det']);
 
+function clearPriorSnapshots(){try{['aidme:navigation-snapshot:v6'].forEach(key=>sessionStorage.removeItem(key))}catch{}}
 function addStyles(){
   if(document.getElementById('aidme-navigation-ia-style'))return;
   const style=document.createElement('style');
@@ -111,7 +112,7 @@ function normalizeMain(){
   const forms=mainNode(nav,'forms');setMobileSecondary(forms,true);
   const demo=document.querySelector('#demoJourneyNav'),demoAllowed=!!demo&&!demo.classList.contains('hidden');
   ['#demoJourneyNav','#notificationsNav','#auditNav','#documentsCenterNav','#onboardingNav'].forEach(sel=>document.querySelector(sel)?.classList.add('nav-ia-demoted'));
-  ['#adminLink','#crmNav'].forEach(sel=>setMobileSecondary(document.querySelector(sel),true));
+  ['#adminLink','#crmNav','#intakeNav','#ownersNav','#pilotOpsNav','#guideNav'].forEach(sel=>setMobileSecondary(document.querySelector(sel),true));
 
   const oldDocuments=menu?.querySelector('[data-view-target="documents"]');oldDocuments?.classList.add('nav-ia-demoted');
   const secureDocuments=document.querySelector('#userDocumentsLink');if(secureDocuments){secureDocuments.textContent='Mine dokumenter';secureDocuments.classList.add('nav-ia-link')}else menuLink(menu,'userDocumentsIa','Mine dokumenter','./documents.html');
@@ -120,8 +121,8 @@ function normalizeMain(){
   const notifications=document.querySelector('#notificationsNav'),unread=badgeCount(notifications),notificationsMenu=document.querySelector('#userNotificationLink');if(notificationsMenu){notificationsMenu.textContent=unread?`Varsler (${unread})`:'Varsler';notificationsMenu.classList.add('nav-ia-link')}
   const guide=document.querySelector('#userGuideLink');if(guide)guide.classList.add('nav-ia-link');const sos=document.querySelector('#userSosLink');if(sos)sos.classList.add('nav-ia-link');
 
-  const primaryOrder=['overview','participants','tasks','checkin','#intakeNav','#ownersNav','#pilotOpsNav','#guideNav','#sosNav','settings'];
-  const secondaryOrder=['forms','#adminLink','#crmNav','analysis','documents','#demoJourneyNav','#notificationsNav','#auditNav','#documentsCenterNav','#onboardingNav'];
+  const primaryOrder=['overview','participants','tasks','checkin','#sosNav','settings'];
+  const secondaryOrder=['#intakeNav','#ownersNav','#pilotOpsNav','#guideNav','forms','#adminLink','#crmNav','analysis','documents','#demoJourneyNav','#notificationsNav','#auditNav','#documentsCenterNav','#onboardingNav'];
   primaryOrder.map(key=>mainNode(nav,key)).filter(Boolean).forEach(el=>nav.appendChild(el));
   secondaryOrder.map(key=>mainNode(nav,key)).filter(Boolean).forEach(el=>nav.appendChild(el));
   markSecondaryByLabel(nav);
@@ -131,7 +132,7 @@ function normalizeMain(){
 }
 function apply(){addStyles();const main=normalizeMain();if(!main)normalizeStandalone();normalizedEvent()}
 
-addStyles();
+clearPriorSnapshots();addStyles();
 if(document.querySelector('#mainNav'))[120,300,700,1400].forEach(delay=>window.setTimeout(apply,delay));else{apply();window.setTimeout(apply,120)}
 document.addEventListener('aidme:portal-rendered',()=>window.setTimeout(apply,0));
 window.addEventListener('pageshow',()=>window.setTimeout(apply,0));
