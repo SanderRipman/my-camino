@@ -17,15 +17,17 @@ must(!runner.includes('onAuthStateChange(()=>setTimeout(init,0))'),'form runner 
 must(!runner.includes("FORM_REINIT_EVENTS=new Set(['TOKEN_REFRESHED'"),'token refresh must not trigger full form reload');
 must(!runner.includes("FORM_REINIT_EVENTS=new Set(['INITIAL_SESSION'"),'initial session event must not duplicate explicit init');
 
-must(runnerHtml.includes('form-runner-task-fastpath.js?v=20260907c'),'targeted task form routes must load the current bounded bootstrap');
-must(taskFast.includes("client.functions.invoke('case-command'"),'staff targeted task bootstrap must use server-side participant context instead of broad participant reads');
-must(taskFast.includes("action:'LIST_CONTEXT'"),'staff targeted task bootstrap must resolve the exact requested participant context');
-must(taskFast.includes('const preflightGrants=gRes.data||[]')&&taskFast.includes('if(!preflightGrants.some(active))'),'targeted bootstrap must distinguish real participant sessions before invoking staff-only LIST_CONTEXT');
+must(runnerHtml.includes('form-runner-task-fastpath.js?v=20260907c'),'targeted form routes must load the current bounded bootstrap');
+must(taskFast.includes("client.functions.invoke('case-command'"),'staff targeted participant bootstrap must use server-side participant context instead of broad participant reads');
+must(taskFast.includes("action:'LIST_CONTEXT'"),'staff targeted participant bootstrap must resolve the exact requested participant context');
+must(taskFast.includes("requestedPilot=q.get('pilot')")&&taskFast.includes('if(!requestedParticipant&&requestedPilot)'),'pilot-level forms must have an exact targeted bootstrap and not depend on participant context');
+must(taskFast.includes('!pilots.some(p=>p.id===requestedPilot)'),'pilot-level targeted bootstrap must reject unknown/inaccessible pilot context');
+must(taskFast.includes('const preflightGrants=gRes.data||[]')&&taskFast.includes('if(!preflightGrants.some(active))'),'targeted bootstrap must distinguish real participant sessions before invoking staff-only context paths');
 must(taskFast.indexOf('if(!preflightGrants.some(active))')<taskFast.indexOf('const seq=++initSeq;initPromise=null'),'participant RLS bootstrap must remain alive; broad init may only be invalidated after staff scope is proven');
 must(taskFast.includes('if(!initPromise)await init()'),'participant route must fall back to the ordinary caller-RLS form bootstrap');
 must(taskFast.includes('function showSecurityStep()')&&taskFast.includes("link.href='./#security'")&&taskFast.includes("link.textContent='Bekreft Authenticator og fortsett'"),'AAL1 participant form must route to MFA security instead of looping back to the task');
 must(taskFast.indexOf("if(!aal2){showSecurityStep();return}")>=0,'AAL1 exact form route must use the dedicated security action, not generic return/failure behavior');
-must(taskFast.includes('FORM_TASK_BOOTSTRAP_TIMEOUT')&&taskFast.includes('showFailure'),'targeted task bootstrap must fail visibly instead of leaving a blank page');
+must(taskFast.includes('FORM_TASK_BOOTSTRAP_TIMEOUT')&&taskFast.includes('showFailure'),'targeted form bootstrap must fail visibly instead of leaving a blank page');
 
 for(const html of [runnerHtml,intake]){
   for(const label of ['Oversikt','Deltakere','Oppgaver','Innsjekk','Interesse / VÍA'])must(html.includes(`<b>${label}</b>`),`standalone first paint missing ${label}`);
@@ -42,4 +44,4 @@ must(mobile.includes("'aidme:navigation-snapshot:v5'"),'mobile shell must purge 
 must(mobile.includes('function prefetchVisibleStandalone()'),'visible standalone primary pages should be prefetched');
 must(mobile.includes("nav.querySelectorAll('a.nav-item[href]')"),'prefetch must follow visible standalone nav links');
 
-console.log('Form runner single-flight, participant-safe targeted bootstrap, MFA return and simplified mobile IA invariants: PASS');
+console.log('Form runner single-flight, participant/pilot targeted bootstrap and simplified mobile IA invariants: PASS');
