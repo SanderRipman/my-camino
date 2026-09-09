@@ -47,7 +47,9 @@ assert(css.includes('#view-overview #homeIntro')&&css.includes('white-space:nowr
 assert(!/display\s*:\s*none[^}]*\.task-list|\.task-list[^}]*display\s*:\s*none/i.test(css),'Workday polish must not hide operational task content.');
 
 assert(navScroll.includes("touch-action:pan-x!important"),'Clickable mobile nav items must explicitly preserve horizontal pan gestures.');
-assert(navScroll.includes("nav.addEventListener('touchstart'")&&navScroll.includes("nav.addEventListener('touchmove'")&&navScroll.includes("nav.addEventListener('touchend'"),'Top nav must distinguish horizontal drag from tap across clickable items.');
+assert(navScroll.includes("surface=nav?.closest('.sidebar')||nav"),'The entire mobile top-menu surface must participate in horizontal drag handling.');
+assert(navScroll.includes("surface.addEventListener('touchstart'")&&navScroll.includes("surface.addEventListener('touchmove'")&&navScroll.includes("surface.addEventListener('touchend'"),'Top-menu surface must distinguish horizontal drag from tap across clickable and quiet areas.');
+assert(navScroll.includes('insideNav:nav.contains(event.target)')&&navScroll.includes('nav.scrollLeft=start.left-dx'),'A drag beginning outside a clickable nav item must still move the horizontal menu.');
 assert(navScroll.includes('suppressClickUntil')&&navScroll.includes('stopImmediatePropagation'),'A completed horizontal drag must suppress the synthetic click instead of activating the touched menu item.');
 assert(!/preventDefault\(\).*touchmove|touchmove[\s\S]{0,200}preventDefault\(/.test(navScroll),'Top-nav drag fix must preserve native kinetic horizontal scrolling rather than manually blocking touchmove.');
 assert(!/supabase|client\.from|functions\.invoke|fetch\(|XMLHttpRequest|service_role/i.test(navScroll),'Top-nav swipe fix must remain presentation-only.');
