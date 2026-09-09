@@ -50,6 +50,7 @@ jobs:
             demo-create-interest
             form-command
             intake-command
+            manual-task-command
             onboarding-command
             participant-profile-command
             public-intake
@@ -87,6 +88,8 @@ jobs:
         run: node portal/admin-access-management-smoke.mjs
       - name: Verify participant phase filter/badge invariants
         run: node portal/participant-phase-smoke.mjs
+      - name: Verify participant More/manual-task invariants
+        run: node portal/participant-actions-smoke.mjs
       - name: Verify context drilldown invariants
         run: node portal/context-drilldown-smoke.mjs
       - name: Verify N2 intake triage invariants
