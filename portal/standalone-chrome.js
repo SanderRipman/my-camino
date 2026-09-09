@@ -1,8 +1,12 @@
 (()=>{
 'use strict';
 
-const CHROME_VERSION='2026-09-05b';
+const CHROME_VERSION='2026-09-09a';
 
+function loadUatFollowup(){
+  if(document.querySelector('script[data-uat-followup]'))return;
+  const script=document.createElement('script');script.src='./uat-followup.js?v=20260909a';script.defer=true;script.dataset.uatFollowup='1';document.head.appendChild(script);
+}
 function normalizeStandaloneNav(){
   const sidebar=document.querySelector('.sidebar');
   if(!sidebar||document.querySelector('#mainNav'))return;
@@ -20,5 +24,6 @@ function normalizeStandaloneNav(){
   sidebar.dataset.standaloneChrome=CHROME_VERSION;
 }
 
-normalizeStandaloneNav();
+normalizeStandaloneNav();loadUatFollowup();
+document.addEventListener('DOMContentLoaded',()=>{normalizeStandaloneNav();loadUatFollowup()},{once:true});
 })();
