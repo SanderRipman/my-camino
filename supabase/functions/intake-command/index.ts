@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
 function cors(req:Request){
- const o=req.headers.get('origin')??'',ok=o==='https://my.aidme.no'||o==='http://localhost:8888'||o==='http://localhost:3000'||/^https:\/\/(?:deploy-preview-\d+--|[a-z0-9-]+--)?mycamino\.netlify\.app$/.test(o)
+ const o=req.headers.get('origin')??'',ok=o==='https://my.aidme.no'||o==='https://demo.aidme.no'||o==='http://localhost:8888'||o==='http://localhost:3000'||/^https:\/\/(?:deploy-preview-\d+--|[a-z0-9-]+--)?mycamino(?:-demo)?\.netlify\.app$/.test(o)
  return{'Access-Control-Allow-Origin':ok?o:'https://my.aidme.no','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json','Cache-Control':'no-store','Vary':'Origin'}
 }
 function claims(t:string){const p=t.split('.')[1];if(!p)return{} as Record<string,unknown>;const n=p.replace(/-/g,'+').replace(/_/g,'/');return JSON.parse(atob(n+'='.repeat((4-n.length%4)%4))) as Record<string,unknown>}
@@ -53,8 +53,6 @@ Deno.serve(async(req:Request)=>{
 
   if(action==='CONFIRM_REFERRAL'){
    if(String(intake.interest_type||'').toUpperCase()!=='REFERRAL')return new Response(JSON.stringify({error:'NOT_A_REFERRAL'}),{status:409,headers})
-   // This is a staff attestation that the person wants direct contact, not the participant's formal programme consent.
-   // Accept the legacy consentConfirmed flag temporarily so an older portal client cannot break during rollout.
    const contactWillingnessConfirmed=body?.contactWillingnessConfirmed===true||body?.consentConfirmed===true
    if(!contactWillingnessConfirmed)return new Response(JSON.stringify({error:'PARTICIPANT_CONTACT_WILLINGNESS_REQUIRED'}),{status:400,headers})
    const participant=body?.participant||{},name=text(participant.name,120),email=text(participant.email,254).toLowerCase(),phone=text(participant.phone,40),preferred=String(participant.preferredContact||'EMAIL').toUpperCase()

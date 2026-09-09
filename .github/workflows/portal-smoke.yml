@@ -43,12 +43,14 @@ jobs:
             admin-invite-user
             admin-list-access
             admin-revoke-role
+            admin-update-role
             aggregate-analysis
             bootstrap-owner-once
             case-command
             demo-create-interest
             form-command
             intake-command
+            manual-task-command
             onboarding-command
             participant-profile-command
             public-intake
@@ -58,6 +60,7 @@ jobs:
             rls-preview-selftest
             sos-command
             task-command
+            uat-overview-command
             workflow-command
           )
           for slug in "${expected[@]}"; do

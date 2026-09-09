@@ -2,7 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 
 function cors(req: Request) {
   const origin = req.headers.get('origin') ?? ''
-  const allowed = origin === 'https://my.aidme.no' || origin === 'http://localhost:8888' || origin === 'http://localhost:3000' || /^https:\/\/(?:deploy-preview-\d+--|[a-z0-9-]+--)?mycamino\.netlify\.app$/.test(origin)
+  const allowed = origin === 'https://my.aidme.no' || origin === 'https://demo.aidme.no' || origin === 'http://localhost:8888' || origin === 'http://localhost:3000' || /^https:\/\/(?:deploy-preview-\d+--|[a-z0-9-]+--)?mycamino(?:-demo)?\.netlify\.app$/.test(origin)
   return {'Access-Control-Allow-Origin':allowed?origin:'https://my.aidme.no','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json','Cache-Control':'no-store','Vary':'Origin'}
 }
 function decodeClaims(token:string){const part=token.split('.')[1];if(!part)return{} as Record<string,unknown>;const normalized=part.replace(/-/g,'+').replace(/_/g,'/');const padded=normalized+'='.repeat((4-normalized.length%4)%4);return JSON.parse(atob(padded)) as Record<string,unknown>}
