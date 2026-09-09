@@ -61,7 +61,7 @@
 
         <article class="panel-card admin-card">
           <p class="eyebrow">2 · Arbeidsrolle</p><h2>Hva skal personen kunne gjøre?</h2>
-          <p>Velg rolle først. Beskrivelsen under viser hovedansvar og tydelig grense før du lagrer.</p>
+          <p>Én medarbeider kan ha flere eksplisitte roller. Tildel én rolle av gangen med riktig deltaker-/pilotscope; eksisterende roller beholdes.</p>
           <form id="grantForm" class="admin-form">
             <label><span>Bruker</span><select id="targetUserSelect" required><option value="">Velg invitert/eksisterende medarbeider</option></select></label>
             <label><span>Rolle</span><select id="roleCode" required>
@@ -79,8 +79,8 @@
       </div>
 
       <article class="panel-card access-list-card">
-        <div class="card-head"><div><p class="eyebrow">Aktive brukere</p><h2>Tilgang og ansvar</h2></div><button id="refreshAccess" class="ghost">Oppdater</button></div>
-        <p>Navn brukes for medarbeidere når det er relevant for tydelig ansvar. Deltakerens operative visning bruker kodenavn.</p>
+        <div class="card-head"><div><p class="eyebrow">Brukere</p><h2>Tilgang og ansvar</h2></div><button id="refreshAccess" class="ghost">Oppdater</button></div>
+        <p>Aktive vises som standard. Inaktive kan vises ved behov uten å slette historikk. Navn brukes for medarbeidere når det er relevant for tydelig ansvar; deltakerens operative visning bruker kodenavn.</p>
         <div id="accessList" class="access-list"><p>Laster…</p></div>
       </article>
 
@@ -88,6 +88,6 @@
     </section>
   </main>
 </div>
-<script src="./admin.js?v=20260822a"></script><script src="./app-mobile.js?v=20260906a"></script>
+<script src="./admin.js?v=20260822a"></script><script src="./admin-early-uat.js?v=20260909a"></script><script src="./app-mobile.js?v=20260906a"></script>
 </body>
 </html>
