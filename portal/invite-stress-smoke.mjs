@@ -16,9 +16,11 @@ must(welcomeJs.includes("account-setup-command"),'account setup function not wir
 must(welcomeJs.includes('mfa.enroll')&&welcomeJs.includes('mfa.challenge')&&welcomeJs.includes('mfa.verify'),'staff MFA onboarding incomplete');
 must(welcomeJs.includes('Sensitive helse-')===false,'sensitive health copy should remain HTML-only');
 must(css.includes('@media(max-width:760px)'),'mobile welcome layout missing');
-must(invite.includes("https://my.aidme.no/welcome.html"),'production invite redirect missing');
+must(invite.includes("PROD_INVITE_REDIRECT='https://my.aidme.no/welcome.html'"),'production invite redirect missing');
+must(invite.includes("origin==='https://demo.aidme.no'")&&invite.includes('`${origin}/portal/welcome.html`'),'canonical demo must use same-origin /portal/welcome.html');
+must(invite.includes("'https://demo.aidme.no'")&&invite.includes("'https://mycamino-demo.netlify.app'"),'demo UAT origins missing from invite allowlist');
 must(!invite.includes("inviteUserByEmail(email)\n"),'invite still relies on default Site URL');
-must(invite.includes('redirectTo:INVITE_REDIRECT'),'invite redirect option missing');
+must(invite.includes('inviteUserByEmail(email,{redirectTo})'),'invite redirect option missing');
 must(setup.includes("basic_profile_only:true"),'participant first-login scope not explicit');
 must(setup.includes("sensitiveSafetyDeferred:true"),'sensitive safety deferral missing');
 must(!setup.includes("claims(token).aal!=='aal2'"),'first-login profile unexpectedly requires AAL2');

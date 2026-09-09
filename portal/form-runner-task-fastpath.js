@@ -1,13 +1,13 @@
 (()=>{
 'use strict';
 
-const q=new URLSearchParams(location.search),requestedParticipant=q.get('participant'),requestedKey=q.get('key');
-if(!requestedParticipant||!requestedKey)return;
+const q=new URLSearchParams(location.search),requestedParticipant=q.get('participant'),requestedPilot=q.get('pilot'),requestedKey=q.get('key');
+if(!requestedKey||(!requestedParticipant&&!requestedPilot))return;
 
 const marker=document.createElement('section');
 marker.id='taskFastLoading';
 marker.className='panel-card';
-marker.textContent='Laster valgt deltaker og skjema…';
+marker.textContent=requestedParticipant?'Laster valgt deltaker og skjema…':'Laster valgt pilot og skjema…';
 const workspace=document.querySelector('.workspace');
 workspace?.insertBefore(marker,document.querySelector('#blocked'));
 
@@ -26,18 +26,12 @@ function showSecurityStep(){
   document.querySelector('#runner')?.classList.add('hidden');
   if(blocked)blocked.classList.remove('hidden');
   if(text)text.textContent='Versjonerte programskjema krever at denne innloggingen er bekreftet med Authenticator.';
-  // form-auth-return-capture has already stored the exact form/task target for this tab.
-  // Keep the action on the security route; do not rewrite it to the originating task,
-  // otherwise AAL1 participant flows loop task <-> locked form without ever reaching MFA.
   if(link){link.href='./#security';link.textContent='Bekreft Authenticator og fortsett'}
 }
 async function bounded(promise,ms=10000){let timer;try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('FORM_TASK_BOOTSTRAP_TIMEOUT')),ms)})])}finally{clearTimeout(timer)}}
 
 async function bootstrap(){
   try{
-    // First determine whether this is a staff task route. Participant routes must stay on
-    // the ordinary caller-RLS bootstrap; LIST_CONTEXT is intentionally a staff/capability path.
-    // Do not invalidate the broad init until we know the signed-in user actually has staff grants.
     const sessionRes=await bounded(client.auth.getSession(),8000);
     session=sessionRes?.data?.session||null;if(!session){location.replace('./');return}
     const aal=await bounded(client.auth.mfa.getAuthenticatorAssuranceLevel(),8000);
@@ -51,15 +45,31 @@ async function bootstrap(){
     const preflightGrants=gRes.data||[];
 
     if(!preflightGrants.some(active)){
-      // Real participant accounts are already constrained by RLS to their own participant,
-      // allowed form definitions/versions and own submissions. Let the standard bootstrap finish.
       marker?.classList.add('hidden');
       if(!initPromise)await init();
       return;
     }
 
-    // Staff task routes benefit from exact server-side context and must not wait on broad participant lists.
     const seq=++initSeq;initPromise=null;grants=preflightGrants;
+
+    if(!requestedParticipant&&requestedPilot){
+      const [dRes,vRes,pilotRes,ppRes]=await bounded(Promise.all([
+        client.from('form_definitions').select('id,key,title_no,scope').order('created_at'),
+        client.from('form_versions').select('id,form_definition_id,version,schema_json,published_at,retired_at').order('version',{ascending:false}),
+        client.from('pilots').select('id,organization_id,name,status,route_name,start_date,end_date').order('start_date',{ascending:false}),
+        client.from('pilot_participants').select('pilot_id,participant_id,status')
+      ]),12000);if(seq!==initSeq)return;
+      definitions=dRes.data||[];versions=vRes.data||[];pilots=pilotRes.data||[];pilotParticipants=ppRes.data||[];participants=[];
+      if(dRes.error||vRes.error||pilotRes.error||ppRes.error||!pilots.some(p=>p.id===requestedPilot)){
+        showFailure('Valgt pilotskjema eller pilotkontekst kunne ikke lastes. Ingen data er endret. Gå tilbake til portalen og prøv igjen.');return;
+      }
+      $('#runner').classList.remove('hidden');$('#blocked').classList.add('hidden');
+      fillParticipants();fillPilots();fillForms();if(!applyQuery()){marker?.classList.add('hidden');return}
+      await bounded(chooseForm(),12000);if(seq!==initSeq)return;
+      marker?.classList.add('hidden');
+      return;
+    }
+
     const [dRes,vRes,pilotRes,ppRes,ctxRes]=await bounded(Promise.all([
       client.from('form_definitions').select('id,key,title_no,scope').order('created_at'),
       client.from('form_versions').select('id,form_definition_id,version,schema_json,published_at,retired_at').order('version',{ascending:false}),
@@ -80,7 +90,7 @@ async function bootstrap(){
     syncPilotFromParticipant();await bounded(chooseForm(),12000);if(seq!==initSeq)return;
     marker?.classList.add('hidden');
   }catch(error){
-    showFailure('Skjemaet svarte ikke innen fristen. Ingen data er endret. Gå tilbake til oppgaven og prøv igjen.');
+    showFailure('Skjemaet svarte ikke innen fristen. Ingen data er endret. Gå tilbake til portalen og prøv igjen.');
   }
 }
 
