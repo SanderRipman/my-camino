@@ -17,4 +17,12 @@ const pilotEvaluationRenderAll=renderAll;
 renderAll=function(){pilotEvaluationRenderAll();setTimeout(renderPilotEvaluationEntry,0)};
 setTimeout(renderPilotEvaluationEntry,220);
 
+if(!document.querySelector('script[data-early-uat-polish]')){
+  const script=document.createElement('script');
+  script.src='./app-early-uat-polish.js?v=20260909a';
+  script.defer=true;
+  script.dataset.earlyUatPolish='1';
+  document.head.appendChild(script);
+}
+
 })();
