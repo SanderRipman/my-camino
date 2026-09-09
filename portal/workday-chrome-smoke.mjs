@@ -4,6 +4,7 @@ const read=(path)=>fs.readFileSync(new URL(path,import.meta.url),'utf8');
 const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
 const js=read('./app-workday-chrome.js');
 const css=read('./workday-mobile.css');
+const navScroll=read('./app-mobile-nav-scroll.js');
 
 assert(js.includes("WORKDAY_CHROME_VERSION='2026-09-07b'"),'Workday chrome must be versioned for cache busting.');
 assert(js.includes("/^Beta:/i")&&js.includes(".demo-note")&&js.includes("workday-dev-ui"),'Non-final beta/demo chrome must be removed or hidden from everyday work views.');
@@ -44,5 +45,11 @@ assert(css.includes('.overview-data-state')&&css.includes('.overview-no-data #ov
 assert(css.includes('#view-overview>.hero-panel.compact-hero h2')&&css.includes('display:none!important'),'Large repeated phase heading/badge must collapse in everyday mobile work.');
 assert(css.includes('#view-overview #homeIntro')&&css.includes('white-space:nowrap!important'),'Phase reminder must remain a compact one-line cue.');
 assert(!/display\s*:\s*none[^}]*\.task-list|\.task-list[^}]*display\s*:\s*none/i.test(css),'Workday polish must not hide operational task content.');
+
+assert(navScroll.includes("touch-action:pan-x!important"),'Clickable mobile nav items must explicitly preserve horizontal pan gestures.');
+assert(navScroll.includes("nav.addEventListener('touchstart'")&&navScroll.includes("nav.addEventListener('touchmove'")&&navScroll.includes("nav.addEventListener('touchend'"),'Top nav must distinguish horizontal drag from tap across clickable items.');
+assert(navScroll.includes('suppressClickUntil')&&navScroll.includes('stopImmediatePropagation'),'A completed horizontal drag must suppress the synthetic click instead of activating the touched menu item.');
+assert(!/preventDefault\(\).*touchmove|touchmove[\s\S]{0,200}preventDefault\(/.test(navScroll),'Top-nav drag fix must preserve native kinetic horizontal scrolling rather than manually blocking touchmove.');
+assert(!/supabase|client\.from|functions\.invoke|fetch\(|XMLHttpRequest|service_role/i.test(navScroll),'Top-nav swipe fix must remain presentation-only.');
 
 console.log('Mobile workday chrome safety/density invariants OK');
