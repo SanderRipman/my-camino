@@ -4,7 +4,7 @@ const read=(path)=>fs.readFileSync(new URL(path,import.meta.url),'utf8');
 const assert=(condition,message)=>{if(!condition)throw new Error(message)};
 
 const chrome=read('./standalone-chrome.js');
-assert(chrome.includes("CHROME_VERSION='2026-09-05b'"),'Standalone chrome must be versioned.');
+assert(chrome.includes("CHROME_VERSION='2026-09-09a'"),'Standalone chrome must be versioned.');
 assert(!chrome.includes('nav.replaceChildren('),'Standalone chrome must not collapse the role-aware menu before navigation IA restores it.');
 assert(chrome.includes("aria-current','page'"),'Standalone chrome must identify the current workspace accessibly.');
 assert(!/supabase|role_grants|capabilit/i.test(chrome),'Standalone chrome must remain presentation-only and must not recreate authorization logic.');
