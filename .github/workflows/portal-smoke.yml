@@ -60,6 +60,7 @@ jobs:
             rls-preview-selftest
             sos-command
             task-command
+            uat-continuity-command
             uat-overview-command
             workflow-command
           )
@@ -133,6 +134,8 @@ jobs:
         run: node portal/bridge-regression-smoke.mjs
       - name: Verify standalone workspace chrome invariants
         run: node portal/standalone-chrome-smoke.mjs
+      - name: Verify role-aware phase workspaces and aggregate continuity
+        run: node portal/phase-workspace-smoke.mjs
       - name: Verify required-field validation UX invariants
         run: node portal/form-validation-ux-smoke.mjs
       - name: Verify Norwegian form and stage runtime language invariants
