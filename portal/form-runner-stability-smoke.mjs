@@ -34,10 +34,12 @@ for(const html of [runnerHtml,intake]){
 must(runnerHtml.includes('form-runner.js?v=20260906c'),'form runner must keep stabilized base runtime');
 must(runnerHtml.includes('standalone-chrome.js?v=20260906b')&&intake.includes('standalone-chrome.js?v=20260906b'),'standalone chrome must be cache-busted');
 
-must(nav.includes("NAV_SNAPSHOT_KEY='aidme:navigation-snapshot:v6'"),'navigation snapshot must invalidate pre-final ordering');
-must(nav.includes("const primaryOrder=['overview','participants','tasks','checkin','#intakeNav'"),'final primary ordering must prioritize daily work before Interest/VÍA');
-must(mobile.includes("'aidme:navigation-snapshot:v5'"),'mobile shell must purge stale v5 navigation snapshots');
+must(nav.includes("NAV_SNAPSHOT_KEY='aidme:navigation-snapshot:v7'"),'navigation snapshot must invalidate the previous menu ordering');
+must(nav.includes("const primaryOrder=['overview','participants','tasks','checkin','#sosNav','settings']"),'final primary mobile ordering must prioritize daily work, safety and profile');
+must(nav.includes("'#intakeNav','#ownersNav','#pilotOpsNav','#guideNav'")&&nav.includes('setMobileSecondary'),'phase-specific workspaces must be contextual rather than permanent mobile primary tabs');
+must(nav.includes("'aidme:navigation-snapshot:v6'"),'navigation IA must purge stale v6 snapshots');
+must(mobile.includes("'aidme:navigation-snapshot:v5'"),'mobile shell must purge stale pre-v6 navigation snapshots');
 must(mobile.includes('function prefetchVisibleStandalone()'),'visible standalone primary pages should be prefetched');
 must(mobile.includes("nav.querySelectorAll('a.nav-item[href]')"),'prefetch must follow visible standalone nav links');
 
-console.log('Form runner single-flight, participant-safe targeted bootstrap and MFA return invariants: PASS');
+console.log('Form runner single-flight, participant-safe targeted bootstrap, MFA return and simplified mobile IA invariants: PASS');
