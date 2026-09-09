@@ -78,4 +78,13 @@ assert(documents.includes('class="doc-shell"'),'Documents must retain its intent
 assert(documents.includes('href="./">Til portal</a>'),'Documents must keep a direct return to the role-aware portal hub.');
 assert(documentsCss.includes('@media(max-width:720px)'),'Documents must retain its dedicated responsive layout.');
 
-console.log('Standalone/navigation IA, final snapshot, prefetch, shared swipe and lightweight owner-tool smoke: OK');
+const accessState=read('./app-access-state.js');
+const phaseContext=read('./uat-phase-context.js');
+assert(accessState.includes('uat-phase-context.js?v=20260909a'),'Portal must load the compact phase-context correction after the UAT follow-up layer.');
+assert(phaseContext.includes('#overviewPhaseStrip,#taskPhaseFilter,#participantPhaseFilter{display:none!important}'),'Large UAT phase strips must stay suppressed in favor of compact context.');
+assert(phaseContext.includes('.participant-card .uat-phase-pill{display:none!important}'),'Participant cards must not show the duplicate injected phase pill.');
+assert(phaseContext.includes("#priorityQueue .task-row[data-task-id],#taskList .task-row[data-task-id]"),'Overview and task rows must receive compact participant-phase context where relevant.');
+assert(phaseContext.includes("pill.className='pill uat-context-phase-pill'"),'Phase context must reuse the established compact pill visual language.');
+assert(!/client\.from|functions\.invoke|fetch\(/i.test(phaseContext),'Phase-context correction must remain presentation-only and must not create a data or authorization path.');
+
+console.log('Standalone/navigation IA, final snapshot, compact phase context, prefetch, shared swipe and lightweight owner-tool smoke: OK');
