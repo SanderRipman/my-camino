@@ -73,4 +73,8 @@ loadPortal=async function(){
   return accessStateLoadPortal();
 };
 
+if(!document.querySelector('script[data-uat-followup]')){
+  const followup=document.createElement('script');followup.src='./uat-followup.js?v=20260909a';followup.dataset.uatFollowup='1';document.head.appendChild(followup);
+}
+
 })();
