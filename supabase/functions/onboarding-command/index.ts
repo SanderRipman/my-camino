@@ -2,7 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 
 function cors(req:Request){
   const o=req.headers.get('origin')??''
-  const ok=o==='https://my.aidme.no'||o==='http://localhost:8888'||o==='http://localhost:3000'||/^https:\/\/(?:deploy-preview-\d+--|[a-z0-9-]+--)?mycamino\.netlify\.app$/.test(o)
+  const ok=o==='https://my.aidme.no'||o==='https://demo.aidme.no'||o==='http://localhost:8888'||o==='http://localhost:3000'||/^https:\/\/(?:deploy-preview-\d+--|[a-z0-9-]+--)?mycamino\.netlify\.app$/.test(o)
   return{
     'Access-Control-Allow-Origin':ok?o:'https://my.aidme.no',
     'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type',
