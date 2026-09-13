@@ -12,6 +12,7 @@ const profileBadge=read('./app-profile-unread-badge.js');
 const handoff=read('./app-ser-vida-handoff.js');
 const inbox=read('./inbox.html');
 const inboxJs=read('./inbox.js');
+const documents=read('./documents.html');
 
 assert(runner.includes('TARGETED_CONTEXT')&&runner.includes('if(!TARGETED_CONTEXT)init()'),'Targeted participant/pilot form route must not race the generic form init.');
 assert(runner.includes("if(TARGETED_CONTEXT)return")&&fast.includes('bootstrap();'),'Targeted fastpath must be the only auth/bootstrap owner for targeted routes.');
@@ -40,7 +41,7 @@ assert(handoff.includes('participant-inline-toggle-hint')&&handoff.includes("'Me
 assert(handoff.includes('border-top:0!important')&&handoff.includes('border-bottom-color:transparent!important'),'Expanded participant detail must visually fuse with the selected card.');
 
 assert(inbox.includes('lagres varig under <strong>Mine dokumenter</strong>')&&inbox.includes('Nylig lastet opp'),'Inbox must explain durable file location and show recent uploads.');
-assert(inbox.includes('./documents.html#dine-filer')&&inboxJs.includes('Mine dokumenter'),'Inbox must provide a direct path to Dine filer in the durable document archive.');
+assert(inbox.includes('./documents.html#myFiles')&&documents.includes('id="myFiles"')&&documents.includes('<h2>Dine filer</h2>')&&inboxJs.includes('Mine dokumenter'),'Inbox must provide a direct path to Dine filer in the durable document archive.');
 assert(inboxJs.includes("category:'OTHER'")&&inboxJs.includes("sensitivity:'NORMAL'"),'Inbox metadata must keep canonical live schema values.');
 assert(inbox.includes('scope, utløp/tilbakekalling og revisjonslogg'),'Future document sharing must remain an explicit controlled action, not implicit upload sharing.');
 
