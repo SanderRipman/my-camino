@@ -40,7 +40,7 @@ function install(){
     if(!drag.horizontal)return;
     if(event.cancelable)event.preventDefault();
     const now=performance.now(),dt=Math.max(1,now-drag.lastT);drag.velocity=(event.clientX-drag.lastX)/dt;drag.lastX=event.clientX;drag.lastT=now;
-    drag.moved=drag.moved||Math.abs(dx)>=8;
+    drag.moved=Math.abs(dx)>=8;
     nav.scrollLeft=drag.left-dx;
   };
   const end=(event)=>{
@@ -61,7 +61,11 @@ function install(){
   surface.addEventListener('pointercancel',reset,{capture:true});
   surface.addEventListener('click',event=>{if(performance.now()>suppressClickUntil)return;event.preventDefault();event.stopPropagation();event.stopImmediatePropagation()},{capture:true});
 }
-install();
+function loadProfileUnreadBadge(){
+  if(document.querySelector('script[data-aidme-profile-unread-badge]'))return;
+  const script=document.createElement('script');script.src='./app-profile-unread-badge.js?v=20260913a';script.dataset.aidmeProfileUnreadBadge='1';document.head.appendChild(script);
+}
+install();loadProfileUnreadBadge();
 document.addEventListener('aidme:navigation-normalized',()=>setTimeout(install,0));
 window.addEventListener('pageshow',()=>setTimeout(install,30));
 })();
