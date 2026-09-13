@@ -1,10 +1,14 @@
 import fs from 'node:fs';
 const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8');
 const actions=read('./app-participant-actions.js');
+const lifecycle=read('./app-participant-lifecycle.js');
 const access=read('./app-access-state.js');
 const backend=fs.readFileSync(new URL('../supabase/functions/manual-task-command/index.ts',import.meta.url),'utf8');
+const lifecycleBackend=fs.readFileSync(new URL('../supabase/functions/participant-lifecycle-command/index.ts',import.meta.url),'utf8');
+const migration=fs.readFileSync(new URL('../supabase/migrations/20260913201718_participant_lifecycle_capability_v1.sql',import.meta.url),'utf8');
 const errors=[];const must=(ok,msg)=>{if(!ok)errors.push(msg)};
 must(access.includes("app-participant-actions.js?v=20260909a"),'participant actions are not loaded from canonical shell');
+must(access.includes("app-participant-lifecycle.js?v=20260913a"),'participant lifecycle is not loaded from canonical shell');
 must(actions.includes("textContent='Mer'")||actions.includes("class=\"ghost compact\">Mer"),'single More entry missing');
 must(actions.includes('Ansvar / eiere')&&actions.includes('Opprett manuell oppgave'),'expected scoped actions missing');
 must(actions.includes('applicableRoles')&&actions.includes('g.participant_id')&&actions.includes('g.pilot_id'),'UI actions must respect active participant/pilot scope');
@@ -14,11 +18,25 @@ must(actions.includes("assurance?.currentLevel!=='aal2'"),'manual task UI must r
 must(actions.includes("client.functions.invoke('manual-task-command'"),'manual task must use server command');
 must(actions.includes('«Mer» gir ingen ny tilgang'),'UI must explain More is not an access grant');
 must(!actions.includes('Early-UAT')&&!actions.includes('uat-'),'promoted participant actions still carry UAT naming');
-must(backend.includes("claims(token) as any).aal!=='aal2'"),'backend must enforce AAL2');
-must(backend.includes("role_permissions")&&backend.includes("manage_tasks")&&backend.includes("manage_ser_tasks"),'backend must enforce canonical task capabilities');
-must(backend.includes("participant_id")&&backend.includes("pilot_id")&&backend.includes('active(g,participantId,pilotId)'),'backend must enforce participant/pilot grant scope');
+must(backend.includes("claims(token) as any).aal!=='aal2'"),'manual-task backend must enforce AAL2');
+must(backend.includes("role_permissions")&&backend.includes("manage_tasks")&&backend.includes("manage_ser_tasks"),'manual-task backend must enforce canonical task capabilities');
+must(backend.includes("participant_id")&&backend.includes("pilot_id")&&backend.includes('active(g,participantId,pilotId)'),'manual-task backend must enforce participant/pilot grant scope');
 must(backend.includes("assignee_user_id:u.user.id")&&backend.includes("source_type:'manual_staff_task'"),'manual task must be self-assigned and explicitly sourced');
 must(backend.includes("MANUAL_TASK_CREATED")&&backend.includes('audit_events')&&backend.includes('workflow_events'),'manual task must be auditable');
 must(backend.includes("'https://my.aidme.no'")&&backend.includes("'https://demo.aidme.no'"),'shared runtime origins missing');
+
+must(lifecycle.includes("String(g.role_code)==='program_lead'")&&!/canLifecycle[\s\S]{0,350}system_admin/.test(lifecycle),'lifecycle UI must initially be Programleder-only, not implicit system_admin');
+must(lifecycle.includes("assurance?.currentLevel!=='aal2'"),'lifecycle UI must require AAL2');
+must(lifecycle.includes("client.functions.invoke('participant-lifecycle-command'"),'lifecycle UI must use server command');
+must(lifecycle.includes('Arkivering sletter ingenting')&&lifecycle.includes('Ingen sletting'),'lifecycle UI must explicitly preserve history/no-delete semantics');
+for(const field of ['reason','contactStatus','nextViaAssessment'])must(lifecycle.includes(field),`lifecycle UI missing ${field}`);
+must(lifecycleBackend.includes(".eq('capability','manage_participant_lifecycle')"),'lifecycle backend must require dedicated capability');
+must(lifecycleBackend.includes("claims(token) as any).aal!=='aal2'"),'lifecycle backend must require AAL2');
+must(lifecycleBackend.includes(".in('status',['OPEN','IN_PROGRESS','WAITING'])")&&lifecycleBackend.includes(".is('closed_at',null)")&&lifecycleBackend.includes(".neq('status','RESOLVED')"),'archive must block active tasks/open incidents/open SOS');
+must(lifecycleBackend.includes("update({active:targetActive")&&lifecycleBackend.includes(".eq('active',!targetActive)"),'archive/restore must be reversible and stale-state guarded');
+must(lifecycleBackend.includes("PARTICIPANT_ARCHIVED")&&lifecycleBackend.includes("PARTICIPANT_RESTORED")&&lifecycleBackend.includes('audit_events')&&lifecycleBackend.includes('workflow_events'),'lifecycle changes must be audited in both histories');
+must(lifecycleBackend.includes('contact_status')&&lifecycleBackend.includes('next_via_assessment')&&lifecycleBackend.includes('reason'),'lifecycle audit must capture mandatory decision context');
+must(!/delete\(|\.delete\(|delete from/i.test(lifecycleBackend),'lifecycle command must never delete participant data');
+must(migration.includes("'program_lead', 'manage_participant_lifecycle'")&&migration.includes('on conflict'),'migration must grant only explicit Programleder capability idempotently');
 if(errors.length){console.error(errors.map(x=>'FAIL: '+x).join('\n'));process.exit(1)}
-console.log('Participant More/manual-task safety smoke: PASS');
+console.log('Participant More/manual-task/lifecycle safety smoke: PASS');
