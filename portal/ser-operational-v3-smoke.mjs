@@ -5,13 +5,16 @@ const js=fs.readFileSync(new URL('./form-ser-operational.js',import.meta.url),'u
 const css=fs.readFileSync(new URL('./form-runner.css',import.meta.url),'utf8');
 const client=fs.readFileSync(new URL('./form-command-client.js',import.meta.url),'utf8');
 const pilotOps=fs.readFileSync(new URL('./pilot-ops.js',import.meta.url),'utf8');
+const edge=fs.readFileSync(new URL('../supabase/functions/ser-operational-staff-command/index.ts',import.meta.url),'utf8');
 const migration=fs.readFileSync(new URL('../supabase/migrations/20260903183500_fix_pilot_rls_and_ser_daily_v3_operational_assignments.sql',import.meta.url),'utf8');
 
 function expect(label,condition){if(!condition){console.error(`FAIL ${label}`);process.exitCode=1}else console.log(`PASS ${label}`)}
 
 expect('runner loads current SER operational extension',html.includes('form-ser-operational.js?v=20260904a'));
 expect('runner cache-busts SER form styles',html.includes('form-runner.css?v=20260903c'));
-expect('staff selector uses scoped RPC',js.includes("client.rpc('eligible_ser_operational_staff'")&&js.includes("f.type==='staff_select'"));
+expect('staff selector uses AAL2 Edge directory',js.includes("client.functions.invoke('ser-operational-staff-command'")&&js.includes('data?.staff')&&js.includes("f.type==='staff_select'"));
+expect('SER staff Edge verifies user and AAL2',edge.includes('auth.getUser(token)')&&edge.includes(".aal!=='aal2'")&&edge.includes("error:'MFA_REQUIRED'"));
+expect('SER staff Edge preserves requester scope and candidate eligibility',edge.includes("REQUEST_CAPS=['view_ser','view_operational_min','edit_ser']")&&edge.includes('!g.participant_id')&&edge.includes("caps?.has('respond_sos')")&&edge.includes('OPERATIONAL_CAPS.some'));
 expect('staff selector presents name and job title',js.includes("person.full_name")&&js.includes("person.job_title"));
 expect('follow-up is explicit yes/no radio',js.includes("f.type==='yes_no'")&&js.includes('value="NO"')&&js.includes('value="YES"'));
 expect('follow-up control is compact and styled',css.includes('.yes-no-field{border:0')&&css.includes('.yes-no-options')&&css.includes(':has(input:checked)'));
