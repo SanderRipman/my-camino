@@ -36,6 +36,26 @@ function installAuthenticatorHelp(){
   primary.appendChild(help);
 }
 
+function stabilizeAuthenticatorOrder(){
+  const security=document.querySelector('#view-security');
+  if(!security)return;
+  const head=security.querySelector('.section-head');
+  const controls=head?.nextElementSibling;
+  const enroll=security.querySelector('#mfaEnrollPanel');
+  const challenge=security.querySelector('#mfaChallengePanel');
+  if(!head||!controls||!enroll||!challenge)return;
+  if(challenge.previousElementSibling!==controls)controls.insertAdjacentElement('afterend',challenge);
+  if(enroll.previousElementSibling!==challenge)challenge.insertAdjacentElement('afterend',enroll);
+  if(!document.querySelector('#aidme-mfa-order-style')){
+    const style=document.createElement('style');style.id='aidme-mfa-order-style';style.textContent=`
+      #view-security #mfaChallengePanel,#view-security #mfaEnrollPanel{scroll-margin-top:92px}
+      #view-security .mfa-panel:not(.hidden){animation:aidmeMfaReveal .16s ease-out both}
+      @keyframes aidmeMfaReveal{from{opacity:.72;transform:translateY(5px)}to{opacity:1;transform:none}}
+      @media(prefers-reduced-motion:reduce){#view-security .mfa-panel:not(.hidden){animation:none!important}}
+    `;document.head.appendChild(style);
+  }
+}
+
 const brandedStartMfaEnrollment=async function(){
   $('#mfaEnrollMessage').textContent='Oppretter sikker AidMe-faktor…';
   const {data,error}=await client.auth.mfa.enroll({
@@ -51,6 +71,9 @@ const brandedStartMfaEnrollment=async function(){
   $('#mfaQr').src=data.totp.qr_code;
   $('#mfaSecret').value=data.totp.secret||'';
   $('#mfaEnrollPanel').classList.remove('hidden');
+  stabilizeAuthenticatorOrder();
+  $('#mfaEnrollCode')?.focus({preventScroll:true});
+  $('#mfaEnrollPanel')?.scrollIntoView({behavior:'smooth',block:'nearest'});
   $('#mfaEnrollMessage').textContent=`AidMe · ${mfaEnrollmentIdentity()}. Skann QR-koden eller bruk manuell nøkkel, og bekreft med seks sifre.`;
 };
 
@@ -67,6 +90,8 @@ function bindBrandedMfaStart(){
   replacement.addEventListener('click',brandedStartMfaEnrollment);
 }
 bindBrandedMfaStart();
+stabilizeAuthenticatorOrder();
 installAuthenticatorHelp();
 
+document.addEventListener('aidme:portal-rendered',()=>setTimeout(stabilizeAuthenticatorOrder,0));
 })();
