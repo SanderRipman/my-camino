@@ -1,17 +1,21 @@
 (()=>{
 'use strict';
 
-const MOBILE_NAV_SCROLL_VERSION='2026-09-09b';
+const MOBILE_NAV_SCROLL_VERSION='2026-09-13c';
 const MOBILE_BREAKPOINT=780;
+const AXIS_RATIO=1.05;
+const LOCK_AT=8;
+const MOVE_AT=10;
 
 function ensureStyles(){
   if(document.querySelector('#aidme-mobile-nav-scroll-style'))return;
   const style=document.createElement('style');style.id='aidme-mobile-nav-scroll-style';
   style.textContent=`
     @media(max-width:${MOBILE_BREAKPOINT}px){
-      .sidebar{touch-action:pan-x pan-y!important;overscroll-behavior-x:contain!important}
-      .sidebar nav{touch-action:pan-x!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-x:contain!important}
-      .sidebar nav .nav-item{touch-action:pan-x!important;-webkit-user-select:none;user-select:none}
+      .sidebar,.sidebar nav,.sidebar nav .nav-item{touch-action:pan-y!important}
+      .sidebar{overscroll-behavior-x:contain!important}
+      .sidebar nav{-webkit-overflow-scrolling:touch!important;overscroll-behavior-x:contain!important}
+      .sidebar nav .nav-item{-webkit-user-select:none;user-select:none}
     }
   `;
   document.head.appendChild(style);
@@ -27,22 +31,23 @@ function install(){
     reset();
     if(window.innerWidth>MOBILE_BREAKPOINT||event.touches.length!==1)return;
     const t=event.touches[0];
-    start={x:t.clientX,y:t.clientY,left:nav.scrollLeft,moved:false,insideNav:nav.contains(event.target)};
+    start={x:t.clientX,y:t.clientY,left:nav.scrollLeft,horizontal:false,moved:false};
   },{passive:true,capture:true});
   surface.addEventListener('touchmove',event=>{
     if(!start||event.touches.length!==1)return;
     const t=event.touches[0],dx=t.clientX-start.x,dy=t.clientY-start.y;
-    if(Math.abs(dx)>=8&&Math.abs(dx)>Math.abs(dy)*1.05)start.moved=true;
-    // Native kinetic scrolling already handles gestures that start on the nav itself.
-    // When the same horizontal gesture starts in an otherwise quiet part of the top-menu
-    // surface, mirror the movement into the nav scroll position so the whole bar feels draggable.
-    if(start.moved&&!start.insideNav)nav.scrollLeft=start.left-dx;
-  },{passive:true,capture:true});
+    if(!start.horizontal&&Math.abs(dx)>=LOCK_AT&&Math.abs(dx)>Math.abs(dy)*AXIS_RATIO)start.horizontal=true;
+    if(!start.horizontal)return;
+    if(event.cancelable)event.preventDefault();
+    start.moved=Math.abs(dx)>=MOVE_AT;
+    nav.scrollLeft=start.left-dx;
+  },{passive:false,capture:true});
   surface.addEventListener('touchend',event=>{
     if(!start||event.changedTouches.length!==1){reset();return}
-    const t=event.changedTouches[0],dx=t.clientX-start.x,dy=t.clientY-start.y,moved=start.moved&&Math.abs(dx)>=10&&Math.abs(dx)>Math.abs(dy)*1.05;
+    const t=event.changedTouches[0],dx=t.clientX-start.x,dy=t.clientY-start.y;
+    const moved=start.horizontal&&start.moved&&Math.abs(dx)>Math.abs(dy)*AXIS_RATIO;
     reset();
-    if(moved)suppressClickUntil=performance.now()+450;
+    if(moved)suppressClickUntil=performance.now()+500;
   },{passive:true,capture:true});
   surface.addEventListener('touchcancel',reset,{passive:true,capture:true});
   surface.addEventListener('click',event=>{
