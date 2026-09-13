@@ -136,6 +136,8 @@ jobs:
         run: node portal/standalone-chrome-smoke.mjs
       - name: Verify role-aware phase workspaces and aggregate continuity
         run: node portal/phase-workspace-smoke.mjs
+      - name: Verify 2026-09-13 Early-UAT polish invariants
+        run: node portal/early-uat-polish-20260913-smoke.mjs
       - name: Verify required-field validation UX invariants
         run: node portal/form-validation-ux-smoke.mjs
       - name: Verify Norwegian form and stage runtime language invariants

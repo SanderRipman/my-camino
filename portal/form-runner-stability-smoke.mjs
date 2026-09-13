@@ -16,8 +16,11 @@ must(runner.includes('if(seq!==initSeq)return'),'form runner must reject stale a
 must(!runner.includes('onAuthStateChange(()=>setTimeout(init,0))'),'form runner must not reinitialize for every auth event');
 must(!runner.includes("FORM_REINIT_EVENTS=new Set(['TOKEN_REFRESHED'"),'token refresh must not trigger full form reload');
 must(!runner.includes("FORM_REINIT_EVENTS=new Set(['INITIAL_SESSION'"),'initial session event must not duplicate explicit init');
+must(runner.includes('const TARGETED_CONTEXT=')&&runner.includes('if(!TARGETED_CONTEXT)init()'),'exact participant/pilot routes must not race the generic bootstrap');
+must(runner.includes('if(TARGETED_CONTEXT)return'),'auth reinit must leave targeted routes under one bootstrap owner');
 
-must(runnerHtml.includes('form-runner-task-fastpath.js?v=20260907c'),'targeted form routes must load the current bounded bootstrap');
+must(runnerHtml.includes('form-runner-task-fastpath.js?v=20260913a'),'targeted form routes must load the current bounded bootstrap');
+must(runnerHtml.includes('form-runner.js?v=20260913a'),'targeted race fix must be cache-busted in the base runtime');
 must(taskFast.includes("client.functions.invoke('case-command'"),'staff targeted participant bootstrap must use server-side participant context instead of broad participant reads');
 must(taskFast.includes("action:'LIST_CONTEXT'"),'staff targeted participant bootstrap must resolve the exact requested participant context');
 must(taskFast.includes("requestedPilot=q.get('pilot')")&&taskFast.includes('if(!requestedParticipant&&requestedPilot)'),'pilot-level forms must have an exact targeted bootstrap and not depend on participant context');
@@ -33,8 +36,8 @@ for(const html of [runnerHtml,intake]){
   for(const label of ['Oversikt','Deltakere','Oppgaver','Innsjekk','Interesse / VÍA'])must(html.includes(`<b>${label}</b>`),`standalone first paint missing ${label}`);
   must(html.includes('app-mobile.js?v=20260906b'),'standalone must cache-bust current mobile shell');
 }
-must(runnerHtml.includes('form-runner.js?v=20260906c'),'form runner must keep stabilized base runtime');
-must(runnerHtml.includes('standalone-chrome.js?v=20260906b')&&intake.includes('standalone-chrome.js?v=20260906b'),'standalone chrome must be cache-busted');
+must(runnerHtml.includes('standalone-chrome.js?v=20260913a'),'targeted form runner must cache-bust the updated standalone shell load');
+must(intake.includes('standalone-chrome.js?v=20260906b'),'unchanged intake standalone chrome reference must remain explicit');
 
 must(nav.includes("NAV_SNAPSHOT_KEY='aidme:navigation-snapshot:v7'"),'navigation snapshot must invalidate the previous menu ordering');
 must(nav.includes("const primaryOrder=['overview','participants','tasks','checkin','#sosNav','settings']"),'final primary mobile ordering must prioritize daily work, safety and profile');
@@ -44,4 +47,4 @@ must(mobile.includes("'aidme:navigation-snapshot:v5'"),'mobile shell must purge 
 must(mobile.includes('function prefetchVisibleStandalone()'),'visible standalone primary pages should be prefetched');
 must(mobile.includes("nav.querySelectorAll('a.nav-item[href]')"),'prefetch must follow visible standalone nav links');
 
-console.log('Form runner single-flight, participant/pilot targeted bootstrap and simplified mobile IA invariants: PASS');
+console.log('Form runner single-flight, sole-owner participant/pilot targeted bootstrap and simplified mobile IA invariants: PASS');

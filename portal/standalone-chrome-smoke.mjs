@@ -80,12 +80,13 @@ assert(documentsCss.includes('@media(max-width:720px)'),'Documents must retain i
 
 const accessState=read('./app-access-state.js');
 const phaseWorkspace=read('./app-phase-workspace.js');
-assert(accessState.includes('app-phase-workspace.js?v=20260909c'),'Portal must load one consolidated phase workspace.');
+assert(accessState.includes('app-phase-workspace.js?v=20260913a'),'Portal must load one current consolidated phase workspace.');
 assert(!accessState.includes('uat-phase-context.js')&&!accessState.includes('uat-overview-phase-filter.js')&&!accessState.includes('uat-phase-workspace-v2.js'),'Overlapping legacy phase shells must stay retired.');
 assert(phaseWorkspace.includes('#overviewPhaseStrip,#taskPhaseFilter,#participantPhaseFilter{display:none!important}'),'Large legacy phase strips must stay suppressed in favor of compact context.');
 assert(phaseWorkspace.includes('.participant-card .uat-phase-pill{display:none!important}'),'Participant cards must not show duplicate injected phase pills.');
 assert(phaseWorkspace.includes("#priorityQueue .task-row[data-task-id],#taskList .task-row[data-task-id]"),'Overview and task rows must receive compact phase context where relevant.');
-assert(phaseWorkspace.includes("pill.className='pill aidme-context-phase-pill'"),'Phase context must reuse the established compact pill visual language.');
-assert(!/client\.from|service_role|secret_key/i.test(phaseWorkspace),'Consolidated phase workspace must not create a direct database or privileged-key path.');
+assert(phaseWorkspace.includes('aidme-context-phase-pill phase-')&&phaseWorkspace.includes('phaseClass(ph)'),'Phase context must reuse the established phase-colored compact pill visual language.');
+assert(phaseWorkspace.includes('data-aidme-pilot-focus')&&phaseWorkspace.includes('data-aidme-archived'),'Consolidated workspace must provide pilot/group focus and explicit archived-participant visibility control without changing access.');
+assert(!/service_role|secret_key/i.test(phaseWorkspace),'Consolidated phase workspace must not embed privileged keys.');
 
-console.log('Standalone/navigation IA, v7 snapshot, consolidated phase context, prefetch and lightweight owner-tool smoke: OK');
+console.log('Standalone/navigation IA, v7 snapshot, consolidated phase/pilot/archive context, prefetch and lightweight owner-tool smoke: OK');
