@@ -46,12 +46,12 @@ assert(css.includes('#view-overview>.hero-panel.compact-hero h2')&&css.includes(
 assert(css.includes('#view-overview #homeIntro')&&css.includes('white-space:nowrap!important'),'Phase reminder must remain a compact one-line cue.');
 assert(!/display\s*:\s*none[^}]*\.task-list|\.task-list[^}]*display\s*:\s*none/i.test(css),'Workday polish must not hide operational task content.');
 
-assert(navScroll.includes("MOBILE_NAV_SCROLL_VERSION='2026-09-13a'"),'Mobile top-nav drag helper must be the current deterministic version.');
-assert(navScroll.includes('touch-action:pan-y!important'),'Clickable mobile nav items must preserve native vertical page scrolling while horizontal drag is handled explicitly.');
-assert(navScroll.includes("surface=nav?.closest('.sidebar')||nav"),'The entire mobile top-menu surface must participate in horizontal drag handling.');
-assert(navScroll.includes("surface.addEventListener('touchstart'")&&navScroll.includes("surface.addEventListener('touchmove'")&&navScroll.includes("surface.addEventListener('touchend'"),'Top-menu surface must distinguish horizontal drag from tap across clickable and quiet areas.');
-assert(navScroll.includes("{passive:false,capture:true}")&&navScroll.includes('nav.scrollLeft=start.left-dx'),'Horizontal drag must use one deterministic scroll path across the entire menu, including clickable items.');
-assert(navScroll.includes('event.preventDefault()')&&navScroll.includes('Math.abs(dx)>Math.abs(dy)'),'Default touch behavior may be blocked only after a horizontal gesture is identified, leaving vertical page scrolling native.');
+assert(navScroll.includes("MOBILE_NAV_SCROLL_VERSION='2026-09-13b'"),'Mobile top-nav drag helper must be the current pointer-based version.');
+assert(navScroll.includes('touch-action:pan-y!important'),'Base drag layer must preserve native vertical page scrolling until the late physical correction hands horizontal movement to native kinetic scrolling.');
+assert(navScroll.includes("surface=nav?.closest('.sidebar')||nav"),'The entire mobile top-menu surface must participate in drag handling.');
+assert(navScroll.includes("surface.addEventListener('pointerdown'")&&navScroll.includes("surface.addEventListener('pointermove'")&&navScroll.includes("surface.addEventListener('pointerup'"),'Top-menu surface must use one pointer path across clickable and quiet areas.');
+assert(navScroll.includes('nav.scrollLeft=drag.left-dx')&&navScroll.includes('snapshot.velocity')&&navScroll.includes("behavior:'smooth'"),'Top-menu drag must track movement and add bounded settle momentum after release.');
+assert(navScroll.includes('event.preventDefault()')&&navScroll.includes('Math.abs(dx)>Math.abs(dy)'),'Default pointer behavior may be blocked only after a horizontal gesture is identified, leaving vertical page scrolling native.');
 assert(navScroll.includes('suppressClickUntil')&&navScroll.includes('stopImmediatePropagation'),'A completed horizontal drag must suppress the synthetic click instead of activating the touched menu item.');
 assert(!navScroll.includes('insideNav:nav.contains(event.target)'),'Swipe behavior must no longer split into separate clickable/non-clickable drag paths.');
 assert(!/supabase|client\.from|functions\.invoke|fetch\(|XMLHttpRequest|service_role/i.test(navScroll),'Top-nav swipe fix must remain presentation-only.');
