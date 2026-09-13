@@ -78,6 +78,8 @@ jobs:
             echo "Checking $f"
             node --check "$f"
           done
+      - name: Verify canonical demo origin CORS parity
+        run: node portal/cors-demo-origin-smoke.mjs
       - name: Build clean portal bundle
         run: node portal/build-app.mjs
       - name: Check built app syntax

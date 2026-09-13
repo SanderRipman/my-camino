@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
-function cors(req:Request){const o=req.headers.get('origin')??'',ok=o==='https://my.aidme.no'||o==='http://localhost:8888'||o==='http://localhost:3000'||/^https:\/\/(?:deploy-preview-\d+--|[a-z0-9-]+--)?mycamino\.netlify\.app$/.test(o);return{'Access-Control-Allow-Origin':ok?o:'https://my.aidme.no','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json','Cache-Control':'no-store','Vary':'Origin'}}
+function cors(req:Request){const o=req.headers.get('origin')??'',ok=o==='https://my.aidme.no'||o==='https://demo.aidme.no'||o==='http://localhost:8888'||o==='http://localhost:3000'||/^https:\/\/(?:deploy-preview-\d+--|[a-z0-9-]+--)?mycamino\.netlify\.app$/.test(o);return{'Access-Control-Allow-Origin':ok?o:'https://my.aidme.no','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json','Cache-Control':'no-store','Vary':'Origin'}}
 function text(v:any,max:number){if(v==null)return null;const s=String(v).trim();return s?s.slice(0,max):null}
 function locale(v:any){const x=String(v??'nb').toLowerCase();return ['nb','en'].includes(x)?x:'nb'}
 function activeGrant(g:any){const now=new Date().toISOString();return !g.revoked_at&&(!g.valid_from||g.valid_from<=now)&&(!g.valid_until||g.valid_until>now)}

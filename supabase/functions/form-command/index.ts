@@ -2,7 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 
 function cors(req:Request){
   const origin=req.headers.get('origin')??''
-  const allowed=origin==='https://my.aidme.no'||origin==='http://localhost:8888'||origin==='http://localhost:3000'||/^https:\/\/(?:deploy-preview-\d+--|[a-z0-9-]+--)?mycamino\.netlify\.app$/.test(origin)
+  const allowed=origin==='https://my.aidme.no'||origin==='https://demo.aidme.no'||origin==='http://localhost:8888'||origin==='http://localhost:3000'||/^https:\/\/(?:deploy-preview-\d+--|[a-z0-9-]+--)?mycamino\.netlify\.app$/.test(origin)
   return {
     'Access-Control-Allow-Origin':allowed?origin:'https://my.aidme.no',
     'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type',
@@ -38,8 +38,6 @@ Deno.serve(async(req:Request)=>{
     if(claims(token).aal!=='aal2')return new Response(JSON.stringify({error:'MFA_REQUIRED'}),{status:403,headers})
     const publishable=JSON.parse(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS')??'{}').default
     if(!publishable)throw new Error('Missing publishable key')
-    // Deliberately use the caller's JWT for database writes. Existing RLS, auth.uid(), validation,
-    // formal gate and audit triggers therefore remain the hard authorization boundary.
     const userClient=createClient(Deno.env.get('SUPABASE_URL')!,publishable,{global:{headers:{Authorization:authHeader}},auth:{persistSession:false}})
     const {data:userData,error:userError}=await userClient.auth.getUser(token)
     if(userError||!userData.user)return new Response(JSON.stringify({error:'UNAUTHORIZED'}),{status:401,headers})
@@ -64,7 +62,6 @@ Deno.serve(async(req:Request)=>{
       if(existing.status!=='DRAFT')return new Response(JSON.stringify({error:'SUBMISSION_IMMUTABLE'}),{status:409,headers})
       if(!same(existing.organization_id,organizationId)||!same(existing.participant_id,participantId)||!same(existing.pilot_id,pilotId)||!same(existing.form_version_id,formVersionId))return new Response(JSON.stringify({error:'CONTEXT_IMMUTABLE'}),{status:409,headers})
     }else{
-      // Reuse the caller's own draft in the same immutable context. This avoids accidental duplicate drafts.
       let q=userClient.from('form_submissions').select('id,organization_id,participant_id,pilot_id,form_version_id,submitted_by,status').eq('organization_id',organizationId).eq('form_version_id',formVersionId).eq('submitted_by',userData.user.id).eq('status','DRAFT').order('updated_at',{ascending:false}).limit(1)
       q=participantId?q.eq('participant_id',participantId):q.is('participant_id',null)
       q=pilotId?q.eq('pilot_id',pilotId):q.is('pilot_id',null)
