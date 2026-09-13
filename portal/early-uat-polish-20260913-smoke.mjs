@@ -26,17 +26,18 @@ for(const cls of ['phase-via','phase-ser','phase-vida','phase-new-via'])assert(p
 assert(phase.includes("p.active!==false")&&phase.includes('Vis arkiverte'),'Inactive/archived participants must be hidden by default and explicitly revealable.');
 
 assert(access.includes('app-profile-unread-badge.js?v=20260913a'),'Profile unread count must load independently of gesture/navigation code.');
-assert(access.includes('app-mobile-fluid.js?v=20260913c'),'Portal must load the current unified mobile gesture owner.');
+assert(access.includes('app-mobile-fluid.js?v=20260913c'),'Portal must keep loading the unified mobile gesture owner from the existing static path.');
 assert(!access.includes('app-mobile-nav-scroll.js')&&!access.includes('app-mobile-physical-feedback.js'),'Superseded competing mobile gesture layers must not be loaded.');
-assert(fluid.includes("MOBILE_FLUID_VERSION='2026-09-13c'")&&fluid.includes('VELOCITY_COMMIT=.34'),'Unified mobile flow must be versioned and velocity-aware.');
+assert(fluid.includes("MOBILE_FLUID_VERSION='2026-09-13d'")&&fluid.includes('VELOCITY_COMMIT=.34'),'Unified mobile flow must be versioned and velocity-aware.');
 assert(fluid.includes('function ensureMarker()')&&fluid.includes('function syncMarker(')&&fluid.includes('function setMarkerPoint('),'Fluid marker primitives must be explicit.');
 const ensureMarkerBody=fluid.match(/function ensureMarker\(\)\{([\s\S]*?)\nfunction markerPoint/ )?.[1]||'';
 assert(!ensureMarkerBody.includes('syncMarker(')&&!ensureMarkerBody.includes('setMarkerPoint('),'Marker creation must not recursively call marker synchronization/positioning.');
 assert(fluid.includes('getBoundingClientRect()')&&fluid.includes('markerPoint(item)'),'Marker alignment must use live viewport geometry rather than stale tab offsets.');
 assert(fluid.includes('interpolateMarker')&&fluid.includes('aidme-fluid-nav-marker'),'Active AidMe marker must interpolate continuously between current and destination tabs.');
-assert(fluid.includes("gesture={zone:'nav'")&&fluid.includes("gesture={zone:'content'"),'One script must own both top-nav and same-page content gestures.');
-assert(fluid.includes("document.addEventListener('touchstart',begin")&&fluid.includes("document.addEventListener('touchmove',move")&&fluid.includes("document.addEventListener('touchend',end"),'Unified gesture owner must install touch listeners before testing clickable/quiet surfaces.');
-assert(fluid.includes('n?.contains(target)')&&fluid.includes('event.stopPropagation()'),'Top-nav gestures must start across the whole nav surface, including clickable items, while suppressing legacy touch handlers.');
+assert(fluid.includes('function installNavGesture()')&&fluid.includes("surface.addEventListener('touchstart'")&&fluid.includes("surface.addEventListener('touchmove'")&&fluid.includes("surface.addEventListener('touchend'"),'Top-nav must own touch capture directly on the whole sidebar/nav surface.');
+assert(fluid.includes('navGesture=')&&fluid.includes('n.scrollLeft=g.left-dx')&&fluid.includes('navSuppressClickUntil'),'Clickable labels, badges and quiet nav areas must share one direct drag path with synthetic-click suppression.');
+assert(fluid.includes("if(n?.contains(target))return")&&fluid.includes("gesture={zone:'content'"),'Document-level content swipe must yield immediately when a gesture starts inside the top nav.');
+assert(fluid.includes("document.addEventListener('touchstart',begin")&&fluid.includes("document.addEventListener('touchmove',move")&&fluid.includes("document.addEventListener('touchend',end"),'Same-page content flow must keep its dedicated document-level touch owner.');
 assert(fluid.includes('prepareAdjacent')&&fluid.includes('aidme-flow-preview')&&fluid.includes('nextView.style.transform'),'Adjacent same-page view must be visible during drag instead of appearing only after release.');
 assert(fluid.includes('aidme-process-accordion')&&fluid.includes('flex-direction:column!important')&&fluid.includes('aria-expanded'),'Mobile Process must stay vertically stacked and expandable.');
 assert(fluid.includes('.aidme-focus-controls{display:grid!important')&&fluid.includes('#view-tasks .task-filter-row{display:flex!important;flex-wrap:wrap!important'),'Group/task controls must stay inside the mobile frame.');
