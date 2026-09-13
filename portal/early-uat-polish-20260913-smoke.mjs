@@ -9,6 +9,7 @@ const nav=read('./app-mobile-nav-scroll.js');
 const physical=read('./app-mobile-physical-feedback.js');
 const access=read('./app-access-state.js');
 const profileBadge=read('./app-profile-unread-badge.js');
+const taskInline=read('./app-task-inline.js');
 const handoff=read('./app-ser-vida-handoff.js');
 const inbox=read('./inbox.html');
 const inboxJs=read('./inbox.js');
@@ -36,6 +37,14 @@ assert(physical.includes('grid-template-columns:repeat(4,minmax(0,1fr))')&&physi
 assert(physical.includes('#view-tasks .task-filter-row{display:flex!important;flex-wrap:wrap!important'),'Task controls must wrap inside their card on narrow screens.');
 assert(profileBadge.includes("client.from('notifications')")&&profileBadge.includes("head:true")&&profileBadge.includes(".is('read_at',null)"),'Profile badge may query only an unread notification count through existing owner RLS.');
 assert(!profileBadge.includes("select('*')")&&!profileBadge.includes('service_role'),'Profile badge must not fetch notification content or use privileged credentials.');
+
+assert(access.includes('app-task-inline.js?v=20260913a'),'Portal must load compact inline task expansion.');
+assert(taskInline.includes("TASK_INLINE_VERSION='2026-09-13a'")&&taskInline.includes('aria-expanded')&&taskInline.includes("'Mer ↓'")&&taskInline.includes("'Minimer ↑'"),'Tasks must expose one compact expand/minimize affordance.');
+assert(taskInline.includes("document.querySelector('#taskList')")||taskInline.includes("document.querySelector('#taskList')"),'Inline task behavior must stay scoped to the Oppgaver list.');
+assert(taskInline.includes("data-task-inline-open")&&taskInline.includes('openTask(id)'),'Expanded tasks must delegate authoritative action handling to the existing openTask/workflow path.');
+assert(taskInline.includes('aidme:phase-workspace-changed'),'Changing phase/group context must collapse stale inline task detail.');
+assert(taskInline.includes('grid-template-rows:0fr')&&taskInline.includes('grid-template-rows:1fr'),'Task detail must use a bounded height transition rather than detached modal-only navigation.');
+assert(!/client\.from|functions\.invoke|fetch\(|XMLHttpRequest|service_role/i.test(taskInline),'Inline task presentation must not add a backend or authorization path.');
 
 assert(handoff.includes('participant-inline-toggle-hint')&&handoff.includes("'Mer info ↓'")&&handoff.includes("'Minimer ↑'"),'Mobile participant card needs explicit same-card expand/collapse affordance.');
 assert(handoff.includes('border-top:0!important')&&handoff.includes('border-bottom-color:transparent!important'),'Expanded participant detail must visually fuse with the selected card.');
