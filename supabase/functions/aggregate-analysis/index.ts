@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
-const allowedOrigins=new Set(['https://my.aidme.no','https://main--mycamino.netlify.app','http://localhost:8888','http://localhost:3000'])
+const allowedOrigins=new Set(['https://my.aidme.no','https://demo.aidme.no','https://main--mycamino.netlify.app','http://localhost:8888','http://localhost:3000'])
 const metricColumns=new Set(['agency','belonging','direction'])
 const allowedDays=new Set([14,30,60,90,3650])
 const MIN_GROUP_SIZE=3
