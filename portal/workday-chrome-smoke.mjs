@@ -4,7 +4,7 @@ const read=(path)=>fs.readFileSync(new URL(path,import.meta.url),'utf8');
 const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
 const js=read('./app-workday-chrome.js');
 const css=read('./workday-mobile.css');
-const physical=read('./app-mobile-physical-feedback.js');
+const fluid=read('./app-mobile-fluid.js');
 const access=read('./app-access-state.js');
 
 assert(js.includes("WORKDAY_CHROME_VERSION='2026-09-07b'"),'Workday chrome must be versioned for cache busting.');
@@ -46,13 +46,14 @@ assert(css.includes('#view-overview>.hero-panel.compact-hero h2')&&css.includes(
 assert(css.includes('#view-overview #homeIntro')&&css.includes('white-space:nowrap!important'),'Phase reminder must remain a compact one-line cue.');
 assert(!/display\s*:\s*none[^}]*\.task-list|\.task-list[^}]*display\s*:\s*none/i.test(css),'Workday polish must not hide operational task content.');
 
-assert(access.includes('app-mobile-physical-feedback.js?v=20260913b')&&!access.includes('app-mobile-nav-scroll.js'),'One unified physical layer must own mobile top-nav and content flow.');
-assert(physical.includes("PHYSICAL_MOBILE_UX_VERSION='2026-09-13b'"),'Unified mobile flow must be cache-busted after physical feedback.');
-assert(physical.includes('beginNav')&&physical.includes('moveNav')&&physical.includes('n.scrollLeft=g.left-dx'),'Top-menu drag must work from clickable and quiet areas through one pointer path.');
-assert(physical.includes('suppressNavClickUntil')&&physical.includes('stopImmediatePropagation'),'A completed top-nav drag must suppress the synthetic click rather than activate the touched item.');
-assert(physical.includes('prepareAdjacent')&&physical.includes('aidme-flow-preview')&&physical.includes('commitSwipe'),'Content swipe must keep the destination view present during drag and commit without a detached post-swipe load step.');
-assert(physical.includes('interpolateMarker')&&physical.includes('aidme-fluid-nav-marker'),'AidMe active marker must travel continuously toward the destination tab during swipe.');
-assert(physical.includes('aidme-process-accordion')&&physical.includes('flex-direction:column!important'),'Process must support the requested stacked mobile phase accordion.');
-assert(!/supabase|client\.from|functions\.invoke|fetch\(|XMLHttpRequest|service_role/i.test(physical),'Unified physical flow must remain presentation-only.');
+assert(access.includes('app-mobile-fluid.js?v=20260913c')&&!access.includes('app-mobile-nav-scroll.js')&&!access.includes('app-mobile-physical-feedback.js'),'One unified fluid layer must own mobile top-nav and content flow.');
+assert(fluid.includes("MOBILE_FLUID_VERSION='2026-09-13c'"),'Unified mobile flow must be cache-busted after physical feedback.');
+assert(fluid.includes("gesture={zone:'nav'")&&fluid.includes("gesture={zone:'content'")&&fluid.includes('n.scrollLeft=g.left-dx'),'Top-menu and content drag must share one explicit gesture owner.');
+assert(fluid.includes("n?.contains(target)")&&fluid.includes('event.stopPropagation()'),'Top-menu drag must begin across clickable and quiet nav areas while suppressing legacy handlers.');
+assert(fluid.includes('suppressClickUntil')&&fluid.includes('stopImmediatePropagation'),'A completed drag must suppress the synthetic click rather than activate the touched item.');
+assert(fluid.includes('prepareAdjacent')&&fluid.includes('aidme-flow-preview')&&fluid.includes('commitContent'),'Content swipe must keep the destination view present during drag and commit without a detached post-swipe load step.');
+assert(fluid.includes('interpolateMarker')&&fluid.includes('aidme-fluid-nav-marker')&&fluid.includes('getBoundingClientRect()'),'AidMe active marker must use live geometry and travel continuously toward the destination tab.');
+assert(fluid.includes('aidme-process-accordion')&&fluid.includes('flex-direction:column!important'),'Process must support the requested stacked mobile phase accordion.');
+assert(!/supabase|client\.from|functions\.invoke|fetch\(|XMLHttpRequest|service_role/i.test(fluid),'Unified fluid flow must remain presentation-only.');
 
 console.log('Mobile workday chrome safety/density invariants OK');
