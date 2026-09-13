@@ -91,5 +91,11 @@ if(!document.querySelector('script[data-aidme-participant-actions]')){
   actions.dataset.aidmeParticipantActions='1';
   document.head.appendChild(actions);
 }
+if(!document.querySelector('script[data-aidme-participant-lifecycle]')){
+  const lifecycle=document.createElement('script');
+  lifecycle.src='./app-participant-lifecycle.js?v=20260913a';
+  lifecycle.dataset.aidmeParticipantLifecycle='1';
+  document.head.appendChild(lifecycle);
+}
 
 })();
