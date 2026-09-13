@@ -47,10 +47,10 @@ assert(css.includes('#view-overview #homeIntro')&&css.includes('white-space:nowr
 assert(!/display\s*:\s*none[^}]*\.task-list|\.task-list[^}]*display\s*:\s*none/i.test(css),'Workday polish must not hide operational task content.');
 
 assert(access.includes('app-mobile-fluid.js?v=20260913c')&&!access.includes('app-mobile-nav-scroll.js')&&!access.includes('app-mobile-physical-feedback.js'),'One unified fluid layer must own mobile top-nav and content flow.');
-assert(fluid.includes("MOBILE_FLUID_VERSION='2026-09-13c'"),'Unified mobile flow must be cache-busted after physical feedback.');
-assert(fluid.includes("gesture={zone:'nav'")&&fluid.includes("gesture={zone:'content'")&&fluid.includes('n.scrollLeft=g.left-dx'),'Top-menu and content drag must share one explicit gesture owner.');
-assert(fluid.includes("n?.contains(target)")&&fluid.includes('event.stopPropagation()'),'Top-menu drag must begin across clickable and quiet nav areas while suppressing legacy handlers.');
-assert(fluid.includes('suppressClickUntil')&&fluid.includes('stopImmediatePropagation'),'A completed drag must suppress the synthetic click rather than activate the touched item.');
+assert(fluid.includes("MOBILE_FLUID_VERSION='2026-09-13d'"),'Unified mobile flow must identify the direct-surface regression fix.');
+assert(fluid.includes('function installNavGesture()')&&fluid.includes("surface.addEventListener('touchstart'")&&fluid.includes("surface.addEventListener('touchmove'")&&fluid.includes("surface.addEventListener('touchend'"),'Top-menu drag must be captured directly on the whole nav surface, including clickable items.');
+assert(fluid.includes('navGesture=')&&fluid.includes('n.scrollLeft=g.left-dx')&&fluid.includes('navSuppressClickUntil'),'Clickable and quiet top-nav areas must share one explicit drag path with synthetic-click suppression.');
+assert(fluid.includes("if(n?.contains(target))return")&&fluid.includes("gesture={zone:'content'"),'Document-level content swipe must yield to the dedicated nav owner.');
 assert(fluid.includes('prepareAdjacent')&&fluid.includes('aidme-flow-preview')&&fluid.includes('commitContent'),'Content swipe must keep the destination view present during drag and commit without a detached post-swipe load step.');
 assert(fluid.includes('interpolateMarker')&&fluid.includes('aidme-fluid-nav-marker')&&fluid.includes('getBoundingClientRect()'),'AidMe active marker must use live geometry and travel continuously toward the destination tab.');
 assert(fluid.includes('aidme-process-accordion')&&fluid.includes('flex-direction:column!important'),'Process must support the requested stacked mobile phase accordion.');
