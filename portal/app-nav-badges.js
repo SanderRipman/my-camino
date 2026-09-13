@@ -1,6 +1,7 @@
 (()=>{
 'use strict';
 
+let profileUnreadLastAt=0,profileUnreadSeq=0;
 function badgeOpenStatus(status){return ['OPEN','IN_PROGRESS','WAITING'].includes(status)}
 function badgeOverdue(task){return !!task?.due_at&&badgeOpenStatus(task.status)&&new Date(task.due_at)<new Date()}
 function badgeTaskSeverity(task){return badgeOverdue(task)?'RED':severity(task)}
@@ -27,6 +28,23 @@ function ensureFormsBadge(){
   const nav=document.querySelector('.nav-item[data-view="forms"]');if(!nav)return null;
   let badge=document.querySelector('#badgeForms');if(!badge){badge=document.createElement('i');badge.id='badgeForms';badge.className='nav-badges';nav.appendChild(badge)}
   return badge;
+}
+function ensureProfileBadge(){
+  const nav=document.querySelector('.nav-item[data-view="settings"]');if(!nav)return null;
+  let badge=document.querySelector('#badgeProfile');if(!badge){badge=document.createElement('i');badge.id='badgeProfile';badge.className='nav-badges';nav.appendChild(badge)}
+  return badge;
+}
+async function refreshProfileUnreadBadge(force=false){
+  const badge=ensureProfileBadge();if(!badge||!session?.user?.id)return;
+  const now=Date.now();if(!force&&now-profileUnreadLastAt<4000)return;profileUnreadLastAt=now;const seq=++profileUnreadSeq;
+  try{
+    const {count,error}=await client.from('notifications').select('id',{count:'exact',head:true}).is('read_at',null);
+    if(seq!==profileUnreadSeq)return;
+    if(error){badge.replaceChildren();badge.title='Profil';return}
+    const unread=Number(count||0);
+    badge.innerHTML=unread?`<span class="nav-count blue" aria-label="${unread} uleste varsler">${unread}</span>`:'';
+    badge.title=unread?`Profil · ${unread} uleste varsler`:'Profil · ingen uleste varsler';
+  }catch{if(seq===profileUnreadSeq)badge.replaceChildren()}
 }
 function participantItemSummary(item){
   if(!item)return'';
@@ -67,7 +85,7 @@ function harmonizeStaffKpis(open,taskCounts){
   openCard?.classList.add('metric-attention-open');participantCard?.classList.add('metric-attention-participants');
 }
 function renderSemanticNavigationBadges(){
-  if(!isStaff()&&renderParticipantNavigationBadges())return;
+  if(!isStaff()&&renderParticipantNavigationBadges()){refreshProfileUnreadBadge();return}
   const visible=badgeVisibleTasks();
   const open=visible.filter(t=>badgeOpenStatus(t.status));
   const taskCounts={red:open.filter(t=>badgeTaskSeverity(t)==='RED').length,yellow:open.filter(t=>badgeTaskSeverity(t)==='YELLOW').length};
@@ -81,7 +99,7 @@ function renderSemanticNavigationBadges(){
     participantBadge.innerHTML=semanticBadgeMarkup('participants',participantCounts);
     participantBadge.title=`Deltakere: ${participantCounts.red} kritisk · ${participantCounts.yellow} trenger oppmerksomhet`;
   }
-  harmonizeStaffKpis(open,taskCounts);
+  harmonizeStaffKpis(open,taskCounts);refreshProfileUnreadBadge();
 }
 
 if(!document.querySelector('#semantic-nav-badge-style')){
@@ -106,7 +124,8 @@ if(!document.querySelector('#semantic-nav-badge-style')){
 const priorRenderTaskLists=renderTaskLists;
 renderTaskLists=function(){priorRenderTaskLists();renderSemanticNavigationBadges();setTimeout(renderSemanticNavigationBadges,0)};
 setTimeout(renderSemanticNavigationBadges,120);
-window.addEventListener('pageshow',()=>setTimeout(renderSemanticNavigationBadges,30));
+window.addEventListener('pageshow',()=>setTimeout(()=>{renderSemanticNavigationBadges();refreshProfileUnreadBadge(true)},30));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshProfileUnreadBadge(true)});
 
 // Post-badge presentation layer: retired menu-level Next cue, consistent active
 // participant KPI, and the current physical-QA swipe prototype.
