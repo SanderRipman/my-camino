@@ -81,7 +81,7 @@ if(!document.querySelector('script[data-aidme-phase-workspace]')){
 }
 if(!document.querySelector('script[data-aidme-mobile-nav-scroll]')){
   const navScroll=document.createElement('script');
-  navScroll.src='./app-mobile-nav-scroll.js?v=20260909b';
+  navScroll.src='./app-mobile-nav-scroll.js?v=20260913c';
   navScroll.dataset.aidmeMobileNavScroll='1';
   document.head.appendChild(navScroll);
 }
