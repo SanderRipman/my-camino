@@ -15,4 +15,5 @@ if(!document.querySelector('script[data-uat-extras]')){const extras=document.cre
 if(!document.querySelector('script[data-aidme-phase-workspace]')){const workspace=document.createElement('script');workspace.src='./app-phase-workspace.js?v=20260913a';workspace.dataset.aidmePhaseWorkspace='1';document.head.appendChild(workspace)}
 if(!document.querySelector('script[data-aidme-mobile-nav-scroll]')){const navScroll=document.createElement('script');navScroll.src='./app-mobile-nav-scroll.js?v=20260913b';navScroll.dataset.aidmeMobileNavScroll='1';document.head.appendChild(navScroll)}
 if(!document.querySelector('script[data-aidme-mobile-physical-feedback]')){const motion=document.createElement('script');motion.src='./app-mobile-physical-feedback.js?v=20260913a';motion.dataset.aidmeMobilePhysicalFeedback='1';document.head.appendChild(motion)}
+if(!document.querySelector('script[data-aidme-task-inline]')){const taskInline=document.createElement('script');taskInline.src='./app-task-inline.js?v=20260913a';taskInline.dataset.aidmeTaskInline='1';document.head.appendChild(taskInline)}
 })();
