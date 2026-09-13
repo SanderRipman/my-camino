@@ -14,7 +14,7 @@ expect('runner loads current SER operational extension',html.includes('form-ser-
 expect('runner cache-busts SER form styles',html.includes('form-runner.css?v=20260903c'));
 expect('staff selector uses AAL2 Edge directory',js.includes("client.functions.invoke('ser-operational-staff-command'")&&js.includes('data?.staff')&&js.includes("f.type==='staff_select'"));
 expect('SER staff Edge verifies user and AAL2',edge.includes('auth.getUser(token)')&&edge.includes(".aal!=='aal2'")&&edge.includes("error:'MFA_REQUIRED'"));
-expect('SER staff Edge preserves requester scope and candidate eligibility',edge.includes("REQUEST_CAPS=['view_ser','view_operational_min','edit_ser']")&&edge.includes('!g.participant_id')&&edge.includes("caps?.has('respond_sos')")&&edge.includes('OPERATIONAL_CAPS.some'));
+expect('SER staff Edge preserves exact requester and candidate grant semantics',edge.includes("REQUEST_CAPS=['view_ser','view_operational_min','edit_ser']")&&edge.includes('currentRequesterGrant')&&edge.includes('!!g.valid_from')&&edge.includes('currentCandidateGrant')&&edge.includes('!g.valid_from||new Date(g.valid_from)<=now')&&edge.includes('!g.participant_id')&&edge.includes("caps?.has('respond_sos')")&&edge.includes('OPERATIONAL_CAPS.some'));
 expect('staff selector presents name and job title',js.includes("person.full_name")&&js.includes("person.job_title"));
 expect('follow-up is explicit yes/no radio',js.includes("f.type==='yes_no'")&&js.includes('value="NO"')&&js.includes('value="YES"'));
 expect('follow-up control is compact and styled',css.includes('.yes-no-field{border:0')&&css.includes('.yes-no-options')&&css.includes(':has(input:checked)'));
