@@ -52,6 +52,7 @@ jobs:
             intake-command
             manual-task-command
             onboarding-command
+            participant-lifecycle-command
             participant-profile-command
             public-intake
             qa-cleanup-role-pack
