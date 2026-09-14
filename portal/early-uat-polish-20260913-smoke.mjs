@@ -21,26 +21,28 @@ assert(fast.includes("requestedPilot=q.get('pilot')")&&fast.includes("'Laster va
 for(const token of ['selectedPilotId','showArchived','participantInPilot','taskInPilot','aidme-focus-controls'])assert(phase.includes(token),`Phase workspace missing ${token}.`);
 assert(phase.includes("PHASES=['VÍA','SER','VIDA','ny VÍA']"),'All four journey phases must stay represented.');
 assert(phase.includes("['new_via','new_via_review']")&&phase.includes("ty==='VIA_NEXT'"),'New VÍA tasks must be classifiable outside the participant list.');
-assert(phase.includes('Visningen endrer ikke tilgangen din.'),'Focus/filter UI must state that it does not change authorization.');
+assert(phase.includes('Visningen endrer ikke tilgangen din.'),'Authorization helper copy must remain in source even when visually suppressed on compact mobile.');
 for(const cls of ['phase-via','phase-ser','phase-vida','phase-new-via'])assert(phase.includes(cls),`Shared phase styling missing ${cls}.`);
 assert(phase.includes("p.active!==false")&&phase.includes('Vis arkiverte'),'Inactive/archived participants must be hidden by default and explicitly revealable.');
 
 assert(access.includes('app-profile-unread-badge.js?v=20260913a'),'Profile unread count must load independently of gesture/navigation code.');
 assert(access.includes('app-mobile-fluid.js?v=20260913c'),'Portal must keep loading the unified mobile gesture owner from the existing static path.');
 assert(!access.includes('app-mobile-nav-scroll.js')&&!access.includes('app-mobile-physical-feedback.js'),'Superseded competing mobile gesture layers must not be loaded.');
-assert(fluid.includes("MOBILE_FLUID_VERSION='2026-09-13d'")&&fluid.includes('VELOCITY_COMMIT=.34'),'Unified mobile flow must be versioned and velocity-aware.');
+assert(fluid.includes("MOBILE_FLUID_VERSION='2026-09-14a'")&&fluid.includes('VELOCITY_COMMIT=.34'),'Unified mobile flow must be versioned and velocity-aware.');
 assert(fluid.includes('function ensureMarker()')&&fluid.includes('function syncMarker(')&&fluid.includes('function setMarkerPoint('),'Fluid marker primitives must be explicit.');
 const ensureMarkerBody=fluid.match(/function ensureMarker\(\)\{([\s\S]*?)\nfunction markerPoint/ )?.[1]||'';
 assert(!ensureMarkerBody.includes('syncMarker(')&&!ensureMarkerBody.includes('setMarkerPoint('),'Marker creation must not recursively call marker synchronization/positioning.');
 assert(fluid.includes('getBoundingClientRect()')&&fluid.includes('markerPoint(item)'),'Marker alignment must use live viewport geometry rather than stale tab offsets.');
 assert(fluid.includes('interpolateMarker')&&fluid.includes('aidme-fluid-nav-marker'),'Active AidMe marker must interpolate continuously between current and destination tabs.');
-assert(fluid.includes('function installNavGesture()')&&fluid.includes("surface.addEventListener('touchstart'")&&fluid.includes("surface.addEventListener('touchmove'")&&fluid.includes("surface.addEventListener('touchend'"),'Top-nav must own touch capture directly on the whole sidebar/nav surface.');
-assert(fluid.includes('navGesture=')&&fluid.includes('n.scrollLeft=g.left-dx')&&fluid.includes('navSuppressClickUntil'),'Clickable labels, badges and quiet nav areas must share one direct drag path with synthetic-click suppression.');
+assert(fluid.includes('function installNavGesture()')&&fluid.includes("aidmeFluidNavNative='1'")&&fluid.includes("n.addEventListener('scroll'"),'Top-nav must use the browser native horizontal scroller and only observe scrolling for marker sync.');
+assert(!fluid.includes("surface.addEventListener('touchstart'")&&!fluid.includes('navSuppressClickUntil')&&!fluid.includes('n.scrollLeft=g.left-dx'),'Top-nav must not reintroduce a competing manual drag/click-suppression path over clickable labels.');
+assert(fluid.includes('touch-action:pan-x pan-y!important')&&fluid.includes('overflow-x:auto!important'),'Clickable labels, badges and quiet nav areas must all participate in native horizontal panning.');
 assert(fluid.includes("if(n?.contains(target))return")&&fluid.includes("gesture={zone:'content'"),'Document-level content swipe must yield immediately when a gesture starts inside the top nav.');
 assert(fluid.includes("document.addEventListener('touchstart',begin")&&fluid.includes("document.addEventListener('touchmove',move")&&fluid.includes("document.addEventListener('touchend',end"),'Same-page content flow must keep its dedicated document-level touch owner.');
 assert(fluid.includes('prepareAdjacent')&&fluid.includes('aidme-flow-preview')&&fluid.includes('nextView.style.transform'),'Adjacent same-page view must be visible during drag instead of appearing only after release.');
-assert(fluid.includes('aidme-process-accordion')&&fluid.includes('flex-direction:column!important')&&fluid.includes('aria-expanded'),'Mobile Process must stay vertically stacked and expandable.');
-assert(fluid.includes('.aidme-focus-controls{display:grid!important')&&fluid.includes('#view-tasks .task-filter-row{display:flex!important;flex-wrap:wrap!important'),'Group/task controls must stay inside the mobile frame.');
+assert(fluid.includes('cleanupPreview(g);if(window.scrollY||window.scrollX)window.scrollTo({top:0,left:0,behavior:\'auto\'})')&&fluid.includes("if(name&&typeof show==='function')show(name)"),'Swipe commit must clear preview geometry and normalize scroll before canonical show() to avoid the final-frame jump.');
+assert(fluid.includes('aidme-process-accordion')&&fluid.includes('grid-template-columns:auto minmax(0,1fr) auto!important')&&fluid.includes('compact-process>h3{white-space:nowrap!important'),'Mobile Process must stay clickable while using compact one-row phases and a single-line VÍA/SER/VIDA heading.');
+assert(fluid.includes('.aidme-focus-note{display:none!important}')&&fluid.includes('font-size:0!important')&&fluid.includes('max-width:220px!important'),'Redundant visible group label/helper copy must be suppressed and the group selector must stay compact.');
 assert(!/client\.from|functions\.invoke|service_role/i.test(fluid),'Unified mobile flow must remain presentation-only.');
 assert(profileBadge.includes("client.from('notifications')")&&profileBadge.includes("head:true")&&profileBadge.includes(".is('read_at',null)"),'Profile badge may query only an unread notification count through existing owner RLS.');
 assert(!profileBadge.includes("select('*')")&&!profileBadge.includes('service_role'),'Profile badge must not fetch notification content or use privileged credentials.');
@@ -60,4 +62,4 @@ assert(inbox.includes('./documents.html#myFiles')&&documents.includes('id="myFil
 assert(inboxJs.includes("category:'OTHER'")&&inboxJs.includes("sensitivity:'NORMAL'"),'Inbox metadata must keep canonical live schema values.');
 assert(inbox.includes('scope, utløp/tilbakekalling og revisjonslogg'),'Future document sharing must remain an explicit controlled action, not implicit upload sharing.');
 
-console.log('Early-UAT polish 2026-09-13 invariants OK');
+console.log('Early-UAT polish 2026-09-14 invariants OK');
