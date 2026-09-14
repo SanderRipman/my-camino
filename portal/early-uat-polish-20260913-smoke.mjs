@@ -26,7 +26,7 @@ for(const cls of ['phase-via','phase-ser','phase-vida','phase-new-via'])assert(p
 assert(phase.includes("p.active!==false")&&phase.includes('Vis arkiverte'),'Inactive/archived participants must be hidden by default and explicitly revealable.');
 
 assert(access.includes('app-profile-unread-badge.js?v=20260913a'),'Profile unread count must load independently of gesture/navigation code.');
-assert(access.includes('app-mobile-fluid.js?v=20260913c'),'Portal must keep loading the unified mobile gesture owner from the existing static path.');
+assert(access.includes('app-mobile-fluid.js?v=20260914a'),'Portal must load the current unified mobile gesture owner with a fresh cache key.');
 assert(!access.includes('app-mobile-nav-scroll.js')&&!access.includes('app-mobile-physical-feedback.js'),'Superseded competing mobile gesture layers must not be loaded.');
 assert(fluid.includes("MOBILE_FLUID_VERSION='2026-09-14a'")&&fluid.includes('VELOCITY_COMMIT=.34'),'Unified mobile flow must be versioned and velocity-aware.');
 assert(fluid.includes('function ensureMarker()')&&fluid.includes('function syncMarker(')&&fluid.includes('function setMarkerPoint('),'Fluid marker primitives must be explicit.');
