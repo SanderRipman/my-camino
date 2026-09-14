@@ -46,14 +46,16 @@ assert(css.includes('#view-overview>.hero-panel.compact-hero h2')&&css.includes(
 assert(css.includes('#view-overview #homeIntro')&&css.includes('white-space:nowrap!important'),'Phase reminder must remain a compact one-line cue.');
 assert(!/display\s*:\s*none[^}]*\.task-list|\.task-list[^}]*display\s*:\s*none/i.test(css),'Workday polish must not hide operational task content.');
 
-assert(access.includes('app-mobile-fluid.js?v=20260913c')&&!access.includes('app-mobile-nav-scroll.js')&&!access.includes('app-mobile-physical-feedback.js'),'One unified fluid layer must own mobile top-nav and content flow.');
-assert(fluid.includes("MOBILE_FLUID_VERSION='2026-09-13d'"),'Unified mobile flow must identify the direct-surface regression fix.');
-assert(fluid.includes('function installNavGesture()')&&fluid.includes("surface.addEventListener('touchstart'")&&fluid.includes("surface.addEventListener('touchmove'")&&fluid.includes("surface.addEventListener('touchend'"),'Top-menu drag must be captured directly on the whole nav surface, including clickable items.');
-assert(fluid.includes('navGesture=')&&fluid.includes('n.scrollLeft=g.left-dx')&&fluid.includes('navSuppressClickUntil'),'Clickable and quiet top-nav areas must share one explicit drag path with synthetic-click suppression.');
-assert(fluid.includes("if(n?.contains(target))return")&&fluid.includes("gesture={zone:'content'"),'Document-level content swipe must yield to the dedicated nav owner.');
+assert(access.includes('app-mobile-fluid.js?v=20260914a')&&!access.includes('app-mobile-nav-scroll.js')&&!access.includes('app-mobile-physical-feedback.js'),'One current unified fluid layer must own mobile top-nav and content flow.');
+assert(fluid.includes("MOBILE_FLUID_VERSION='2026-09-14a'"),'Unified mobile flow must identify the native-scroll stabilization round.');
+assert(fluid.includes('function installNavGesture()')&&fluid.includes("aidmeFluidNavNative='1'")&&fluid.includes("n.addEventListener('scroll'"),'Top-menu drag must use native horizontal scrolling across clickable items.');
+assert(!fluid.includes("surface.addEventListener('touchstart'")&&!fluid.includes('navSuppressClickUntil'),'Top-menu must not intercept touch gestures with a competing manual drag layer.');
+assert(fluid.includes('touch-action:pan-x pan-y!important')&&fluid.includes('overflow-x:auto!important'),'Native mobile nav must explicitly allow horizontal panning.');
+assert(fluid.includes("if(n?.contains(target))return")&&fluid.includes("gesture={zone:'content'"),'Document-level content swipe must yield to the native nav scroller.');
 assert(fluid.includes('prepareAdjacent')&&fluid.includes('aidme-flow-preview')&&fluid.includes('commitContent'),'Content swipe must keep the destination view present during drag and commit without a detached post-swipe load step.');
+assert(fluid.includes('cleanupPreview(g);if(window.scrollY||window.scrollX)window.scrollTo({top:0,left:0,behavior:\'auto\'})'),'Content commit must normalize preview geometry and scroll before canonical view activation to prevent the final-frame jump.');
 assert(fluid.includes('interpolateMarker')&&fluid.includes('aidme-fluid-nav-marker')&&fluid.includes('getBoundingClientRect()'),'AidMe active marker must use live geometry and travel continuously toward the destination tab.');
-assert(fluid.includes('aidme-process-accordion')&&fluid.includes('flex-direction:column!important'),'Process must support the requested stacked mobile phase accordion.');
+assert(fluid.includes('grid-template-columns:auto minmax(0,1fr) auto!important')&&fluid.includes('compact-process>h3{white-space:nowrap!important'),'Process must remain clickable while matching the compact production-like mobile layout.');
 assert(!/supabase|client\.from|functions\.invoke|fetch\(|XMLHttpRequest|service_role/i.test(fluid),'Unified fluid flow must remain presentation-only.');
 
 console.log('Mobile workday chrome safety/density invariants OK');

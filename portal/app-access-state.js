@@ -14,6 +14,6 @@ if(!document.querySelector('script[data-uat-followup]')){const followup=document
 if(!document.querySelector('script[data-uat-extras]')){const extras=document.createElement('script');extras.src='./uat-extras.js?v=20260909a';extras.dataset.uatExtras='1';document.head.appendChild(extras)}
 if(!document.querySelector('script[data-aidme-phase-workspace]')){const workspace=document.createElement('script');workspace.src='./app-phase-workspace.js?v=20260913a';workspace.dataset.aidmePhaseWorkspace='1';document.head.appendChild(workspace)}
 if(!document.querySelector('script[data-aidme-profile-unread-badge]')){const badge=document.createElement('script');badge.src='./app-profile-unread-badge.js?v=20260913a';badge.dataset.aidmeProfileUnreadBadge='1';document.head.appendChild(badge)}
-if(!document.querySelector('script[data-aidme-mobile-fluid]')){const motion=document.createElement('script');motion.src='./app-mobile-fluid.js?v=20260913c';motion.dataset.aidmeMobileFluid='1';document.head.appendChild(motion)}
+if(!document.querySelector('script[data-aidme-mobile-fluid]')){const motion=document.createElement('script');motion.src='./app-mobile-fluid.js?v=20260914a';motion.dataset.aidmeMobileFluid='1';document.head.appendChild(motion)}
 if(!document.querySelector('script[data-aidme-task-inline]')){const taskInline=document.createElement('script');taskInline.src='./app-task-inline.js?v=20260913a';taskInline.dataset.aidmeTaskInline='1';document.head.appendChild(taskInline)}
 })();
