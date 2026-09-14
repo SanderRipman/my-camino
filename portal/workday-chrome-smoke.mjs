@@ -46,7 +46,7 @@ assert(css.includes('#view-overview>.hero-panel.compact-hero h2')&&css.includes(
 assert(css.includes('#view-overview #homeIntro')&&css.includes('white-space:nowrap!important'),'Phase reminder must remain a compact one-line cue.');
 assert(!/display\s*:\s*none[^}]*\.task-list|\.task-list[^}]*display\s*:\s*none/i.test(css),'Workday polish must not hide operational task content.');
 
-assert(access.includes('app-mobile-fluid.js?v=20260913c')&&!access.includes('app-mobile-nav-scroll.js')&&!access.includes('app-mobile-physical-feedback.js'),'One unified fluid layer must own mobile top-nav and content flow.');
+assert(access.includes('app-mobile-fluid.js?v=20260914a')&&!access.includes('app-mobile-nav-scroll.js')&&!access.includes('app-mobile-physical-feedback.js'),'One current unified fluid layer must own mobile top-nav and content flow.');
 assert(fluid.includes("MOBILE_FLUID_VERSION='2026-09-14a'"),'Unified mobile flow must identify the native-scroll stabilization round.');
 assert(fluid.includes('function installNavGesture()')&&fluid.includes("aidmeFluidNavNative='1'")&&fluid.includes("n.addEventListener('scroll'"),'Top-menu drag must use native horizontal scrolling across clickable items.');
 assert(!fluid.includes("surface.addEventListener('touchstart'")&&!fluid.includes('navSuppressClickUntil'),'Top-menu must not intercept touch gestures with a competing manual drag layer.');
