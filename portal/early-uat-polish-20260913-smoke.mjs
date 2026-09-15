@@ -26,9 +26,11 @@ for(const cls of ['phase-via','phase-ser','phase-vida','phase-new-via'])assert(p
 assert(phase.includes("p.active!==false")&&phase.includes('Vis arkiverte'),'Inactive/archived participants must be hidden by default and explicitly revealable.');
 
 assert(access.includes('app-profile-unread-badge.js?v=20260913a'),'Profile unread count must load independently of gesture/navigation code.');
-assert(access.includes('app-mobile-fluid.js?v=20260914a'),'Portal must load the current unified mobile gesture owner with a fresh cache key.');
+assert(access.includes('app-mobile-fluid.js?v=20260915b'),'Portal must load the current unified mobile gesture owner with a fresh cache key.');
 assert(!access.includes('app-mobile-nav-scroll.js')&&!access.includes('app-mobile-physical-feedback.js'),'Superseded competing mobile gesture layers must not be loaded.');
-assert(fluid.includes("MOBILE_FLUID_VERSION='2026-09-14a'")&&fluid.includes('VELOCITY_COMMIT=.34'),'Unified mobile flow must be versioned and velocity-aware.');
+assert(fluid.includes("MOBILE_FLUID_VERSION='2026-09-15b'")&&fluid.includes('VELOCITY_COMMIT=.34'),'Unified mobile flow must be versioned and velocity-aware.');
+assert(fluid.includes("input[type=\"range\"]")&&fluid.includes("input[type=\"file\"]")&&!fluid.includes("const BLOCKED='input,textarea,select"),'Ordinary input/textarea/select surfaces must permit a clear horizontal page swipe while horizontal-native controls stay protected.');
+assert(fluid.includes('document.documentElement.dataset.mobileGestureOwner=MOBILE_FLUID_VERSION'),'The specialized gesture owner must identify itself before touch handling begins.');
 assert(fluid.includes('function ensureMarker()')&&fluid.includes('function syncMarker(')&&fluid.includes('function setMarkerPoint('),'Fluid marker primitives must be explicit.');
 const ensureMarkerBody=fluid.match(/function ensureMarker\(\)\{([\s\S]*?)\nfunction markerPoint/ )?.[1]||'';
 assert(!ensureMarkerBody.includes('syncMarker(')&&!ensureMarkerBody.includes('setMarkerPoint('),'Marker creation must not recursively call marker synchronization/positioning.');
@@ -40,7 +42,8 @@ assert(fluid.includes('touch-action:pan-x pan-y!important')&&fluid.includes('ove
 assert(fluid.includes("if(n?.contains(target))return")&&fluid.includes("gesture={zone:'content'"),'Document-level content swipe must yield immediately when a gesture starts inside the top nav.');
 assert(fluid.includes("document.addEventListener('touchstart',begin")&&fluid.includes("document.addEventListener('touchmove',move")&&fluid.includes("document.addEventListener('touchend',end"),'Same-page content flow must keep its dedicated document-level touch owner.');
 assert(fluid.includes('prepareAdjacent')&&fluid.includes('aidme-flow-preview')&&fluid.includes('nextView.style.transform'),'Adjacent same-page view must be visible during drag instead of appearing only after release.');
-assert(fluid.includes('cleanupPreview(g);if(window.scrollY||window.scrollX)window.scrollTo({top:0,left:0,behavior:\'auto\'})')&&fluid.includes("if(name&&typeof show==='function')show(name)"),'Swipe commit must clear preview geometry and normalize scroll before canonical show() to avoid the final-frame jump.');
+const commitBody=fluid.match(/function commitContent\(g\)\{([\s\S]*?)\n\nfunction installNavGesture/)?.[1]||'';
+assert(commitBody.indexOf("if(name&&typeof show==='function')show(name)")>=0&&commitBody.indexOf('requestAnimationFrame(()=>{cleanupPreview(g)')>commitBody.indexOf("if(name&&typeof show==='function')show(name)"),'Canonical show() must take ownership before preview geometry is removed, preventing a one-frame landing/blank flash.');
 assert(fluid.includes('aidme-process-accordion')&&fluid.includes('grid-template-columns:auto minmax(0,1fr) auto!important')&&fluid.includes('compact-process>h3{white-space:nowrap!important'),'Mobile Process must stay clickable while using compact one-row phases and a single-line VÍA/SER/VIDA heading.');
 assert(fluid.includes('.aidme-focus-note{display:none!important}')&&fluid.includes('font-size:0!important')&&fluid.includes('max-width:220px!important'),'Redundant visible group label/helper copy must be suppressed and the group selector must stay compact.');
 assert(!/client\.from|functions\.invoke|service_role/i.test(fluid),'Unified mobile flow must remain presentation-only.');
@@ -62,4 +65,4 @@ assert(inbox.includes('./documents.html#myFiles')&&documents.includes('id="myFil
 assert(inboxJs.includes("category:'OTHER'")&&inboxJs.includes("sensitivity:'NORMAL'"),'Inbox metadata must keep canonical live schema values.');
 assert(inbox.includes('scope, utløp/tilbakekalling og revisjonslogg'),'Future document sharing must remain an explicit controlled action, not implicit upload sharing.');
 
-console.log('Early-UAT polish 2026-09-14 invariants OK');
+console.log('Early-UAT polish 2026-09-15 swipe continuity invariants OK');
