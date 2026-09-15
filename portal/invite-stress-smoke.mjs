@@ -16,7 +16,8 @@ must(welcomeJs.includes("account-setup-command"),'account setup function not wir
 must(welcomeJs.includes('mfa.enroll')&&welcomeJs.includes('mfa.challenge')&&welcomeJs.includes('mfa.verify'),'staff MFA onboarding incomplete');
 must(welcomeJs.includes('Sensitive helse-')===false,'sensitive health copy should remain HTML-only');
 must(css.includes('@media(max-width:760px)'),'mobile welcome layout missing');
-must(invite.includes("const PROD_INVITE_REDIRECT='https://my.aidme.no/welcome.html'"),'production invite fallback missing');
+must(invite.includes("const PROD_INVITE_REDIRECT='https://my.aidme.no/portal/welcome.html'"),'production invite must use canonical portal onboarding path');
+must(!invite.includes("const PROD_INVITE_REDIRECT='https://my.aidme.no/welcome.html'"),'obsolete production root welcome path must not return');
 must(invite.includes("origin==='https://demo.aidme.no'")&&invite.includes('`${origin}/portal/welcome.html`'),'demo invite must return to same demo origin');
 must(invite.includes("if(!allowedOrigin(origin))")&&invite.includes("ORIGIN_NOT_ALLOWED"),'unknown invitation origin must fail closed');
 must(invite.includes('const redirectTo=inviteRedirect(origin)')&&invite.includes('inviteUserByEmail(email,{redirectTo})'),'invite must use environment-aware explicit redirect');

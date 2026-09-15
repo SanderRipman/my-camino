@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
-const PROD_INVITE_REDIRECT='https://my.aidme.no/welcome.html'
+const PROD_INVITE_REDIRECT='https://my.aidme.no/portal/welcome.html'
 function isDemoOrigin(origin:string){return origin==='https://demo.aidme.no'||origin==='https://mycamino-demo.netlify.app'||/^https:\/\/[a-z0-9-]+--mycamino-demo\.netlify\.app$/.test(origin)}
 function allowedOrigin(origin:string){return ['https://my.aidme.no','https://main--mycamino.netlify.app','https://demo.aidme.no','https://mycamino-demo.netlify.app','http://localhost:8888','http://localhost:3000'].includes(origin)||/^https:\/\/deploy-preview-\d+--mycamino\.netlify\.app$/.test(origin)||/^https:\/\/[a-z0-9-]+--mycamino-demo\.netlify\.app$/.test(origin)}
 function inviteRedirect(origin:string){return isDemoOrigin(origin)?`${origin}/portal/welcome.html`:PROD_INVITE_REDIRECT}
