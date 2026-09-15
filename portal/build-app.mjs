@@ -16,6 +16,7 @@ const viaHandoffPath=path.join(dir,'app-via-handoff.js');
 const goDecisionPath=path.join(dir,'app-go-decision.js');
 const serVidaPath=path.join(dir,'app-ser-vida.js');
 const serVidaHandoffPath=path.join(dir,'app-ser-vida-handoff.js');
+const vidaTransitionPrepPath=path.join(dir,'app-vida-transition-prep.js');
 const vidaNewViaPath=path.join(dir,'app-vida-new-via.js');
 const pilotEvaluationPath=path.join(dir,'app-pilot-evaluation.js');
 const navBadgesPath=path.join(dir,'app-nav-badges.js');
@@ -40,6 +41,7 @@ const viaHandoff=fs.readFileSync(viaHandoffPath,'utf8');
 const goDecision=fs.readFileSync(goDecisionPath,'utf8');
 const serVida=fs.readFileSync(serVidaPath,'utf8');
 const serVidaHandoff=fs.readFileSync(serVidaHandoffPath,'utf8');
+const vidaTransitionPrep=fs.readFileSync(vidaTransitionPrepPath,'utf8');
 const vidaNewVia=fs.readFileSync(vidaNewViaPath,'utf8');
 const pilotEvaluation=fs.readFileSync(pilotEvaluationPath,'utf8');
 const navBadges=fs.readFileSync(navBadgesPath,'utf8');
@@ -86,7 +88,7 @@ code=code.replace(updateRe,`async function updateTaskStatus(status){
 
 const renderFormsRe=/function renderForms\(\)\{[^\n]*\}/;
 if(!renderFormsRe.test(code))throw new Error('renderForms: function missing');
-code=code.replace(renderFormsRe,`function renderForms(){const phaseFor={info_before_via:'VÍA',interest_referral:'VÍA',via_roadmap:'VÍA',individual_go_no_go:'VÍA',participant_agreement:'VÍA',pilot_go:'VÍA/SER',ser_daily:'SER',incident:'SER',vida_plan:'VIDA',pilot_evaluation:'VIDA'},participant=selectedParticipantId||ownParticipant()?.id||'';$('#formLibrary').innerHTML=formDefs.map((f,i)=>\`<a class="form-module" style="text-decoration:none;color:inherit" href="./form-runner.html?key=\${encodeURIComponent(f.key)}\${participant?'&participant='+encodeURIComponent(participant):''}"><span class="num">\${String(i).padStart(2,'0')}</span><h3>\${escapeHtml(f.title_no)}</h3><p>\${escapeHtml(f.scope==='staff'?'Arbeidsflate for navngitt rolle/ansvar.':f.scope==='participant_staff'?'Deltaker og ansvarlig medarbeider – etter tilgang.':'Deltakerrettet steg.')}</p><div class="meta"><span>\${escapeHtml(phaseFor[f.key]||'VÍA/SER/VIDA')}</span><span>Åpne →</span></div></a>\`).join('')}`);
+code=code.replace(renderFormsRe,`function renderForms(){const phaseFor={info_before_via:'VÍA',interest_referral:'VÍA',via_roadmap:'VÍA',individual_go_no_go:'VÍA',participant_agreement:'VÍA',pilot_go:'VÍA/SER',ser_daily:'SER',incident:'SER',vida_transition_prep:'SER → VIDA',vida_plan:'VIDA',pilot_evaluation:'VIDA'},participant=selectedParticipantId||ownParticipant()?.id||'';$('#formLibrary').innerHTML=formDefs.map((f,i)=>\`<a class="form-module" style="text-decoration:none;color:inherit" href="./form-runner.html?key=\${encodeURIComponent(f.key)}\${participant?'&participant='+encodeURIComponent(participant):''}"><span class="num">\${String(i).padStart(2,'0')}</span><h3>\${escapeHtml(f.title_no)}</h3><p>\${escapeHtml(f.scope==='staff'?'Arbeidsflate for navngitt rolle/ansvar.':f.scope==='participant_staff'?'Deltaker og ansvarlig medarbeider – etter tilgang.':'Deltakerrettet steg.')}</p><div class="meta"><span>\${escapeHtml(phaseFor[f.key]||'VÍA/SER/VIDA')}</span><span>Åpne →</span></div></a>\`).join('')}`);
 
 code += '\n\n/* Operational extensions are maintained separately and concatenated at build time. */\n'+ops+'\n';
 code += '\n\n/* UX/auth/mobile hardening is maintained separately and concatenated after operations. */\n'+ux+'\n';
@@ -100,6 +102,7 @@ code += '\n\n/* Staff VÍA review handoff is final for staff tasks and is a no-o
 code += '\n\n/* GO decision handoff is appended last so agreement, Pilot-GO and SER-start routing can refine shared task shortcuts. */\n'+goDecision+'\n';
 code += '\n\n/* SER day-zero / normal-day and VIDA living-plan guidance is appended last and remains presentation-only. */\n'+serVida+'\n';
 code += '\n\n/* Explicit staff SER→VIDA handoff uses the existing workflow command and preserves participant-only phase actions. */\n'+serVidaHandoff+'\n';
+code += '\n\n/* Optional late-SER VIDA preparation captures a minimal homeward bridge without advancing the formal participant stage. */\n'+vidaTransitionPrep+'\n';
 code += '\n\n/* Optional new VÍA remains an explicit staff-triggered new start point after VIDA, never an automatic fourth step. */\n'+vidaNewVia+'\n';
 code += '\n\n/* Project-level pilot evaluation is an aggregated learning entry, not a participant gate. */\n'+pilotEvaluation+'\n';
 code += '\n\n/* Navigation badges use distinct semantics: overview total, task severity, participant attention. */\n'+navBadges+'\n';
