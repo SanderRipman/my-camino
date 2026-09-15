@@ -13,7 +13,11 @@ const must=(ok,msg)=>{if(!ok)errors.push(msg)};
 must(welcome.includes('viewport-fit=cover'),'welcome viewport missing');
 must(welcome.includes('Grunnopplysninger'),'profile flow missing');
 must(welcomeJs.includes("account-setup-command"),'account setup function not wired');
-must(welcomeJs.includes('mfa.enroll')&&welcomeJs.includes('mfa.challenge')&&welcomeJs.includes('mfa.verify'),'staff MFA onboarding incomplete');
+must(welcomeJs.includes('mfa.enroll')&&welcomeJs.includes('mfa.challenge')&&welcomeJs.includes('mfa.verify'),'MFA onboarding incomplete');
+must(welcomeJs.includes("const participant=state.accountType==='participant'")&&welcomeJs.includes("$('#continueButton').classList.add('hidden')"),'Participant onboarding must share the MFA gate and hide onward navigation until assurance is checked.');
+must(welcomeJs.includes("data.currentLevel==='aal2'")&&welcomeJs.includes("participant?'./':'./onboarding.html'")&&welcomeJs.includes("'Åpne min arbeidsflate'"),'Participant may continue to the journey only after AAL2 is confirmed.');
+must(welcomeJs.includes("issuer:'AidMe'")&&welcomeJs.includes("friendlyName:'AidMe VIDA'"),'First-login MFA enrollment must use AidMe branding.');
+must(welcomeJs.includes('før første sensitive VÍA-/SER-/VIDA-steg'),'Participant security copy must explain why Authenticator is needed before sensitive journey data.');
 must(welcomeJs.includes('Sensitive helse-')===false,'sensitive health copy should remain HTML-only');
 must(css.includes('@media(max-width:760px)'),'mobile welcome layout missing');
 must(invite.includes("const PROD_INVITE_REDIRECT='https://my.aidme.no/portal/welcome.html'"),'production invite must use canonical portal onboarding path');
@@ -25,7 +29,7 @@ must(invite.includes("USER_ALREADY_EXISTS")&&invite.includes('loginUrl(origin)')
 must(invite.includes('redirect_to:redirectTo,origin'),'invitation audit must record resolved redirect and origin');
 must(setup.includes("basic_profile_only:true"),'participant first-login scope not explicit');
 must(setup.includes("sensitiveSafetyDeferred:true"),'sensitive safety deferral missing');
-must(!setup.includes("claims(token).aal!=='aal2'"),'first-login profile unexpectedly requires AAL2');
+must(!setup.includes("claims(token).aal!=='aal2'"),'basic first-login profile unexpectedly requires AAL2 before the user can enroll it');
 must(setup.includes("role_grants")&&setup.includes("staff_profiles")&&setup.includes("participant_identity"),'account type/profile routing incomplete');
 // N2 -> N3 invariant: create VÍA first, then link secure account to the SAME participant.
 must(intake.includes("from:'n2'")&&intake.includes('participantId'),'N2 does not hand existing participant to N3');
@@ -53,4 +57,4 @@ must(viaMigration.includes("workflow_key = 'participant_via_start'")&&viaMigrati
 must(viaMigration.includes("'via_go_review'")&&viaMigration.includes("'formal_go_no_go', false"),'roadmap completion must create staff review without prematurely deciding GO/NO-GO');
 must(viaHandoff.includes("['via_go_review','via_roadmap_review'].includes(task.workflow_key)")&&viaHandoff.includes('latest=1'),'staff review must open the completed roadmap before the decision gate');
 if(errors.length){console.error(errors.map(x=>'FAIL: '+x).join('\n'));process.exit(1)}
-console.log('Invite/onboarding + N2→N3→VÍA continuity smoke: PASS');
+console.log('Invite/onboarding + participant MFA + N2→N3→VÍA continuity smoke: PASS');
