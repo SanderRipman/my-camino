@@ -4,8 +4,12 @@ function read(path){return fs.readFileSync(new URL(path,import.meta.url),'utf8')
 function assert(ok,msg){if(!ok)throw new Error(msg)}
 
 const layer=read('./app-ser-vida-handoff.js');
+const prep=read('./app-vida-transition-prep.js');
+const formPrep=read('./form-vida-transition-prep.js');
+const migration=fs.readFileSync(new URL('../supabase/migrations/20260915165000_ser_to_vida_preparation_bridge.sql',import.meta.url),'utf8');
 const ops=read('./app-ops.js');
 const build=read('./build-app.mjs');
+const runner=read('./form-runner.html');
 
 assert(build.includes("app-ser-vida-handoff.js")&&build.includes("'+serVidaHandoff+'"),'SER→VIDA handoff layer must be included in deterministic portal build');
 assert(!layer.includes("hasRole('project_owner')")&&layer.includes("hasRole('program_lead')")&&layer.includes("hasRole('ser_lead')"),'SER→VIDA control must stay hidden from project_owner and remain available only to operational transition roles');
@@ -28,4 +32,16 @@ assert(layer.includes('participantRagText')&&layer.includes("YELLOW:'Gul'")&&lay
 assert(layer.includes('window.confirm'),'Stage transition must require an explicit staff confirmation click');
 assert(ops.includes("p.stage==='SER'||p.stage==='VIDA'")&&!ops.includes("action='START_VIDA'")&&!ops.includes("action='START_NEW_VIA'"),'Generic ops layer must not render duplicate SER/VIDA transition controls');
 
-console.log('SER→VIDA explicit staff handoff, timing guidance, compact mobile participant lifecycle and least-privilege invariants OK');
+assert(build.includes("app-vida-transition-prep.js")&&build.includes("'+vidaTransitionPrep+'"),'Late-SER VIDA preparation layer must be included in the deterministic portal build');
+assert(prep.includes("hasRole('ser_lead')||hasRole('vida_owner')")&&prep.includes('Forbered VIDA før hjemkomst'),'Scoped SER/VIDA staff must get an explicit preparation entry without changing stage');
+assert(prep.includes('Forbered mitt første VIDA-steg')&&prep.includes("String(p.stage||'').toUpperCase()!=='SER'"),'Participant preparation must be explicitly SER-only and optional');
+assert(!prep.includes("START_VIDA")&&!prep.includes('client.from('),'Presentation layer must not advance stage or write directly to data tables');
+assert(runner.includes('form-vida-transition-prep.js'),'Form runner must load the controlled transition-prep authorization/UI layer');
+assert(formPrep.includes("if(stage==='SER')return new Set([PREP_KEY])"),'Participant form runner must expose only the transition-prep form while in SER');
+assert(formPrep.includes("currentDef.key==='vida_plan'")&&formPrep.includes("stage!=='VIDA'"),'Form runner must block premature formal VIDA-plan context');
+assert(formPrep.includes('latestSubmittedPrep')&&formPrep.includes('seedVidaPlanFromSerPrep'),'Formal VIDA plan may seed only from a submitted handoff after VIDA starts');
+assert(migration.includes("'vida_transition_prep'")&&migration.includes("upper(p.stage::text)='SER'"),'Database RLS helper must constrain transition preparation to SER');
+assert(migration.includes("when 'vida_plan' then")&&migration.includes("upper(p.stage::text)='VIDA'"),'Staff database authorization must constrain formal VIDA-plan writes to VIDA stage');
+assert(migration.includes("'edit_ser'")&&migration.includes("'edit_vida'"),'Transition preparation must be limited to scoped SER or VIDA editing capabilities');
+
+console.log('SER→VIDA handoff, optional late-SER VIDA preparation, timing guidance and least-privilege invariants OK');
