@@ -1,13 +1,17 @@
 (()=>{
 'use strict';
 
-const MOBILE_FLUID_VERSION='2026-09-14a';
+const MOBILE_FLUID_VERSION='2026-09-15b';
 const BREAKPOINT=780;
 const AXIS_RATIO=1.05;
 const LOCK_AT=8;
 const COMMIT_MIN=56;
 const VELOCITY_COMMIT=.34;
-const BLOCKED='input,textarea,select,[contenteditable="true"],dialog,.task-dialog,.runner-card,.chart-frame,canvas,.participant-chips,[data-no-swipe]';
+// Horizontal page swipes may begin over ordinary buttons/inputs/selects. Only controls
+// whose own horizontal gesture has meaning (range/file), rich editing, dialogs/charts
+// and explicit opt-outs remain protected. A normal tap is untouched because the
+// gesture does not prevent defaults until a clear horizontal lock is established.
+const BLOCKED='input[type="range"],input[type="file"],[contenteditable="true"],dialog,.task-dialog,.chart-frame,canvas,.participant-chips,[data-no-swipe]';
 const PHASE_COPY={
   'VÍA':'Før · retning og avklaring',
   'SER':'Under · erfaring og trygghet',
@@ -15,6 +19,8 @@ const PHASE_COPY={
   'ny VÍA':'Neste retning'
 };
 let gesture=null,suppressClickUntil=0;
+
+document.documentElement.dataset.mobileGestureOwner=MOBILE_FLUID_VERSION;
 
 function mobile(){return window.innerWidth<=BREAKPOINT}
 function reducedMotion(){return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches}
@@ -81,7 +87,7 @@ function adjacentFor(direction){const items=visiblePrimaryItems(),active=activeI
 function cleanupPreview(g){if(!g)return;clearViewInline(g.current);if(g.nextView)clearViewInline(g.nextView)}
 function prepareAdjacent(g,direction){if(g.direction===direction&&g.nextView)return;clearViewInline(g.nextView);g.direction=direction;const adjacent=adjacentFor(direction);g.nextItem=adjacent?.item||null;g.nextView=adjacent?.view||null;if(!g.nextView)return;const current=g.current,width=g.width;g.nextView.classList.add('aidme-flow-preview');g.nextView.style.position='absolute';g.nextView.style.top=`${current.offsetTop}px`;g.nextView.style.left='0';g.nextView.style.width='100%';g.nextView.style.zIndex='1';g.nextView.style.willChange='transform';g.current.style.position='relative';g.current.style.zIndex='2';g.current.style.willChange='transform';g.nextView.style.transform=`translate3d(${direction<0?width:-width}px,0,0)`}
 function settleBack(g){if(!g)return;syncMarker(true);if(reducedMotion()){cleanupPreview(g);return}const jobs=[animate(g.current,[{transform:g.current.style.transform||'translate3d(0,0,0)'},{transform:'translate3d(0,0,0)'}],{duration:250,easing:'cubic-bezier(.16,1,.3,1)'})];if(g.nextView)jobs.push(animate(g.nextView,[{transform:g.nextView.style.transform||'translate3d(0,0,0)'},{transform:`translate3d(${g.direction<0?g.width:-g.width}px,0,0)`}],{duration:250,easing:'cubic-bezier(.16,1,.3,1)'}));Promise.all(jobs).finally(()=>cleanupPreview(g))}
-function commitContent(g){if(!g.nextView||!g.nextItem){settleBack(g);return}const currentFrom=g.current.style.transform||'translate3d(0,0,0)',nextFrom=g.nextView.style.transform||`translate3d(${g.direction<0?g.width:-g.width}px,0,0)`,currentTo=`translate3d(${g.direction<0?-g.width:g.width}px,0,0)`;setMarkerPoint(markerPoint(g.nextItem),true);const finish=()=>{const name=g.nextItem.dataset.view;cleanupPreview(g);if(window.scrollY||window.scrollX)window.scrollTo({top:0,left:0,behavior:'auto'});if(name&&typeof show==='function')show(name);syncMarker(false);enhanceProcessAccordion()};if(reducedMotion()){finish();return}Promise.all([animate(g.current,[{transform:currentFrom},{transform:currentTo}],{duration:210,easing:'cubic-bezier(.2,.72,.25,1)'}),animate(g.nextView,[{transform:nextFrom},{transform:'translate3d(0,0,0)'}],{duration:210,easing:'cubic-bezier(.2,.72,.25,1)'})]).then(finish)}
+function commitContent(g){if(!g.nextView||!g.nextItem){settleBack(g);return}const currentFrom=g.current.style.transform||'translate3d(0,0,0)',nextFrom=g.nextView.style.transform||`translate3d(${g.direction<0?g.width:-g.width}px,0,0)`,currentTo=`translate3d(${g.direction<0?-g.width:g.width}px,0,0)`;setMarkerPoint(markerPoint(g.nextItem),true);const finish=()=>{const name=g.nextItem.dataset.view;if(window.scrollY||window.scrollX)window.scrollTo({top:0,left:0,behavior:'auto'});if(name&&typeof show==='function')show(name);requestAnimationFrame(()=>{cleanupPreview(g);syncMarker(false);enhanceProcessAccordion()})};if(reducedMotion()){finish();return}Promise.all([animate(g.current,[{transform:currentFrom},{transform:currentTo}],{duration:210,easing:'cubic-bezier(.2,.72,.25,1)'}),animate(g.nextView,[{transform:nextFrom},{transform:'translate3d(0,0,0)'}],{duration:210,easing:'cubic-bezier(.2,.72,.25,1)'})]).then(finish)}
 
 function installNavGesture(){const n=nav();if(!n||n.dataset.aidmeFluidNavNative==='1')return;n.dataset.aidmeFluidNavNative='1';n.addEventListener('scroll',()=>syncMarker(false),{passive:true})}
 
@@ -92,7 +98,7 @@ function cancel(){const g=gesture;gesture=null;if(g)settleBack(g)}
 function suppressGhostClick(event){if(performance.now()>suppressClickUntil)return;const h=host();if(h?.contains(event.target)){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation()}}
 
 function wrapShow(){if(typeof show!=='function'||show.__aidmeMobileFluid)return;const prior=show;const wrapped=function(name){prior(name);requestAnimationFrame(()=>{syncMarker(false);enhanceProcessAccordion()})};wrapped.__aidmeMobileFluid=true;show=wrapped}
-function refresh(){if(!mobile())return;ensureStyles();ensureMarker();installNavGesture();syncMarker(false);enhanceProcessAccordion();wrapShow();document.documentElement.dataset.mobileGestureOwner=MOBILE_FLUID_VERSION}
+function refresh(){if(!mobile())return;document.documentElement.dataset.mobileGestureOwner=MOBILE_FLUID_VERSION;ensureStyles();ensureMarker();installNavGesture();syncMarker(false);enhanceProcessAccordion();wrapShow()}
 
 ensureStyles();refresh();
 document.addEventListener('touchstart',begin,{capture:true,passive:true});
