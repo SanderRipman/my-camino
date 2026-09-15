@@ -2,9 +2,18 @@
 'use strict';
 
 let accessStateSettled=false;
+const DEMO_ONLY_FORM_KEYS=new Set(['vida_transition_prep']);
 
 function noActivePortalAccess(){
   return accessStateSettled&&!!session&&!isStaff()&&!ownParticipant();
+}
+function hideDemoOnlyForms(){
+  document.querySelectorAll('#formLibrary .form-module').forEach(module=>{
+    try{
+      const url=new URL(module.getAttribute('href')||'',location.href);
+      if(DEMO_ONLY_FORM_KEYS.has(url.searchParams.get('key')))module.remove();
+    }catch{}
+  });
 }
 function accessStateStyles(){
   if(document.querySelector('#access-state-style'))return;
@@ -55,6 +64,7 @@ const accessStateRenderAll=renderAll;
 renderAll=function(){
   accessStateRenderAll();
   accessStateSettled=true;
+  hideDemoOnlyForms();
   renderNoActiveAccess();
   announcePortalRendered();
 };
@@ -63,6 +73,7 @@ const accessStateShow=show;
 show=function(name){
   if(noActivePortalAccess()&&!['overview','help','security'].includes(name))name='overview';
   accessStateShow(name);
+  if(name==='forms')hideDemoOnlyForms();
   if(accessStateSettled&&name==='overview')renderNoActiveAccess();
 };
 
