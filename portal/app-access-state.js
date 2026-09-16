@@ -16,5 +16,6 @@ if(!document.querySelector('script[data-aidme-phase-workspace]')){const workspac
 if(!document.querySelector('script[data-aidme-profile-unread-badge]')){const badge=document.createElement('script');badge.src='./app-profile-unread-badge.js?v=20260913a';badge.dataset.aidmeProfileUnreadBadge='1';document.head.appendChild(badge)}
 if(!document.querySelector('script[data-aidme-mobile-fluid]')){const motion=document.createElement('script');motion.src='./app-mobile-fluid.js?v=20260915b';motion.dataset.aidmeMobileFluid='1';document.head.appendChild(motion)}
 if(!document.querySelector('script[data-aidme-task-inline]')){const taskInline=document.createElement('script');taskInline.src='./app-task-inline.js?v=20260913a';taskInline.dataset.aidmeTaskInline='1';document.head.appendChild(taskInline)}
+if(!document.querySelector('script[data-aidme-intake-task-link]')){const intakeTask=document.createElement('script');intakeTask.src='./app-intake-task-link.js?v=20260916a';intakeTask.dataset.aidmeIntakeTaskLink='1';document.head.appendChild(intakeTask)}
 if(!document.querySelector('script[data-aidme-uat-superuser-roster]')){const roster=document.createElement('script');roster.src='./app-uat-superuser-roster.js?v=20260916a';roster.dataset.aidmeUatSuperuserRoster='1';document.head.appendChild(roster)}
 })();
