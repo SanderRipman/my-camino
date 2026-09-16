@@ -29,17 +29,16 @@ ok(access.includes('app-uat-superuser-roster.js?v=20260916a'),'Explicit demo UAT
 ok(access.includes('app-intake-task-link.js?v=20260916a'),'Intake task routing layer is not loaded');
 
 ok(roster.includes("assurance?.currentLevel==='aal2'")&&roster.includes("hasRole('system_admin')"),'UAT roster must require AAL2 + system_admin');
-ok(roster.includes("synthetic_filter_enforced"),'Client must reject a UAT snapshot without server-side synthetic filtering proof');
-ok(roster.includes("filter==='ARCHIVED'")&&roster.includes("p.active===false"),'Archived/inactive synthetic rows must remain explicitly testable');
+ok(roster.includes('synthetic_filter_enforced'),'Client must reject a UAT snapshot without server-side synthetic filtering proof');
+ok(roster.includes("filter==='ARCHIVED'")&&roster.includes('p.active===false'),'Archived/inactive synthetic rows must remain explicitly testable');
 ok(roster.includes("client.functions.invoke('uat-overview-command'"),'UAT roster must use the audited Edge Function');
-ok(!roster.includes("client.from('participants')")&&!roster.includes("client.from(\"participants\")"),'UAT roster must not bypass the Edge guard by querying participant rows directly');
+ok(!roster.includes("client.from('participants')")&&!roster.includes('client.from("participants")'),'UAT roster must not bypass the Edge guard by querying participant rows directly');
 
 ok(uatFn.includes('function syntheticName')&&uatFn.includes('safeParticipants=(participants??[]).filter'),'Server must enforce the synthetic participant filter before response');
 ok(uatFn.includes('safeTasks=(tasks??[]).filter')&&uatFn.includes('outPilots=(pilots??[]).filter'),'Server must scope task/pilot output to synthetic participants');
 ok(uatFn.includes('synthetic_filter_enforced:true')&&uatFn.includes('no_contact_data:true')&&uatFn.includes('no_health_data:true')&&uatFn.includes('no_documents:true'),'UAT snapshot guardrails must be explicit');
 ok(uatFn.includes("(claims(token) as any).aal!=='aal2'")&&uatFn.includes(".eq('role_code','system_admin')"),'UAT snapshot must remain AAL2 + system_admin gated');
 
-ok(intakeTask.includes("source_type||''").toLowerCase&&false===false,'placeholder');
 ok(intakeTask.includes("String(t.source_type||'').toLowerCase()==='intake'")&&intakeTask.includes("startsWith('intake_triage:')"),'Intake task detection missing');
 ok(intakeTask.includes("./intake.html?intake=${encodeURIComponent(id)}"),'Intake task must deep-link to the authoritative intake record');
 ok(intakeTask.includes('Navn, valgt kontaktkanal')&&intakeTask.includes('ikke i den generelle oppgavelisten'),'General task list must explain the identity/contact boundary');
