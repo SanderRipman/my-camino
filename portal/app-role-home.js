@@ -55,7 +55,12 @@ function roleHomeLens(){
   };
 }
 function aggregateOnlyLens(){return roleHomeLens()?.key==='aggregate'}
-window.AidMeRoleLens=Object.freeze({aggregateOnly:()=>aggregateOnlyLens()});
+function demoSystemAdminAggregate(){
+  const host=location.hostname;
+  const demo=host==='demo.aidme.no'||host==='mycamino-demo.netlify.app'||host.endsWith('--mycamino-demo.netlify.app');
+  return demo&&aggregateOnlyLens()&&hasRole('system_admin');
+}
+window.AidMeRoleLens=Object.freeze({aggregateOnly:()=>aggregateOnlyLens(),demoSystemAdminAggregate:()=>demoSystemAdminAggregate()});
 
 function roleHomeStyles(){
   if(document.querySelector('#role-home-style'))return;
@@ -63,6 +68,7 @@ function roleHomeStyles(){
   style.textContent=`
     #view-overview.role-home-aggregate .dashboard-top{grid-template-columns:1fr}
     #view-overview.role-home-aggregate .role-home-hide-aggregate{display:none!important}
+    #view-overview.role-home-aggregate.role-home-demo-superuser .role-home-hide-aggregate{display:block!important}
     #view-overview.role-home-aggregate .metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
     #contextMini{max-width:240px;line-height:1.35}
     #groupPulse .pulse-row[data-pulse-participant-link="1"]{cursor:pointer;border-radius:12px;padding:8px;margin:-8px;transition:background .15s ease,box-shadow .15s ease}
@@ -75,7 +81,7 @@ function roleHomeStyles(){
       #view-overview .hero-badge{min-width:0;max-width:46%;padding-left:12px}
       #view-overview .hero-badge strong{font-size:clamp(20px,6vw,28px)}
       #view-overview #homeIntro{line-height:1.45}
-      #view-overview.role-home-aggregate .metric-grid{grid-template-columns:1fr}
+      #view-overview.role-home-aggregate .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
   `;document.head.appendChild(style);
 }
@@ -137,11 +143,11 @@ function adaptVidaParticipantsView(){
   adaptVidaParticipantDetail();
 }
 function adaptAggregateNavigation(lens){
-  const aggregate=lens.key==='aggregate';
+  const aggregate=lens.key==='aggregate',demoAdmin=demoSystemAdminAggregate();
   const participantNav=document.querySelector('.nav-item[data-view="participants"]');
   const checkinNav=document.querySelector('.nav-item[data-view="checkin"]');
   const formsNav=document.querySelector('.nav-item[data-view="forms"]');
-  if(participantNav)participantNav.classList.toggle('hidden',aggregate);
+  if(participantNav)participantNav.classList.toggle('hidden',aggregate&&!demoAdmin);
   if(checkinNav)checkinNav.classList.toggle('hidden',aggregate);
   if(formsNav)formsNav.classList.toggle('hidden',aggregate);
 }
@@ -149,9 +155,11 @@ function applyRoleAwareHome(){
   if(!isStaff())return;
   const lens=roleHomeLens();if(!lens)return;roleHomeStyles();adaptAggregateNavigation(lens);
   const view=document.querySelector('#view-overview');if(!view)return;
+  const demoAdmin=demoSystemAdminAggregate();
   view.classList.toggle('role-home-aggregate',lens.key==='aggregate');
+  view.classList.toggle('role-home-demo-superuser',demoAdmin);
   const metrics=document.querySelectorAll('#view-overview .metric-grid .metric');
-  if(metrics[3])metrics[3].classList.toggle('role-home-hide-aggregate',lens.key==='aggregate');
+  if(metrics[3])metrics[3].classList.toggle('role-home-hide-aggregate',lens.key==='aggregate'&&!demoAdmin);
   const eyebrow=document.querySelector('#homeEyebrow'),heading=document.querySelector('#homeHeading'),intro=document.querySelector('#homeIntro'),badge=document.querySelector('#stageBadge'),context=document.querySelector('#contextMini');
   if(eyebrow)eyebrow.textContent=lens.eyebrow;if(heading)heading.textContent=lens.heading;if(intro)intro.textContent=lens.intro;if(badge)badge.textContent=lens.badge;if(context)context.textContent=lens.context;
   const queue=document.querySelector('#priorityQueue')?.closest('.panel-card');if(queue){const h=queue.querySelector('h3');if(h)h.textContent=lens.queue}
@@ -160,6 +168,7 @@ function applyRoleAwareHome(){
     setOverviewMetricLabel(0,'Åpne programoppgaver','porter, rapportering og oppfølging');
     setOverviewMetricLabel(1,'Kritisk / forfalt','krever programoppmerksomhet');
     setOverviewMetricLabel(2,'Trenger avklaring','åpne programspørsmål');
+    if(demoAdmin)setOverviewMetricLabel(3,'Testforløp','aggregert syntetisk UAT-status');
   }else if(lens.key==='vida'){
     setOverviewMetricLabel(0,'Åpne VIDA-steg','levende plan og neste handling');
     setOverviewMetricLabel(3,'Deltakere i scope','kun ditt eksisterende ansvar');

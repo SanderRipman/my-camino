@@ -4,6 +4,7 @@ function allowedOrigin(o:string){return o==='https://demo.aidme.no'||o==='https:
 function cors(req:Request){const o=req.headers.get('origin')??'';return{'Access-Control-Allow-Origin':allowedOrigin(o)?o:'https://demo.aidme.no','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json','Cache-Control':'no-store','Vary':'Origin'}}
 function claims(t:string){const p=t.split('.')[1];if(!p)return{} as any;const n=p.replace(/-/g,'+').replace(/_/g,'/');return JSON.parse(atob(n+'='.repeat((4-n.length%4)%4)))}
 function active(g:any){const now=new Date();return !g.revoked_at&&(!g.valid_from||new Date(g.valid_from)<=now)&&(!g.valid_until||new Date(g.valid_until)>now)}
+function syntheticName(v:any){return /^(?:DEMO-|QA-|SELFTEST-|Deltaker Demo)/i.test(String(v??''))}
 
 Deno.serve(async(req:Request)=>{
  const headers=cors(req);if(req.method==='OPTIONS')return new Response('ok',{headers});if(req.method!=='POST')return new Response(JSON.stringify({error:'METHOD_NOT_ALLOWED'}),{status:405,headers});
@@ -33,9 +34,14 @@ Deno.serve(async(req:Request)=>{
    admin.from('pilot_participants').select('participant_id,pilot_id,status'),
    admin.from('tasks').select('id,participant_id,pilot_id,title,status,due_at,priority,severity,task_type,audience').eq('organization_id',orgId).neq('status','CANCELLED').order('due_at',{ascending:true,nullsFirst:false}).limit(500)
   ]);if(pe||pie||ppe||te)throw pe||pie||ppe||te;
-  const pilotIds=new Set((pilots??[]).map((p:any)=>p.id));const scopedPP=(pp??[]).filter((x:any)=>pilotIds.has(x.pilot_id));
-  const outParticipants=(participants??[]).map((p:any)=>({...p,normally_hidden:!normalIds.has(String(p.id)),pilot_ids:scopedPP.filter((x:any)=>x.participant_id===p.id&&x.status==='ACTIVE').map((x:any)=>x.pilot_id)}));
-  await admin.from('audit_events').insert({organization_id:orgId,actor_user_id:u.user.id,action:'UAT_FULL_VIEW_SNAPSHOT',resource_type:'uat_full_view_window',resource_id:w.id,purpose:'Early-UAT synthetic full-view testing',metadata:{participant_count:outParticipants.length,normally_hidden_count:outParticipants.filter((p:any)=>p.normally_hidden).length,task_count:(tasks??[]).length,origin}});
-  return new Response(JSON.stringify({ok:true,expires_at:w.expires_at,participants:outParticipants,pilots:pilots??[],tasks:tasks??[],guardrails:{synthetic_only:true,no_health_data:true,no_contact_data:true,no_documents:true}}),{headers});
+  const safeParticipants=(participants??[]).filter((p:any)=>syntheticName(p.code_name));
+  const safeParticipantIds=new Set(safeParticipants.map((p:any)=>String(p.id)));
+  const scopedPP=(pp??[]).filter((x:any)=>safeParticipantIds.has(String(x.participant_id))&&String(x.status||'ACTIVE').toUpperCase()==='ACTIVE');
+  const safePilotIds=new Set(scopedPP.map((x:any)=>String(x.pilot_id)));
+  const outPilots=(pilots??[]).filter((p:any)=>safePilotIds.has(String(p.id)));
+  const safeTasks=(tasks??[]).filter((t:any)=>safeParticipantIds.has(String(t.participant_id??'')));
+  const outParticipants=safeParticipants.map((p:any)=>({...p,normally_hidden:!normalIds.has(String(p.id)),pilot_ids:scopedPP.filter((x:any)=>String(x.participant_id)===String(p.id)).map((x:any)=>x.pilot_id)}));
+  await admin.from('audit_events').insert({organization_id:orgId,actor_user_id:u.user.id,action:'UAT_FULL_VIEW_SNAPSHOT',resource_type:'uat_full_view_window',resource_id:w.id,purpose:'Early-UAT synthetic full-view testing',metadata:{participant_count:outParticipants.length,normally_hidden_count:outParticipants.filter((p:any)=>p.normally_hidden).length,task_count:safeTasks.length,origin,synthetic_filter_enforced:true}});
+  return new Response(JSON.stringify({ok:true,expires_at:w.expires_at,participants:outParticipants,pilots:outPilots,tasks:safeTasks,guardrails:{synthetic_only:true,synthetic_filter_enforced:true,no_health_data:true,no_contact_data:true,no_documents:true}}),{headers});
  }catch(error){console.error(error);return new Response(JSON.stringify({error:'UAT_OVERVIEW_FAILED'}),{status:500,headers})}
 })

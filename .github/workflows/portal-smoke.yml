@@ -150,3 +150,5 @@ jobs:
         run: node portal/form-runner-stability-smoke.mjs
       - name: Verify SER operational v3 invariants
         run: node portal/ser-operational-v3-smoke.mjs
+      - name: Verify 2026-09-16 live coherence invariants
+        run: node portal/live-coherence-20260916-smoke.mjs
