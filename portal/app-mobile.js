@@ -120,10 +120,11 @@ function prefetchVisibleStandalone(){
   }
 }
 
-// Shared swipe follows the actual visible top-nav sequence. It deliberately does
-// not care whether an item is a data-view button, a role-injected link, or has a
-// badge. This keeps Interest/VÍA and other real primary tabs from being skipped.
+// Shared swipe remains the standalone-page fallback. The main portal has one
+// dedicated owner (app-mobile-fluid.js); registering both owners causes double
+// navigation and can skip a visible tab on a single gesture.
 function installSharedPrimarySwipe(){
+  if(document.querySelector('#mainNav'))return;
   const host=document.querySelector('#appView .workspace,.app-shell .workspace');
   const sidebar=document.querySelector('.sidebar'),nav=sidebar?.querySelector('nav');
   if(!host||!nav||host.dataset.aidmeSharedSwipe==='1')return;
