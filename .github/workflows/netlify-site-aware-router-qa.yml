@@ -80,13 +80,14 @@ jobs:
         shell: bash
         run: rm -rf _netlify_publish public-site/current/_site
 
-      - name: Validate portal route parity
+      - name: Validate portal route parity and deploy-scoped asset cache bust
         shell: bash
         env:
           SITE_ID: a90c686c-e9fc-4373-9956-629c9d31e622
           SITE_NAME: mycamino
           URL: https://my.aidme.no
           CONTEXT: production
+          COMMIT_REF: qa-cache-bust-20260916
         run: |
           set -euo pipefail
           node netlify-build-router.mjs
@@ -98,6 +99,12 @@ jobs:
           test -f _netlify_publish/_redirects
           grep -q "location.replace('/portal/')" _netlify_publish/index.html
           grep -q '^/\* /index.html 200' _netlify_publish/_redirects
+          grep -q 'app.js?v=qa-cache-bust-20' _netlify_publish/portal/index.html
+          grep -q 'form-runner.js?v=qa-cache-bust-20' _netlify_publish/portal/form-runner.html
+          if grep -q 'app.js?v=20260817b' _netlify_publish/portal/index.html; then
+            echo 'Portal publish still contains stale app.js cache key' >&2
+            exit 1
+          fi
           node --check _netlify_publish/portal/app.js
 
       - name: Unknown target must fail closed
