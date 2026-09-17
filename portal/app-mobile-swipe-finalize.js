@@ -11,6 +11,7 @@ function installStyle(){
   @media(max-width:${BP}px){
     .sidebar nav{scroll-snap-type:x mandatory!important;scroll-padding-inline:18px!important}
     .sidebar nav .nav-item:not(.hidden):not(.nav-mobile-secondary):not(.nav-ia-demoted){scroll-snap-align:center!important;scroll-snap-stop:always!important}
+    html.aidme-swipe-committing #appView .workspace .view,html.aidme-swipe-committing .app-shell .workspace .view{transition:none!important;animation:none!important}
   }`;
   document.head.appendChild(s);
 }
@@ -21,13 +22,32 @@ function clearPreviewState(){
     for(const k of ['transition','transform','opacity','willChange','position','top','left','width','zIndex','pointerEvents'])view.style[k]='';
   }
 }
+function callShowWithoutSmoothScroll(prior,name){
+  const original=window.scrollTo;
+  let patched=false;
+  try{
+    window.scrollTo=function(a,b){
+      if(typeof a==='object'&&a!==null)return original.call(window,{...a,behavior:'auto'});
+      return original.call(window,a,b);
+    };patched=true;
+  }catch{}
+  try{return prior(name)}finally{if(patched)try{window.scrollTo=original}catch{}}
+}
 function wrapShow(){
   if(typeof show!=='function'||show.__aidmeSwipeFinalize)return;
   const prior=show;
   const wrapped=function(name){
-    if(mobile())clearPreviewState();
-    prior(name);
-    if(mobile()&&(window.scrollX||window.scrollY))window.scrollTo({left:0,top:0,behavior:'auto'});
+    if(!mobile())return prior(name);
+    document.documentElement.classList.add('aidme-swipe-committing');
+    clearPreviewState();
+    if(window.scrollX||window.scrollY)window.scrollTo({left:0,top:0,behavior:'auto'});
+    const out=callShowWithoutSmoothScroll(prior,name);
+    requestAnimationFrame(()=>{
+      clearPreviewState();
+      document.documentElement.classList.remove('aidme-swipe-committing');
+      snapActiveIntoView();
+    });
+    return out;
   };
   wrapped.__aidmeSwipeFinalize=true;show=wrapped;
 }
