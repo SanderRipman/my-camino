@@ -12,35 +12,25 @@ function exactProtectedFormTarget(){
 function armExactReturn(){
   const target=exactProtectedFormTarget();
   if(!target)return false;
-  try{
-    sessionStorage.setItem(AUTH_RETURN_KEY,JSON.stringify({target,createdAt:Date.now()}));
-    return true;
-  }catch{return false}
+  try{sessionStorage.setItem(AUTH_RETURN_KEY,JSON.stringify({target,createdAt:Date.now()}));return true}catch{return false}
 }
 function leaveForAuthentication(){
-  if(authContinuityRedirecting)return;
-  authContinuityRedirecting=true;
-  armExactReturn();
-  location.replace('./');
+  if(authContinuityRedirecting)return;authContinuityRedirecting=true;armExactReturn();location.replace('./');
 }
 async function verifySessionStillPresent(){
   if(authContinuityRedirecting)return;
-  try{
-    const {data:{session}}=await client.auth.getSession();
-    if(!session)leaveForAuthentication();
-  }catch{}
+  try{const {data:{session}}=await client.auth.getSession();if(!session)leaveForAuthentication()}catch{}
+}
+function polishSecurityChoice(){
+  const blocked=document.querySelector('#blocked'),text=document.querySelector('#blockedText'),link=blocked?.querySelector('a.primary');if(!blocked||!text||blocked.classList.contains('hidden'))return;
+  if(/Authenticator|tofaktor|AAL2/i.test(text.textContent||''))text.textContent='Dette steget krever ekstra sikkerhetsbekreftelse. Gå til Sikkerhet og bruk metoden som er tilgjengelig for kontoen din.';
+  if(link){link.href='./#security';link.textContent='Velg sikker bekreftelse'}
 }
 
-// Logout is shared by Supabase across portal tabs, while this return intent remains
-// scoped to the exact tab through sessionStorage. This keeps old portal tabs from
-// overwriting the form that the user was actually working in.
-client.auth.onAuthStateChange((event,nextSession)=>{
-  if(event==='SIGNED_OUT'||!nextSession)leaveForAuthentication();
-});
-
-// Mobile browsers can throttle or discard background tabs. Re-check when the user
-// comes back so a missed cross-tab auth event still restores the exact form target.
+client.auth.onAuthStateChange((event,nextSession)=>{if(event==='SIGNED_OUT'||!nextSession)leaveForAuthentication()});
 window.addEventListener('focus',()=>setTimeout(verifySessionStillPresent,0));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(verifySessionStillPresent,0)});
-window.addEventListener('pageshow',()=>setTimeout(verifySessionStillPresent,0));
+window.addEventListener('pageshow',()=>{setTimeout(verifySessionStillPresent,0);setTimeout(polishSecurityChoice,0)});
+const blocked=document.querySelector('#blocked');if(blocked)new MutationObserver(()=>setTimeout(polishSecurityChoice,0)).observe(blocked,{attributes:true,childList:true,subtree:true,attributeFilter:['class']});
+setTimeout(polishSecurityChoice,200);
 })();
