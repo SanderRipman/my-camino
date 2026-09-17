@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8');
-const welcome=read('./welcome.html'), welcomeJs=read('./welcome.js'), css=read('./welcome.css');
+const welcome=read('./welcome.html'), welcomeJs=read('./welcome.js'), welcomePolish=read('./welcome-flow-polish.js'), css=read('./welcome.css');
 const admin=read('./admin.js'), intake=read('./intake.js');
 const participantNext=read('./app-participant-next.js');
 const viaHandoff=read('./app-via-handoff.js');
@@ -12,10 +12,16 @@ const errors=[];
 const must=(ok,msg)=>{if(!ok)errors.push(msg)};
 must(welcome.includes('viewport-fit=cover'),'welcome viewport missing');
 must(welcome.includes('Grunnopplysninger'),'profile flow missing');
+must(welcome.includes('id="nextCard"')&&welcome.includes('muted-card hidden'),'Step 2 must start hidden until Step 1 is completed');
+must(welcome.includes('welcome-flow-polish.js'),'sequential welcome flow polish not loaded');
 must(welcomeJs.includes("account-setup-command"),'account setup function not wired');
 must(welcomeJs.includes('mfa.enroll')&&welcomeJs.includes('mfa.challenge')&&welcomeJs.includes('mfa.verify'),'MFA onboarding incomplete');
 must(welcomeJs.includes("const participant=state.accountType==='participant'")&&welcomeJs.includes("$('#continueButton').href='./'")&&welcomeJs.includes("'Åpne Min reise'"),'Participant must be able to enter Min reise before optional first-login MFA on demo.');
 must(welcomeJs.includes('kreves først når du skal åpne beskyttede personlige skjema')&&welcomeJs.includes('Når du skal åpne personlige skjema eller sikkerhetsopplysninger, må Authenticator bekreftes'),'Progressive participant MFA copy must keep the later protected-data gate explicit.');
+must(welcomePolish.includes("location.replace('./')")&&welcomePolish.includes("state?.accountType==='participant'"),'Participant must go directly to Min reise after Step 1 is saved');
+must(welcomePolish.includes('Tildelte arbeidsroller')&&welcomePolish.includes('ROLE_NAMES[r.role_code]'),'Administrator-assigned staff roles must be visible in Step 1 without becoming an editable self-grant');
+must(welcomePolish.includes('showStaffStepTwo')&&welcomePolish.includes("profileForm?.classList.add('hidden')")&&welcomePolish.includes("nextCard?.classList.remove('hidden')"),'Staff Step 2 must replace Step 1 after successful profile save');
+must(welcomePolish.includes('invokeSetup(body,false)')&&welcomePolish.includes('ACCOUNT_SETUP_FAILED'),'Demo profile save must retry one transient backend failure and return a meaningful error');
 must(welcomeJs.includes("data.currentLevel==='aal2'")&&welcomeJs.includes("participant?'./':'./onboarding.html'"),'AAL2-confirmed participant/staff onward routing missing.');
 must(welcomeJs.includes("issuer:'AidMe'")&&welcomeJs.includes("friendlyName:'AidMe VIDA'"),'MFA enrollment must use AidMe branding.');
 must(welcomeJs.includes('Sensitive helse-')===false,'sensitive health copy should remain HTML-only');
@@ -57,4 +63,4 @@ must(viaMigration.includes("workflow_key = 'participant_via_start'")&&viaMigrati
 must(viaMigration.includes("'via_go_review'")&&viaMigration.includes("'formal_go_no_go', false"),'roadmap completion must create staff review without prematurely deciding GO/NO-GO');
 must(viaHandoff.includes("['via_go_review','via_roadmap_review'].includes(task.workflow_key)")&&viaHandoff.includes('latest=1'),'staff review must open the completed roadmap before the decision gate');
 if(errors.length){console.error(errors.map(x=>'FAIL: '+x).join('\n'));process.exit(1)}
-console.log('Invite/onboarding + progressive participant MFA + N2→N3→VÍA continuity smoke: PASS');
+console.log('Invite/onboarding + sequential welcome flow + progressive participant MFA + N2→N3→VÍA continuity smoke: PASS');
