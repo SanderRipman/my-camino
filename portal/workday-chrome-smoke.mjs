@@ -46,18 +46,18 @@ assert(css.includes('#view-overview>.hero-panel.compact-hero h2')&&css.includes(
 assert(css.includes('#view-overview #homeIntro')&&css.includes('white-space:nowrap!important'),'Phase reminder must remain a compact one-line cue.');
 assert(!/display\s*:\s*none[^}]*\.task-list|\.task-list[^}]*display\s*:\s*none/i.test(css),'Workday polish must not hide operational task content.');
 
-assert(access.includes('app-mobile-fluid.js?v=20260915b')&&!access.includes('app-mobile-nav-scroll.js')&&!access.includes('app-mobile-physical-feedback.js'),'One current unified fluid layer must own mobile top-nav and content flow.');
-assert(fluid.includes("MOBILE_FLUID_VERSION='2026-09-15b'"),'Unified mobile flow must identify the current swipe-continuity round.');
+assert(access.includes('app-mobile-fluid.js?v=20260917c')&&!access.includes('app-mobile-nav-scroll.js')&&!access.includes('app-mobile-physical-feedback.js'),'One current unified fluid layer must own mobile top-nav and content flow.');
+assert(fluid.includes("MOBILE_FLUID_VERSION='2026-09-17c'"),'Unified mobile flow must identify the current swipe-stability round.');
 assert(fluid.includes('document.documentElement.dataset.mobileGestureOwner=MOBILE_FLUID_VERSION'),'Specialized mobile flow must claim gesture ownership before touch events can race the fallback layer.');
 assert(fluid.includes('function installNavGesture()')&&fluid.includes("aidmeFluidNavNative='1'")&&fluid.includes("n.addEventListener('scroll'"),'Top-menu drag must use native horizontal scrolling across clickable items.');
 assert(!fluid.includes("surface.addEventListener('touchstart'")&&!fluid.includes('navSuppressClickUntil'),'Top-menu must not intercept touch gestures with a competing manual drag layer.');
 assert(fluid.includes('touch-action:pan-x pan-y!important')&&fluid.includes('overflow-x:auto!important'),'Native mobile nav must explicitly allow horizontal panning.');
 assert(fluid.includes("if(n?.contains(target))return")&&fluid.includes("gesture={zone:'content'"),'Document-level content swipe must yield to the native nav scroller.');
 assert(fluid.includes("input[type=\"range\"]")&&fluid.includes("input[type=\"file\"]")&&!fluid.includes("const BLOCKED='input,textarea,select"),'Ordinary form controls must allow page swipe start while horizontally interactive controls remain protected.');
-assert(fluid.includes('prepareAdjacent')&&fluid.includes('aidme-flow-preview')&&fluid.includes('commitContent'),'Content swipe must keep the destination view present during drag and commit without a detached post-swipe load step.');
-const commitBody=fluid.match(/function commitContent\(g\)\{([\s\S]*?)\n\nfunction installNavGesture/)?.[1]||'';
-assert(commitBody.indexOf("if(name&&typeof show==='function')show(name)")>=0&&commitBody.indexOf('requestAnimationFrame(()=>{cleanupPreview(g)')>commitBody.indexOf("if(name&&typeof show==='function')show(name)"),'Canonical destination view must activate before preview geometry is removed to avoid the final-frame landing flash.');
-assert(fluid.includes('interpolateMarker')&&fluid.includes('aidme-fluid-nav-marker')&&fluid.includes('getBoundingClientRect()'),'AidMe active marker must use live geometry and travel continuously toward the destination tab.');
+assert(fluid.includes('getBoundingClientRect()')&&fluid.includes("style.display!=='none'")&&fluid.includes('Number(rect.width)>0'),'Swipe order must be derived from tabs that are actually rendered, so a visible Innsjekk cannot be skipped because of stale class markers.');
+assert(!fluid.includes('aidme-flow-preview')&&!fluid.includes('prepareAdjacent')&&!fluid.includes('clearViewInline'),'Content swipe must not maintain a detached destination preview that can flash between canonical views.');
+assert(fluid.includes('function commitContent(g)')&&fluid.includes('next.item.click()'),'Committed swipe must activate exactly one canonical adjacent navigation item.');
+assert(fluid.includes('interpolateMarker')&&fluid.includes('aidme-fluid-nav-marker'),'AidMe active marker may provide gesture feedback without moving page content itself.');
 assert(fluid.includes('grid-template-columns:auto minmax(0,1fr) auto!important')&&fluid.includes('compact-process>h3{white-space:nowrap!important'),'Process must remain clickable while matching the compact production-like mobile layout.');
 assert(!/supabase|client\.from|functions\.invoke|fetch\(|XMLHttpRequest|service_role/i.test(fluid),'Unified fluid flow must remain presentation-only.');
 
