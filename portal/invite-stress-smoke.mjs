@@ -14,10 +14,10 @@ must(welcome.includes('viewport-fit=cover'),'welcome viewport missing');
 must(welcome.includes('Grunnopplysninger'),'profile flow missing');
 must(welcomeJs.includes("account-setup-command"),'account setup function not wired');
 must(welcomeJs.includes('mfa.enroll')&&welcomeJs.includes('mfa.challenge')&&welcomeJs.includes('mfa.verify'),'MFA onboarding incomplete');
-must(welcomeJs.includes("const participant=state.accountType==='participant'")&&welcomeJs.includes("$('#continueButton').classList.add('hidden')"),'Participant onboarding must share the MFA gate and hide onward navigation until assurance is checked.');
-must(welcomeJs.includes("data.currentLevel==='aal2'")&&welcomeJs.includes("participant?'./':'./onboarding.html'")&&welcomeJs.includes("'Åpne min arbeidsflate'"),'Participant may continue to the journey only after AAL2 is confirmed.');
-must(welcomeJs.includes("issuer:'AidMe'")&&welcomeJs.includes("friendlyName:'AidMe VIDA'"),'First-login MFA enrollment must use AidMe branding.');
-must(welcomeJs.includes('før første sensitive VÍA-/SER-/VIDA-steg'),'Participant security copy must explain why Authenticator is needed before sensitive journey data.');
+must(welcomeJs.includes("const participant=state.accountType==='participant'")&&welcomeJs.includes("$('#continueButton').href='./'")&&welcomeJs.includes("'Åpne Min reise'"),'Participant must be able to enter Min reise before optional first-login MFA on demo.');
+must(welcomeJs.includes('kreves først når du skal åpne beskyttede personlige skjema')&&welcomeJs.includes('Når du skal åpne personlige skjema eller sikkerhetsopplysninger, må Authenticator bekreftes'),'Progressive participant MFA copy must keep the later protected-data gate explicit.');
+must(welcomeJs.includes("data.currentLevel==='aal2'")&&welcomeJs.includes("participant?'./':'./onboarding.html'"),'AAL2-confirmed participant/staff onward routing missing.');
+must(welcomeJs.includes("issuer:'AidMe'")&&welcomeJs.includes("friendlyName:'AidMe VIDA'"),'MFA enrollment must use AidMe branding.');
 must(welcomeJs.includes('Sensitive helse-')===false,'sensitive health copy should remain HTML-only');
 must(css.includes('@media(max-width:760px)'),'mobile welcome layout missing');
 must(invite.includes("const PROD_INVITE_REDIRECT='https://my.aidme.no/portal/welcome.html'"),'production invite must use canonical portal onboarding path');
@@ -57,4 +57,4 @@ must(viaMigration.includes("workflow_key = 'participant_via_start'")&&viaMigrati
 must(viaMigration.includes("'via_go_review'")&&viaMigration.includes("'formal_go_no_go', false"),'roadmap completion must create staff review without prematurely deciding GO/NO-GO');
 must(viaHandoff.includes("['via_go_review','via_roadmap_review'].includes(task.workflow_key)")&&viaHandoff.includes('latest=1'),'staff review must open the completed roadmap before the decision gate');
 if(errors.length){console.error(errors.map(x=>'FAIL: '+x).join('\n'));process.exit(1)}
-console.log('Invite/onboarding + participant MFA + N2→N3→VÍA continuity smoke: PASS');
+console.log('Invite/onboarding + progressive participant MFA + N2→N3→VÍA continuity smoke: PASS');
