@@ -19,4 +19,5 @@ if(!document.querySelector('script[data-aidme-task-inline]')){const taskInline=d
 if(!document.querySelector('script[data-aidme-intake-task-link]')){const intakeTask=document.createElement('script');intakeTask.src='./app-intake-task-link.js?v=20260916a';intakeTask.dataset.aidmeIntakeTaskLink='1';document.head.appendChild(intakeTask)}
 if(!document.querySelector('script[data-aidme-uat-superuser-roster]')){const roster=document.createElement('script');roster.src='./app-uat-superuser-roster.js?v=20260916a';roster.dataset.aidmeUatSuperuserRoster='1';document.head.appendChild(roster)}
 if(!document.querySelector('script[data-aidme-task-count-parity]')){const parity=document.createElement('script');parity.src='./app-task-count-parity.js?v=20260917a';parity.dataset.aidmeTaskCountParity='1';document.head.appendChild(parity)}
+if(!document.querySelector('script[data-aidme-participant-preflight]')){const participantPreflight=document.createElement('script');participantPreflight.src='./app-participant-preflight.js?v=20260917a';participantPreflight.dataset.aidmeParticipantPreflight='1';document.head.appendChild(participantPreflight)}
 })();
