@@ -11,7 +11,7 @@ const errors=[];const must=(v,m)=>{if(!v)errors.push(m)};
 
 must(access.includes('app-participant-checkin-nav.js?v=20260917a'),'stable participant check-in helper not loaded');
 must(access.includes('app-participant-security-stepup.js?v=20260917a'),'participant security helper not loaded');
-must(access.includes('app-mobile-swipe-finalize.js?v=20260917b'),'latest swipe finalizer cache key missing');
+must(access.includes('app-mobile-swipe-finalize.js?v=20260925a'),'latest swipe finalizer cache key missing');
 
 must(checkin.includes("item.classList.remove('hidden','nav-mobile-secondary','nav-ia-demoted')"),'participant Innsjekk must remain in stable primary navigation');
 must(checkin.includes("const ser=phase()==='SER'"),'check-in write availability must stay SER-constrained');
@@ -20,6 +20,7 @@ must(checkin.includes("el.disabled=true;el.dataset.aidmePhaseDisabled='1'"),'non
 must(swipe.includes('scroll-snap-stop:always'),'mobile top nav must stop on each primary item');
 must(swipe.includes("behavior:'auto'"),'mobile view handoff must suppress smooth-scroll frame');
 must(swipe.includes('aidme-swipe-committing'),'mobile handoff must suppress transition flash while canonical view switches');
+must(swipe.includes('requestAnimationFrame(()=>requestAnimationFrame'),'mobile handoff must preserve destination preview through canonical view activation');
 
 must(security.includes('BankID er valgt som foretrukket metode for deltakere'),'participant BankID-first decision missing');
 must(security.includes('BankID · testspor'),'unverified BankID must be labelled as test track');
