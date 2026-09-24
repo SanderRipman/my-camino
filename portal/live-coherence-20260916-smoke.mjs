@@ -10,6 +10,7 @@ const role=read('app-role-home.js');
 const access=read('app-access-state.js');
 const roster=read('app-uat-superuser-roster.js');
 const showcase=read('app-demo-showcase-polish.js');
+const showcaseHotfix=read('app-demo-showcase-hotfix.js');
 const uatOverview=read('uat-overview.js');
 const intakeTask=read('app-intake-task-link.js');
 const intakeContact=read('intake-contact-ux.js');
@@ -30,7 +31,8 @@ ok(role.includes("host==='demo.aidme.no'"),'Demo roster exception must be origin
 
 ok(access.includes('app-uat-superuser-roster.js?v=20260924a'),'Explicit demo UAT roster layer must use the showcase cache key');
 ok(access.includes('app-demo-showcase-polish.js?v=20260924a'),'Demo showcase polish layer is not loaded');
-ok(access.includes('app-intake-task-link.js?v=20260916a'),'Intake task routing layer is not loaded');
+ok(access.includes('app-demo-showcase-hotfix.js?v=20260924b'),'Demo showcase hotfix layer is not loaded');
+ok(access.includes('app-intake-task-link.js?v=20260924b'),'Intake task routing layer must use the showcase cache key');
 
 ok(roster.includes("assurance?.currentLevel==='aal2'")&&roster.includes("hasRole('system_admin')"),'UAT roster must require AAL2 + system_admin');
 ok(roster.includes('synthetic_filter_enforced'),'Client must reject a UAT snapshot without server-side synthetic filtering proof');
@@ -38,11 +40,15 @@ ok(roster.includes("filter==='ARCHIVED'")&&roster.includes('p.active===false'),'
 ok(roster.includes("client.functions.invoke('uat-overview-command'"),'UAT roster must use the audited Edge Function');
 ok(!roster.includes("client.from('participants')")&&!roster.includes('client.from("participants")'),'UAT roster must not bypass the Edge guard by querying participant rows directly');
 
-for(const name of ['Ingrid Demo','Martin Demo','Eva Demo','Daniel Demo','Sofia Demo','Henrik Demo','Aisha Demo','Kari Demo','Thomas Demo'])ok(showcase.includes(name)||uatOverview.includes(name),`Relatable demo alias missing: ${name}`);
+for(const name of ['Ingrid Demo','Martin Demo','Eva Demo','Daniel Demo','Sofia Demo','Henrik Demo','Aisha Demo','Kari Demo','Thomas Demo'])ok(showcase.includes(name)||showcaseHotfix.includes(name)||uatOverview.includes(name),`Relatable demo alias missing: ${name}`);
 ok(showcase.includes("h==='demo.aidme.no'")&&showcase.includes("hasRole('system_admin')"),'Showcase polish must remain demo-origin + system_admin scoped');
 ok(showcase.includes("window.AidMeRoleLens?.demoSystemAdminAggregate?.()"),'Showcase polish must stay on the explicit aggregate superuser lens');
 ok(showcase.includes('Fiktive, lagrede målepunkter for 8 demonstrasjonsdeltakere'),'Graph context must state that showcase measurements are synthetic stored demo data');
 ok(!/client\.from|functions\.invoke|fetch\(|XMLHttpRequest|service_role/i.test(showcase),'Showcase polish must remain presentation-only');
+ok(showcaseHotfix.includes("assurance?.currentLevel==='aal2'")&&showcaseHotfix.includes("hasRole('system_admin')"),'Showcase hotfix must require AAL2 + system_admin');
+ok(showcaseHotfix.includes("window.AidMeRoleLens?.demoSystemAdminAggregate?.()"),'Showcase hotfix must stay on explicit aggregate superuser lens');
+ok(showcaseHotfix.includes("client.functions.invoke('aggregate-analysis'")&&showcaseHotfix.includes("client.functions.invoke('uat-overview-command'"),'Showcase hotfix must use audited aggregate/UAT boundaries');
+ok(!showcaseHotfix.includes("client.from('participants')")&&!showcaseHotfix.includes("client.from('tasks')"),'Showcase hotfix must not bypass server boundaries for participant/task data');
 ok(uatOverview.includes('DEMO_ALIASES')&&uatOverview.includes('displayName(p.code_name)'),'Full UAT overview must use human-readable Demo aliases while preserving technical codes');
 
 ok(uatFn.includes('function syntheticName')&&uatFn.includes('safeParticipants=(participants??[]).filter'),'Server must enforce the synthetic participant filter before response');
@@ -55,6 +61,7 @@ ok(intakeTask.includes("./intake.html?intake=${encodeURIComponent(id)}"),'Intake
 ok(intakeTask.includes('Navn, valgt kontaktkanal')&&intakeTask.includes('ikke i den generelle oppgavelisten'),'General task list must explain the identity/contact boundary');
 
 ok(intakeHtml.includes('intake-contact-ux.js?v=20260916a'),'Intake contact guidance module is not loaded');
+ok(intakeHtml.includes('intake-demo-showcase.js?v=20260924b'),'Demo intake plain-language layer is not loaded');
 ok(intakeContact.includes("tel:${phone.replace(/\\s+/g,'')}")&&intakeContact.includes('mailto:${email}'),'Intake detail must expose phone/mail actions from stored contact data');
 ok(intakeContact.includes('Foretrukket kontakt')&&intakeContact.includes('Kontakt er en triagehandling'),'Intake detail must explain contact preference and triage boundary');
 ok(!intakeContact.includes('client.from(')&&!intakeContact.includes('functions.invoke'),'Contact UX layer must remain presentation-only');
