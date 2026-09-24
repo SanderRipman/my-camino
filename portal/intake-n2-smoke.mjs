@@ -7,7 +7,7 @@ const js=fs.readFileSync(path.join(dir,'intake.js'),'utf8');
 const css=fs.readFileSync(path.join(dir,'intake-n2.css'),'utf8');
 const requireText=(label,haystack,needle)=>{if(!haystack.includes(needle))throw new Error(`${label}: missing ${needle}`)};
 
-requireText('N2 heading',html,'Mottak og triage');
+requireText('N2 heading',html,'Mottak og første avklaring');
 requireText('interest is not approval',html,'Interesse er ikke godkjenning');
 requireText('qa no write banner',html,'Syretest · ingen data lagres');
 requireText('account later',html,'konto senere');
@@ -34,4 +34,4 @@ for(const forbidden of ["email:String(intake?.contact_email",'email:String(intak
   if(js.includes(forbidden))throw new Error('N2→N3 handoff must not put contact email in URL/query parameters.');
 }
 if(!js.includes("if(QA_MODE)"))throw new Error('N2 QA mode must be explicit and opt-in');
-console.log('N2 intake triage invariants OK, including PII-safe N2→N3 handoff URL.');
+console.log('N2 intake / first-avklaring invariants OK, including PII-safe N2→N3 handoff URL.');
