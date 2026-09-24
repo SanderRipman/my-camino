@@ -9,6 +9,8 @@ const mobile=read('app-mobile.js');
 const role=read('app-role-home.js');
 const access=read('app-access-state.js');
 const roster=read('app-uat-superuser-roster.js');
+const showcase=read('app-demo-showcase-polish.js');
+const uatOverview=read('uat-overview.js');
 const intakeTask=read('app-intake-task-link.js');
 const intakeContact=read('intake-contact-ux.js');
 const intakeHtml=read('intake.html');
@@ -26,7 +28,8 @@ ok(role.includes("aggregate&&!demoAdmin"),'Ordinary aggregate roles must remain 
 ok(role.includes("hasRole('system_admin')"),'Demo roster exception must require system_admin');
 ok(role.includes("host==='demo.aidme.no'"),'Demo roster exception must be origin-scoped');
 
-ok(access.includes('app-uat-superuser-roster.js?v=20260916a'),'Explicit demo UAT roster layer is not loaded');
+ok(access.includes('app-uat-superuser-roster.js?v=20260924a'),'Explicit demo UAT roster layer must use the showcase cache key');
+ok(access.includes('app-demo-showcase-polish.js?v=20260924a'),'Demo showcase polish layer is not loaded');
 ok(access.includes('app-intake-task-link.js?v=20260916a'),'Intake task routing layer is not loaded');
 
 ok(roster.includes("assurance?.currentLevel==='aal2'")&&roster.includes("hasRole('system_admin')"),'UAT roster must require AAL2 + system_admin');
@@ -34,6 +37,13 @@ ok(roster.includes('synthetic_filter_enforced'),'Client must reject a UAT snapsh
 ok(roster.includes("filter==='ARCHIVED'")&&roster.includes('p.active===false'),'Archived/inactive synthetic rows must remain explicitly testable');
 ok(roster.includes("client.functions.invoke('uat-overview-command'"),'UAT roster must use the audited Edge Function');
 ok(!roster.includes("client.from('participants')")&&!roster.includes('client.from("participants")'),'UAT roster must not bypass the Edge guard by querying participant rows directly');
+
+for(const name of ['Ingrid Demo','Martin Demo','Eva Demo','Daniel Demo','Sofia Demo','Henrik Demo','Aisha Demo','Kari Demo','Thomas Demo'])ok(showcase.includes(name)||uatOverview.includes(name),`Relatable demo alias missing: ${name}`);
+ok(showcase.includes("host==='demo.aidme.no'")&&showcase.includes("hasRole('system_admin')"),'Showcase polish must remain demo-origin + system_admin scoped');
+ok(showcase.includes("window.AidMeRoleLens?.demoSystemAdminAggregate?.()"),'Showcase polish must stay on the explicit aggregate superuser lens');
+ok(showcase.includes('Fiktive, lagrede målepunkter for 8 demonstrasjonsdeltakere'),'Graph context must state that showcase measurements are synthetic stored demo data');
+ok(!/client\.from|functions\.invoke|fetch\(|XMLHttpRequest|service_role/i.test(showcase),'Showcase polish must remain presentation-only');
+ok(uatOverview.includes('DEMO_ALIASES')&&uatOverview.includes('displayName(p.code_name)'),'Full UAT overview must use human-readable Demo aliases while preserving technical codes');
 
 ok(uatFn.includes('function syntheticName')&&uatFn.includes('safeParticipants=(participants??[]).filter'),'Server must enforce the synthetic participant filter before response');
 ok(uatFn.includes('safeTasks=(tasks??[]).filter')&&uatFn.includes('outPilots=(pilots??[]).filter'),'Server must scope task/pilot output to synthetic participants');
@@ -54,4 +64,4 @@ ok(gate.includes("['system_admin','project_owner']")&&gate.includes('gir ikke au
 ok(gate.includes('VÍA-veikart → individuell GO/NO-GO → deltakeravtale og navngitt VIDA-eier → samlet Pilot-GO → siste SER-kontroll'),'VÍA→SER gate chain explanation missing');
 ok(!gate.includes('client.')&&!gate.includes('.from(')&&!gate.includes('functions.invoke')&&!gate.includes('fetch('),'Role/gate guidance must remain presentation-only');
 
-console.log('live coherence 2026-09-16 smoke: OK');
+console.log('live coherence 2026-09-24 showcase smoke: OK');
