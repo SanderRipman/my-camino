@@ -1,7 +1,8 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
-const allowedOrigins=new Set(['https://my.aidme.no','https://main--mycamino.netlify.app','http://localhost:8888','http://localhost:3000'])
-const metricColumns=new Set(['agency','belonging','direction'])
+const allowedOrigins=new Set(['https://my.aidme.no','https://demo.aidme.no','https://main--mycamino.netlify.app','https://mycamino-demo.netlify.app','https://demo-uat--mycamino-demo.netlify.app','http://localhost:8888','http://localhost:3000'])
+const standardMetricColumns=new Set(['agency','belonging','direction'])
+const demoMetricColumns=new Set(['agency','belonging','direction','mood','stress','energy','sleep'])
 const allowedDays=new Set([14,30,60,90,3650])
 const MIN_GROUP_SIZE=3
 
@@ -26,6 +27,10 @@ function claims(token:string){
 function activeGrant(g:any,nowIso:string){
   return !g.revoked_at&&(!g.valid_from||g.valid_from<=nowIso)&&(!g.valid_until||g.valid_until>nowIso)
 }
+function demoOrigin(req:Request){
+  const origin=req.headers.get('origin')??''
+  return origin==='https://demo.aidme.no'||origin==='https://mycamino-demo.netlify.app'||origin==='https://demo-uat--mycamino-demo.netlify.app'||/^https:\/\/[a-z0-9-]+--mycamino-demo\.netlify\.app$/.test(origin)
+}
 
 Deno.serve(async(req:Request)=>{
   const h=headers(req)
@@ -45,7 +50,7 @@ Deno.serve(async(req:Request)=>{
     if(userError||!userData.user)return new Response(JSON.stringify({error:'UNAUTHORIZED'}),{status:401,headers:h})
 
     const body=await req.json().catch(()=>({})) as any
-    const metric=metricColumns.has(String(body.metric))?String(body.metric):'agency'
+    const requestedMetric=String(body.metric||'agency')
     const days=allowedDays.has(Number(body.days))?Number(body.days):30
     const requestedPilotId=body.pilotId?String(body.pilotId):null
     const nowIso=new Date().toISOString()
@@ -57,6 +62,9 @@ Deno.serve(async(req:Request)=>{
     const grants=(allGrants??[]).filter(g=>activeGrant(g,nowIso))
     const roles=[...new Set(grants.map(g=>g.role_code))]
     if(!roles.length)return new Response(JSON.stringify({error:'FORBIDDEN'}),{status:403,headers:h})
+
+    const allowedMetricColumns=demoOrigin(req)&&roles.includes('system_admin')?demoMetricColumns:standardMetricColumns
+    const metric=allowedMetricColumns.has(requestedMetric)?requestedMetric:'agency'
 
     const {data:permissions,error:permissionError}=await admin.from('role_permissions')
       .select('role_code,capability')
@@ -70,7 +78,7 @@ Deno.serve(async(req:Request)=>{
     if(requestedPilotId&&!allowedPilotIds.includes(requestedPilotId))return new Response(JSON.stringify({error:'OUT_OF_SCOPE'}),{status:403,headers:h})
 
     const {data:pilotRows,error:pilotError}=await admin.from('pilots')
-      .select('id,name,route_name,status')
+      .select('id,name,route_name,status,start_date,end_date')
       .in('id',allowedPilotIds)
       .order('start_date',{ascending:false})
     if(pilotError)throw pilotError
@@ -123,7 +131,7 @@ Deno.serve(async(req:Request)=>{
       resource_type:'pilot',
       resource_id:selectedPilot.id,
       purpose:'Aggregate program learning',
-      metadata:{metric,days,min_group_size:MIN_GROUP_SIZE,points_returned:points.length,suppressed_dates:suppressedDates}
+      metadata:{metric,days,min_group_size:MIN_GROUP_SIZE,points_returned:points.length,suppressed_dates:suppressedDates,demo_extended_metric:demoOrigin(req)&&roles.includes('system_admin')&&!standardMetricColumns.has(metric)}
     })
 
     return new Response(JSON.stringify({
