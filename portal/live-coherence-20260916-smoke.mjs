@@ -39,7 +39,7 @@ ok(roster.includes("client.functions.invoke('uat-overview-command'"),'UAT roster
 ok(!roster.includes("client.from('participants')")&&!roster.includes('client.from("participants")'),'UAT roster must not bypass the Edge guard by querying participant rows directly');
 
 for(const name of ['Ingrid Demo','Martin Demo','Eva Demo','Daniel Demo','Sofia Demo','Henrik Demo','Aisha Demo','Kari Demo','Thomas Demo'])ok(showcase.includes(name)||uatOverview.includes(name),`Relatable demo alias missing: ${name}`);
-ok(showcase.includes("host==='demo.aidme.no'")&&showcase.includes("hasRole('system_admin')"),'Showcase polish must remain demo-origin + system_admin scoped');
+ok(showcase.includes("h==='demo.aidme.no'")&&showcase.includes("hasRole('system_admin')"),'Showcase polish must remain demo-origin + system_admin scoped');
 ok(showcase.includes("window.AidMeRoleLens?.demoSystemAdminAggregate?.()"),'Showcase polish must stay on the explicit aggregate superuser lens');
 ok(showcase.includes('Fiktive, lagrede målepunkter for 8 demonstrasjonsdeltakere'),'Graph context must state that showcase measurements are synthetic stored demo data');
 ok(!/client\.from|functions\.invoke|fetch\(|XMLHttpRequest|service_role/i.test(showcase),'Showcase polish must remain presentation-only');
