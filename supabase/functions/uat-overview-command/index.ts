@@ -27,6 +27,17 @@ Deno.serve(async(req:Request)=>{
     const {data:w}=await admin.from('uat_full_view_windows').select('id').eq('user_id',u.user.id).is('closed_at',null).gt('expires_at',new Date().toISOString()).order('created_at',{ascending:false}).limit(1).maybeSingle();if(w){await admin.from('uat_full_view_windows').update({closed_at:new Date().toISOString()}).eq('id',w.id);await admin.from('audit_events').insert({organization_id:orgId,actor_user_id:u.user.id,action:'UAT_FULL_VIEW_CLOSED',resource_type:'uat_full_view_window',resource_id:w.id,purpose:'Early-UAT synthetic full-view testing',metadata:{origin}})}return new Response(JSON.stringify({ok:true}),{headers});
   }
   const {data:w,error:we}=await admin.from('uat_full_view_windows').select('id,expires_at').eq('user_id',u.user.id).eq('organization_id',orgId).is('closed_at',null).gt('expires_at',new Date().toISOString()).order('created_at',{ascending:false}).limit(1).maybeSingle();if(we)throw we;if(!w)return new Response(JSON.stringify({error:'UAT_WINDOW_REQUIRED'}),{status:403,headers});
+
+  if(action==='TASK_STATUS'){
+    const taskId=String(b?.taskId??'').trim(),status=String(b?.status??'').toUpperCase();if(!taskId||!['OPEN','IN_PROGRESS','WAITING','DONE'].includes(status))return new Response(JSON.stringify({error:'INVALID_TASK_ACTION'}),{status:400,headers});
+    const {data:t,error:te}=await admin.from('tasks').select('id,participant_id,title,status,due_at,severity,task_type').eq('id',taskId).eq('organization_id',orgId).maybeSingle();if(te||!t)return new Response(JSON.stringify({error:'TASK_NOT_FOUND'}),{status:404,headers});
+    if(!t.participant_id)return new Response(JSON.stringify({error:'SYNTHETIC_PARTICIPANT_TASK_REQUIRED'}),{status:403,headers});
+    const {data:p,error:pe}=await admin.from('participants').select('id,code_name,stage').eq('id',t.participant_id).eq('organization_id',orgId).maybeSingle();if(pe||!p||!syntheticName(p.code_name))return new Response(JSON.stringify({error:'SYNTHETIC_TASK_REQUIRED'}),{status:403,headers});
+    const {data:updated,error:updateError}=await admin.from('tasks').update({status,updated_at:new Date().toISOString()}).eq('id',taskId).select('id,participant_id,title,status,due_at,severity,task_type').single();if(updateError)throw updateError;
+    await admin.from('audit_events').insert({organization_id:orgId,actor_user_id:u.user.id,action:'UAT_SYNTHETIC_TASK_STATUS_CHANGED',resource_type:'task',resource_id:taskId,purpose:'Early-UAT demo task action',metadata:{from_status:t.status,to_status:status,participant_code:p.code_name,origin,window_id:w.id,synthetic_only:true}});
+    return new Response(JSON.stringify({ok:true,task:updated,expires_at:w.expires_at,guardrails:{synthetic_only:true,uat_window_required:true}}),{headers});
+  }
+
   const normalIds=new Set(Array.isArray(b?.normalVisibleParticipantIds)?b.normalVisibleParticipantIds.map((x:any)=>String(x)):[]);
   const [{data:participants,error:pe},{data:pilots,error:pie},{data:pp,error:ppe},{data:tasks,error:te}]=await Promise.all([
    admin.from('participants').select('id,code_name,stage,active,updated_at').eq('organization_id',orgId).order('updated_at',{ascending:false}),
@@ -41,7 +52,9 @@ Deno.serve(async(req:Request)=>{
   const outPilots=(pilots??[]).filter((p:any)=>safePilotIds.has(String(p.id)));
   const safeTasks=(tasks??[]).filter((t:any)=>safeParticipantIds.has(String(t.participant_id??'')));
   const outParticipants=safeParticipants.map((p:any)=>({...p,normally_hidden:!normalIds.has(String(p.id)),pilot_ids:scopedPP.filter((x:any)=>String(x.participant_id)===String(p.id)).map((x:any)=>x.pilot_id)}));
-  await admin.from('audit_events').insert({organization_id:orgId,actor_user_id:u.user.id,action:'UAT_FULL_VIEW_SNAPSHOT',resource_type:'uat_full_view_window',resource_id:w.id,purpose:'Early-UAT synthetic full-view testing',metadata:{participant_count:outParticipants.length,normally_hidden_count:outParticipants.filter((p:any)=>p.normally_hidden).length,task_count:safeTasks.length,origin,synthetic_filter_enforced:true}});
-  return new Response(JSON.stringify({ok:true,expires_at:w.expires_at,participants:outParticipants,pilots:outPilots,tasks:safeTasks,guardrails:{synthetic_only:true,synthetic_filter_enforced:true,no_health_data:true,no_contact_data:true,no_documents:true}}),{headers});
+  let safeCheckins:any[]=[];
+  if(safeParticipantIds.size){const ids=[...safeParticipantIds];const {data:ci,error:cie}=await admin.from('ser_checkins').select('participant_id,checkin_date,mood,stress,energy,sleep,belonging,agency,direction,rag').in('participant_id',ids).gte('checkin_date','2027-05-01').lte('checkin_date','2027-05-31').order('checkin_date',{ascending:true});if(cie)throw cie;safeCheckins=(ci??[]).filter((x:any)=>safeParticipantIds.has(String(x.participant_id)))}
+  await admin.from('audit_events').insert({organization_id:orgId,actor_user_id:u.user.id,action:'UAT_FULL_VIEW_SNAPSHOT',resource_type:'uat_full_view_window',resource_id:w.id,purpose:'Early-UAT synthetic full-view testing',metadata:{participant_count:outParticipants.length,normally_hidden_count:outParticipants.filter((p:any)=>p.normally_hidden).length,task_count:safeTasks.length,checkin_count:safeCheckins.length,origin,synthetic_filter_enforced:true}});
+  return new Response(JSON.stringify({ok:true,expires_at:w.expires_at,participants:outParticipants,pilots:outPilots,tasks:safeTasks,checkins:safeCheckins,guardrails:{synthetic_only:true,synthetic_filter_enforced:true,synthetic_checkins_only:true,no_real_participant_data:true,no_health_data:true,no_contact_data:true,no_documents:true}}),{headers});
  }catch(error){console.error(error);return new Response(JSON.stringify({error:'UAT_OVERVIEW_FAILED'}),{status:500,headers})}
 })
