@@ -39,14 +39,15 @@ function wrapShow(){
   const wrapped=function(name){
     if(!mobile())return prior(name);
     document.documentElement.classList.add('aidme-swipe-committing');
-    clearPreviewState();
+    // Keep the destination preview visible until show() has activated the real target.
+    // Clearing it before show() created a one-frame blank/old-view flash on Android.
     if(window.scrollX||window.scrollY)window.scrollTo({left:0,top:0,behavior:'auto'});
     const out=callShowWithoutSmoothScroll(prior,name);
-    requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
       clearPreviewState();
       document.documentElement.classList.remove('aidme-swipe-committing');
       snapActiveIntoView();
-    });
+    }));
     return out;
   };
   wrapped.__aidmeSwipeFinalize=true;show=wrapped;
