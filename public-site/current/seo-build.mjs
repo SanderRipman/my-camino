@@ -28,7 +28,7 @@ await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
 for (const entry of await readdir(here, { withFileTypes: true })) {
   if (excluded.has(entry.name)) continue;
-  await cp(join(here, entry.name), join(out, entry.name), { recursive: true });
+  await cp(join(here, entry.name), out, { recursive: true });
 }
 
 for (const page of indexablePages) {
@@ -60,6 +60,9 @@ for (const page of indexablePages) {
   ].join('\n');
 
   html = html.replace(descriptionMatch[0], `${descriptionMatch[0]}\n${seo}`);
+  if (page === 'index.html') {
+    html = html.replace('</head>', '<link rel="stylesheet" href="hero-tuning.css?v=20260925b">\n</head>');
+  }
   await writeFile(path, html, 'utf8');
 }
 
