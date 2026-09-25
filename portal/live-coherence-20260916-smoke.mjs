@@ -18,6 +18,9 @@ const intakeContact=read('intake-contact-ux.js');
 const intakeHtml=read('intake.html');
 const gate=read('form-role-gate-guidance.js');
 const formHtml=read('form-runner.html');
+const formGuard=read('form-entry-guard.js');
+const formBridge=read('app-form-workflow-bridge.js');
+const formFeedback=read('form-workflow-feedback.js');
 const uatFn=fs.readFileSync(path.join(dir,'..','supabase','functions','uat-overview-command','index.ts'),'utf8');
 
 function ok(condition,message){if(!condition)throw new Error(message)}
@@ -39,6 +42,7 @@ ok(!access.includes("safeDemo.src='./app-demo-showcase-safe.js"),'Polling showca
 ok(!access.includes("finalDemo.src='./app-demo-final-stabilizer.js"),'P0 final stabilizer must remain disabled after loader freeze');
 ok(access.includes('app-mobile-swipe-finalize.js?v=20260925a'),'Current mobile swipe finalizer cache key is not loaded');
 ok(access.includes('app-intake-task-link.js?v=20260924b'),'Intake task routing layer must use the showcase cache key');
+ok(access.includes('app-form-workflow-bridge.js?v=20260925a'),'Participant/task to form workflow bridge must be loaded');
 
 ok(roster.includes("assurance?.currentLevel==='aal2'")&&roster.includes("hasRole('system_admin')"),'UAT roster must require AAL2 + system_admin');
 ok(roster.includes('synthetic_filter_enforced'),'Client must reject a UAT snapshot without server-side synthetic filtering proof');
@@ -75,8 +79,20 @@ ok(intakeContact.includes('Foretrukket kontakt')&&intakeContact.includes('Kontak
 ok(!intakeContact.includes('client.from(')&&!intakeContact.includes('.from(')&&!intakeContact.includes('functions.invoke'),'Contact UX layer must remain presentation-only');
 
 ok(formHtml.includes('form-role-gate-guidance.js?v=20260916a'),'Role/gate explanation module is not loaded');
+ok(formHtml.includes('id="formBoot"')&&formHtml.includes('form-entry-guard.js?v=20260925a'),'Direct form entry must have a visible boot state and fail-safe guard');
+ok(formHtml.indexOf('form-entry-guard.js?v=20260925a')<formHtml.indexOf('form-runner.js?v=20260913a'),'Form entry guard must load before the runner bootstrap');
+ok(formHtml.includes('form-workflow-feedback.js?v=20260925a'),'Form completion workflow feedback is not loaded');
+ok(formGuard.includes('MutationObserver')&&formGuard.includes('observer.disconnect()')&&formGuard.includes('15000'),'Form entry guard must be bounded and self-cleaning');
+ok(!formGuard.includes('setInterval('),'Form entry guard must not add polling loops');
+ok(formGuard.includes('Ingen data er endret')&&formGuard.includes('returnTask'),'Form entry failure must preserve safe return semantics');
+ok(formBridge.includes("'participant_via_start'")&&formBridge.includes("'vida_72h'")&&formBridge.includes("'vida_90d'"),'Workflow bridge must cover canonical VÍA and VIDA task-to-form handoffs');
+ok(formBridge.includes('returnTask')&&formBridge.includes('returnView'),'Workflow bridge must preserve task return context');
+ok(formBridge.includes('Skjema og neste handling')&&formBridge.includes('Arbeidsflyt først'),'Participant/form-library UX must present forms as workflow steps');
+ok(!/client\.from|functions\.invoke|service_role/i.test(formBridge),'Workflow bridge must remain presentation/navigation-only');
+ok(formFeedback.includes('via_roadmap')&&formFeedback.includes('participant_agreement')&&formFeedback.includes('vida_plan'),'Completion feedback must explain verified canonical next steps');
+ok(!/client\.from|functions\.invoke|service_role/i.test(formFeedback),'Completion feedback must not create a parallel write path');
 ok(gate.includes("['system_admin','project_owner']")&&gate.includes('gir ikke automatisk VÍA-faglig handlingsrett'),'System-admin/project-owner boundary explanation missing');
 ok(gate.includes('VÍA-veikart → individuell GO/NO-GO → deltakeravtale og navngitt VIDA-eier → samlet Pilot-GO → siste SER-kontroll'),'VÍA→SER gate chain explanation missing');
 ok(!gate.includes('client.')&&!gate.includes('.from(')&&!gate.includes('functions.invoke')&&!gate.includes('fetch('),'Role/gate guidance must remain presentation-only');
 
-console.log('live coherence 2026-09-25 event-driven showcase smoke: OK');
+console.log('live coherence 2026-09-25 form/workflow + event-driven showcase smoke: OK');
