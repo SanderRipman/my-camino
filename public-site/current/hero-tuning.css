@@ -1,0 +1,19 @@
+/* Preview-only tuning after mobile feedback 2026-09-25. Keeps the current concept/layout intact. */
+.preview-hero .hero-photo{background-image:url('assets/alone-trail.webp');background-size:cover;background-position:center}
+.preview-hero .hero-photo img{opacity:0}
+.preview-step:nth-child(1){background-image:url('assets/border-bridge.webp')}
+.preview-step:nth-child(2){background-image:url('assets/hero-group.webp')}
+.preview-hero .hero-specific{font-size:0;line-height:1.42;max-width:690px;margin:0 0 15px;color:#fff}
+.preview-hero .hero-specific b{display:none}
+.preview-hero .hero-specific .lang-no::after{content:"To land. Rundt 250 km. Kanskje akkurat nok avstand til å se livet hjemme med nye øyne.";font-size:clamp(1.02rem,1.65vw,1.24rem);line-height:1.42;font-weight:650}
+.preview-hero .hero-specific .lang-en::after{content:"Two countries. Around 250 km. Maybe just enough distance to see life back home with fresh eyes.";font-size:clamp(1.02rem,1.65vw,1.24rem);line-height:1.42;font-weight:650}
+.preview-hero .cta-row .btn.gold .lang-no,.preview-hero .cta-row .btn.gold .lang-en,.preview-hero .cta-row .btn.light .lang-no,.preview-hero .cta-row .btn.light .lang-en{font-size:0}
+.preview-hero .cta-row .btn.gold .lang-no::after{content:"Se om dette kan passe for meg";font-size:14px}
+.preview-hero .cta-row .btn.gold .lang-en::after{content:"See if this could suit me";font-size:14px}
+.preview-hero .cta-row .btn.light .lang-no::after{content:"Se om dette kan passe for noen jeg følger opp";font-size:14px}
+.preview-hero .cta-row .btn.light .lang-en::after{content:"See if this could suit someone I support";font-size:14px}
+@media(max-width:650px){
+  .preview-hero .hero-photo{background-position:52% center}
+  .preview-hero .hero-specific .lang-no::after,.preview-hero .hero-specific .lang-en::after{font-size:1rem;line-height:1.4}
+  .preview-hero .cta-row .btn.gold .lang-no::after,.preview-hero .cta-row .btn.gold .lang-en::after,.preview-hero .cta-row .btn.light .lang-no::after,.preview-hero .cta-row .btn.light .lang-en::after{font-size:13px}
+}
