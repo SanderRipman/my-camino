@@ -60,6 +60,9 @@ for (const page of indexablePages) {
   ].join('\n');
 
   html = html.replace(descriptionMatch[0], `${descriptionMatch[0]}\n${seo}`);
+  if (page === 'index.html') {
+    html = html.replace('</head>', '<link rel="stylesheet" href="hero-tuning.css?v=20260925d">\n</head>');
+  }
   await writeFile(path, html, 'utf8');
 }
 
