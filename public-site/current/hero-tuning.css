@@ -1,4 +1,4 @@
-/* Preview-only tuning after mobile feedback 2026-09-25. Keeps the current concept/layout intact. */
+/* Preview-only final mobile polish 2026-09-25. Keeps the accepted concept/layout intact. */
 .preview-hero .hero-photo{background-image:url('assets/alone-trail.webp');background-size:cover;background-position:center}
 .preview-hero .hero-photo img{opacity:0}
 .preview-step:nth-child(1){background-image:url('assets/dawn.webp');background-position:center}
@@ -12,13 +12,37 @@
 .preview-hero .cta-row .btn.gold .lang-en::after{content:"See if this could suit me";font-size:14px}
 .preview-hero .cta-row .btn.light .lang-no::after{content:"Jeg har noen dette kan passe for";font-size:14px}
 .preview-hero .cta-row .btn.light .lang-en::after{content:"This may suit someone I support";font-size:14px}
+.preview-hero .photo-note{top:auto;bottom:12px;right:14px;opacity:.58;font-size:9px;padding:5px 8px;background:rgba(10,31,33,.45)}
+
 @media(max-width:650px){
+  .preview-hero .hero-grid{min-height:0!important}
+  .preview-hero .hero-copy{min-height:0!important;justify-content:flex-end;padding:clamp(220px,36svh,300px) 21px 20px!important}
   .preview-hero .hero-photo{background-position:52% center}
-  .preview-hero .hero-specific .lang-no::after,.preview-hero .hero-specific .lang-en::after{font-size:1rem;line-height:1.4}
+  .preview-hero .photo-note{display:none}
+  .preview-hero h1{margin-bottom:13px}
+  .preview-hero .hero-specific{margin-bottom:13px}
+  .preview-hero .hero-specific .lang-no::after,.preview-hero .hero-specific .lang-en::after{font-size:1rem;line-height:1.38}
+  .preview-hero .cta-row{gap:9px}
+  .preview-hero .btn{min-height:43px;padding:10px 14px}
   .preview-hero .cta-row .btn.gold .lang-no::after,.preview-hero .cta-row .btn.gold .lang-en::after{font-size:13px}
   .preview-hero .cta-row .btn.light .lang-no::after,.preview-hero .cta-row .btn.light .lang-en::after{font-size:12.25px;white-space:nowrap}
-  .preview-intro{padding-top:36px;padding-bottom:34px}
-  .preview-step{min-height:380px}
+
+  .preview-facts{position:relative;padding:12px 14px 22px;gap:9px;scrollbar-width:thin;scrollbar-color:#b98a3d rgba(20,33,43,.12)}
+  .preview-facts::-webkit-scrollbar{display:block;height:5px}
+  .preview-facts::-webkit-scrollbar-track{background:rgba(20,33,43,.10);border-radius:999px}
+  .preview-facts::-webkit-scrollbar-thumb{background:#b98a3d;border-radius:999px}
+  .preview-facts::after{content:"";position:absolute;left:14px;right:14px;bottom:7px;height:3px;border-radius:999px;background:rgba(20,33,43,.11);pointer-events:none}
+  .preview-facts::before{content:"";position:absolute;left:14px;bottom:7px;width:31%;height:3px;border-radius:999px;background:#b98a3d;z-index:2;pointer-events:none}
+  .preview-fact{flex:0 0 78vw;padding:15px 16px}
+
+  .preview-intro{padding-top:28px;padding-bottom:32px}
+  .preview-intro .section-head{margin-bottom:17px}
+  .preview-intro h2{margin-bottom:10px}
+  .preview-step{min-height:368px}
   .preview-step .plain{margin-top:7px;padding-top:8px}
-  .preview-reason,.preview-evidence,.preview-audience{padding-top:42px;padding-bottom:42px}
+  .preview-plainline{padding-top:17px;padding-bottom:17px}
+  .story{padding-top:8px!important}
+  .preview-reason,.preview-evidence,.preview-audience{padding-top:38px;padding-bottom:38px}
+  .preview-reason-grid,.preview-evidence-grid{margin-top:18px}
+  .preview-audience-card{padding-top:24px;padding-bottom:24px}
 }
