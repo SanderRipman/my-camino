@@ -22,6 +22,8 @@ if(!document.querySelector('script[data-aidme-uat-superuser-roster]')){const ros
 if(!document.querySelector('script[data-aidme-demo-showcase-polish]')){const showcase=document.createElement('script');showcase.src='./app-demo-showcase-polish.js?v=20260924a';showcase.dataset.aidmeDemoShowcasePolish='1';document.head.appendChild(showcase)}
 // The legacy showcase hotfix intentionally stays unloaded: it competes with the Demo 2027 renderer.
 if(!document.querySelector('script[data-aidme-demo-presentation-v2]')){const demoV2=document.createElement('script');demoV2.src='./app-demo-presentation-v2.js?v=20260924c';demoV2.dataset.aidmeDemoPresentationV2='1';document.head.appendChild(demoV2)}
+// Demo-only stable graph layer: exact canvas sizing + selectable multi-metric group overlay.
+if(!document.querySelector('script[data-aidme-demo-metric-overlay]')){const metricOverlay=document.createElement('script');metricOverlay.src='./app-demo-metric-overlay.js?v=20260925a';metricOverlay.dataset.aidmeDemoMetricOverlay='1';document.head.appendChild(metricOverlay)}
 // P0-safe overlay: event-driven only; no perpetual observer/interval and no show() wrapping.
 if(!document.querySelector('script[data-aidme-demo-showcase-overlay]')){const overlay=document.createElement('script');overlay.src='./app-demo-showcase-overlay.js?v=20260925c';overlay.dataset.aidmeDemoShowcaseOverlay='1';document.head.appendChild(overlay)}
 if(!document.querySelector('script[data-aidme-task-count-parity]')){const parity=document.createElement('script');parity.src='./app-task-count-parity.js?v=20260917a';parity.dataset.aidmeTaskCountParity='1';document.head.appendChild(parity)}
