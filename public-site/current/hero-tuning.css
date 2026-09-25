@@ -1,7 +1,7 @@
 /* Preview-only tuning after mobile feedback 2026-09-25. Keeps the current concept/layout intact. */
 .preview-hero .hero-photo{background-image:url('assets/alone-trail.webp');background-size:cover;background-position:center}
 .preview-hero .hero-photo img{opacity:0}
-.preview-step:nth-child(1){background-image:url('assets/border-bridge.webp')}
+.preview-step:nth-child(1){background-image:url('assets/dawn.webp');background-position:center}
 .preview-step:nth-child(2){background-image:url('assets/hero-group.webp')}
 .preview-hero .hero-specific{font-size:0;line-height:1.42;max-width:690px;margin:0 0 15px;color:#fff}
 .preview-hero .hero-specific b{display:none}
@@ -10,10 +10,15 @@
 .preview-hero .cta-row .btn.gold .lang-no,.preview-hero .cta-row .btn.gold .lang-en,.preview-hero .cta-row .btn.light .lang-no,.preview-hero .cta-row .btn.light .lang-en{font-size:0}
 .preview-hero .cta-row .btn.gold .lang-no::after{content:"Se om dette kan passe for meg";font-size:14px}
 .preview-hero .cta-row .btn.gold .lang-en::after{content:"See if this could suit me";font-size:14px}
-.preview-hero .cta-row .btn.light .lang-no::after{content:"Se om dette kan passe for noen jeg følger opp";font-size:14px}
-.preview-hero .cta-row .btn.light .lang-en::after{content:"See if this could suit someone I support";font-size:14px}
+.preview-hero .cta-row .btn.light .lang-no::after{content:"Jeg har noen dette kan passe for";font-size:14px}
+.preview-hero .cta-row .btn.light .lang-en::after{content:"This may suit someone I support";font-size:14px}
 @media(max-width:650px){
   .preview-hero .hero-photo{background-position:52% center}
   .preview-hero .hero-specific .lang-no::after,.preview-hero .hero-specific .lang-en::after{font-size:1rem;line-height:1.4}
-  .preview-hero .cta-row .btn.gold .lang-no::after,.preview-hero .cta-row .btn.gold .lang-en::after,.preview-hero .cta-row .btn.light .lang-no::after,.preview-hero .cta-row .btn.light .lang-en::after{font-size:13px}
+  .preview-hero .cta-row .btn.gold .lang-no::after,.preview-hero .cta-row .btn.gold .lang-en::after{font-size:13px}
+  .preview-hero .cta-row .btn.light .lang-no::after,.preview-hero .cta-row .btn.light .lang-en::after{font-size:12.25px;white-space:nowrap}
+  .preview-intro{padding-top:36px;padding-bottom:34px}
+  .preview-step{min-height:380px}
+  .preview-step .plain{margin-top:7px;padding-top:8px}
+  .preview-reason,.preview-evidence,.preview-audience{padding-top:42px;padding-bottom:42px}
 }
