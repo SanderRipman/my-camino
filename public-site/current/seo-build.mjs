@@ -28,7 +28,7 @@ await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
 for (const entry of await readdir(here, { withFileTypes: true })) {
   if (excluded.has(entry.name)) continue;
-  await cp(join(here, entry.name), out, { recursive: true });
+  await cp(join(here, entry.name), join(out, entry.name), { recursive: true });
 }
 
 for (const page of indexablePages) {
