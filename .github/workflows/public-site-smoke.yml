@@ -63,6 +63,7 @@ jobs:
           grep -q 'Tre avklaringer' "$ROOT/via.html"
           grep -q 'Caminoen er ikke en kulisse' "$ROOT/ser.html"
           grep -q 'Tre ting å ta med hjem' "$ROOT/vida.html"
+          grep -q 'Fellesskap uten krav om å utlevere deg selv' "$ROOT/deltakere.html"
           grep -q 'n1-intake-safe.js' "$ROOT/kontakt.html"
           grep -q 'contact-polish-20260902.js' "$ROOT/kontakt.html"
           node "$ROOT/contact-polish-20260902-smoke.mjs"
@@ -88,7 +89,7 @@ jobs:
           # keep the older baseline strict for the untouched legacy set.
           layered = {
               'site.js', 'kontakt.html', 'index.html', 'om.html', 'seo-build.mjs',
-              'via.html', 'ser.html', 'vida.html'
+              'via.html', 'ser.html', 'vida.html', 'deltakere.html'
           }
 
           for item in manifest.get('files', []):
