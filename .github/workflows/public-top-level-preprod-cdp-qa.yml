@@ -87,8 +87,13 @@ jobs:
                       'awaitPromise':True,'returnByValue':True
                   })['result']['value']
                   inner=int(metrics['innerWidth']); client=int(metrics['clientWidth']); scroll=int(metrics['scrollWidth']); height=int(metrics['scrollHeight']); footer=int(metrics['footerBottom']); errors=int(metrics['imageErrors'])
-                  if abs(inner-width)>2 or abs(client-width)>2:
+                  # window.innerWidth is the requested emulated viewport. On desktop,
+                  # documentElement.clientWidth is legitimately narrower when Chrome
+                  # reserves space for a vertical scrollbar (typically 15 px).
+                  if abs(inner-width)>2:
                       raise SystemExit(f'viewport mismatch {page}@{width}: inner={inner} client={client}')
+                  if client > inner or inner-client > 24:
+                      raise SystemExit(f'unexpected viewport/client gap {page}@{width}: inner={inner} client={client}')
                   if scroll>client+2:
                       raise SystemExit(f'horizontal overflow {page}@{width}: scroll={scroll} client={client}')
                   if not metrics['footer'] or footer<=0:
