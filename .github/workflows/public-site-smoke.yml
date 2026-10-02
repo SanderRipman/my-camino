@@ -83,10 +83,13 @@ jobs:
           manifest_path = root / 'SOURCE_PARITY_MANIFEST_2026-08-18.json'
           manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
           errors = []
-          # These files are deliberate post-baseline public deltas and have their
-          # own semantic assertions above. Keep the older baseline strict for
-          # everything else.
-          layered = {'site.js', 'kontakt.html', 'via.html', 'ser.html', 'vida.html'}
+          # Current main already contains intentional post-2026-08-18 public deltas.
+          # These files are verified by semantic checks or dedicated workflows;
+          # keep the older baseline strict for the untouched legacy set.
+          layered = {
+              'site.js', 'kontakt.html', 'index.html', 'om.html', 'seo-build.mjs',
+              'via.html', 'ser.html', 'vida.html'
+          }
 
           for item in manifest.get('files', []):
               rel = item['path']
@@ -112,7 +115,7 @@ jobs:
                   print(f' - {error}', file=sys.stderr)
               sys.exit(1)
 
-          print('Baseline manifest parity passed; intentional layered deltas passed semantic checks.')
+          print('Baseline manifest parity passed; intentional layered deltas passed semantic/dedicated checks.')
           PY
 
           echo 'Public layered UX candidate integrity checks passed.'
