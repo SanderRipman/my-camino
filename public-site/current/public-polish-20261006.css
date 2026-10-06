@@ -1,0 +1,63 @@
+/* Owner-feedback polish 2026-10-06.
+   Presentation-only: public navigation, spacing, mobile continuity and homepage carousel cleanup. */
+:root{--max:1380px}
+
+/* Keep VÍA in the model/content, but not as its own top-level menu item. */
+.desktop-nav a.nav-link[href$="via.html"],
+.mobile-nav>a.nav-link[href$="via.html"]{display:none!important}
+
+/* Shorter authenticated-workspace label. */
+.workspace-link{min-width:70px;display:inline-flex;align-items:center;justify-content:center;text-align:center}
+
+/* Avoid stacked vertical padding inside the homepage feature sections. */
+.preview-reason>.section,
+.preview-evidence>.section,
+.preview-audience>.section{padding-top:0!important;padding-bottom:0!important}
+
+/* Slightly tighter continuation after framed page heroes. */
+.page-hero+.section{padding-top:36px}
+
+/* Contact choice should land cleanly below the sticky header. */
+.n1-interest-wrap{scroll-margin-top:90px}
+
+@media (min-width:651px) and (max-width:1180px){
+  .section{padding-top:46px;padding-bottom:46px}
+  .page-hero{padding-top:22px;padding-bottom:24px}
+  .page-hero+.section{padding-top:30px}
+  .story{padding-top:20px;padding-bottom:48px}
+}
+
+@media (max-width:650px){
+  /* Keep only the real, draggable browser scrollbar for the facts carousel. */
+  .preview-facts::before,
+  .preview-facts::after{content:none!important;display:none!important}
+
+  /* Join the quote visually to the story image instead of leaving it as a floating strip. */
+  .preview-plainline{
+    margin:0 14px;
+    padding:18px 18px 16px;
+    border:1px solid rgba(20,33,43,.08);
+    border-bottom:0;
+    border-radius:18px 18px 0 0;
+    font-size:1rem;
+    line-height:1.42;
+  }
+  .preview-plainline+.story{padding-top:0!important;margin-top:0!important}
+  .preview-plainline+.story .story-photo{border-radius:0!important}
+  .preview-plainline+.story .story-copy{border-radius:0 0 20px 20px!important}
+
+  /* One consistent mobile rhythm across framed content. */
+  .section{padding-top:36px;padding-bottom:36px}
+  .section-head{margin-bottom:22px}
+  .page-hero{padding-top:11px;padding-bottom:20px}
+  .page-hero+.section{padding-top:28px}
+  .page-hero-copy{padding:28px 22px 30px}
+  .page-hero-img{min-height:320px}
+  .panel{padding:22px 20px}
+  .preview-reason,
+  .preview-evidence,
+  .preview-audience{padding-top:36px;padding-bottom:36px}
+  .preview-reason>.section,
+  .preview-evidence>.section,
+  .preview-audience>.section{padding-top:0!important;padding-bottom:0!important}
+}
