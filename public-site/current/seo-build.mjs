@@ -63,6 +63,8 @@ for (const page of indexablePages) {
   if (page === 'index.html') {
     html = html.replace('</head>', '<link rel="stylesheet" href="hero-tuning.css?v=20260925d">\n</head>');
   }
+  html = html.replace('</head>', '<link rel="stylesheet" href="public-polish-20261006.css?v=20261006a">\n</head>');
+  html = html.replace('</body>', '<script src="public-polish-20261006.js?v=20261006a"></script>\n</body>');
   await writeFile(path, html, 'utf8');
 }
 

@@ -2,8 +2,8 @@
   'use strict';
 
   const page=(location.pathname.split('/').filter(Boolean).pop()||'index.html').replace('.html','');
-  const demoHosts=new Set(['aidme.no','www.aidme.no','dev.aidme.no']);
-  const demoMode=demoHosts.has(location.hostname);
+  const demoHosts=new Set(['dev.aidme.no']);
+  const demoMode=demoHosts.has(location.hostname)||location.hostname.endsWith('.netlify.app');
   const root=document.documentElement;
   const bi=(no,en)=>`<span class="lang-no">${no}</span><span class="lang-en">${en}</span>`;
 
@@ -183,13 +183,9 @@
     }
     if(page==='kontakt'){
       const panels=[...document.querySelectorAll('.split .panel')];
-      const partner=panels.find(p=>/partnerdialog|partner dialogue/i.test(p.textContent||''));
-      const partnerButton=partner?.querySelector('a.btn');
-      if(partnerButton)partnerButton.href='mailto:sander@aidme.no?subject=AidMe%20VIDA%20-%20partnerdialog';
       const participant=panels.find(p=>/interesse som deltaker|participant interest/i.test(p.textContent||''));
       const participantText=participant?.querySelector('p');
       if(participantText)participantText.innerHTML=bi('Skjemaet rett under er kun en uforpliktende interesse – ikke en påmelding. Start med noen få kontaktopplysninger; vi spør ikke om helseopplysninger her.','The form just below is only a non-binding expression of interest – not enrolment. Start with a few contact details; we do not ask for health information here.');
-      participant?.querySelector('a.btn')?.remove();
     }
   }
 

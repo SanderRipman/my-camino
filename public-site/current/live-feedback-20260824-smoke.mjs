@@ -11,7 +11,8 @@ const asset=path.join(dir,'assets','santiago-4-ser.jpg');
 function ok(condition,message){if(!condition)throw new Error(message)}
 
 ok(site.includes('live-feedback-20260824.js?v=20260824a'),'LIVE feedback layer is not loaded from site.js');
-ok(js.includes("new Set(['aidme.no','www.aidme.no','dev.aidme.no'])"),'Expected demo hosts are missing');
+ok(js.includes("new Set(['dev.aidme.no'])")&&js.includes("location.hostname.endsWith('.netlify.app')"),'Dev/preview demo scope is missing');
+ok(!js.includes("new Set(['aidme.no','www.aidme.no','dev.aidme.no'])"),'Production hosts must not be trapped in demo mode');
 ok(js.includes("event.preventDefault()")&&js.includes('event.stopImmediatePropagation()'),'Demo submit must stop the canonical write path');
 ok(js.includes("sessionStorage.setItem('aidme_n1_live_demo_intake','1')"),'Demo marker missing');
 ok(js.includes('ingen persondata')&&js.includes('No personal data'),'No-write explanation missing');
