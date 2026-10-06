@@ -17,6 +17,23 @@
 /* Slightly tighter continuation after framed page heroes. */
 .page-hero+.section{padding-top:36px}
 
+/* Research follow-up should use the same full line as the three cards above. */
+.preview-caution{max-width:none!important;width:100%;margin-left:0;margin-right:0}
+@media(min-width:1050px){
+  .preview-caution{white-space:nowrap}
+}
+
+/* Keep paired audience CTAs on one baseline even when copy lengths differ. */
+.preview-audience-card{display:flex;flex-direction:column}
+.preview-audience-card>.btn{margin-top:auto;align-self:flex-start}
+
+/* Give the audience row the same deliberate cut/frame language as the facts strip. */
+.preview-audience{
+  border-top:1px solid rgba(20,33,43,.08);
+  border-bottom:1px solid rgba(20,33,43,.08);
+  background:var(--preview-cream);
+}
+
 /* Contact choice should land cleanly below the sticky header. */
 .n1-interest-wrap{scroll-margin-top:90px}
 
