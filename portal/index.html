@@ -122,7 +122,7 @@
     </section>
 
     <section class="view" id="view-checkin">
-      <div class="section-head"><div><p class="eyebrow">Måling</p><h2>Daglig innsjekk</h2><p>Kort nok til å bli brukt. Nyttig nok til å oppdage mønstre. Ingen enkelt skår avgjør sikkerhet eller GO/NO-GO.</p></div></div>
+      <div class="section-head"><div><p class="eyebrow">Måling</p><h2>Daglig innsjekk</h2><p>Korte deltakerstyrte prosessindikatorer for mønstre og samtale. Ingen enkelt skår avgjør sikkerhet eller GO/NO-GO.</p></div></div>
       <form id="checkinForm" class="panel-card form-card">
         <div class="form-row three"><label><span>Deltaker</span><select id="checkParticipant" required></select></label><label><span>Dato</span><input id="checkDate" type="date" required></label><label><span>Dagsstatus</span><select id="dayStatus"><option value="GREEN">Grønn</option><option value="YELLOW">Gul</option><option value="RED">Rød</option></select></label></div>
         <div id="sliderGrid" class="slider-grid"></div>
@@ -134,7 +134,7 @@
     <section class="view" id="view-analysis">
       <div class="section-head"><div><p class="eyebrow">Mønstre, ikke diagnoser</p><h2>Utvikling og sammenligning</h2><p>Velg periode, måling og én eller flere deltakere. Grafen er støtte for samtale og faglig vurdering.</p></div></div>
       <article class="panel-card analysis-card">
-        <div class="analysis-controls"><label><span>Måling</span><select id="analysisMetric"><option value="agency">Egenkraft</option><option value="mood">Stemning</option><option value="stress">Stress</option><option value="energy">Energi</option><option value="sleep">Søvnkvalitet</option><option value="belonging">Tilhørighet</option><option value="direction">Retning</option></select></label><label><span>Periode</span><select id="analysisPeriod"><option value="14">14 dager</option><option value="30" selected>30 dager</option><option value="60">60 dager</option><option value="90">90 dager</option></select></label><label class="toggle-label"><input type="checkbox" id="showAverage" checked> Vis gruppesnitt</label></div>
+        <div class="analysis-controls"><label><span>Måling</span><select id="analysisMetric"><option value="agency">Mestringstro</option><option value="mood">Stemning</option><option value="stress">Stress</option><option value="energy">Energi</option><option value="sleep">Søvnkvalitet</option><option value="belonging">Tilhørighet</option><option value="direction">Tydelig neste steg</option></select></label><label><span>Periode</span><select id="analysisPeriod"><option value="14">14 dager</option><option value="30" selected>30 dager</option><option value="60">60 dager</option><option value="90">90 dager</option></select></label><label class="toggle-label"><input type="checkbox" id="showAverage" checked> Vis gruppesnitt</label></div>
         <div id="analysisParticipants" class="participant-chips"></div>
         <div class="chart-frame"><canvas id="analysisChart" height="360"></canvas></div>
       </article>
