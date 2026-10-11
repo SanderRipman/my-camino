@@ -4,7 +4,7 @@
 let aggregatePilotId=null;
 let aggregateAnalysisRequest=0;
 let aggregateOverviewRequest=0;
-const aggregateMetricLabels={agency:'Egenkraft',belonging:'Tilhørighet',direction:'Retning / veivalg'};
+const aggregateMetricLabels={agency:'Mestringstro',belonging:'Tilhørighet',direction:'Tydelig neste steg'};
 const aggregateFetchCache=new Map();
 const AGGREGATE_CACHE_MS=45000;
 
@@ -98,7 +98,7 @@ async function renderAggregateOverview(){
   if(error||data?.error){drawChart(canvas,[]);const legend=document.querySelector('#overviewLegend');if(legend)legend.innerHTML='<span class="privacy-note">Aggregert utvikling kunne ikke åpnes.</span>';return}
   aggregatePilotId=data?.pilot?.id||aggregatePilotId;
   const points=(data?.points||[]).map(p=>({date:p.date,value:Number(p.value)}));
-  drawChart(canvas,points.length?[{label:'Egenkraft · gruppesnitt',dashed:false,values:points}]:[]);
+  drawChart(canvas,points.length?[{label:'Mestringstro · gruppesnitt',dashed:false,values:points}]:[]);
   const legend=document.querySelector('#overviewLegend');
   if(legend)legend.innerHTML=points.length?`<span class="legend-item">Egenkraft · gruppesnitt · ${points.length} måledatoer</span>`:'<span class="privacy-note">Ingen visbare gruppemålinger siste 30 dager.</span>';
 }
