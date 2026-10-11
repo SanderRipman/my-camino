@@ -100,7 +100,7 @@ async function renderAggregateOverview(){
   const points=(data?.points||[]).map(p=>({date:p.date,value:Number(p.value)}));
   drawChart(canvas,points.length?[{label:'Mestringstro · gruppesnitt',dashed:false,values:points}]:[]);
   const legend=document.querySelector('#overviewLegend');
-  if(legend)legend.innerHTML=points.length?`<span class="legend-item">Egenkraft · gruppesnitt · ${points.length} måledatoer</span>`:'<span class="privacy-note">Ingen visbare gruppemålinger siste 30 dager.</span>';
+  if(legend)legend.innerHTML=points.length?`<span class="legend-item">Mestringstro · gruppesnitt · ${points.length} måledatoer</span>`:'<span class="privacy-note">Ingen visbare gruppemålinger siste 30 dager.</span>';
 }
 
 const aggregateBaseRenderAnalysis=renderAnalysis;
