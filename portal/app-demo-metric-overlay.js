@@ -2,7 +2,7 @@
 'use strict';
 
 const VERSION='2026-09-25a';
-const METRICS=Object.freeze({agency:'Egenkraft',belonging:'Tilhørighet',direction:'Retning / veivalg',mood:'Stemning',stress:'Stress',energy:'Energi',sleep:'Søvnkvalitet'});
+const METRICS=Object.freeze({agency:'Mestringstro',belonging:'Tilhørighet',direction:'Tydelig neste steg',mood:'Stemning',stress:'Stress',energy:'Energi',sleep:'Søvnkvalitet'});
 const COLORS=['#123f3d','#b48736','#405f7d','#8f6653','#2f6d58','#7b617d','#6e8f88'];
 const DASHES=[[],[9,5],[3,4],[11,4,3,4],[7,3],[2,3],[12,5]];
 let installed=false,cached=null,pending=null,busy=false,mode='MULTI',resizeTimer=null;
