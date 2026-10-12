@@ -9,7 +9,7 @@ Formål: demonstrere en enkel, intuitiv før–under–etter-arbeidsflate for V�
 - Lokal lagring i nettleser (`localStorage`) per enhet/nettleser.
 - Ny deltaker og nye innsjekker lagres videre i samme datasett.
 - Eksport/import av JSON for demo og test.
-- Regelmessig avstemning: stemning, stress, energi, søvnkvalitet, tilhørighet, egenkraft og retning (0–10).
+- Regelmessig egeninnsjekk: stemning, stress, energi, søvnkvalitet, tilhørighet, mestringstro og tydelig neste steg (0–10). Dette er deltakerstyrte prosessindikatorer – ikke diagnose eller validerte effektmål; ingen enkelt skår avgjør GO/NO-GO.
 - Operativ grønn/gul/rød dagsstatus. Dette er ikke diagnose.
 - Analyse per 14/30/60/90 dager eller hele perioden.
 - Én eller flere deltakere kan sammenlignes samtidig, med valgfritt gruppesnitt.
