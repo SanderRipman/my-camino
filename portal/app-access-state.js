@@ -2,111 +2,33 @@
 'use strict';
 
 let accessStateSettled=false;
-const DEMO_ONLY_FORM_KEYS=new Set(['vida_transition_prep']);
-
-function noActivePortalAccess(){
-  return accessStateSettled&&!!session&&!isStaff()&&!ownParticipant();
-}
-function hideDemoOnlyForms(){
-  document.querySelectorAll('#formLibrary .form-module').forEach(module=>{
-    try{
-      const url=new URL(module.getAttribute('href')||'',location.href);
-      if(DEMO_ONLY_FORM_KEYS.has(url.searchParams.get('key')))module.remove();
-    }catch{}
-  });
-}
-function accessStateStyles(){
-  if(document.querySelector('#access-state-style'))return;
-  const style=document.createElement('style');style.id='access-state-style';
-  style.textContent=`
-    html.portal-no-active-access #mainNav .nav-item:not([data-view="overview"]):not([data-view="help"]){display:none!important;pointer-events:none!important}
-    html.portal-no-active-access #badgeOverview,html.portal-no-active-access #badgeTasks,html.portal-no-active-access #badgeParticipants{display:none!important}
-    html.portal-no-active-access #mobileAttentionBar{display:none!important}
-    #accessPending.access-revoked-card{max-width:980px;margin:0 auto}
-  `;
-  document.head.appendChild(style);
-}
-function clearNoActiveAccess(){
-  document.documentElement.classList.remove('portal-no-active-access');
-  const view=document.querySelector('#view-overview'),pending=document.querySelector('#accessPending');
-  if(view){
-    view.querySelectorAll('[data-access-state-hidden="1"]').forEach(child=>{
-      child.classList.remove('hidden');child.removeAttribute('data-access-state-hidden');
-    });
-  }
-  if(pending?.classList.contains('access-revoked-card')){
-    pending.classList.add('hidden');pending.classList.remove('access-revoked-card');
-    pending.innerHTML='<p class="eyebrow">Tilgang</p><h2>Kontoen er ikke aktivert ennå</h2><p>Du er innlogget, men ingen deltakerreise eller arbeidsrolle er knyttet til kontoen.</p>';
-  }
-}
-function renderNoActiveAccess(){
-  if(!noActivePortalAccess()){clearNoActiveAccess();return false}
-  accessStateStyles();document.documentElement.classList.add('portal-no-active-access');
-  const view=document.querySelector('#view-overview'),pending=document.querySelector('#accessPending');
-  if(view&&pending){
-    pending.classList.remove('hidden');pending.classList.add('access-revoked-card');
-    pending.innerHTML='<p class="eyebrow">Tilgang</p><h2>Tilgangen din er ikke aktiv</h2><p>Du er fortsatt innlogget, men kontoen har ingen aktiv arbeidsrolle eller deltakerreise. Tilgangen kan ha utløpt eller blitt trukket tilbake. Ingen deltaker- eller arbeidsdata åpnes uten ny gyldig tilgang.</p>';
-    [...view.children].forEach(child=>{
-      if(child===pending)return;
-      if(!child.classList.contains('hidden'))child.dataset.accessStateHidden='1';
-      child.classList.add('hidden');
-    });
-  }
-  const context=document.querySelector('#contextLabel'),title=document.querySelector('#pageTitle');
-  if(context)context.textContent='Tilgang';if(title)title.textContent='Tilgang ikke aktiv';
-  return true;
-}
-function announcePortalRendered(){
-  document.dispatchEvent(new CustomEvent('aidme:portal-rendered',{detail:{noActiveAccess:noActivePortalAccess()}}));
-}
-
-const accessStateRenderAll=renderAll;
-renderAll=function(){
-  accessStateRenderAll();
-  accessStateSettled=true;
-  hideDemoOnlyForms();
-  renderNoActiveAccess();
-  announcePortalRendered();
-};
-
-const accessStateShow=show;
-show=function(name){
-  if(noActivePortalAccess()&&!['overview','help','security'].includes(name))name='overview';
-  accessStateShow(name);
-  if(name==='forms')hideDemoOnlyForms();
-  if(accessStateSettled&&name==='overview')renderNoActiveAccess();
-};
-
-const accessStateLoadPortal=loadPortal;
-loadPortal=async function(){
-  accessStateSettled=false;
-  clearNoActiveAccess();
-  return accessStateLoadPortal();
-};
-
-if(!document.querySelector('script[data-aidme-phase-workspace]')){
-  const workspace=document.createElement('script');
-  workspace.src='./app-phase-workspace.js?v=20260909c';
-  workspace.dataset.aidmePhaseWorkspace='1';
-  document.head.appendChild(workspace);
-}
-if(!document.querySelector('script[data-aidme-mobile-nav-scroll]')){
-  const navScroll=document.createElement('script');
-  navScroll.src='./app-mobile-nav-scroll.js?v=20260913c';
-  navScroll.dataset.aidmeMobileNavScroll='1';
-  document.head.appendChild(navScroll);
-}
-if(!document.querySelector('script[data-aidme-participant-actions]')){
-  const actions=document.createElement('script');
-  actions.src='./app-participant-actions.js?v=20260909a';
-  actions.dataset.aidmeParticipantActions='1';
-  document.head.appendChild(actions);
-}
-if(!document.querySelector('script[data-aidme-participant-lifecycle]')){
-  const lifecycle=document.createElement('script');
-  lifecycle.src='./app-participant-lifecycle.js?v=20260913a';
-  lifecycle.dataset.aidmeParticipantLifecycle='1';
-  document.head.appendChild(lifecycle);
-}
-
+function noActivePortalAccess(){return accessStateSettled&&!!session&&!isStaff()&&!ownParticipant()}
+function accessStateStyles(){if(document.querySelector('#access-state-style'))return;const style=document.createElement('style');style.id='access-state-style';style.textContent=`html.portal-no-active-access #mainNav .nav-item:not([data-view="overview"]):not([data-view="help"]){display:none!important;pointer-events:none!important}html.portal-no-active-access #badgeOverview,html.portal-no-active-access #badgeTasks,html.portal-no-active-access #badgeParticipants{display:none!important}html.portal-no-active-access #mobileAttentionBar{display:none!important}#accessPending.access-revoked-card{max-width:980px;margin:0 auto}`;document.head.appendChild(style)}
+function clearNoActiveAccess(){document.documentElement.classList.remove('portal-no-active-access');const view=document.querySelector('#view-overview'),pending=document.querySelector('#accessPending');if(view){view.querySelectorAll('[data-access-state-hidden="1"]').forEach(child=>{child.classList.remove('hidden');child.removeAttribute('data-access-state-hidden')})}if(pending?.classList.contains('access-revoked-card')){pending.classList.add('hidden');pending.classList.remove('access-revoked-card');pending.innerHTML='<p class="eyebrow">Tilgang</p><h2>Kontoen er ikke aktivert ennå</h2><p>Du er innlogget, men ingen deltakerreise eller arbeidsrolle er knyttet til kontoen.</p>'}}
+function renderNoActiveAccess(){if(!noActivePortalAccess()){clearNoActiveAccess();return false}accessStateStyles();document.documentElement.classList.add('portal-no-active-access');const view=document.querySelector('#view-overview'),pending=document.querySelector('#accessPending');if(view&&pending){pending.classList.remove('hidden');pending.classList.add('access-revoked-card');pending.innerHTML='<p class="eyebrow">Tilgang</p><h2>Tilgangen din er ikke aktiv</h2><p>Du er fortsatt innlogget, men kontoen har ingen aktiv arbeidsrolle eller deltakerreise. Tilgangen kan ha utløpt eller blitt trukket tilbake. Ingen deltaker- eller arbeidsdata åpnes uten ny gyldig tilgang.</p>';[...view.children].forEach(child=>{if(child===pending)return;if(!child.classList.contains('hidden'))child.dataset.accessStateHidden='1';child.classList.add('hidden')})}const context=document.querySelector('#contextLabel'),title=document.querySelector('#pageTitle');if(context)context.textContent='Tilgang';if(title)title.textContent='Tilgang ikke aktiv';return true}
+function announcePortalRendered(){document.dispatchEvent(new CustomEvent('aidme:portal-rendered',{detail:{noActiveAccess:noActivePortalAccess()}}))}
+const accessStateRenderAll=renderAll;renderAll=function(){accessStateRenderAll();accessStateSettled=true;renderNoActiveAccess();announcePortalRendered()};
+const accessStateShow=show;show=function(name){if(noActivePortalAccess()&&!['overview','help','security'].includes(name))name='overview';accessStateShow(name);if(accessStateSettled&&name==='overview')renderNoActiveAccess()};
+const accessStateLoadPortal=loadPortal;loadPortal=async function(){accessStateSettled=false;clearNoActiveAccess();return accessStateLoadPortal()};
+if(!document.querySelector('script[data-uat-followup]')){const followup=document.createElement('script');followup.src='./uat-followup.js?v=20260909a';followup.dataset.uatFollowup='1';document.head.appendChild(followup)}
+if(!document.querySelector('script[data-uat-extras]')){const extras=document.createElement('script');extras.src='./uat-extras.js?v=20260909a';extras.dataset.uatExtras='1';document.head.appendChild(extras)}
+if(!document.querySelector('script[data-aidme-phase-workspace]')){const workspace=document.createElement('script');workspace.src='./app-phase-workspace.js?v=20260913a';workspace.dataset.aidmePhaseWorkspace='1';document.head.appendChild(workspace)}
+if(!document.querySelector('script[data-aidme-profile-unread-badge]')){const badge=document.createElement('script');badge.src='./app-profile-unread-badge.js?v=20260913a';badge.dataset.aidmeProfileUnreadBadge='1';document.head.appendChild(badge)}
+if(!document.querySelector('script[data-aidme-mobile-fluid]')){const motion=document.createElement('script');motion.src='./app-mobile-fluid.js?v=20260917c';motion.dataset.aidmeMobileFluid='1';document.head.appendChild(motion)}
+if(!document.querySelector('script[data-aidme-mobile-swipe-finalize]')){const finalize=document.createElement('script');finalize.src='./app-mobile-swipe-finalize.js?v=20260925a';finalize.dataset.aidmeMobileSwipeFinalize='1';document.head.appendChild(finalize)}
+if(!document.querySelector('script[data-aidme-task-inline]')){const taskInline=document.createElement('script');taskInline.src='./app-task-inline.js?v=20260913a';taskInline.dataset.aidmeTaskInline='1';document.head.appendChild(taskInline)}
+if(!document.querySelector('script[data-aidme-intake-task-link]')){const intakeTask=document.createElement('script');intakeTask.src='./app-intake-task-link.js?v=20260924b';intakeTask.dataset.aidmeIntakeTaskLink='1';document.head.appendChild(intakeTask)}
+if(!document.querySelector('script[data-aidme-uat-superuser-roster]')){const roster=document.createElement('script');roster.src='./app-uat-superuser-roster.js?v=20260924a';roster.dataset.aidmeUatSuperuserRoster='1';document.head.appendChild(roster)}
+if(!document.querySelector('script[data-aidme-demo-showcase-polish]')){const showcase=document.createElement('script');showcase.src='./app-demo-showcase-polish.js?v=20260924a';showcase.dataset.aidmeDemoShowcasePolish='1';document.head.appendChild(showcase)}
+// The legacy showcase hotfix intentionally stays unloaded: it competes with the Demo 2027 renderer.
+if(!document.querySelector('script[data-aidme-demo-presentation-v2]')){const demoV2=document.createElement('script');demoV2.src='./app-demo-presentation-v2.js?v=20260924c';demoV2.dataset.aidmeDemoPresentationV2='1';document.head.appendChild(demoV2)}
+// Demo-only stable graph layer: exact canvas sizing + selectable multi-metric group overlay.
+if(!document.querySelector('script[data-aidme-demo-metric-overlay]')){const metricOverlay=document.createElement('script');metricOverlay.src='./app-demo-metric-overlay.js?v=20260925a';metricOverlay.dataset.aidmeDemoMetricOverlay='1';document.head.appendChild(metricOverlay)}
+// P0-safe overlay: event-driven only; no perpetual observer/interval and no show() wrapping.
+if(!document.querySelector('script[data-aidme-demo-showcase-overlay]')){const overlay=document.createElement('script');overlay.src='./app-demo-showcase-overlay.js?v=20260925c';overlay.dataset.aidmeDemoShowcaseOverlay='1';document.head.appendChild(overlay)}
+if(!document.querySelector('script[data-aidme-task-count-parity]')){const parity=document.createElement('script');parity.src='./app-task-count-parity.js?v=20260917a';parity.dataset.aidmeTaskCountParity='1';document.head.appendChild(parity)}
+if(!document.querySelector('script[data-aidme-participant-preflight]')){const participantPreflight=document.createElement('script');participantPreflight.src='./app-participant-preflight.js?v=20260917a';participantPreflight.dataset.aidmeParticipantPreflight='1';document.head.appendChild(participantPreflight)}
+if(!document.querySelector('script[data-aidme-participant-checkin-nav]')){const checkinNav=document.createElement('script');checkinNav.src='./app-participant-checkin-nav.js?v=20260917a';checkinNav.dataset.aidmeParticipantCheckinNav='1';document.head.appendChild(checkinNav)}
+if(!document.querySelector('script[data-aidme-participant-security-stepup]')){const stepup=document.createElement('script');stepup.src='./app-participant-security-stepup.js?v=20260917a';stepup.dataset.aidmeParticipantSecurityStepup='1';document.head.appendChild(stepup)}
+if(!document.querySelector('script[data-aidme-form-workflow-bridge]')){const bridge=document.createElement('script');bridge.src='./app-form-workflow-bridge.js?v=20260925a';bridge.dataset.aidmeFormWorkflowBridge='1';document.head.appendChild(bridge)}
 })();
