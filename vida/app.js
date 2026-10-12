@@ -1,7 +1,7 @@
 const STORAGE_KEY='aidme_vida_workspace_v1';
 const METRICS={
   mood:{no:'Stemning',en:'Mood'},stress:{no:'Stress',en:'Stress'},energy:{no:'Energi',en:'Energy'},sleep:{no:'Søvnkvalitet',en:'Sleep quality'},
-  belonging:{no:'Tilhørighet',en:'Belonging'},agency:{no:'Egenkraft',en:'Agency'},direction:{no:'Retning',en:'Direction'}
+  belonging:{no:'Tilhørighet',en:'Belonging'},agency:{no:'Mestringstro',en:'Self-efficacy'},direction:{no:'Tydelig neste steg',en:'Clear next step'}
 };
 const COLORS=['#123f3d','#c8a45d','#405f7d','#8f6653','#6e8f88','#7b617d','#95773f','#3f7d67'];
 const I18N={
@@ -115,7 +115,7 @@ function drawChart(canvas,series,metric){
 function aggregateAverage(parts,metric,days){
   const buckets={};parts.forEach(p=>pointsFor(p,metric,days).forEach(c=>{(buckets[c.date]??=[]).push(c[metric])}));return Object.entries(buckets).sort().map(([date,v])=>({date,[metric]:v.reduce((a,b)=>a+b,0)/v.length}));
 }
-function renderOverviewChart(){const c=$('#overviewChart');if(!c||!c.offsetParent)return;const metric='agency',days=30,parts=state.participants;const avg=aggregateAverage(parts,metric,days);drawChart(c,[{name:lang==='no'?'Gruppesnitt':'Group average',points:avg,color:'#123f3d',average:true}],metric);$('#overviewLegend').innerHTML=`<span class="legend-item"><i class="legend-swatch" style="background:#123f3d"></i>${lang==='no'?'Gruppesnitt · egenkraft':'Group average · agency'}</span>`}
+function renderOverviewChart(){const c=$('#overviewChart');if(!c||!c.offsetParent)return;const metric='agency',days=30,parts=state.participants;const avg=aggregateAverage(parts,metric,days);drawChart(c,[{name:lang==='no'?'Gruppesnitt':'Group average',points:avg,color:'#123f3d',average:true}],metric);$('#overviewLegend').innerHTML=`<span class="legend-item"><i class="legend-swatch" style="background:#123f3d"></i>${lang==='no'?'Gruppesnitt · mestringstro':'Group average · self-efficacy'}</span>`}
 function renderAnalysis(){
   const metric=$('#analysisMetric').value||'agency',days=Number($('#analysisPeriod').value||30);if(!selectedAnalysis.size)state.participants.slice(0,3).forEach(p=>selectedAnalysis.add(p.id));
   $('#analysisParticipants').innerHTML=state.participants.map(p=>`<button class="chip ${selectedAnalysis.has(p.id)?'active':''}" data-id="${p.id}">${p.pseudonym}</button>`).join('');$$('#analysisParticipants .chip').forEach(b=>b.onclick=()=>{selectedAnalysis.has(b.dataset.id)?selectedAnalysis.delete(b.dataset.id):selectedAnalysis.add(b.dataset.id);renderAnalysis()});
