@@ -2,6 +2,7 @@ import fs from 'node:fs';
 
 const src=fs.readFileSync(new URL('./app-analysis-ux.js',import.meta.url),'utf8');
 const build=fs.readFileSync(new URL('./build-app.mjs',import.meta.url),'utf8');
+const core=fs.readFileSync(new URL('./app-core-broken.js',import.meta.url),'utf8');
 const must=(needle,label)=>{if(!src.includes(needle))throw new Error(`${label}: missing ${needle}`)};
 
 must('Ingen registrerte målinger i valgt periode.','explicit all-empty state');
@@ -22,4 +23,5 @@ must('const readableOverviewBase=renderOverviewChart','existing aggregate/partic
 if(src.includes('client.'))throw new Error('analysis clarity layer must not access Supabase/client APIs; it is presentation-only');
 if(src.includes('participant_note'))throw new Error('analysis clarity must not expose participant free-text');
 if(!build.includes("app-analysis-ux.js")||!build.includes("'+analysisUx+'"))throw new Error('analysis clarity layer must be included in deterministic portal build');
+if(!core.includes("agency:'Mestringstro'")||!core.includes("direction:'Tydelig neste steg'")||core.includes("agency:'Egenkraft'"))throw new Error('canonical portal build source must use Mestringstro / Tydelig neste steg labels');
 console.log('Portal analysis and overview readability/least-privilege invariants passed.');
