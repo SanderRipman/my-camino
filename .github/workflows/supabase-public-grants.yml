@@ -1,0 +1,26 @@
+name: Supabase explicit public-table grants
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/**'
+      - 'tools/check-public-data-api-grants.mjs'
+      - '.github/workflows/supabase-public-grants.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-public-table-grants:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR and base
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require RLS and explicit API grants for newly created public tables
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          mapfile -t migration_files < <(git diff --name-only --diff-filter=AM "$BASE_SHA" HEAD -- 'supabase/migrations/*.sql')
+          node tools/check-public-data-api-grants.mjs "${migration_files[@]}"
