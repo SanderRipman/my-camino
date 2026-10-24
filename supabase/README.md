@@ -53,3 +53,11 @@ The intended flow is:
 `aidme.no interest form → hardened Edge Function → server-only intakes → triage task → invitation to VÍA → my.aidme.no`
 
 Do not enable anonymous intake until CAPTCHA/rate limiting, privacy copy/version, abuse handling and field minimisation have been wired and QA-tested.
+
+## Data API grant policy (2026-10-24)
+
+The live project has opted in to explicit future `public` table/sequence grants ahead of the 2026-10-30 Supabase change, using remote migration `20261024145031_explicit_public_data_api_opt_in_20261024` (mirrored in Git). Existing table grants/RLS were verified unchanged.
+
+**Required for every new `public` table:** declare RLS and the smallest appropriate per-role `GRANT` in its creation migration, or explicitly mark the table server-only. Never expose sensitive data to `anon`, and never restore global/bulk automatic grants to solve a `42501` error. New migration PRs are checked by `.github/workflows/supabase-public-grants.yml`.
+
+See [DATA_API_GRANTS.md](DATA_API_GRANTS.md) for role guidance, SQL and recovery checks. Existing historical migrations are not silently rewritten.
