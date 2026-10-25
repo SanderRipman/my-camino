@@ -59,6 +59,7 @@ jobs:
             qa-create-role-pack
             qa-renew-role-pack
             rls-preview-selftest
+            ser-operational-staff-command
             sos-command
             task-command
             workflow-command

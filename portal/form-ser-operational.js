@@ -23,12 +23,12 @@ async function loadSerOperationalStaff(){
   const pilotId=currentSerPilotId();
   serOperationalStaff=[];
   if(!pilotId)return;
-  const {data,error}=await client.rpc('eligible_ser_operational_staff',{p_pilot_id:pilotId});
-  if(error){
+  const {data,error}=await client.functions.invoke('ser-operational-staff-command',{body:{pilotId}});
+  if(error||data?.error){
     console.warn('SER operational staff list unavailable');
     return;
   }
-  serOperationalStaff=data||[];
+  serOperationalStaff=data?.staff||[];
 }
 
 function updateSerRoleOverlapWarning(){
