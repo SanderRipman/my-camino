@@ -67,6 +67,7 @@ jobs:
           grep -q 'n1-intake-safe.js' "$ROOT/kontakt.html"
           grep -q 'contact-polish-20260902.js' "$ROOT/kontakt.html"
           node "$ROOT/contact-polish-20260902-smoke.mjs"
+          node "$ROOT/public-visual-regression-smoke.mjs"
 
           test "$(git hash-object "$ROOT/site.js")" = '4131c4bba3940ad2e1085725d5fa51401c35ce9b'
           test "$(git hash-object "$ROOT/post-cutover-live.js")" = 'feb494f23f96c1955e841d97d3d764536bf0fa73'

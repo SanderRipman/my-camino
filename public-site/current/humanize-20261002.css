@@ -8,8 +8,11 @@
 .humanize-page .cta-row .btn{max-width:100%;white-space:normal;text-align:center}
 /* Legacy N1 SER pause card duplicates the simpler safety message below. */
 .humanize-page .n1-pause-section{display:none!important}
-/* The old SER image strip conflicts with later runtime image layers and creates huge blank gaps. */
-.humanize-page .image-strip{display:none!important}
+/* Retain the concise SER narrative but restore the three approved Camino photographs. */
+.humanize-page .image-strip{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding-bottom:58px}
+.humanize-page .image-tile{min-height:320px}
+.humanize-page .image-tile img{display:block;width:100%;height:100%;object-fit:cover}
+@media(max-width:650px){.humanize-page .image-strip{display:flex!important;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;padding-bottom:24px}.humanize-page .image-tile{flex:0 0 82%;min-height:300px;scroll-snap-align:center}}
 
 .human-section{max-width:1180px;margin:0 auto;padding:68px 22px}
 .human-section.tight{padding-top:30px;padding-bottom:46px}
@@ -59,8 +62,8 @@ html[data-lang="no"] .human-metric .lang-no,html[data-lang="en"] .human-metric .
 
 .human-safety{max-width:1180px;margin:0 auto 64px;padding:0 22px}
 .human-safety-shell{display:grid;grid-template-columns:1fr 1fr;overflow:hidden;border-radius:26px;background:var(--teal);color:#fff;box-shadow:var(--soft-shadow,0 12px 34px rgba(20,33,43,.08))}
-.human-safety-photo{position:relative;min-height:460px;background:url('assets/hero-group.webp') center 48%/cover no-repeat}
-.human-safety-photo img{display:none}
+.human-safety-photo{position:relative;min-height:460px;background:#163b3a}
+.human-safety-photo img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;object-position:center}
 .human-safety-copy{padding:44px 46px;align-self:center}
 .human-safety-copy h2{font-family:Georgia,serif;color:#fff;font-size:clamp(31px,3.5vw,48px);font-weight:500;line-height:1.06;margin:8px 0 16px}
 .human-safety-copy p{color:#dbe7e4}
