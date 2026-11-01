@@ -58,6 +58,11 @@ button:hover{background:#edf5f1}button.primary:hover{background:#215c53}
 <section class="panel" aria-label="Felles tidslinje med separate måleenheter">
 <h2>Utvikling over tid</h2><p id="period-description" class="small"></p>
 <div id="charts" class="chart-list"></div>
+<details id="relative-panel" class="no-print" style="margin-top:20px;border-top:1px solid #dce4de;padding-top:15px">
+<summary style="font-weight:750;cursor:pointer">Utforsk relativ endring på én sammenligningsgraf</summary>
+<p class="small">Forskningsvisning: Hver måling får indeks 100 ved første tilgjengelige verdi i valgt tidsrom. Prosentendringer kan sammenlignes som retning og tidspunkt, <strong>ikke</strong> som likeverdige helse- eller WHO-5-skårer. Høyere hvilepuls betyr ikke nødvendigvis bedring. Stiplede forbindelser over manglende tidspunkt er ikke faktiske observasjoner.</p>
+<div id="relative-chart" role="img" aria-label="Sammenligning av relativ endring fra individuelle startverdier"></div>
+</details>
 <p class="small">Hver rad beholder sin egen måleenhet. Stiplede forbindelser viser bare rekkefølgen mellom faktiske målinger, ikke estimerte mellomverdier. «Ikke målt» betyr ikke null. WHO-5 er kun selvrapportert og har tilbakeblikk på 14 dager.</p>
 </section>
 <section class="panel">
@@ -69,6 +74,14 @@ button:hover{background:#edf5f1}button.primary:hover{background:#215c53}
 </div>
 <p class="sources"><strong>Metode:</strong> WHO-5 (0–100) er validert selvrapportering. AidMe mestringstro (0–10) er en egen, ikke-validert prosessindikator. Fagpersonens 0–10-vurdering gjelder kun observerbar deltakelse, ikke følelsestilstand. Søvntimer og hvilepuls er uavhengige fysiologiske indikatorer. Ingen måleskala konverteres til en annen, og korrelasjon dokumenterer ikke årsak.</p>
 <p class="sources"><strong>Begrensning:</strong> Ulik målefrekvens, liten gruppe, forventningseffekter og mangel på kontrollgruppe gjør at selv reelle fremtidige data ikke alene kan dokumentere behandlingseffekt. Rapporten må suppleres med sikkerhet, tilpasninger, negative virkninger, VIDA-handlinger, kostnad og faglig vurdering.</p>
+</section>
+<section class="panel no-print" aria-label="Rolle- og oppgaveflyt i demomiljø">
+<h2>Hvordan blir dette en naturlig oppgave?</h2>
+<p class="small">Illustrasjon av planlagt arbeidsfordeling, ikke faktiske konto- eller leserettigheter. Den operative kilden er eksisterende deltakerreise og rollebaserte regler.</p>
+<label class="field">Vis perspektivet til en rolle<select id="role-lens">
+<option value="participant">Deltaker</option><option value="via">VÍA-eier</option><option value="ser">SER-leder</option><option value="vida">VIDA-eier</option><option value="evaluator">Prosjekteier/evaluator</option>
+</select></label>
+<div id="role-summary" class="info" style="margin-top:12px" aria-live="polite"></div>
 </section>
 <section class="panel table-panel">
 <h2>Datagrunnlag</h2><p class="small">Verdiene er oppdiktet for å teste arbeidsflyt, filtrering og rapportutskrift. «–» betyr at den valgte målingen ikke ble gjennomført.</p>
@@ -106,6 +119,54 @@ const selected=()=>metrics.filter(m=>options.find(x=>x.value===m.key)?.checked);
 const seriesPoints=(m,indices,group)=>{
  const arr=dataFor(m,group);return indices.map((j,i)=>({x:16+i*(indices.length>1?364/(indices.length-1):0),y:110-(arr[j]-m.min)/(m.max-m.min)*92,value:arr[j],i,j})).filter(p=>p.value!==null);
 };
+// This view intentionally normalizes *change from each source's own first observed
+// value*. It is never treated as a WHO-5 score or a validated cross-device conversion.
+const renderRelative=(indices,active,group)=>{
+ const root=$("relative-chart");root.replaceChildren();
+ if(!active.length||!indices.length){root.textContent="Velg minst én måling og en gyldig periode.";return}
+ const datasets=active.map(m=>{
+  const values=indices.map((j,i)=>({i,value:dataFor(m,group)[j]}));
+  const first=values.find(p=>p.value!==null&&p.value>0);
+  return {metric:m,observations:first?values.filter(p=>p.value!==null).map(p=>({i:p.i,index:p.value/first.value*100})):[]};
+ });
+ const valid=datasets.filter(x=>x.observations.length>0);
+ if(!valid.length){root.textContent="Ingen sammenlignbare startmålinger i valgt periode.";return}
+ const all=valid.flatMap(x=>x.observations.map(p=>p.index));
+ const low=Math.min(90,...all),high=Math.max(110,...all),pad=Math.max(4,(high-low)*.12),min=low-pad,max=high+pad;
+ const W=740,H=270,left=58,right=720,top=22,bottom=213;
+ const x=i=>left+(indices.length===1?0:i*(right-left)/(indices.length-1));
+ const y=v=>bottom-(v-min)/(max-min)*(bottom-top);
+ const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");
+ svg.setAttribute("viewBox","0 0 "+W+" "+H);svg.setAttribute("role","img");
+ svg.setAttribute("aria-label","Relativ indeks per måleserie. Start lik 100 per kilde. Ulike skalaer, ikke WHO-5-konvertering.");
+ svg.style.width="100%";svg.style.height="auto";
+ const line=(x1,y1,x2,y2,col,dash)=>{
+   const el=document.createElementNS(ns,"line");for(const [k,v] of Object.entries({x1,y1,x2,y2,stroke:col,"stroke-width":dash?1:2.7}))el.setAttribute(k,String(v));
+   if(dash)el.setAttribute("stroke-dasharray","4 5");svg.append(el)
+ };
+ for(const tick of [min,100,max]){line(left,y(tick),right,y(tick),"#d5ded8",true);const label=document.createElementNS(ns,"text");label.setAttribute("x","4");label.setAttribute("y",String(y(tick)+4));label.setAttribute("font-size","12");label.setAttribute("fill","#52615f");label.textContent=Math.round(tick)+"%";svg.append(label)}
+ for(const d of valid){
+  const pts=d.observations;
+  for(let i=1;i<pts.length;i++)line(x(pts[i-1].i),y(pts[i-1].index),x(pts[i].i),y(pts[i].index),d.metric.color,false);
+  for(const p of pts){const c=document.createElementNS(ns,"circle");c.setAttribute("cx",String(x(p.i)));c.setAttribute("cy",String(y(p.index)));c.setAttribute("r","4.5");c.setAttribute("fill",d.metric.color);const label=document.createElementNS(ns,"title");label.textContent=d.metric.short+": "+p.index.toFixed(1)+"% av første måling";c.append(label);svg.append(c)}
+ }
+ const el=document.createElement("div");el.className="legendline";el.style.marginTop="10px";for(const d of valid){const span=document.createElement("span");span.textContent="● "+d.metric.short+" (100 = egen start)";span.style.color=d.metric.color;el.append(span)}
+ root.append(svg,el);
+ const note=document.createElement("p");note.className="small";note.textContent="Prosentindeks viser kun relativ utvikling. Hvert mål starter på sin første observerte dato – og høyere er ikke alltid bedre.";root.append(note);
+};
+const ROLES={
+ participant:{action:"Når WHO-5 er faglig besluttet: én frivillig oppgave med fem egenrapporterte svar; ordinær kort innsjekk under SER.",who:"Egne opplysninger og valgfri egen historikk; ikke andres resultater.",next:"Svar, avslå eller be om hjelp. Ikke to skjema for samme måling."},
+ via:{action:"Vurder når et frivillig VÍA-baselinepunkt skal tilbys, uten å gjøre det til sikkerhets- eller GO-score.",who:"Ser oppgavestatus for tildelt sak. Sensitive svar krever egen hjemmel og tilgang.",next:"Avklaring → riktig faglig GO/gate, ikke automatisk SER."},
+ ser:{action:"Operativ grøn/gul/rød og observerbar deltakelse i eksisterende ser_daily; ikke fyll ut deltakerens WHO-5.",who:"Nødvendig operativ status. Ingen generell tilgang til deltakerens velværebesvarelse.",next:"Tilpasning og oppgave ved behov → dokumentert overlevering til navngitt VIDA-eier."},
+ vida:{action:"Én levende vida_plan med 72t, 14/30/90 dager og avtalt oppfølging. Frivillig WHO-5 etter faglig avtale.",who:"Tildelt VIDA-kontekst og nødvendige avtaler, ikke full SER-/VÍA-historikk som standard.",next:"Neste konkrete handling hjemme → oppdatert plan eller valgfri ny VÍA."},
+ evaluator:{action:"Pilotevaluering som aggregert læring: sikkerhet, mestring, belastning og faktisk VIDA-aktivering.",who:"Aggregater med vurdering av småtall/identifiserbarhet; ingen individfiler per standard.",next:"Nøktern rapport om gjennomføring, ikke bevist behandlingseffekt."}
+};
+const renderRole=()=>{
+ const item=ROLES[$("role-lens").value],out=$("role-summary");
+ out.replaceChildren();for(const [k,v] of [["Neste naturlige oppgave",item.action],["Tilgang og innsyn",item.who],["Ansvarsoverlevering",item.next]]){const p=document.createElement("p");const b=document.createElement("strong");b.textContent=k+": ";p.append(b,document.createTextNode(v));out.append(p)}
+};
+$("role-lens").addEventListener("change",renderRole);renderRole();
+
 const render=()=>{
  const period=$("period").value,group=$("scope").value==="group",subset=events.map((e,i)=>({...e,i})).filter(e=>period==="all"||e.stage===period);
  const indices=subset.map(e=>e.i),active=selected();
@@ -133,6 +194,7 @@ const render=()=>{
  $("perspectives").textContent=new Set(active.map(x=>x.source)).size+" av 3";
  $("metric-count").textContent=active.length.toString();
  $("point-count").textContent=n.toString();
+ renderRelative(indices,active,group);
  const head=$("table-head"),body=$("table-body");head.replaceChildren();body.replaceChildren();
  const tr=document.createElement("tr");
  for(const h of ["Dato","Fase",...active.map(m=>m.short+" ("+m.unit.trim()+")")]){const th=document.createElement("th");th.textContent=h;tr.append(th)}head.append(tr);
