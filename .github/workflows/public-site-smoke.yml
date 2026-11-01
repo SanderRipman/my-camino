@@ -54,7 +54,7 @@ jobs:
           grep -q 'aidme-shell' "$ROOT/site.js"
           grep -q 'mobile-process-nav' "$ROOT/site.js"
           grep -q 'has-card-link' "$ROOT/site.js"
-          grep -q 'my.AidMe' "$ROOT/site.js"
+          grep -q '>Portal<' "$ROOT/site.js"
           grep -q 'n1-ux.js' "$ROOT/site.js"
           grep -q 'n1-feedback-completion.js' "$ROOT/site.js"
           grep -q 'post-cutover-live.js' "$ROOT/site.js"
@@ -69,10 +69,10 @@ jobs:
           node "$ROOT/contact-polish-20260902-smoke.mjs"
           node "$ROOT/public-visual-regression-smoke.mjs"
 
-          test "$(git hash-object "$ROOT/site.js")" = '4131c4bba3940ad2e1085725d5fa51401c35ce9b'
+          test "$(git hash-object "$ROOT/site.js")" = '182bc15199926695244f3135eebd883691347581'
           test "$(git hash-object "$ROOT/post-cutover-live.js")" = 'feb494f23f96c1955e841d97d3d764536bf0fa73'
           test "$(git hash-object "$ROOT/mobile-ux.css")" = '9512227a22ba281f94644887c5e723bedb8b02dd'
-          test "$(git hash-object "$ROOT/kontakt.html")" = 'cae97f56bc657eb8b21d4f2acbbba9af114cd40a'
+          test "$(git hash-object "$ROOT/kontakt.html")" = '679218b23c2913014b8480994fb0b376ad07d14c'
           test "$(git hash-object "$ROOT/contact-polish-20260902.js")" = '7a38d8e87d52e400fa4ed237beecaca659656089'
 
           python - <<'PY'
