@@ -744,3 +744,33 @@ img.upright-bridge {
   .section, .story, .route-teaser, .route-intro, .stages, .frances, .journey-ribbon, .why-camino, .trust-strip, .audience-cta { padding-left: 8px; padding-right: 8px; }
   .contact-card { margin-left: 8px; margin-right: 8px; padding-left: 18px; padding-right: 18px; }
 }
+
+/* 2026-11-01: keep the user-facing Portal action beside language and menu controls. */
+.site-header .nav-shell{display:flex;flex-wrap:nowrap;min-width:0;align-items:center}
+.site-header .nav-actions{display:flex;flex:0 0 auto;align-items:center;justify-content:flex-end;margin-left:auto;gap:8px;white-space:nowrap}
+.site-header .workspace-link{display:inline-flex;align-items:center;justify-content:center;min-height:40px}
+.site-header .mobile-nav .mobile-workspace-link{display:none!important} /* single portal CTA in header */
+@media(max-width:1200px){
+  .site-header .desktop-nav{display:none}
+  .site-header .menu-toggle{display:inline-flex;align-items:center;justify-content:center}
+  .site-header .mobile-nav.open{display:grid}
+}
+@media(max-width:650px){
+  .site-header .nav-shell{height:68px;padding-inline:12px;gap:8px;justify-content:space-between}
+  .site-header .brand{flex:0 1 auto;min-width:0;gap:7px}
+  .site-header .brand img{width:38px;height:38px;flex:0 0 38px}
+  .site-header .brand b{font-size:13px;white-space:nowrap}
+  .site-header .brand small{font-size:10px;white-space:nowrap}
+  .site-header .nav-actions{margin-left:auto;gap:5px}
+  .site-header .nav-actions .workspace-link{display:inline-flex!important;min-height:42px;padding:8px 9px}
+  .site-header .nav-actions .lang-toggle,.site-header .nav-actions .menu-toggle{min-width:38px;min-height:42px;padding-inline:8px}
+}
+@media(max-width:380px){
+  .site-header .nav-shell{padding-inline:8px;gap:4px}
+  .site-header .brand img{width:32px;height:32px;flex-basis:32px}
+  .site-header .brand b{font-size:12px}
+  .site-header .brand small{display:none}
+  .site-header .nav-actions{gap:3px}
+  .site-header .nav-actions .workspace-link{font-size:11px;padding-inline:6px}
+  .site-header .nav-actions .lang-toggle,.site-header .nav-actions .menu-toggle{min-width:35px;padding-inline:6px}
+}
