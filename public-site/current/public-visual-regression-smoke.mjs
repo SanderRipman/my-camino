@@ -21,4 +21,27 @@ ok(humanize.includes('.humanize-page .image-strip{display:grid!important'),'SER 
 for(const f of ['assets/santiago-4-ser.jpg','assets/social-meal.webp','assets/journal.webp','assets/santiago-team.webp']){
   ok(fs.existsSync(path.join(dir,f)),'SER approved image asset missing: '+f);
 }
+
+const photoCss=read('photo-framing-20261101.css');
+const routes=read('ruter.html');
+const pages=['index','via','ser','vida','deltakere','partnere','ruter','om','kontakt','takk'];
+for(const page of pages){
+ const html=read(page+'.html');
+ ok(html.includes('>Portal</a>'),'Portal label missing: '+page);
+ if(page!=='takk'){
+  const header=html.split('</header>')[0];
+  ok(!/class="nav-link[^"]*" href="via\.html"/.test(header),'Raw VÍA nav link persists: '+page);
+  ok(!/class="nav-link[^"]*" href="ser\.html"/.test(header),'Raw SER nav link persists: '+page);
+  ok(!/class="nav-link[^"]*" href="vida\.html"/.test(header),'Raw VIDA nav link persists: '+page);
+  ok(header.includes('href="index.html#metoden"'),'Method link missing: '+page);
+  ok(header.includes('href="ruter.html"'),'Camino link missing: '+page);
+ }
+}
+ok(home.includes('id="metoden"'),'Method section anchor missing');
+ok(routes.includes('photo-framing-20261101.css'),'Routes photo fidelity stylesheet missing');
+ok(ser.includes('photo-framing-20261101.css'),'SER photo fidelity stylesheet missing');
+ok(photoCss.includes('img[src$="zero-km.webp"]')&&photoCss.includes('object-fit:contain'),'Zero-km portrait cropping regression');
+ok(photoCss.includes('santiago-4-ser.jpg')&&photoCss.includes('object-fit:contain'),'SER original portrait cropping regression');
+ok(ser.includes('Å kunne stå i ubehag, finne styrke i seg selv'),'SER preferred optional discomfort reflection missing');
+
 console.log('public SER photo + homepage navigation regression smoke: OK');
