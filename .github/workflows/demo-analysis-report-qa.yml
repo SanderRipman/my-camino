@@ -1,0 +1,56 @@
+name: Demo analysis report browser QA (synthetic only)
+
+on:
+  pull_request:
+    paths:
+      - 'portal/measurement-comparison-preview.html'
+      - 'portal/measurement-comparison-preview-smoke.mjs'
+      - '.github/workflows/demo-analysis-report-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  demo-report-print:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Chrome screenshot and A4 PDF export for the synthetic page
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p demo-report-qa
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME"
+          node portal/measurement-comparison-preview-smoke.mjs
+          python3 -m http.server 8876 --directory portal >/tmp/camino-report-qa.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          sleep 1
+          BASE="http://127.0.0.1:8876/measurement-comparison-preview.html"
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --hide-scrollbars --window-size=1280,2500 --virtual-time-budget=7000 \
+            --screenshot=demo-report-qa/measurement-report-desktop.png "$BASE"
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --hide-scrollbars --window-size=390,2500 --virtual-time-budget=7000 \
+            --screenshot=demo-report-qa/measurement-report-mobile.png "$BASE"
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --no-pdf-header-footer --print-to-pdf=demo-report-qa/AidMe_DEMO_SYNTHETIC_REPORT.pdf \
+            --virtual-time-budget=7000 "$BASE"
+          test -s demo-report-qa/AidMe_DEMO_SYNTHETIC_REPORT.pdf
+          test -s demo-report-qa/measurement-report-desktop.png
+          test -s demo-report-qa/measurement-report-mobile.png
+          python3 - <<'PY'
+          from pathlib import Path
+          pdf=Path('demo-report-qa/AidMe_DEMO_SYNTHETIC_REPORT.pdf').read_bytes()
+          if not pdf.startswith(b'%PDF-'):
+              raise SystemExit('Expected actual PDF file')
+          print('Chrome print-to-PDF artifact:',len(pdf),'bytes')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aidme-synthetic-measurement-report-qa
+          path: demo-report-qa/
+          retention-days: 14
