@@ -80,6 +80,8 @@ jobs:
             echo "Checking $f"
             node --check "$f"
           done
+      - name: Verify WHO-5 demo no-write boundary
+        run: node portal/who5-preview-smoke.mjs
       - name: Build clean portal bundle
         run: node portal/build-app.mjs
       - name: Check built app syntax
