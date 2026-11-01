@@ -40,9 +40,11 @@ for(const page of pages){
 ok(home.includes('id="metoden"'),'Method section anchor missing');
 ok(routes.includes('photo-framing-20261101.css'),'Routes photo fidelity stylesheet missing');
 ok(ser.includes('photo-framing-20261101.css'),'SER photo fidelity stylesheet missing');
-ok(routes.includes('class="milestone-photo--zero"'),'Zero-km photo container missing');
-ok(photoCss.includes('.milestone-photo--zero::before')&&photoCss.includes("zero-km.webp")&&photoCss.includes('filter:blur('),'Zero-km photo surround not blended with original');
-ok(photoCss.includes('img[src$="zero-km.webp"]')&&photoCss.includes('object-fit:contain'),'Zero-km face/marker must not be cropped');
+ok(routes.includes('class="milestone-photo--zero" src="assets/zero-km.webp"'),'Zero-km image must be a direct card child, like both neighboring photos');
+ok(!routes.includes('<div class="milestone-photo--zero">'),'Zero-km mismatched 300px wrapper must not return');
+ok(photoCss.includes('.milestone-grid .milestone img.milestone-photo--zero'),'Zero-km focal crop selector missing');
+ok(photoCss.includes('object-position:50% 31%!important'),'Photo must focus on face and 0 km plaque');
+ok(routes.includes('photo-framing-20261101.css?v=20261101c'),'Photo CSS revision must bust browser cache');
 ok(photoCss.includes('.humanize-page .human-safety-photo img')&&photoCss.includes('object-fit:cover'),'SER editorial image must fill its panel');
 const headerCss=read('refine.css');
 ok(headerCss.includes('.site-header .nav-actions .workspace-link{display:inline-flex!important'),'Portal CTA must remain in mobile header');

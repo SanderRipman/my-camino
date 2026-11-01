@@ -1,17 +1,13 @@
-/* 2026-11-01 revision: preserve portrait subject without solid dark side bars. */
-.milestone-photo--zero{
- position:relative;isolation:isolate;display:grid;place-items:center;overflow:hidden;
- height:300px;width:100%;background:#4b514c;
+/* 0 km: match the two neighboring cards exactly; photograph fills the same area.
+ * Source is portrait and the important plaque is below the face.
+ * 31% vertical focal position captures the face and 0 km plaque without black borders.
+ * Preserve the approved original file unchanged. */
+.milestone-grid .milestone img.milestone-photo--zero{
+  object-fit:cover!important;
+  object-position:50% 31%!important;
+  background:transparent;
 }
-.milestone-photo--zero::before{
- content:"";position:absolute;z-index:-1;inset:-32px;
- background:url('assets/zero-km.webp') center 49%/cover no-repeat;
- filter:blur(20px) saturate(.85) brightness(.77);transform:scale(1.06);
-}
-.milestone-photo--zero img[src$="zero-km.webp"]{
- position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:contain;
- object-position:center;background:transparent;
-}
+
 /* SER is an editorial photo, not an icon: fill the entire photograph panel. */
 .humanize-page .human-safety-shell{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .humanize-page .human-safety-photo{isolation:isolate;overflow:hidden;background:#18332f}
