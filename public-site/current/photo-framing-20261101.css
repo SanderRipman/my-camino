@@ -1,24 +1,29 @@
-/* 2026-11-01 reversible photo fidelity: preserve faces and the entire source frame. */
-.milestone img[src$="zero-km.webp"]{
-  display:block;width:100%;height:360px;object-fit:contain;object-position:center;
-  background:#18332f;
+/* 2026-11-01 revision: preserve portrait subject without solid dark side bars. */
+.milestone-photo--zero{
+ position:relative;isolation:isolate;display:grid;place-items:center;overflow:hidden;
+ height:300px;width:100%;background:#4b514c;
 }
+.milestone-photo--zero::before{
+ content:"";position:absolute;z-index:-1;inset:-32px;
+ background:url('assets/zero-km.webp') center 49%/cover no-repeat;
+ filter:blur(20px) saturate(.85) brightness(.77);transform:scale(1.06);
+}
+.milestone-photo--zero img[src$="zero-km.webp"]{
+ position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:contain;
+ object-position:center;background:transparent;
+}
+/* SER is an editorial photo, not an icon: fill the entire photograph panel. */
 .humanize-page .human-safety-shell{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-.humanize-page .human-safety-photo{
-  isolation:isolate;overflow:hidden;background:#18332f;
-}
-.humanize-page .human-safety-photo::before{
-  content:"";position:absolute;inset:-18px;z-index:0;
-  background:url('assets/santiago-4-ser.jpg') center /cover no-repeat;
-  filter:blur(18px) brightness(.58);
-}
+.humanize-page .human-safety-photo{isolation:isolate;overflow:hidden;background:#18332f}
 .humanize-page .human-safety-photo img{
-  z-index:1;display:block;object-fit:contain;object-position:center;
+ position:absolute;z-index:1;inset:0;display:block;width:100%;height:100%;
+ object-fit:cover;object-position:50% 60%;
 }
+.humanize-page .human-safety-photo::before{display:none}
 .humanize-page .human-safety-copy{min-width:0;overflow-wrap:break-word}
-@media(max-width:850px){
-  .humanize-page .human-safety-shell{grid-template-columns:minmax(0,1fr)}
-}
+@media(max-width:850px){.humanize-page .human-safety-shell{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:650px){
-  .milestone img[src$="zero-km.webp"]{height:340px}
+ .milestone-photo--zero{height:300px}
+ .humanize-page .human-safety-photo{height:clamp(345px,105vw,580px)}
+ .humanize-page .human-safety-photo img{object-fit:cover;object-position:50% 62%}
 }
