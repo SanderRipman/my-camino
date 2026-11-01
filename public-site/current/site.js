@@ -78,7 +78,7 @@
       workspace.href = "https://my.aidme.no/";
       workspace.target = "_blank";
       workspace.rel = "noopener";
-      workspace.innerHTML = '<span class="lang-no">my.AidMe</span><span class="lang-en">my.AidMe</span>';
+      workspace.innerHTML = '<span class="lang-no">Portal</span><span class="lang-en">Portal</span>';
       nav.appendChild(workspace);
     }
   });
