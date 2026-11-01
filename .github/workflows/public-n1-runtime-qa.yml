@@ -79,6 +79,8 @@ jobs:
           shot home-mobile "$BASE/index.html" 390 2200
           shot participant-mobile "$BASE/deltakere.html" 390 2200
           shot route-mobile "$BASE/ruter.html" 390 2200
+          # Capture the three milestone cards on desktop, including the 0 km marker.
+          shot route-desktop "$BASE/ruter.html" 1440 4600
           shot contact-mobile "$BASE/kontakt.html?spor=deltaker&fra=qa#deltaker-interesse" 390 2200
           shot home-desktop "$BASE/index.html" 1440 1800
           sha256sum n1-runtime-qa/*.png > n1-runtime-qa/SHA256SUMS.txt
