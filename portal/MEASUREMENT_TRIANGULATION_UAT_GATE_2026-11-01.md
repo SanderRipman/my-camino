@@ -29,6 +29,13 @@
 - **Prosjekteier/evaluator:** aggregert rapport med n, mangler, periode, hvilke kilder som inngår. Åtte personer gir ikke automatisk anonymitet.
 - **Teknisk admin:** auth/roller/audit og systemstatus – ikke automatisk fag-/rådata-innsyn.
 
+## Faktisk read-only databaseinventar, 2026-11-01 (verified, no writes)
+- Supabase-prosjekt `ibloovohuhrceivrvhvn`: tabellene `ser_checkins`, `form_definitions`, `form_versions`, `form_submissions`, `consent_events`, `consent_versions` har RLS på. `form_submissions`, `ser_checkins` og `consent_events` har restriktiv AAL2-policy for sensitive operasjoner. Rollebeslutninger er mer enn bare UI.
+- Aktivt `form_definitions`-inventar har ikke `who5` eller WHO-5-variant; WHO-5 demokalkulator er **ikke** en aktiv, versjonert produksjonsform.
+- `ser_daily` har metadata `scope=participant_staff`, mens eksisterende prosjektinstruks og `form-runner.js` behandler dette som **staff-only**. RLS er primær sikkerhet, men målrettet negativ deltaker/API-rolle-UAT er fortsatt obligatorisk; ikke åpne WHO-5 ved å klone `ser_daily`-metadata.
+- Eksisterende `consent_events` og `consent_versions` beviser ikke at frivillig wearable/WHO-5-data har komplett formål/versjon/tilbakekalling. Ny godkjenning krever faktisk consent-purpose og kontrollert arbeidsflyt.
+- Undersøkelsen leste kun schema, policies og formdefinisjonsnøkler (ikke person- eller målerader). Ingen DDL, migrasjon, nøkkel, RLS eller API-endring.
+
 ## Sikkerhet / personvern: konkret GO-blokkering
 1. Definér behandlingsansvarlig, formål per datakilde og art. 6 + art. 9 hjemmel. Deltakerens informerte og eksplisitte helsevalgbaserte samtykke må være reelt fritt og kunne trekkes; tvungen programdeltakelse/utbytte må ikke styre.
 2. Personvernkonsekvensvurdering **før** behandling: sensordata + selvrapport + observatørdata kombinert er monitorering/profilering av sårbare personer. Dokumentér GDPR art. 35-vurdering, dataminimering, tilbaketrekking, oppbevaringsfrister og avvik, inkludert Norge/Spania.
