@@ -30,3 +30,9 @@
  .preview-intro{padding-top:38px}
  .preview-reason-card{border-top-color:rgba(255,255,255,.22);padding-top:18px}
 }
+
+/* 2026-11-01: three stage image cards are semantic, keyboard-accessible links. */
+.preview-steps>a.preview-step{color:#fff;text-decoration:none;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease}
+.preview-steps>a.preview-step:hover{transform:translateY(-3px);box-shadow:0 22px 46px rgba(20,33,43,.23)}
+.preview-steps>a.preview-step:focus-visible{outline:4px solid #b98a3d;outline-offset:4px}
+@media(prefers-reduced-motion:reduce){.preview-steps>a.preview-step{transition:none}}
