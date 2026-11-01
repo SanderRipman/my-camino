@@ -48,13 +48,15 @@ jobs:
           dump contact-mobile "$BASE/kontakt.html?spor=deltaker&fra=qa#deltaker-interesse" 390
           dump home-desktop "$BASE/index.html" 1440
 
-          grep -q '<strong>Camino Portugués</strong>' n1-runtime-qa/home-mobile.html
-          grep -q 'Målgang, mestring – og en ny begynnelse' n1-runtime-qa/home-mobile.html
-          grep -q 'Oppfølging hjemme' n1-runtime-qa/home-mobile.html
-          grep -q '>72 t<' n1-runtime-qa/home-mobile.html
-          grep -q '>14 d<' n1-runtime-qa/home-mobile.html
-          grep -q '>30 d<' n1-runtime-qa/home-mobile.html
-          grep -q '>90 d<' n1-runtime-qa/home-mobile.html
+          # Homepage was intentionally replaced by the accepted three-stage editorial
+          # concept in September; do not assert retired N1-specific text or schedule.
+          grep -q 'Camino Portugués' n1-runtime-qa/home-mobile.html
+          grep -q 'href="via.html" aria-label="Les mer om VÍA"' n1-runtime-qa/home-mobile.html
+          grep -q 'href="ser.html" aria-label="Les mer om SER"' n1-runtime-qa/home-mobile.html
+          grep -q 'href="vida.html" aria-label="Les mer om VIDA"' n1-runtime-qa/home-mobile.html
+          grep -q 'VÍA' n1-runtime-qa/home-desktop.html
+          grep -q 'SER' n1-runtime-qa/home-desktop.html
+          grep -q 'VIDA' n1-runtime-qa/home-desktop.html
           grep -q 'Tre steg er hele løpet' <(curl -fsS "$BASE/n1-ux.js")
           grep -q 'n1-route-map' n1-runtime-qa/route-mobile.html
           grep -q 'deltaker-interesse' n1-runtime-qa/contact-mobile.html
