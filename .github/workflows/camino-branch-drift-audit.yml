@@ -1,0 +1,46 @@
+name: Camino branch drift audit (non-destructive)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 7 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  branch-drift-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Compare main and demo-uat without changing branches
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main demo-uat --no-tags
+          {
+            echo '# Camino main ↔ demo-uat non-destructive source drift'
+            echo ''
+            echo "Generated (UTC): $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            echo "main SHA: $(git rev-parse origin/main)"
+            echo "demo-uat SHA: $(git rev-parse origin/demo-uat)"
+            echo ''
+            echo '## Left/main-only and right/demo-only commit counts'
+            git rev-list --left-right --count origin/main...origin/demo-uat
+            echo ''
+            echo '## Changed paths requiring judgment, not automatic merging'
+            git diff --name-status origin/main...origin/demo-uat -- 'portal/' 'supabase/' 'public-site/current/' 'netlify-build-router.mjs' || true
+            echo ''
+            echo '## Production-only recent commits'
+            git log --no-merges -8 --oneline origin/main -- 'portal/' 'supabase/' 'netlify-build-router.mjs' || true
+            echo ''
+            echo 'Never delete, reset or auto-merge branches based on this report.'
+          } | tee camino-drift-report.md
+          cat camino-drift-report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: camino-main-demo-source-drift
+          path: camino-drift-report.md
+          retention-days: 30
