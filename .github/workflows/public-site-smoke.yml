@@ -89,7 +89,7 @@ jobs:
           # These files are verified by semantic checks or dedicated workflows;
           # keep the older baseline strict for the untouched legacy set.
           layered = {
-              'site.js', 'kontakt.html', 'index.html', 'om.html', 'seo-build.mjs',
+              'site.js', 'kontakt.html', 'index.html', 'om.html', 'refine.css', 'ruter.html', 'seo-build.mjs',
               'via.html', 'ser.html', 'vida.html', 'deltakere.html', 'partnere.html', 'ruter.html'
           }
 
