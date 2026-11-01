@@ -40,8 +40,15 @@ for(const page of pages){
 ok(home.includes('id="metoden"'),'Method section anchor missing');
 ok(routes.includes('photo-framing-20261101.css'),'Routes photo fidelity stylesheet missing');
 ok(ser.includes('photo-framing-20261101.css'),'SER photo fidelity stylesheet missing');
-ok(photoCss.includes('img[src$="zero-km.webp"]')&&photoCss.includes('object-fit:contain'),'Zero-km portrait cropping regression');
-ok(photoCss.includes('santiago-4-ser.jpg')&&photoCss.includes('object-fit:contain'),'SER original portrait cropping regression');
+ok(routes.includes('class="milestone-photo--zero"'),'Zero-km photo container missing');
+ok(photoCss.includes('.milestone-photo--zero::before')&&photoCss.includes("zero-km.webp")&&photoCss.includes('filter:blur('),'Zero-km photo surround not blended with original');
+ok(photoCss.includes('img[src$="zero-km.webp"]')&&photoCss.includes('object-fit:contain'),'Zero-km face/marker must not be cropped');
+ok(photoCss.includes('.humanize-page .human-safety-photo img')&&photoCss.includes('object-fit:cover'),'SER editorial image must fill its panel');
+const headerCss=read('refine.css');
+ok(headerCss.includes('.site-header .nav-actions .workspace-link{display:inline-flex!important'),'Portal CTA must remain in mobile header');
+ok(headerCss.includes('.site-header .mobile-nav .mobile-workspace-link{display:none!important'),'Duplicate mobile Portal must be hidden');
+ok(headerCss.includes('.site-header .nav-shell{display:flex;flex-wrap:nowrap'),'Header controls must share one line');
+
 ok(ser.includes('Å kunne stå i ubehag, finne styrke i seg selv'),'SER preferred optional discomfort reflection missing');
 
 console.log('public SER photo + homepage navigation regression smoke: OK');
