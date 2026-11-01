@@ -31,7 +31,7 @@ button:hover{background:#edf5f1}button.primary:hover{background:#215c53}
 .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #e5e7e2;white-space:nowrap}th{background:#f4f7f4;font-weight:750}td.num{text-align:right;font-variant-numeric:tabular-nums}th.num{text-align:right}
 .sources{font-size:13px;color:#495a57}.print-only{display:none}
 @media(max-width:710px){main{padding:20px 12px}.filters{grid-template-columns:1fr}.plot{grid-template-columns:1fr;gap:7px}.report-grid{grid-template-columns:1fr}.panel{padding:15px}.timeline{font-size:10px}.plot svg{max-height:160px}}
-@media print{@page{size:A4 portrait;margin:13mm}body{background:#fff;color:#111;font:11pt/1.35 Arial,sans-serif}main{padding:0;max-width:none}.no-print,button,select,.filters,.metric-grid,.metrics{display:none!important}.print-only{display:block}.panel{margin:12px 0;padding:10px 0;border:0;box-shadow:none;break-inside:avoid}.notice{border:1px solid #ddd;padding:8px;font-size:10pt}.plot{grid-template-columns:160px 1fr;break-inside:avoid}.plot svg{max-height:95px}.table-wrap{overflow:visible}table{font-size:9pt}th,td{padding:6px 4px}.report-grid{grid-template-columns:repeat(3,1fr)}h1{font-size:24pt}h2{font-size:16pt}.sources{font-size:9pt}.print-note{color:#555}.table-panel{break-before:page}.top a{display:none}}
+@media print{@page{size:A4 portrait;margin:13mm}body{background:#fff;color:#111;font:11pt/1.35 Arial,sans-serif}main{padding:0;max-width:none}.no-print,button,select,.filters,.metric-grid,.metrics{display:none!important}.print-only{display:block}.panel{margin:12px 0;padding:10px 0;border:0;box-shadow:none;break-inside:avoid}.notice{border:1px solid #ddd;padding:8px;font-size:10pt}.plot{grid-template-columns:160px 1fr;break-inside:avoid}.plot svg{max-height:95px}.table-wrap{overflow:visible}table{font-size:9pt}th,td{padding:6px 4px}.report-grid{grid-template-columns:repeat(3,1fr)}h1{font-size:24pt}h2{font-size:16pt}.sources{font-size:9pt}.print-note{color:#555}.table-panel{break-inside:auto}.top a{display:none}}
 </style>
 </head>
 <body>
@@ -58,7 +58,7 @@ button:hover{background:#edf5f1}button.primary:hover{background:#215c53}
 <section class="panel" aria-label="Felles tidslinje med separate måleenheter">
 <h2>Utvikling over tid</h2><p id="period-description" class="small"></p>
 <div id="charts" class="chart-list"></div>
-<p class="small">Hver rad beholder sin egen måleenhet. Manglende datapunkter betyr «ikke målt», ikke null. WHO-5 er kun selvrapportert og har tilbakeblikk på 14 dager.</p>
+<p class="small">Hver rad beholder sin egen måleenhet. Stiplede forbindelser viser bare rekkefølgen mellom faktiske målinger, ikke estimerte mellomverdier. «Ikke målt» betyr ikke null. WHO-5 er kun selvrapportert og har tilbakeblikk på 14 dager.</p>
 </section>
 <section class="panel">
 <h2>Rapportsammendrag</h2><p id="report-description" class="small"></p>
@@ -118,7 +118,7 @@ const render=()=>{
   const points=seriesPoints(metric,indices,group);n+=points.length;
   const row=document.createElement("div");row.className="plot";
   const left=document.createElement("div"),title=document.createElement("h3"),sub=document.createElement("div"),last=document.createElement("p");
-  title.textContent=metric.name;sub.className="subtitle";sub.textContent=metric.source+" · "+metric.min+"–"+metric.max+metric.unit+" · "+points.length+" av "+subset.length+" målepunkter";
+  title.textContent=metric.name;sub.className="subtitle";sub.textContent=metric.source+" · "+metric.min+"–"+metric.max+(metric.unit.startsWith("/")?"":metric.unit)+" · "+points.length+" av "+subset.length+" målepunkter";
   last.className="latest";last.textContent=points.length?"Sist målt: "+fmt(points[points.length-1].value,metric)+" · "+formatDate(events[points[points.length-1].j].date):"Ingen målinger i valgt periode";
   left.append(title,sub,last);
   const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 396 127");svg.setAttribute("role","img");
