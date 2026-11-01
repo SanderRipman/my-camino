@@ -1,5 +1,149 @@
-<!doctype html><html lang="nb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>AidMe · Tre perspektiver (demo)</title><style>body{background:#f7f3ea;color:#14212b;font:16px/1.5 system-ui;margin:0}main{max-width:860px;margin:auto;padding:24px}h1{font:42px Georgia}article{background:white;border-radius:18px;padding:20px;margin:16px 0;border:1px solid #ddd}svg{width:100%;height:auto}.row{margin:22px 0}.name{font-weight:700}.tip{font-size:13px;color:#536067}.alert{padding:14px;border-left:4px solid #b98a3d;background:white}a{color:#123f3d}</style></head><body><main><a href="./">Tilbake til portalen</a><h1>Tre perspektiver. Én tidslinje.</h1><p class="alert">Kun fiktive illustrasjonsdata. Ingen lagring eller datautveksling. Dette er ikke en medisinsk vurdering.</p><article id="graphs"><h2>Før · Under · Etter · Oppfølging</h2></article><article><h2>Ulike målinger – felles kontekst</h2><p>WHO-5 er deltakerens egenrapporterte velvære (0–100). Fagpersonens strukturerte observasjon (0–10) og smartbåndets søvntimer er egne datakilder. Sammen kan de vise samvariasjon og forskjeller, men det finnes ingen godkjent konverteringsfaktor til WHO-5.</p><p>Felles datoer lar oss sammenligne endring i mønster uten å konstruere én samlet helseskår.</p></article></main><script>
-const rows=[{name:"Deltaker · WHO-5",unit:"/100",data:[48,52,60,64],max:100,color:"#123f3d"},{name:"Fagperson · observerbar deltakelse",unit:"/10",data:[4,5,6,7],max:10,color:"#b98a3d"},{name:"Smartbånd · gjennomsnittlig søvn",unit:" timer",data:[6.2,6.7,6.4,7.1],max:10,color:"#285c86"}];
-const host=document.querySelector("#graphs");
-for(const row of rows){const points=row.data.map((v,i)=>(20+i*110)+","+(90-v/row.max*76)).join(" ");const el=document.createElement("section");el.className="row";el.innerHTML='<div class="name">'+row.name+'</div><div class="tip">'+row.data.join(" → ")+row.unit+'</div><svg viewBox="0 0 370 105" role="img" aria-label="'+row.name+'"><path d="M20 90H350" fill="none" stroke="#d1d9d3"/><polyline fill="none" stroke="'+row.color+'" stroke-width="4" points="'+points+'"/></svg>';host.appendChild(el)}
-</script></body></html>
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="color-scheme" content="light">
+<title>AidMe VIDA – Syntetisk tidslinje og rapport</title>
+<style>
+:root{--navy:#14212b;--teal:#124844;--gold:#ac7939;--blue:#285c86;--rose:#875a74;--cream:#f7f3ea;--line:#dbded7;--muted:#52615f}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--navy);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1080px;margin:0 auto;padding:27px 20px 65px}
+h1,h2{font-family:Georgia,"Times New Roman",serif;font-weight:500}h1{font-size:clamp(32px,4vw,54px);line-height:1.08;margin:12px 0 15px}h2{font-size:23px;margin:4px 0 12px}p{margin:10px 0}
+a{color:var(--teal);font-weight:700}.top{display:flex;justify-content:space-between;gap:16px;align-items:center}.eyebrow{color:var(--teal);font-size:12px;text-transform:uppercase;letter-spacing:.12em;font-weight:800}
+.intro{max-width:800px;font-size:17px}.notice{border-left:4px solid var(--gold);padding:12px 16px;background:#fff;border-radius:0 10px 10px 0;margin:20px 0}
+.panel{background:#fff;border:1px solid #dfdfd9;border-radius:18px;padding:22px;margin:16px 0;box-shadow:0 8px 24px #13291d08}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:grid;gap:6px;font-weight:700}
+select,button{font:inherit;border:1px solid #a5b3ad;border-radius:10px;padding:11px 12px;background:#fff;color:var(--navy);min-height:46px}
+button{cursor:pointer;font-weight:750;color:var(--teal);border-color:var(--teal)}button.primary{background:var(--teal);color:#fff}
+button:hover{background:#edf5f1}button.primary:hover{background:#215c53}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}.metrics{border:0;padding:0;margin:14px 0 0}.metrics legend{font-weight:800;padding-bottom:6px}
+.metric-grid{display:flex;gap:8px;flex-wrap:wrap}.metric-grid label{display:flex;align-items:center;gap:7px;padding:9px 11px;border:1px solid #d7dfdb;border-radius:11px;background:#f7faf8;cursor:pointer}.metric-grid label:has(input:checked){border-color:#387b72;background:#edf7f2}input{accent-color:var(--teal)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.small{font-size:12px;color:var(--muted)}.legendline{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 14px;color:#415351;font-size:13px}.swatch{font-weight:800}
+.chart-list{display:grid;gap:12px}.plot{border-top:1px solid #e7eae5;padding-top:13px;display:grid;grid-template-columns:minmax(170px,.39fr) minmax(0,1fr);align-items:center;gap:15px}
+.plot h3{font-size:15px;margin:0 0 3px}.plot .subtitle{font-size:12px;color:var(--muted)}.plot svg{display:block;width:100%;height:auto;max-height:132px;overflow:visible}
+.plot .latest{font-size:12px;color:var(--muted);margin-top:7px}.plot .latest strong{color:var(--navy)}
+.empty{padding:28px 10px;color:#556761;font-size:14px}
+.timeline{display:flex;justify-content:space-between;gap:5px;font-size:11px;color:#52615f;margin:10px 0 0}
+.report-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.info{background:#f6f8f5;border-radius:12px;padding:13px}.info span{display:block;font-size:12px;color:#53645f}.info strong{display:block;font-size:18px;margin-top:4px}
+.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #e5e7e2;white-space:nowrap}th{background:#f4f7f4;font-weight:750}td.num{text-align:right;font-variant-numeric:tabular-nums}th.num{text-align:right}
+.sources{font-size:13px;color:#495a57}.print-only{display:none}
+@media(max-width:710px){main{padding:20px 12px}.filters{grid-template-columns:1fr}.plot{grid-template-columns:1fr;gap:7px}.report-grid{grid-template-columns:1fr}.panel{padding:15px}.timeline{font-size:10px}.plot svg{max-height:160px}}
+@media print{@page{size:A4 portrait;margin:13mm}body{background:#fff;color:#111;font:11pt/1.35 Arial,sans-serif}main{padding:0;max-width:none}.no-print,button,select,.filters,.metric-grid,.metrics{display:none!important}.print-only{display:block}.panel{margin:12px 0;padding:10px 0;border:0;box-shadow:none;break-inside:avoid}.notice{border:1px solid #ddd;padding:8px;font-size:10pt}.plot{grid-template-columns:160px 1fr;break-inside:avoid}.plot svg{max-height:95px}.table-wrap{overflow:visible}table{font-size:9pt}th,td{padding:6px 4px}.report-grid{grid-template-columns:repeat(3,1fr)}h1{font-size:24pt}h2{font-size:16pt}.sources{font-size:9pt}.print-note{color:#555}.table-panel{break-inside:auto}.top a{display:none}}
+</style>
+</head>
+<body>
+<main>
+<header class="top"><div class="eyebrow">AidMe VIDA · evaluering · demomiljø</div><a class="no-print" href="./">Til portalen</a></header>
+<h1>Tre perspektiver. Én tidslinje.</h1>
+<p class="intro">En samlet visning av deltakerens opplevelse, fagpersonens observasjoner og smartbåndets målinger – med tydelige skalaer og kildeopplysninger.</p>
+<div class="notice"><strong>Kun syntetiske demonstrasjonsdata.</strong> Ingen deltakere, helseopplysninger eller API-er er tilkoblet. Dette er en visnings- og rapportprototype, ikke dokumentasjon på faktisk effekt.</div>
+<section class="panel no-print" aria-label="Analysevalg">
+<h2>Velg visning</h2>
+<div class="filters">
+<label class="field">Datavisning<select id="scope"><option value="single">Eksempeldeltaker P-003</option><option value="group">Syntetisk gruppe (8 personer)</option></select></label>
+<label class="field">Tidsrom<select id="period"><option value="all">Hele løpet: VÍA → SER → VIDA</option><option value="via">VÍA · før</option><option value="ser">SER · under</option><option value="vida">VIDA · etter</option></select></label>
+</div>
+<fieldset class="metrics"><legend>Hvilke målinger skal vises?</legend><div class="metric-grid">
+<label><input type="checkbox" value="who5" checked> WHO-5</label>
+<label><input type="checkbox" value="agency" checked> Mestringstro</label>
+<label><input type="checkbox" value="staff" checked> Fagobservasjon</label>
+<label><input type="checkbox" value="sleep" checked> Søvn</label>
+<label><input type="checkbox" value="pulse"> Hvilepuls</label>
+</div></fieldset>
+<div class="actions"><button class="primary" id="print" type="button">Skriv ut / lagre som PDF</button><button id="reset" type="button">Tilbakestill valg</button><span class="small">Rapporten bruker bare valgte målinger og tidsrom. Velg «Lagre som PDF» i utskriftsdialogen.</span></div>
+</section>
+<section class="panel" aria-label="Felles tidslinje med separate måleenheter">
+<h2>Utvikling over tid</h2><p id="period-description" class="small"></p>
+<div id="charts" class="chart-list"></div>
+<p class="small">Hver rad beholder sin egen måleenhet. Stiplede forbindelser viser bare rekkefølgen mellom faktiske målinger, ikke estimerte mellomverdier. «Ikke målt» betyr ikke null. WHO-5 er kun selvrapportert og har tilbakeblikk på 14 dager.</p>
+</section>
+<section class="panel">
+<h2>Rapportsammendrag</h2><p id="report-description" class="small"></p>
+<div class="report-grid">
+<div class="info"><span>Perspektiver</span><strong id="perspectives"></strong></div>
+<div class="info"><span>Valgte målinger</span><strong id="metric-count"></strong></div>
+<div class="info"><span>Antall målepunkter</span><strong id="point-count"></strong></div>
+</div>
+<p class="sources"><strong>Metode:</strong> WHO-5 (0–100) er validert selvrapportering. AidMe mestringstro (0–10) er en egen, ikke-validert prosessindikator. Fagpersonens 0–10-vurdering gjelder kun observerbar deltakelse, ikke følelsestilstand. Søvntimer og hvilepuls er uavhengige fysiologiske indikatorer. Ingen måleskala konverteres til en annen, og korrelasjon dokumenterer ikke årsak.</p>
+<p class="sources"><strong>Begrensning:</strong> Ulik målefrekvens, liten gruppe, forventningseffekter og mangel på kontrollgruppe gjør at selv reelle fremtidige data ikke alene kan dokumentere behandlingseffekt. Rapporten må suppleres med sikkerhet, tilpasninger, negative virkninger, VIDA-handlinger, kostnad og faglig vurdering.</p>
+</section>
+<section class="panel table-panel">
+<h2>Datagrunnlag</h2><p class="small">Verdiene er oppdiktet for å teste arbeidsflyt, filtrering og rapportutskrift. «–» betyr at den valgte målingen ikke ble gjennomført.</p>
+<div class="table-wrap"><table><caption class="print-only">Syntetisk datatabell</caption><thead id="table-head"></thead><tbody id="table-body"></tbody></table></div>
+</section>
+<footer class="sources print-note"><p><strong>Rapportstatus:</strong> DEMO / SYNTETISK – ikke for kliniske eller individuelle beslutninger. Ingen data sendes eller lagres. PDF eksporteres lokalt med nettleserens utskriftsfunksjon.</p><p><strong>Faglig referanse:</strong> WHO (WHO-5, 2024), OECD (Guidelines on Measuring Subjective Well-being, 2025) og AidMe VIDAs gjeldende målings- og evalueringsramme v0.3 (utkast). Endelig metode, tilgang, samtykke og rapportdistribusjon krever separat GO før reelle data.</p></footer>
+</main>
+<script>
+(() => {
+"use strict";
+const events=[
+ {date:"2027-04-14",stage:"via",phase:"VÍA · oppstart"},
+ {date:"2027-04-30",stage:"via",phase:"VÍA · avklaring"},
+ {date:"2027-05-03",stage:"ser",phase:"SER · dag 1"},
+ {date:"2027-05-12",stage:"ser",phase:"SER · dag 10"},
+ {date:"2027-05-18",stage:"ser",phase:"SER · målgang"},
+ {date:"2027-05-21",stage:"vida",phase:"VIDA · 72 timer"},
+ {date:"2027-06-01",stage:"vida",phase:"VIDA · 14 dager"},
+ {date:"2027-06-17",stage:"vida",phase:"VIDA · 30 dager"},
+ {date:"2027-08-16",stage:"vida",phase:"VIDA · 90 dager"}
+];
+const metrics=[
+ {key:"who5",name:"WHO-5 · deltaker",short:"WHO-5",source:"Deltaker",unit:"/100",min:0,max:100,color:"#124844",values:[44,null,48,null,60,null,64,null,68],group:[46,null,50,null,56,null,60,null,62]},
+ {key:"agency",name:"Mestringstro · deltaker",short:"Mestringstro",source:"Deltaker",unit:"/10",min:0,max:10,color:"#875a74",values:[4.2,4.8,4.9,5.8,5.5,5.1,6.2,6.1,6.7],group:[4.7,4.9,5.2,5.6,5.8,5.5,5.9,6.0,6.2]},
+ {key:"staff",name:"Aktiv deltakelse · fagperson",short:"Observasjon",source:"Fagperson",unit:"/10",min:0,max:10,color:"#ac7939",values:[null,4.0,4.2,6.0,7.0,null,null,6.1,6.4],group:[null,4.5,4.7,5.5,6.2,null,null,6.0,6.1]},
+ {key:"sleep",name:"Søvn · smartbånd",short:"Søvn",source:"Smartbånd",unit:" t",min:0,max:10,color:"#285c86",values:[null,null,6.2,6.7,5.9,7.0,7.1,7.0,null],group:[null,null,6.4,6.5,6.1,6.8,7.0,7.1,null]},
+ {key:"pulse",name:"Hvilepuls · smartbånd",short:"Hvilepuls",source:"Smartbånd",unit:" slag/min",min:40,max:100,color:"#426762",values:[null,null,68,71,73,64,63,62,null],group:[null,null,67,68,70,66,65,64,null]}
+];
+const $=id=>document.getElementById(id);
+const options=[...document.querySelectorAll(".metric-grid input")];
+const formatDate=s=>{const [y,m,d]=s.split("-");return d+"."+m+"."+y};
+const fmt=(v,m)=>v===null?"–":(Number.isInteger(v)?String(v):v.toFixed(1).replace(".",","))+m.unit;
+const dataFor=(m,group)=>group?m.group:m.values;
+const selected=()=>metrics.filter(m=>options.find(x=>x.value===m.key)?.checked);
+const seriesPoints=(m,indices,group)=>{
+ const arr=dataFor(m,group);return indices.map((j,i)=>({x:16+i*(indices.length>1?364/(indices.length-1):0),y:110-(arr[j]-m.min)/(m.max-m.min)*92,value:arr[j],i,j})).filter(p=>p.value!==null);
+};
+const render=()=>{
+ const period=$("period").value,group=$("scope").value==="group",subset=events.map((e,i)=>({...e,i})).filter(e=>period==="all"||e.stage===period);
+ const indices=subset.map(e=>e.i),active=selected();
+ $("period-description").textContent=(group?"Syntetisk gruppe (n=8)":"Syntetisk P-003")+" · "+(subset.length?formatDate(subset[0].date)+" – "+formatDate(subset[subset.length-1].date):"Ingen datoer")+" · VÍA → SER → VIDA. Punkter målt på ulike tidspunkter.";
+ $("report-description").textContent="Datakilde: oppdiktede eksempler · Utvalg: "+(group?"8 fiktive personer, illustrativt gjennomsnitt":"én fiktiv deltaker")+" · periode: "+$("period").selectedOptions[0].textContent+".";
+ const host=$("charts");host.replaceChildren();
+ if(!active.length){const empty=document.createElement("p");empty.className="empty";empty.textContent="Velg minst én måling for å vise kurver.";host.appendChild(empty)}
+ let n=0;
+ for(const metric of active){
+  const points=seriesPoints(metric,indices,group);n+=points.length;
+  const row=document.createElement("div");row.className="plot";
+  const left=document.createElement("div"),title=document.createElement("h3"),sub=document.createElement("div"),last=document.createElement("p");
+  title.textContent=metric.name;sub.className="subtitle";sub.textContent=metric.source+" · "+metric.min+"–"+metric.max+(metric.unit.startsWith("/")?"":metric.unit)+" · "+points.length+" av "+subset.length+" målepunkter";
+  last.className="latest";last.textContent=points.length?"Sist målt: "+fmt(points[points.length-1].value,metric)+" · "+formatDate(events[points[points.length-1].j].date):"Ingen målinger i valgt periode";
+  left.append(title,sub,last);
+  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 396 127");svg.setAttribute("role","img");
+  svg.setAttribute("aria-label",metric.name+" – "+subset.map(e=>formatDate(e.date)+": "+fmt(dataFor(metric,group)[e.i],metric)).join(", "));
+  const grid=document.createElementNS("http://www.w3.org/2000/svg","path");grid.setAttribute("d","M16 18H380 M16 64H380 M16 110H380");grid.setAttribute("fill","none");grid.setAttribute("stroke","#dce4de");svg.append(grid);
+  if(points.length>1){const line=document.createElementNS("http://www.w3.org/2000/svg","polyline");line.setAttribute("points",points.map(p=>p.x.toFixed(1)+","+p.y.toFixed(1)).join(" "));line.setAttribute("stroke",metric.color);line.setAttribute("stroke-width","3");line.setAttribute("fill","none");line.setAttribute("stroke-linecap","round");line.setAttribute("stroke-dasharray","5 4");svg.append(line)}
+  for(const p of points){const circle=document.createElementNS("http://www.w3.org/2000/svg","circle");circle.setAttribute("cx",p.x.toFixed(1));circle.setAttribute("cy",p.y.toFixed(1));circle.setAttribute("r","5.1");circle.setAttribute("fill",metric.color);circle.setAttribute("stroke","#fff");circle.setAttribute("stroke-width","2");const titleNode=document.createElementNS("http://www.w3.org/2000/svg","title");titleNode.textContent=events[p.j].phase+": "+fmt(p.value,metric);circle.append(titleNode);svg.append(circle)}
+  const time=document.createElement("div");time.appendChild(svg);const axis=document.createElement("div");axis.className="timeline";
+  for(const e of subset){const span=document.createElement("span");span.textContent=e.phase.split(" · ")[0];span.title=formatDate(e.date)+" "+e.phase;axis.appendChild(span)}
+  time.append(axis);row.append(left,time);host.append(row);
+ }
+ $("perspectives").textContent=new Set(active.map(x=>x.source)).size+" av 3";
+ $("metric-count").textContent=active.length.toString();
+ $("point-count").textContent=n.toString();
+ const head=$("table-head"),body=$("table-body");head.replaceChildren();body.replaceChildren();
+ const tr=document.createElement("tr");
+ for(const h of ["Dato","Fase",...active.map(m=>m.short+" ("+m.unit.trim()+")")]){const th=document.createElement("th");th.textContent=h;tr.append(th)}head.append(tr);
+ for(const e of subset){const row=document.createElement("tr");for(const value of [formatDate(e.date),e.phase,...active.map(m=>{const v=dataFor(m,group)[e.i];return v===null?"–":Number.isInteger(v)?String(v):v.toFixed(1).replace(".",",")})]){const cell=document.createElement("td");cell.textContent=value;row.append(cell)}body.append(row)}
+};
+$("scope").addEventListener("change",render);
+$("period").addEventListener("change",render);
+options.forEach(x=>x.addEventListener("change",render));
+$("print").addEventListener("click",()=>window.print());
+$("reset").addEventListener("click",()=>{$("scope").value="single";$("period").value="all";options.forEach(x=>{x.checked=x.value!=="pulse"});render()});
+render();
+})();
+</script>
+</body></html>

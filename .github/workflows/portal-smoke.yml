@@ -82,6 +82,8 @@ jobs:
           done
       - name: Verify WHO-5 demo no-write boundary
         run: node portal/who5-preview-smoke.mjs
+      - name: Verify three-source report is synthetic and print-ready
+        run: node portal/measurement-comparison-preview-smoke.mjs
       - name: Build clean portal bundle
         run: node portal/build-app.mjs
       - name: Check built app syntax
