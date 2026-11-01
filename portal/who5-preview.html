@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#123f3d">
+<title>WHO-5 · prøvevisning – AidMe VIDA</title>
+<style>
+:root{color-scheme:light;--teal:#123f3d;--ink:#14212b;--paper:#f8f4ec;--gold:#b98a3d}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);font:16px/1.5 system-ui,-apple-system,sans-serif;color:var(--ink)}
+main{max-width:750px;margin:0 auto;padding:28px 18px 70px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:30px}
+header strong{color:var(--teal);letter-spacing:.06em}a{color:var(--teal);font-weight:700}
+h1{font:500 clamp(2rem,5vw,3rem)/1.1 Georgia,serif;margin:.2em 0}
+p{max-width:64ch}.eyebrow{letter-spacing:.12em;text-transform:uppercase;color:#65716d;font-size:.76rem;font-weight:700}
+.notice{border-left:4px solid var(--gold);background:white;padding:14px 17px;margin:22px 0;border-radius:0 12px 12px 0}
+fieldset{margin:16px 0;padding:22px;border:1px solid #d8ded9;background:white;border-radius:16px;min-width:0}
+legend{font-weight:750;color:var(--teal);padding:0 7px;max-width:100%}
+.options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+label.option{display:flex;gap:7px;align-items:center;background:#f3f6f4;border:1px solid #e2e8e5;padding:11px;border-radius:10px;cursor:pointer;font-size:.9rem}
+label.option:has(input:checked){outline:2px solid #1c6660;background:#e5f2ee}
+input{accent-color:var(--teal);flex-shrink:0}
+button{background:var(--teal);color:white;border:0;border-radius:12px;padding:14px 19px;font:700 1rem system-ui;cursor:pointer}
+button.secondary{background:transparent;color:var(--teal);border:1px solid var(--teal)}
+button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:4px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+#result{margin-top:20px;border:1px solid #c3d1c7;border-radius:14px;padding:22px;background:#fff}
+.score{font:600 2.6rem Georgia,serif;color:var(--teal)}
+.small{font-size:.88rem;color:#5c6764}
+@media(max-width:580px){.options{grid-template-columns:repeat(2,minmax(0,1fr))}fieldset{padding:18px 12px}}
+@media(max-width:360px){.options{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<header><strong>AIDME VIDA · DEMO</strong><a href="./">Tilbake til portalen</a></header>
+<p class="eyebrow">Frivillig evaluering · teknisk prototype</p>
+<h1>WHO-5 · Trivsel og velvære</h1>
+<p>Fem spørsmål om <strong>hvordan du har hatt det de siste to ukene</strong>. Velg ett svar på hvert spørsmål. Dette er din egen opplevelse, ikke noe en smartklokke kan avgjøre.</p>
+<div class="notice"><strong>Kun prøvevisning.</strong> Ingen svar sendes, lagres, eksporteres eller knyttes til en deltaker. Bruk fiktive svar. Dette er ikke det godkjente skjemaet for ekte deltakere.</div>
+<form id="who5" novalidate>
+<div id="questions"></div>
+<div class="actions"><button type="submit">Beregn WHO-5</button><button class="secondary" type="reset">Nullstill</button></div>
+<p id="error" role="alert" aria-live="polite"></p>
+</form>
+<section id="result" hidden aria-live="polite"><h2>Din WHO-5-poengsum</h2><p class="score"><span id="score"></span> / 100</p><p>WHO-5 er en selvrapportert velværeskala. Skåren alene er ingen diagnose, medisinsk vurdering eller automatisk GO/NO-GO-beslutning.</p><p class="small">Summen av fem svar (0–5) multipliseres med fire. Høyere skår viser større rapportert velvære.</p></section>
+<p class="small">Neste utviklingssteg er en separat, versjonert WHO-5-skjemadefinisjon med deltakersamtykke, rollebasert tilgang og tidsstempling i den eksisterende AidMe-portalen. Dette er ikke åpnet her.</p>
+</main>
+<script>
+(() => {
+  'use strict';
+  const questions=[
+    'Jeg har vært glad og i godt humør',
+    'Jeg har følt meg rolig og avslappet',
+    'Jeg har følt meg aktiv og energisk',
+    'Jeg har våknet og følt meg frisk og uthvilt',
+    'Mitt daglige liv har vært fylt med ting som interesserer meg'
+  ];
+  const choices=[['Hele tiden',5],['Det meste av tiden',4],['Mer enn halvparten av tiden',3],['Mindre enn halvparten av tiden',2],['Av og til',1],['Aldri',0]];
+  const form=document.getElementById('who5');
+  const host=document.getElementById('questions');
+  const error=document.getElementById('error'),result=document.getElementById('result'),score=document.getElementById('score');
+  questions.forEach((text,index)=>{
+    const fieldset=document.createElement('fieldset'),legend=document.createElement('legend'),options=document.createElement('div');
+    legend.textContent=(index+1)+'. '+text;
+    fieldset.appendChild(legend);options.className='options';
+    choices.forEach(([label,value])=>{
+      const wrapper=document.createElement('label'),radio=document.createElement('input'),caption=document.createElement('span');
+      wrapper.className='option';radio.type='radio';radio.name='q'+index;radio.value=String(value);radio.required=true;
+      caption.textContent=label;wrapper.append(radio,caption);options.appendChild(wrapper);
+    });
+    fieldset.appendChild(options);host.appendChild(fieldset);
+  });
+  form.addEventListener('submit',event=>{
+    event.preventDefault();result.hidden=true;error.textContent='';
+    let sum=0;
+    for(let i=0;i<questions.length;i++){
+      const selected=form.querySelector('input[name="q'+i+'"]:checked');
+      if(!selected){error.textContent='Svar på alle fem spørsmålene før du beregner.';return;}
+      sum+=Number(selected.value);
+    }
+    score.textContent=String(sum*4);result.hidden=false;result.scrollIntoView({block:'nearest'});
+  });
+  form.addEventListener('reset',()=>{result.hidden=true;score.textContent='';error.textContent='';});
+})();
+</script>
+</body></html>
