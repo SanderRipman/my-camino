@@ -90,7 +90,7 @@ jobs:
           # keep the older baseline strict for the untouched legacy set.
           layered = {
               'site.js', 'kontakt.html', 'index.html', 'om.html', 'seo-build.mjs',
-              'via.html', 'ser.html', 'vida.html', 'deltakere.html'
+              'via.html', 'ser.html', 'vida.html', 'deltakere.html', 'partnere.html', 'ruter.html'
           }
 
           for item in manifest.get('files', []):
