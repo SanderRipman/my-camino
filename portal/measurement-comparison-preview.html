@@ -142,7 +142,7 @@ $("scope").addEventListener("change",render);
 $("period").addEventListener("change",render);
 options.forEach(x=>x.addEventListener("change",render));
 $("print").addEventListener("click",()=>window.print());
-$("reset").addEventListener("click",()=>{$("scope").value="single";$("period").value="all";options.forEach(x=>x.checked!==false&&(x.checked=x.value!=="pulse"));render()});
+$("reset").addEventListener("click",()=>{$("scope").value="single";$("period").value="all";options.forEach(x=>{x.checked=x.value!=="pulse"});render()});
 render();
 })();
 </script>
