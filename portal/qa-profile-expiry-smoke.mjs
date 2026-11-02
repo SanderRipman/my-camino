@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+const assert=(condition,message)=>{if(!condition)throw new Error(message)};
+const chrome=fs.readFileSync(new URL('./app-workday-chrome.js',import.meta.url),'utf8');
+const html=fs.readFileSync(new URL('./index.html',import.meta.url),'utf8');
+const qa=fs.readFileSync(new URL('./qa-role-pack.js',import.meta.url),'utf8');
+const notice=fs.readFileSync(new URL('./app-qa-expiry-reminder.js',import.meta.url),'utf8');
+assert(chrome.includes("'QA-tilganger'")&&chrome.includes("'./qa-role-pack.html',roles.includes('system_admin')"),'Shortcut must be restricted to active system admins');
+assert(html.includes('app-qa-expiry-reminder.js'),'Portal must load expiry reminder');
+assert(notice.includes("hasRole('system_admin')")&&notice.includes("currentLevel!=='aal2'"),'Reminder must require admin role and MFA to read status');
+assert(notice.includes("functions.invoke('qa-renew-role-pack',{body:{action:'preview'}})"),'Reminder must use existing protected read-only preview');
+assert(notice.includes('WARNING_WINDOW_MS=3*24*60*60*1000'),'Reminder must begin 72 hours before expiry');
+assert(notice.includes("document.addEventListener('aidme:portal-rendered'"),'Reminder must initialize after login');
+assert(!/\.from\(|action:'extend_week'|action:'ensure_week'|service_role|localStorage/.test(notice),'Reminder must not grant roles, write data or access secrets');
+assert(qa.includes('hours<=72')&&qa.includes('hours<=0'),'QA page must distinguish expired and three-day warning');
+console.log('QA profile shortcut and three-day expiry reminder invariants OK');
