@@ -1,0 +1,28 @@
+import fs from 'node:fs';
+import {Script} from 'node:vm';
+const read=f=>fs.readFileSync(new URL('./'+f,import.meta.url),'utf8');
+const html=read('ser-five-checkin-uat.html'),portal=read('index.html'),guide=read('uat-start-20261102.html');
+const pass=(ok,message)=>{if(!ok)throw new Error(message)};
+pass(html.includes('noindex,nofollow'),'No indexing of synthetic experimental form');
+pass(html.includes('Ingen besvarelser lagres eller sendes'),'Must explicitly warn no writes');
+pass(html.includes('ikke WHO-5'),'Must distinguish AidMe from WHO-5');
+pass(html.includes('Fem korte spørsmål'),'Five-question structure missing');
+for(const key of ['agency','belonging','mood','energy','manageability'])pass(html.includes("key:'"+key+"'"),'Missing process measure '+key);
+pass(html.includes('Selvverd:')&&html.includes('Bidrag:'),'Required voluntary and non-scored subtitles missing');
+pass(html.includes("Array(ITEMS.length).fill(null)"),'Blank answers must not default to positive numbers');
+pass(html.includes('answered.length===5'),'Aggregate must require all five answers');
+pass(html.includes('answered.reduce((a,b)=>a+b,0)*4'),'Experimental index must be 0-25 × 4');
+pass(html.includes('values.some(v=>v!==null&&v<=1)'),'Missing-only or unscored answers must never trigger yellow');
+pass(html.includes('ingen automatisk sikkerhetsbeslutning')||html.includes('ingen automatisk sikkerhetsbeslutning'),'Ensure non-automatic risk flag');
+// Also verify the actual authored wording, not merely the five process names.
+for(const t of ['Jeg opplevde at jeg kunne mestre utfordringene','I dag opplevde jeg tilhørighet','en god grunnstemning','overskudd til det som var riktig','stress og uro var håndterbart'])pass(html.includes(t),'Question wording lost: '+t);
+pass(html.includes("range.type='range'"),'Compact slider presentation required instead of six button choices');
+pass(html.includes("range.min='0'")&&html.includes("range.max='5'")&&html.includes("range.step='1'"),'Response scale must have six distinct values');
+pass(html.includes("setAttribute('aria-valuetext'")&&html.includes("aria-live"),'Accessible answer state required');
+pass(!/(?:fetch\s*\(|XMLHttpRequest|localStorage|sessionStorage|indexedDB|sendBeacon|supabase\.|document\.cookie)/.test(html),'No external network, storage or participant API allowed in UAT');
+pass(portal.includes('href="./ser-five-checkin-uat.html"'),'Existing portal check-in must link to preview');
+pass(portal.includes('id="checkinForm"')&&portal.includes('id="sliderGrid"'),'Existing operational form untouched');
+pass(guide.includes('ser-five-checkin-uat.html'),'One UAT guide must link to preview');
+const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
+pass(scripts.length===1,'One standalone script required');new Script(scripts[0][1],{filename:'ser-five-checkin-uat.js'});
+console.log('SER five-question synthetic compact UAT: PASS');
