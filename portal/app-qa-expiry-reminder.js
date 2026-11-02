@@ -38,7 +38,7 @@ function addNotice(host,id,heading,message){
 }
 function render(){
   ensureShortcut();
-  if(!authorizedAdmin()||!expiry){removeNotice();return}
+  if(!authorizedAdmin()||currentUserId!==session?.user?.id||!expiry){removeNotice();return}
   const remaining=expiry.getTime()-Date.now();
   if(!Number.isFinite(remaining)||remaining>WARNING_WINDOW_MS){removeNotice();return}
   const stamp=expiry.toLocaleString('nb-NO',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -60,15 +60,17 @@ async function check(){
   render();
   if(inFlight||Date.now()-checkedAt<REFRESH_MS)return;
   inFlight=true;
+  let verifiedMfa=false;
   try{
     const {data:level,error:levelError}=await client.auth.mfa.getAuthenticatorAssuranceLevel();
     if(levelError||level?.currentLevel!=='aal2'){expiry=null;return}
+    verifiedMfa=true;
     const {data,error}=await client.functions.invoke('qa-renew-role-pack',{body:{action:'preview'}});
     if(error||data?.ok!==true||!data.hasPack||!data.expiresAt){expiry=null;return}
     const value=new Date(data.expiresAt);
     expiry=Number.isFinite(value.getTime())?value:null;
   }catch{expiry=null}
-  finally{checkedAt=Date.now();inFlight=false;render()}
+  finally{checkedAt=verifiedMfa?Date.now():0;inFlight=false;render()}
 }
 document.addEventListener('aidme:portal-rendered',()=>{render();void check()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();void check()}});
