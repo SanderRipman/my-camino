@@ -84,6 +84,8 @@ jobs:
         run: node portal/who5-preview-smoke.mjs
       - name: Verify synthetic compact five-question SER form
         run: node portal/ser-five-checkin-uat-smoke.mjs
+      - name: Verify correct form bootstrap, scoped roles and direct UAT journey
+        run: node portal/form-flow-uat-smoke.mjs
       - name: Verify three-source report is synthetic and print-ready
         run: node portal/measurement-comparison-preview-smoke.mjs
       - name: Verify integrated Analysis tabs and safe UAT
