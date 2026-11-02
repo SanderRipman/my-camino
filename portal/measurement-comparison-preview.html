@@ -102,7 +102,7 @@ html.embedded-report .notice{margin:5px 0 10px}
 <p class="small">Hver rad beholder sin egen måleenhet. Stiplede forbindelser viser bare rekkefølgen mellom faktiske målinger, ikke estimerte mellomverdier. «Ikke målt» betyr ikke null. WHO-5 er kun selvrapportert og har tilbakeblikk på 14 dager.</p>
 </section>
 <section class="panel">
-<h2>Rapportsammendrag</h2><p id="report-description" class="small"></p>
+<h2>Rapportsammendrag</h2><p id="report-description" class="small"></p><p id="score-method" class="small"></p>
 <div class="report-grid">
 <div class="info"><span>Perspektiver</span><strong id="perspectives"></strong></div>
 <div class="info"><span>Valgte målinger</span><strong id="metric-count"></strong></div>
@@ -253,8 +253,9 @@ const render=()=>{
  const subset=validDates?events.map((e,i)=>({...e,i})).filter(e=>(period==="all"||e.stage===period)&&(!from||e.date>=from)&&(!to||e.date<=to)):[];
  $("date-selection-note").textContent=validDates?"Fase og datointervall virker samtidig. "+(subset.length?subset.length+" måledatoer i utvalget.":"Ingen fiktive måledatoer i valget.")+" Skalaen 0–100 for AidMe og fag er kun 0–10 × 10; ikke WHO-5.":"Fra-dato må være før eller lik til-dato. Velg et gyldig intervall." ;
  const indices=subset.map(e=>e.i),active=selected();
+ $("score-method").textContent=displayAs100()?"Visningsvalg: AidMe 0–10 og fagobservasjon 0–10 er kun multiplisert med 10 på skjerm og i valgt PDF. Originaldata og faglig gyldighet er uendret; WHO-5 måler et annet fenomen.":"Visningsvalg: AidMe og fagobservasjoner vises i opprinnelige 0–10, WHO-5 i original 0–100; sensorparametere beholder sine enheter.";
  $("period-description").textContent=(group?"Syntetisk gruppe (n=8)":"Syntetisk P-003")+" · "+(subset.length?formatDate(subset[0].date)+" – "+formatDate(subset[subset.length-1].date):"Ingen datoer")+" · VÍA → SER → VIDA. Punkter målt på ulike tidspunkter.";
- $("report-description").textContent="Datakilde: oppdiktede eksempler · Utvalg: "+(group?"8 fiktive personer, illustrativt gjennomsnitt":"én fiktiv deltaker")+" · periode: "+$("period").selectedOptions[0].textContent+".";
+ $("report-description").textContent="Datakilde: oppdiktede eksempler · Utvalg: "+(group?"8 fiktive personer, illustrativt gjennomsnitt":"én fiktiv deltaker")+" · fase: "+$("period").selectedOptions[0].textContent+" · datointervall: "+(subset.length?formatDate(subset[0].date)+"–"+formatDate(subset[subset.length-1].date):"ingen observasjoner")+(from||to?" (brukervalgt filter).":".");
  const host=$("charts");host.replaceChildren();
  if(!active.length){const empty=document.createElement("p");empty.className="empty";empty.textContent="Velg minst én måling for å vise kurver.";host.appendChild(empty)}
  let n=0;
