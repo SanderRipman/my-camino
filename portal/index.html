@@ -134,19 +134,42 @@
 
     <section class="view" id="view-analysis">
       <div class="section-head"><div><p class="eyebrow">Mønstre, ikke diagnoser</p><h2>Utvikling og sammenligning</h2><p>Velg periode, måling og én eller flere deltakere. Grafen er støtte for samtale og faglig vurdering.</p></div></div>
+      <nav class="analysis-hub-tabs" id="analysisHubTabs" aria-label="Tre analysevisninger">
+        <button type="button" data-analysis-mode="aidme" aria-pressed="true">1 · AidMe-målinger</button>
+        <button type="button" data-analysis-mode="sources" aria-pressed="false">2 · Tre perspektiver</button>
+        <button type="button" data-analysis-mode="report" aria-pressed="false">3 · Rapport og UAT</button>
+      </nav>
+      <div id="analysisHubAidme" class="analysis-hub-panel" data-mode-panel="aidme">
       <article class="panel-card analysis-card">
         <div class="analysis-controls"><label><span>Måling</span><select id="analysisMetric"><option value="agency">Mestringstro</option><option value="mood">Stemning</option><option value="stress">Stress</option><option value="energy">Energi</option><option value="sleep">Søvnkvalitet</option><option value="belonging">Tilhørighet</option><option value="direction">Tydelig neste steg</option></select></label><label><span>Periode</span><select id="analysisPeriod"><option value="14">14 dager</option><option value="30" selected>30 dager</option><option value="60">60 dager</option><option value="90">90 dager</option></select></label><label class="toggle-label"><input type="checkbox" id="showAverage" checked> Vis gruppesnitt</label></div>
         <div id="analysisParticipants" class="participant-chips"></div>
         <div class="chart-frame"><canvas id="analysisChart" height="360"></canvas></div>
         <p class="privacy-note" style="border-left:3px solid #bd984d;padding:10px 12px;background:#faf6e9"><strong>Datakildene i denne visningen:</strong> Demo 2027-kurvene kan vise syntetiske målinger. Meldingen «0 registrerte målinger» nedenfor gjelder det separate, tilgangsstyrte datagrunnlaget. Disse to kildene er ikke samme datasett.</p>
-        <details id="analysisTriangulation" class="panel-card" style="margin-top:15px;padding:16px;border:1px solid #d7dcd3;border-radius:15px">
-          <summary style="cursor:pointer;font-weight:800;color:#124844">Sammenlign tre perspektiver – WHO-5, AidMe/fag og smartbånd (syntetisk UAT)</summary>
-          <p class="privacy-note">Denne innebygde demonstrasjonen leser ingen innloggede deltakerdata. Måleseriene er helt fiktive og bruker forskjellige enheter. Lukk visningen uten å endre den operative grafen.</p>
-          <iframe title="Syntetisk sammenligning og rapport – ingen personopplysninger" loading="lazy" sandbox="allow-scripts allow-modals" referrerpolicy="no-referrer" src="./measurement-comparison-preview.html" style="display:block;width:100%;height:min(1050px,86vh);border:1px solid #d7dcd3;border-radius:12px;background:#f7f3ea"></iframe>
-          <p class="privacy-note"><a href="./measurement-comparison-preview.html" target="_blank" rel="noopener noreferrer">Åpne full analyse og PDF-rapport i eget vindu</a></p>
-        </details>
+
         <p class="privacy-note">Valgte indikatorer er AidMes egne 0–10-vurderinger. WHO-5 (0–100) og fysiologiske målinger er separate datakilder og skal ikke blandes.</p>
       </article>
+      </div>
+      <section id="analysisHubSources" class="analysis-hub-panel" data-mode-panel="sources" hidden aria-label="Tre målekilder i sammenlignbar tidslinje">
+        <div class="analysis-hub-note"><strong>Forskjellige datakilder, felles tidslinje.</strong> WHO-5 er deltakerens selvrapportering; AidMe-innsjekk, fagobservasjon og smartbånd vises hver for seg. Syntetisk UAT – ingen persondata.</div>
+        <details id="analysisTriangulation" open class="panel-card" style="margin-top:15px;padding:16px;border:1px solid #d7dcd3;border-radius:15px">
+          <summary style="cursor:pointer;font-weight:800;color:#124844">Sammenlign tre perspektiver – WHO-5, AidMe/fag og smartbånd (syntetisk UAT)</summary>
+          <p class="privacy-note">Denne innebygde demonstrasjonen leser ingen innloggede deltakerdata. Måleseriene er helt fiktive og bruker forskjellige enheter. Lukk visningen uten å endre den operative grafen.</p>
+          <iframe title="Syntetisk sammenligning og rapport – ingen personopplysninger" loading="lazy" sandbox="allow-scripts allow-modals" referrerpolicy="no-referrer" id="analysisEmbeddedFrame" src="./measurement-comparison-preview.html?embedded=1" style="display:block;width:100%;height:1100px;border:1px solid #d7dcd3;border-radius:12px;background:#f7f3ea"></iframe>
+          <p class="privacy-note"><a href="./measurement-comparison-preview.html" target="_blank" rel="noopener noreferrer">Åpne full analyse og PDF-rapport i eget vindu</a></p>
+        </details>
+      </section>
+      <section id="analysisHubReport" class="analysis-hub-panel" data-mode-panel="report" hidden aria-label="Rapport, PDF og UAT">
+        <article class="panel-card analysis-hub-report">
+          <p class="eyebrow">Syntetisk evaluering</p>
+          <h3>Én rapport – tre perspektiver</h3>
+          <p>Rapporten er samme målegrunnlag som visning 2, ikke et nytt datasett. Velg periode, deltakereksempel og måletyper i den fullstendige rapporten. Deretter kan du skrive ut eller lagre som PDF.</p>
+          <div class="analysis-hub-cards"><div><strong>WHO-5</strong><span>Selvrapportert velvære · 0–100</span></div><div><strong>AidMe og fag</strong><span>Prosess/observasjoner · separate 0–10-mål</span></div><div><strong>Smartbånd</strong><span>Søvn, puls og eventuelt HRV · egne enheter</span></div></div>
+          <p><a class="ghost link-btn" href="./measurement-comparison-preview.html" target="_blank" rel="noopener noreferrer">Åpne full rapport og lagre som PDF</a></p>
+          <h3>Start konkret UAT</h3>
+          <p>Gå gjennom deltakerens oppgaver, rollebytte, negativ tilgangstest og VIDA-overlevering. Testguiden bruker ingen virkelige helseopplysninger.</p>
+          <p><a class="ghost link-btn" href="./uat-start-20261102.html" target="_blank" rel="noopener noreferrer">Åpne UAT-testprosedyre</a></p>
+        </article>
+      </section>
     </section>
 
     <section class="view" id="view-forms">
@@ -187,5 +210,7 @@
 <dialog id="taskDialog" class="task-dialog"><form method="dialog" class="dialog-shell"><div class="dialog-head"><div><p class="eyebrow" id="taskDialogEyebrow">Oppgave</p><h2 id="taskDialogTitle">Oppgave</h2></div><button class="icon-btn" value="cancel" aria-label="Lukk">×</button></div><div id="taskDialogBody"></div><div class="dialog-actions"><button id="taskStart" type="button" class="ghost">Marker i gang</button><button id="taskDone" type="button" class="primary">Marker ferdig</button><button value="cancel" class="ghost">Lukk</button></div><p id="taskDialogMessage" class="message"></p></form></dialog>
 
 <script src="./app.js?v=20260817b"></script>
+<link rel="stylesheet" href="./analysis-hub-uat.css?v=20261102a">
+<script src="./analysis-hub-uat.js?v=20261102a" defer></script>
 </body>
 </html>
