@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import './qa-profile-expiry-smoke.mjs';
 
 const read=(path)=>fs.readFileSync(new URL(path,import.meta.url),'utf8');
 const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
