@@ -66,7 +66,18 @@ async function init(){
 }
 function fillParticipants(){const own=ownParticipant(),staff=isStaff(),list=staff?participants:(own?[own]:[]);$('#participantSelect').innerHTML=(staff?'<option value="">Ingen enkelt deltaker / pilotnivå</option>':'')+list.map(p=>`<option value="${p.id}">${esc(p.code_name)} · ${esc(p.stage)}</option>`).join('')}
 function fillPilots(){const visible=isStaff()?pilots:pilots.filter(p=>pilotParticipants.some(x=>x.pilot_id===p.id&&x.participant_id===ownParticipant()?.id));$('#pilotSelect').innerHTML='<option value="">Avledes fra deltaker / ikke valgt</option>'+visible.map(p=>`<option value="${p.id}">${esc(p.name)}${p.route_name?` · ${esc(p.route_name)}`:''}</option>`).join('')}
-function fillForms(){const keys=allowedKeys(),defs=definitions.filter(d=>keys.has(d.key)&&formVersionFor(d.id));$('#formSelect').innerHTML=defs.map(d=>`<option value="${d.id}">${esc(d.title_no)}</option>`).join('')}
+function fillForms(){
+ const keys=allowedKeys(),defs=definitions.filter(d=>keys.has(d.key)&&formVersionFor(d.id));
+ $('#formSelect').innerHTML=defs.map(d=>`<option value="${d.id}">${esc(d.title_no)}</option>`).join('');
+ if(!defs.length){
+  const blocked=$('#blocked');
+  $('#runner').classList.add('hidden');
+  blocked.classList.remove('hidden');
+  blocked.querySelector('h2').textContent='Ingen tildelte skjema for denne rollen';
+  $('#blockedText').textContent='Du er innlogget, men ingen tilgjengelige skjema er knyttet til en aktiv deltakerrolle eller tidsavgrenset fagrolle. En syntetisk testrolle kan ha utløpt. Be autorisert administrator kontrollere rolletildelingene; ikke bruk en annen rolle som snarvei.';
+  const link=blocked.querySelector('a.primary');if(link){link.href='./#tasks';link.textContent='Tilbake til oppgaver'}
+ }
+}
 function applyQuery(){const q=new URLSearchParams(location.search),key=q.get('key'),participant=q.get('participant'),pilot=q.get('pilot');if(key){const d=definitions.find(x=>x.key===key);if(!d||!optionHas($('#formSelect'),d.id))return blockUnavailableRequestedContext(q);$('#formSelect').value=d.id}if(participant){if(!optionHas($('#participantSelect'),participant))return blockUnavailableRequestedContext(q);$('#participantSelect').value=participant}if(pilot){if(!optionHas($('#pilotSelect'),pilot))return blockUnavailableRequestedContext(q);$('#pilotSelect').value=pilot}return true}
 function syncPilotFromParticipant(){if($('#pilotSelect').value)return;const pp=participantPilot($('#participantSelect').value);if(pp&&[...$('#pilotSelect').options].some(o=>o.value===pp.id))$('#pilotSelect').value=pp.id}
 function formRoleContext(){
