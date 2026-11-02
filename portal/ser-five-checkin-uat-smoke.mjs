@@ -22,6 +22,12 @@ pass(html.includes("setAttribute('aria-valuetext'")&&html.includes("aria-live"),
 pass(!/(?:fetch\s*\(|XMLHttpRequest|localStorage|sessionStorage|indexedDB|sendBeacon|supabase\.|document\.cookie)/.test(html),'No external network, storage or participant API allowed in UAT');
 pass(portal.includes('href="./ser-five-checkin-uat.html"'),'Existing portal check-in must link to preview');
 pass(portal.includes('id="checkinForm"')&&portal.includes('id="sliderGrid"'),'Existing operational form untouched');
+const primary=portal.indexOf('Fem korte spørsmål · 0–5'),legacy=portal.indexOf('id="legacyCheckin"'),old=portal.indexOf('id="checkinForm"');
+pass(primary>=0&&legacy>primary&&old>legacy,'Compact five-question UAT must appear before the intact legacy form');
+pass(portal.includes('<summary style="cursor:pointer;font-weight:700;color:#124844">Eldre innsjekk'),'Old 7-item form must remain voluntarily expandable');
+pass(portal.includes('Prøveversjonen lagrer ikke svar'),'Synthetic 5-question form must never look like it supports real saving');
+pass(portal.includes('BankID kommer som valgfritt alternativ')&&portal.includes('Leverandørkoblingen er ennå ikke aktiv'),'Login must be honest about BankID provider status');
+
 pass(guide.includes('ser-five-checkin-uat.html'),'One UAT guide must link to preview');
 const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 pass(scripts.length===1,'One standalone script required');new Script(scripts[0][1],{filename:'ser-five-checkin-uat.js'});
