@@ -24,7 +24,7 @@ async function refreshPackStatus(){
  if(error||data?.error){host.textContent='Kunne ikke lese rollepakke-status akkurat nå.';renew.classList.add('hidden');return}
  if(!data.hasPack){host.textContent='Ingen aktiv syntetisk staff-pakke funnet.';renew.classList.add('hidden');return}
  const when=new Date(data.expiresAt).toLocaleString('nb-NO');const hours=Number(data.remainingHours||0);renew.classList.remove('hidden');
- host.textContent=hours<=48?`Rollepakken utløper ${when}. Forny gjerne for påfølgende uke før fristen.`:`Rollepakken er aktiv til ${when}. Fornyelse endrer ikke passord, MFA eller testdata.`;
+ host.textContent=hours<=0?`QA-rollene utløp ${when}. Forny tilgangene før videre fagrolletesting.`:hours<=72?`QA-rollene utløper innen 3 dager (${when}). Forny nå for å unngå avbrudd.`:`Rollepakken er aktiv til ${when}. Fornyelse endrer ikke passord, MFA eller testdata.`;
 }
 $('#createPack').addEventListener('click',async()=>{
  const btn=$('#createPack');btn.disabled=true;$('#message').textContent='Oppretter syntetiske testkontoer…';
