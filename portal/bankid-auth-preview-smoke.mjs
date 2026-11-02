@@ -41,9 +41,12 @@ must(app.includes('isPreview()&&!inviteAttempted'),'preview invitation must rema
 must(page.includes('my.aidme.no: ikke mål'),'test page must clearly exclude production');
 must(page.includes('BankID blir først en reell sikkerhetsgate'),'test page must not present unverified BankID as authorization');
 
-must(participantStepup.includes('BankID er valgt som foretrukket metode for deltakere'),'participant security choice must reflect canonical BankID preference');
-must(participantStepup.includes('BankID · testspor'),'unverified BankID must be labelled as test track, not a working production gate');
+must(participantStepup.includes('BankID er planlagt som et valgfritt alternativ'),'participant security choice must explain planned BankID status without claiming enabled auth');
+must(participantStepup.includes('BankID · se status'),'unverified BankID must clearly link to status, not impersonate a working login');
 must(participantStepup.includes('Auth'), 'Authenticator fallback must remain available');
+must(app.includes('const BANKID_PROVIDER_READY=false'),'BankID provider must remain disabled until client, callback and signed ACR are verified');
+must(app.includes('!BANKID_PROVIDER_READY||!canLink'),'Identity linking must fail closed without real provider');
+must(participantStepup.includes("document.querySelector('#taskDialog')?.close()"),'AAL2 redirect must close blocking task dialog before security view');
 
 must(!/fødselsnummer|national[ _-]?identity|\bnnin\b/i.test(all),'test track must not collect or model national identity number');
 must(redirects.trim()==='/* /index.html 200','unexpected root routing baseline: re-check onboarding path assumptions');

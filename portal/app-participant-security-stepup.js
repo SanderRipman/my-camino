@@ -16,7 +16,7 @@ function securityCard(){
     card.innerHTML='<p class="eyebrow">Sikker bekreftelse</p><h3>Identiteten din er bekreftet</h3><p>Du kan fortsette til beskyttede personlige steg i denne økten.</p>';
     return;
   }
-  card.innerHTML=`<p class="eyebrow">Sikker bekreftelse</p><h3>Bekreft identiteten din når det trengs</h3><p>BankID er valgt som foretrukket metode for deltakere. I Early-UAT validerer vi BankID-sporet på demo før det får åpne beskyttede skjemaer. Authenticator er fungerende reservevei i mellomtiden.</p><div class="participant-security-actions"><a class="primary link-btn" href="./bankid-auth-test.html?source=participant-security">BankID · testspor</a><button class="ghost" type="button" data-aidme-authenticator-choice>Bruk Authenticator</button></div><p class="privacy-note">BankID eller Authenticator skal ikke gi nye roller eller bredere innsyn. Sikkerhetsmetoden bekrefter bare at det er deg.</p>`;
+  card.innerHTML=`<p class="eyebrow">Sikker bekreftelse</p><h3>Bekreft identiteten din når det trengs</h3><p>Dette skjemaet krever ekstra identitetsbekreftelse. <strong>Authenticator fungerer nå.</strong> BankID er planlagt som et valgfritt alternativ, men leverandørkoblingen er ennå ikke aktiv og kan ikke brukes til innlogging.</p><div class="participant-security-actions"><button class="primary" type="button" data-aidme-authenticator-choice>Fortsett med Authenticator</button><a class="ghost link-btn" href="./bankid-auth-test.html?source=participant-security">BankID · se status</a></div><p class="privacy-note">Bekreftelse gir aldri nye roller eller bredere personinnsyn. Etter vellykket tofaktor fortsetter du til skjemaet du forsøkte å åpne.</p>`;
   card.querySelector('[data-aidme-authenticator-choice]')?.addEventListener('click',()=>{
     const verified=document.querySelector('#startChallenge'),enroll=document.querySelector('#startMfa');
     const target=!verified?.classList.contains('hidden')?verified:enroll;target?.scrollIntoView({block:'center',behavior:'smooth'});target?.focus();
@@ -48,7 +48,7 @@ function apply(){
 document.addEventListener('click',event=>{
   if(!participant()||aal2())return;const link=event.target.closest?.('a[href*="form-runner.html"]');if(!link)return;
   let u;try{u=new URL(link.href,location.href)}catch{return}if(u.origin!==location.origin)return;
-  event.preventDefault();event.stopPropagation();rememberTarget(u.href);if(typeof show==='function')show('security');schedule();
+  event.preventDefault();event.stopPropagation();rememberTarget(u.href);document.querySelector('#taskDialog')?.close();if(typeof show==='function')show('security');schedule();
 },{capture:true});
 
 const host=document.querySelector('#appView');if(host)new MutationObserver(schedule).observe(host,{childList:true,subtree:true});

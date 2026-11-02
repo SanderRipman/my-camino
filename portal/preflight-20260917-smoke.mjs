@@ -22,10 +22,11 @@ must(swipe.includes("behavior:'auto'"),'mobile view handoff must suppress smooth
 must(swipe.includes('aidme-swipe-committing'),'mobile handoff must suppress transition flash while canonical view switches');
 must(swipe.includes('requestAnimationFrame(()=>requestAnimationFrame'),'mobile handoff must preserve destination preview through canonical view activation');
 
-must(security.includes('BankID er valgt som foretrukket metode for deltakere'),'participant BankID-first decision missing');
-must(security.includes('BankID · testspor'),'unverified BankID must be labelled as test track');
-must(security.includes('Bruk Authenticator'),'Authenticator fallback missing');
+must(security.includes('BankID er planlagt som et valgfritt alternativ'),'participant BankID must remain visible but accurately gated until provider readiness');
+must(security.includes('BankID · se status'),'unverified BankID must link to status instead of claiming usable login');
+must(security.includes('Fortsett med Authenticator'),'Working Authenticator must be the first practical option while BankID is unavailable');
 must(security.includes("a[href*=\"form-runner.html\"]"),'protected-form click boundary must route participant to security choice');
+must(security.includes("document.querySelector('#taskDialog')?.close()"),'Protected form interception must close the modal so the security view is visible');
 must(security.includes("el.remove()")&&security.includes('data-participant-action-view="security"'),'premature global security task must be removed');
 must(formAuth.includes('Velg sikker bekreftelse'),'protected form blocked copy must be method-neutral');
 
