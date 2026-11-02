@@ -5,6 +5,11 @@ on:
     paths:
       - 'portal/measurement-comparison-preview.html'
       - 'portal/measurement-comparison-preview-smoke.mjs'
+      - 'portal/index.html'
+      - 'portal/analysis-hub-uat.js'
+      - 'portal/analysis-hub-uat.css'
+      - 'portal/analysis-hub-uat-smoke.mjs'
+      - 'portal/uat-start-20261102.html'
       - '.github/workflows/demo-analysis-report-qa.yml'
   workflow_dispatch:
 
@@ -24,6 +29,7 @@ jobs:
           CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
           test -n "$CHROME"
           node portal/measurement-comparison-preview-smoke.mjs
+          node portal/analysis-hub-uat-smoke.mjs
           python3 -m http.server 8876 --directory portal >/tmp/camino-report-qa.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
@@ -38,6 +44,18 @@ jobs:
           timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
             --no-pdf-header-footer --print-to-pdf=demo-report-qa/AidMe_DEMO_SYNTHETIC_REPORT.pdf \
             --virtual-time-budget=7000 "$BASE"
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --hide-scrollbars --window-size=1280,2200 --virtual-time-budget=7000 \
+            --screenshot=demo-report-qa/measurement-embedded-desktop.png "$BASE?embedded=1"
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --hide-scrollbars --window-size=1280,2200 --virtual-time-budget=7000 \
+            --screenshot=demo-report-qa/uat-journey-desktop.png "http://127.0.0.1:8876/uat-start-20261102.html"
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --hide-scrollbars --window-size=390,2500 --virtual-time-budget=7000 \
+            --screenshot=demo-report-qa/uat-journey-mobile.png "http://127.0.0.1:8876/uat-start-20261102.html"
+          test -s demo-report-qa/measurement-embedded-desktop.png
+          test -s demo-report-qa/uat-journey-desktop.png
+          test -s demo-report-qa/uat-journey-mobile.png
           test -s demo-report-qa/AidMe_DEMO_SYNTHETIC_REPORT.pdf
           test -s demo-report-qa/measurement-report-desktop.png
           test -s demo-report-qa/measurement-report-mobile.png
