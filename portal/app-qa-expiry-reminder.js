@@ -10,6 +10,19 @@ function authorizedAdmin(){
   try{return Boolean(session?.user?.id&&typeof hasRole==='function'&&hasRole('system_admin'))}
   catch{return false}
 }
+function ensureShortcut(){
+  // Also handles a previously cached workday-chrome.js until its CSS/JS cache expires.
+  const host=document.querySelector('#profileToolsSummary .profile-tool-links');
+  const existing=host?.querySelector('[data-qa-expiry-shortcut="1"]');
+  if(!authorizedAdmin()){existing?.remove();return}
+  if(!host||host.querySelector('a[href="./qa-role-pack.html"]'))return;
+  const a=document.createElement('a');
+  a.className='ghost compact';
+  a.href='./qa-role-pack.html';
+  a.textContent='QA-tilganger';
+  a.dataset.qaExpiryShortcut='1';
+  host.appendChild(a);
+}
 function removeNotice(){
   document.querySelector('#qaExpiryProfileNotice')?.remove();
   document.querySelector('#qaExpiryOverviewNotice')?.remove();
@@ -24,6 +37,7 @@ function addNotice(host,id,heading,message){
   const link=document.createElement('a');link.href='./qa-role-pack.html';link.textContent='Åpne QA-tilganger';link.className='ghost compact';note.appendChild(link);
 }
 function render(){
+  ensureShortcut();
   if(!authorizedAdmin()||!expiry){removeNotice();return}
   const remaining=expiry.getTime()-Date.now();
   if(!Number.isFinite(remaining)||remaining>WARNING_WINDOW_MS){removeNotice();return}
@@ -59,5 +73,6 @@ async function check(){
 document.addEventListener('aidme:portal-rendered',()=>{render();void check()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();void check()}});
 window.addEventListener('pageshow',()=>{render();void check()});
+[0,160,750,1700].forEach(delay=>window.setTimeout(render,delay));
 window.setInterval(()=>{if(!document.hidden){render();void check()}},REFRESH_MS);
 })();
