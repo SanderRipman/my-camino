@@ -31,6 +31,12 @@ button:hover{background:#edf5f1}button.primary:hover{background:#215c53}
 .table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #e5e7e2;white-space:nowrap}th{background:#f4f7f4;font-weight:750}td.num{text-align:right;font-variant-numeric:tabular-nums}th.num{text-align:right}
 .sources{font-size:13px;color:#495a57}.print-only{display:none}
 @media(max-width:710px){main{padding:20px 12px}.filters{grid-template-columns:1fr}.plot{grid-template-columns:1fr;gap:7px}.report-grid{grid-template-columns:1fr}.panel{padding:15px}.timeline{font-size:10px}.plot svg{max-height:160px}}
+html.embedded-report{background:#fff}
+html.embedded-report body{background:#fff}
+html.embedded-report main{max-width:none;padding:4px 6px 12px}
+html.embedded-report header.top,html.embedded-report main>h1,html.embedded-report p.intro{display:none}
+html.embedded-report .panel{box-shadow:none}
+html.embedded-report .notice{margin:5px 0 10px}
 @media print{@page{size:A4 portrait;margin:13mm}body{background:#fff;color:#111;font:11pt/1.35 Arial,sans-serif}main{padding:0;max-width:none}.no-print,button,select,.filters,.metric-grid,.metrics{display:none!important}.print-only{display:block}.panel{margin:12px 0;padding:10px 0;border:0;box-shadow:none;break-inside:avoid}.notice{border:1px solid #ddd;padding:8px;font-size:10pt}.plot{grid-template-columns:160px 1fr;break-inside:avoid}.plot svg{max-height:95px}.table-wrap{overflow:visible}table{font-size:9pt}th,td{padding:6px 4px}.report-grid{grid-template-columns:repeat(3,1fr)}h1{font-size:24pt}h2{font-size:16pt}.sources{font-size:9pt}.print-note{color:#555}.table-panel{break-inside:auto}.top a{display:none}}
 </style>
 </head>
@@ -90,6 +96,19 @@ button:hover{background:#edf5f1}button.primary:hover{background:#215c53}
 <footer class="sources print-note"><p><strong>Rapportstatus:</strong> DEMO / SYNTETISK – ikke for kliniske eller individuelle beslutninger. Ingen data sendes eller lagres. PDF eksporteres lokalt med nettleserens utskriftsfunksjon.</p><p><strong>Faglig referanse:</strong> WHO (WHO-5, 2024), OECD (Guidelines on Measuring Subjective Well-being, 2025) og AidMe VIDAs gjeldende målings- og evalueringsramme v0.3 (utkast). Endelig metode, tilgang, samtykke og rapportdistribusjon krever separat GO før reelle data.</p></footer>
 </main>
 <script>
+if(new URLSearchParams(location.search).get('embedded')==='1'){
+  document.documentElement.classList.add('embedded-report');
+  const sendHeight=()=>{
+    if(window.parent===window)return;
+    const h=Math.ceil(document.querySelector('main')?.getBoundingClientRect().height||document.documentElement.scrollHeight)+28;
+    window.parent.postMessage({type:'aidme:synthetic-report-height',height:h},'*');
+  };
+  window.addEventListener('load',sendHeight);
+  if(typeof ResizeObserver==='function'){
+    new ResizeObserver(()=>requestAnimationFrame(sendHeight)).observe(document.querySelector('main'));
+  }
+  requestAnimationFrame(sendHeight);
+}
 (() => {
 "use strict";
 const events=[
