@@ -39,6 +39,15 @@ window.addEventListener('error',event=>{if(!settled)fail('En nødvendig del av s
 window.addEventListener('unhandledrejection',event=>{if(!settled)fail('Tilgang eller skjemakontekst kunne ikke kontrolleres ferdig.')});
 observer=new MutationObserver(check);
 if(workspace)observer.observe(workspace,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
-timer=setTimeout(()=>fail('Tilgangskontrollen tok for lang tid.'),15000);
+// Do not leave an apparently frozen page. A timed-out guard never changes auth or data.
+timer=setTimeout(()=>fail('Tilgangskontrollen tok for lang tid. Kontrollér innlogging og nettforbindelse, og prøv på nytt.'),12000);
+setTimeout(()=>{
+  if(settled||failed||!boot||boot.classList.contains('hidden'))return;
+  let help=boot.querySelector('[data-form-boot-help]');
+  if(help)return;
+  help=document.createElement('p');help.dataset.formBootHelp='1';help.className='privacy-note';
+  help.textContent='Tar dette mer enn noen sekunder? Du kan gå tilbake uten å miste lagrede opplysninger. Kontroll av tofaktor og roller må fullføres før skjemaet åpnes.';
+  boot.append(help);
+},3500);
 check();
 })();

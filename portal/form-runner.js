@@ -28,7 +28,7 @@ function participantAllowedKeys(){
  if(stage==='NEW_VIA')return new Set(['via_roadmap']);
  return new Set(['info_before_via','via_roadmap']);
 }
-function allowedKeys(){if(!isStaff())return participantAllowedKeys();const s=new Set();grants.filter(active).forEach(g=>(ROLE_KEYS[g.role_code]||[]).forEach(k=>s.add(k)));return s}
+function allowedKeys(){const s=new Set(ownParticipant()?participantAllowedKeys():[]);grants.filter(active).forEach(g=>(ROLE_KEYS[g.role_code]||[]).forEach(k=>s.add(k)));return s}
 function selectedParticipant(){return participants.find(p=>p.id===$('#participantSelect').value)||null}
 function explicitPilot(){return pilots.find(p=>p.id===$('#pilotSelect').value)||null}
 function participantPilot(participantId){const link=pilotParticipants.find(x=>x.participant_id===participantId&&x.status==='ACTIVE');return link?pilots.find(p=>p.id===link.pilot_id)||null:null}
@@ -66,10 +66,49 @@ async function init(){
 }
 function fillParticipants(){const own=ownParticipant(),staff=isStaff(),list=staff?participants:(own?[own]:[]);$('#participantSelect').innerHTML=(staff?'<option value="">Ingen enkelt deltaker / pilotnivå</option>':'')+list.map(p=>`<option value="${p.id}">${esc(p.code_name)} · ${esc(p.stage)}</option>`).join('')}
 function fillPilots(){const visible=isStaff()?pilots:pilots.filter(p=>pilotParticipants.some(x=>x.pilot_id===p.id&&x.participant_id===ownParticipant()?.id));$('#pilotSelect').innerHTML='<option value="">Avledes fra deltaker / ikke valgt</option>'+visible.map(p=>`<option value="${p.id}">${esc(p.name)}${p.route_name?` · ${esc(p.route_name)}`:''}</option>`).join('')}
-function fillForms(){const keys=allowedKeys(),defs=definitions.filter(d=>keys.has(d.key)&&formVersionFor(d.id));$('#formSelect').innerHTML=defs.map(d=>`<option value="${d.id}">${esc(d.title_no)}</option>`).join('')}
+function fillForms(){
+ const keys=allowedKeys(),defs=definitions.filter(d=>keys.has(d.key)&&formVersionFor(d.id));
+ $('#formSelect').innerHTML=defs.map(d=>`<option value="${d.id}">${esc(d.title_no)}</option>`).join('');
+ if(!defs.length){
+  const blocked=$('#blocked');
+  $('#runner').classList.add('hidden');
+  blocked.classList.remove('hidden');
+  blocked.querySelector('h2').textContent='Ingen tildelte skjema for denne rollen';
+  $('#blockedText').textContent='Du er innlogget, men ingen tilgjengelige skjema er knyttet til en aktiv deltakerrolle eller tidsavgrenset fagrolle. En syntetisk testrolle kan ha utløpt. Be autorisert administrator kontrollere rolletildelingene; ikke bruk en annen rolle som snarvei.';
+  const link=blocked.querySelector('a.primary');if(link){link.href='./#tasks';link.textContent='Tilbake til oppgaver'}
+ }
+}
 function applyQuery(){const q=new URLSearchParams(location.search),key=q.get('key'),participant=q.get('participant'),pilot=q.get('pilot');if(key){const d=definitions.find(x=>x.key===key);if(!d||!optionHas($('#formSelect'),d.id))return blockUnavailableRequestedContext(q);$('#formSelect').value=d.id}if(participant){if(!optionHas($('#participantSelect'),participant))return blockUnavailableRequestedContext(q);$('#participantSelect').value=participant}if(pilot){if(!optionHas($('#pilotSelect'),pilot))return blockUnavailableRequestedContext(q);$('#pilotSelect').value=pilot}return true}
 function syncPilotFromParticipant(){if($('#pilotSelect').value)return;const pp=participantPilot($('#participantSelect').value);if(pp&&[...$('#pilotSelect').options].some(o=>o.value===pp.id))$('#pilotSelect').value=pp.id}
-function contextOk(){if(!currentDef)return false;const participant=selectedParticipant(),pilot=selectedPilot();if(PARTICIPANT_REQUIRED_KEYS.has(currentDef.key)&&!participant){$('#contextNote').textContent='Velg en deltaker før dette skjemaet kan lagres.';$('#contextNote').classList.remove('hidden');return false}if(PILOT_LEVEL_KEYS.has(currentDef.key)&&!pilot){$('#contextNote').textContent='Velg pilot / gruppe før dette pilotskjemaet kan lagres.';$('#contextNote').classList.remove('hidden');return false}$('#contextNote').classList.add('hidden');return true}
+function formRoleContext(){
+ const person=selectedParticipant(),pilot=selectedPilot();
+ const org=person?.organization_id||pilot?.organization_id||null;
+ const matching=grants.filter(active).filter(g=>
+   (ROLE_KEYS[g.role_code]||[]).includes(currentDef?.key)
+   &&(!org||g.organization_id===org)
+   &&(!g.participant_id||g.participant_id===person?.id)
+   &&(!g.pilot_id||g.pilot_id===pilot?.id)
+ );
+ const own=!!person&&person.id===ownParticipant()?.id&&participantAllowedKeys().has(currentDef?.key);
+ return {matching,own};
+}
+function contextOk(){
+ if(!currentDef)return false;
+ const participant=selectedParticipant(),pilot=selectedPilot(),note=$('#contextNote'),scope=$('#activeRoleScope');
+ const {matching,own}=formRoleContext();
+ if(scope){
+  scope.hidden=false;
+  const names=[...new Set(matching.map(g=>g.role_code.replaceAll('_',' ')))];
+  scope.textContent=own?(names.length?'Din egen deltakerreise · også tildelte arbeidsroller: '+names.join(', '):'Din egen deltakerreise'):names.length?'Aktive, konteksttilpassede arbeidsroller: '+names.join(', '):'Ingen aktiv fagrolle for denne deltaker-/pilotkonteksten. Dette er ikke en generell superbrukertilgang.';
+ }
+ let issue='';
+ if(PARTICIPANT_REQUIRED_KEYS.has(currentDef.key)&&!participant)issue='Velg en deltaker før dette skjemaet kan lagres.';
+ else if(PILOT_LEVEL_KEYS.has(currentDef.key)&&!pilot)issue='Velg pilot / gruppe før dette pilotskjemaet kan lagres.';
+ else if(!own&&!matching.length)issue='Valgt skjema og deltaker/pilot passer ikke dine aktive rolletildelinger. Velg riktig kontekst, eller få saken tildelt riktig fagansvarlig. Ingen data er endret.';
+ note.textContent=issue;
+ note.classList.toggle('hidden',!issue);
+ return !issue;
+}
 async function chooseForm(){currentDef=definitions.find(d=>d.id===$('#formSelect').value)||null;currentVersion=currentDef?formVersionFor(currentDef.id):null;currentDraft=null;if(!currentDef||!currentVersion){$('#formTitle').textContent='Ingen tilgjengelig mal';$('#formSections').innerHTML='';return}$('#formTitle').textContent=currentDef.title_no;$('#versionLabel').textContent=`v${currentVersion.version}`;$('#phaseLabel').textContent=phaseLabel(currentVersion);$('#scopeLabel').textContent=currentDef.scope;$('#formIntro').textContent=currentVersion.schema_json?.intro||'';renderSections();contextOk();await loadSubmissions()}
 function renderSections(){const sections=currentVersion.schema_json?.sections||[];$('#formSections').innerHTML=sections.map((sec,si)=>`<section class="form-section"><h3>${esc(sec.title||`Del ${si+1}`)}</h3><div class="dynamic-grid">${(sec.fields||[]).map(renderField).join('')}</div></section>`).join('')}
 function renderField(f){const required=f.required?' required':'',full=['textarea','action','multi_select'].includes(f.type)?' full':'';let input='';if(f.type==='textarea')input=`<textarea name="${esc(f.key)}" rows="4"${required}></textarea>`;else if(f.type==='select')input=`<select name="${esc(f.key)}"${required}><option value="">Velg</option>${(f.options||[]).map(o=>`<option value="${esc(o)}">${esc(String(o).replaceAll('_',' '))}</option>`).join('')}</select>`;else if(f.type==='tri_state')input=`<div class="tri-state">${[['YES','Ja'],['NO','Nei'],['UNRESOLVED','Ikke avklart']].map(([v,l])=>`<label><input type="radio" name="${esc(f.key)}" value="${v}"${required}> ${l}</label>`).join('')}</div>`;else if(f.type==='checkbox')input=`<label class="check-row"><input type="checkbox" name="${esc(f.key)}"> Bekreft</label>`;else if(f.type==='range')input=`<input type="range" name="${esc(f.key)}" min="${f.min??0}" max="${f.max??10}" value="5"><small data-range-for="${esc(f.key)}">5</small>`;else if(f.type==='datetime')input=`<input type="datetime-local" name="${esc(f.key)}"${required}>`;else if(f.type==='multi_select')input=`<div class="multi-select">${(f.options||[]).map(o=>`<label><input type="checkbox" name="${esc(f.key)}" value="${esc(o)}"> ${esc(String(o).replaceAll('_',' '))}</label>`).join('')}</div>`;else if(f.type==='action')input=`<div class="action-fields"><input name="${esc(f.key)}__action" placeholder="Konkret handling"${required}><input name="${esc(f.key)}__support" placeholder="Støtte/eier"><input name="${esc(f.key)}__deadline" type="date"></div>`;else input=`<input type="text" name="${esc(f.key)}"${required}>`;return `<div class="field-wrap${full}"><label><span>${esc(f.label)}${f.required?' *':''}</span>${input}${f.help?`<small>${esc(f.help)}</small>`:''}</label></div>`}

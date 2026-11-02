@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="./styles.css?v=20260817b">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="./analysis-hub-uat.css?v=20261102a">
+<link rel="stylesheet" href="./participant-next-now-uat.css?v=20261102a">
 </head>
 <body>
 <div id="loading" class="loading">Laster AidMe VIDA…</div>
@@ -81,6 +82,8 @@
         <div><p class="eyebrow" id="homeEyebrow">Arbeidsflate</p><h2 id="homeHeading">Trenger handling nå</h2><p id="homeIntro">Det viktigste først: prioriterte saker, ansvar og neste handling.</p></div>
         <div class="hero-badge"><strong id="stageBadge">VÍA</strong><span id="contextMini">Dagens situasjonsbilde</span></div>
       </div>
+
+      <section id="participantNextNow" class="panel-card" aria-label="Raskeste vei videre" hidden></section>
 
       <div class="metric-grid">
         <article class="metric"><span>Åpne oppgaver</span><strong id="metricOpen">0</strong><small>tildelt / tilgjengelig</small></article>
@@ -216,5 +219,6 @@
 
 <script src="./app.js?v=20260817b"></script>
 <script src="./analysis-hub-uat.js?v=20261102a" defer></script>
+<script src="./participant-next-now-uat.js?v=20261102a" defer></script>
 </body>
 </html>
