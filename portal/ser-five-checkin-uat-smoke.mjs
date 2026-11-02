@@ -15,7 +15,7 @@ pass(html.includes('answered.reduce((a,b)=>a+b,0)*4'),'Experimental index must b
 pass(html.includes('values.some(v=>v!==null&&v<=1)'),'Missing-only or unscored answers must never trigger yellow');
 pass(html.includes('ingen automatisk sikkerhetsbeslutning')||html.includes('ingen automatisk sikkerhetsbeslutning'),'Ensure non-automatic risk flag');
 // Also verify the actual authored wording, not merely the five process names.
-for(const t of ['Jeg opplevde at jeg kunne mestre utfordringene','I dag opplevde jeg tilhørighet','en god grunnstemning','overskudd til det som var riktig','stress og uro var håndterbart'])pass(html.includes(t),'Question wording lost: '+t);
+for(const t of ['I dag opplevde jeg at jeg kunne mestre utfordringene','I dag opplevde jeg tilhørighet','en god grunnstemning','overskudd til det som var riktig','stress og uro var håndterbart'])pass(html.includes(t),'Question wording lost: '+t);
 pass(html.includes("range.type='range'"),'Compact slider presentation required instead of six button choices');
 pass(html.includes("range.min='0'")&&html.includes("range.max='5'")&&html.includes("range.step='1'"),'Response scale must have six distinct values');
 pass(html.includes("setAttribute('aria-valuetext'")&&html.includes("aria-live"),'Accessible answer state required');
