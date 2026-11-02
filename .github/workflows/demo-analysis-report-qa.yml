@@ -10,6 +10,8 @@ on:
       - 'portal/analysis-hub-uat.css'
       - 'portal/analysis-hub-uat-smoke.mjs'
       - 'portal/uat-start-20261102.html'
+      - 'portal/ser-five-checkin-uat.html'
+      - 'portal/ser-five-checkin-uat-smoke.mjs'
       - '.github/workflows/demo-analysis-report-qa.yml'
   workflow_dispatch:
 
@@ -30,6 +32,7 @@ jobs:
           test -n "$CHROME"
           node portal/measurement-comparison-preview-smoke.mjs
           node portal/analysis-hub-uat-smoke.mjs
+          node portal/ser-five-checkin-uat-smoke.mjs
           python3 -m http.server 8876 --directory portal >/tmp/camino-report-qa.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
@@ -53,6 +56,14 @@ jobs:
           timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
             --hide-scrollbars --window-size=390,2500 --virtual-time-budget=7000 \
             --screenshot=demo-report-qa/uat-journey-mobile.png "http://127.0.0.1:8876/uat-start-20261102.html"
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --hide-scrollbars --window-size=1100,1600 --virtual-time-budget=6000 \
+            --screenshot=demo-report-qa/ser-five-checkin-desktop.png "http://127.0.0.1:8876/ser-five-checkin-uat.html"
+          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage \
+            --hide-scrollbars --window-size=390,1700 --virtual-time-budget=6000 \
+            --screenshot=demo-report-qa/ser-five-checkin-mobile.png "http://127.0.0.1:8876/ser-five-checkin-uat.html"
+          test -s demo-report-qa/ser-five-checkin-desktop.png
+          test -s demo-report-qa/ser-five-checkin-mobile.png
           test -s demo-report-qa/measurement-embedded-desktop.png
           test -s demo-report-qa/uat-journey-desktop.png
           test -s demo-report-qa/uat-journey-mobile.png

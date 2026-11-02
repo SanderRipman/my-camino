@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="color-scheme" content="light">
+<title>AidMe SER · Kompakt innsjekk – UAT</title>
+<style>
+:root{--navy:#14212b;--teal:#124844;--cream:#f7f3ea;--gold:#b58a44;--muted:#586963;--line:#dce1db}*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--navy);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:740px;margin:auto;padding:23px 16px 50px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:15px}
+a{color:var(--teal);font-weight:750}
+h1,h2{font-family:Georgia,"Times New Roman",serif;font-weight:500}
+h1{font-size:clamp(31px,5vw,46px);line-height:1.05;margin:12px 0}
+h2{font-size:22px;margin:4px 0 8px}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.11em;color:var(--teal);text-transform:uppercase}
+.lead{max-width:65ch;margin:9px 0 15px;color:#364843}
+.notice{background:#fffcf4;border-left:3px solid var(--gold);padding:11px 14px;border-radius:0 10px 10px 0;margin:13px 0}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 9px 24px #1d30250b}
+.q{padding:13px 0;border-bottom:1px solid #e4e9e4}.q:last-child{border-bottom:0}
+.q-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.q-head label{font-size:15px;font-weight:800;color:#1c3331}.value{font-size:13px;font-weight:750;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--teal)}
+.statement{margin:4px 0 5px;color:#273b39}.hint{font-size:12px;color:var(--muted);margin:0 0 5px}
+.slider{display:block;width:100%;height:30px;accent-color:var(--teal);cursor:pointer}
+.slider:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
+.scale{display:flex;align-items:center;justify-content:space-between;color:#63716b;font-size:11px}
+.scale b{font-weight:600}.scale .middle{font-size:11px;color:#85918a}
+.meta{display:flex;justify-content:space-between;gap:10px;align-items:center;margin:14px 0 0}
+.score{font:500 29px Georgia,serif;color:var(--teal);font-variant-numeric:tabular-nums}
+.report{margin-top:15px;border-top:1px solid var(--line);padding-top:12px}
+.report p{margin:5px 0}.label{font-size:12px;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+button{border:1px solid var(--teal);border-radius:10px;background:white;padding:10px 14px;min-height:42px;color:var(--teal);font:750 13px system-ui;cursor:pointer}
+button:hover{background:#eef5f1}button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.muted{color:var(--muted);font-size:12px}.flag{background:#fff7e8;border:1px solid #dfc58b;border-radius:9px;padding:11px 13px;margin:12px 0 0;font-size:13px}
+.research{font-size:12px;color:var(--muted);margin-top:14px}
+@media(max-width:530px){main{padding:16px 10px 35px}.card{padding:15px}.statement{font-size:14px}.q-head label{font-size:14px}.q{padding:12px 0}}
+@media print{body{background:#fff}main{padding:0}.card{box-shadow:none}.actions{display:none}}
+</style>
+</head><body><main>
+<header><span class="eyebrow">AidMe VIDA · SER · prøveversjon v0.1</span><a href="./">Til portalen</a></header>
+<h1>Daglig innsjekk</h1>
+<p class="lead">Hvordan har dagen vært for deg? Velg det som passer best. Det finnes ingen riktige eller gale svar.</p>
+<div class="notice"><strong>UAT – kun fiktive prøvesvar.</strong> Ingen besvarelser lagres eller sendes. Dette er AidMes egne spørsmål, ikke WHO-5 og ikke et validert måleinstrument.</div>
+<section class="card" aria-labelledby="checkin-title">
+  <div class="meta"><h2 id="checkin-title">Fem korte spørsmål</h2><span class="muted" id="progress">0 av 5 besvart</span></div>
+  <div id="questions"></div>
+  <div class="report" aria-live="polite" aria-atomic="true">
+    <div class="meta"><strong>Illustrativ skår</strong><span class="score" id="score">–</span></div>
+    <p class="label" id="score-detail">Besvar alle fem for å se en samlet prøvevisning.</p>
+    <p class="muted">Hvert spørsmål: 0–5. Sum: 0–25. En mulig, <strong>ikke-validert</strong> AidMe-indeks er summen × 4 (0–100). Bevar de fem svarene separat til faglig vurdering.</p>
+    <p class="flag" id="flag" hidden><strong>Gult oppfølgingssignal – kun illustrasjon.</strong> Svært lav skår på et enkelt område kan invitere til en frivillig samtale eller tilpasning. Dette er ingen automatisk sikkerhetsbeslutning, diagnose eller GO/NO-GO.</p>
+  </div>
+  <div class="actions"><button type="button" id="reset">Nullstill prøvesvar</button><a href="./uat-start-20261102.html">Åpne UAT-testguide</a></div>
+</section>
+<p class="research">Selvverd er knyttet til verdighet uavhengig av prestasjon. Bidrag kan også være å lytte eller være til stede. Søvnkvalitet følges opp ved behov, mens «tydelig neste steg» hører hjemme ved faseoverganger/VIDA. Spørsmålene, scoreankrene og eventuelle varslingsgrenser må faglig brukertestes før reell innsamling.</p>
+<script>
+(() => {
+ 'use strict';
+ const ITEMS=[
+ {key:'agency',name:'Mestringstro',q:'I dag opplevde jeg at jeg kunne mestre utfordringene jeg møtte.',hint:'Selvverd: Verdien din avhenger ikke av hva du mestrer.'},
+ {key:'belonging',name:'Tilhørighet',q:'I dag opplevde jeg tilhørighet til fellesskapet.',hint:'Bidrag: Å lytte eller være til stede kan også være å bidra.'},
+ {key:'mood',name:'Stemning',q:'I dag har jeg hatt en god grunnstemning.'},
+ {key:'energy',name:'Overskudd',q:'I dag hadde jeg overskudd til det som var riktig for meg.'},
+ {key:'manageability',name:'Håndterbarhet',q:'I dag opplevde jeg at stress og uro var håndterbart.'}
+ ];
+ const values=Array(ITEMS.length).fill(null);
+ const $=id=>document.getElementById(id);
+ const parent=$('questions');
+ const meta=[];
+ const render=()=>{
+  const answered=values.filter(v=>v!==null);
+  $('progress').textContent=answered.length+' av 5 besvart';
+  const complete=answered.length===5;
+  $('score').textContent=complete?String(answered.reduce((a,b)=>a+b,0)*4)+' / 100':'–';
+  $('score-detail').textContent=complete?'Regneeksempel: ('+answered.join(' + ')+') × 4 · ikke en validert skår.':(answered.length===0?'Ingen prøvesvar valgt.':'Manglende svar er ikke null. '+(5-answered.length)+' spørsmål gjenstår.');
+  $('flag').hidden=!values.some(v=>v!==null&&v<=1);
+  ITEMS.forEach((it,i)=>{meta[i].value.textContent=values[i]===null?'Ikke besvart':values[i]+' / 5';meta[i].range.setAttribute('aria-valuetext',values[i]===null?'Ikke besvart':values[i]+' av fem');});
+ };
+ ITEMS.forEach((it,i)=>{
+  const section=document.createElement('div');section.className='q';
+  const head=document.createElement('div');head.className='q-head';
+  const label=document.createElement('label');label.setAttribute('for','q-'+it.key);label.textContent=(i+1)+'. '+it.name;
+  const current=document.createElement('span');current.className='value';current.setAttribute('aria-live','off');
+  head.append(label,current);
+  const statement=document.createElement('p');statement.className='statement';statement.textContent=it.q;
+  section.append(head,statement);
+  if(it.hint){const hint=document.createElement('p');hint.className='hint';hint.textContent=it.hint;section.append(hint);}
+  const range=document.createElement('input');range.className='slider';range.id='q-'+it.key;range.type='range';range.min='0';range.max='5';range.step='1';range.value='3';range.setAttribute('aria-label',it.name+' – '+it.q);
+  range.setAttribute('aria-describedby','scale-'+it.key);
+  range.addEventListener('input',()=>{values[i]=Number(range.value);render()});
+  range.addEventListener('change',()=>{values[i]=Number(range.value);render()});
+  const scale=document.createElement('div');scale.className='scale';scale.id='scale-'+it.key;
+  const a=document.createElement('b');a.textContent='0 · Ikke i det hele tatt';const mid=document.createElement('span');mid.className='middle';mid.textContent='Dra for å svare';const b=document.createElement('b');b.textContent='5 · I svært stor grad';
+  scale.append(a,mid,b);section.append(range,scale);parent.append(section);meta.push({range,value:current});
+ });
+ $('reset').addEventListener('click',()=>{values.fill(null);meta.forEach(m=>m.range.value='3');render()});
+ render();
+})();
+</script>
+</main></body></html>
