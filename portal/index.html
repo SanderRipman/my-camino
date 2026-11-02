@@ -32,6 +32,7 @@
       <button id="magicLinkButton" class="ghost" type="button">Send sikker innloggingslenke</button>
     </form>
     <p id="authMessage" class="message" aria-live="polite"></p>
+    <p class="privacy-note"><strong>BankID kommer som valgfritt alternativ.</strong> Leverandørkoblingen er ennå ikke aktiv. Bruk e-post eller innloggingslenke nå. <a href="./bankid-auth-test.html">Se status for BankID-testen</a>.</p>
     <small class="privacy-note">Tilgang opprettes normalt ved invitasjon. Ikke skriv helseopplysninger i innloggingsfeltene.</small>
   </section>
 </main>
@@ -125,13 +126,15 @@
 
     <section class="view" id="view-checkin">
       <div class="section-head"><div><p class="eyebrow">Måling</p><h2>Daglig innsjekk</h2><p>Korte deltakerstyrte prosessindikatorer for mønstre og samtale. Ingen enkelt skår avgjør sikkerhet eller GO/NO-GO.</p></div></div>
-      <aside class="panel-card" style="margin:12px 0;padding:14px 18px;border-left:4px solid #ae8a4b"><strong>Ny, kompakt innsjekk – kun syntetisk UAT</strong><p>Prøv fem spørsmål med skyveknapper, uten lagring. Eksisterende innsjekk nedenfor er uendret til faglig og personvernmessig godkjenning.</p><a href="./ser-five-checkin-uat.html" target="_blank" rel="noopener noreferrer">Åpne femspørsmålsversjonen</a></aside>
+      <article class="panel-card" style="margin:12px 0 16px;padding:18px;border-left:4px solid #ae8a4b"><p class="eyebrow">Anbefalt · neste SER-innsjekk</p><h3>Fem korte spørsmål · 0–5</h3><p>Den kompakte modellen med mestringstro, tilhørighet, stemning, overskudd og håndterbarhet. <strong>Prøveversjonen lagrer ikke svar</strong>; unngå ekte personopplysninger.</p><a class="primary link-btn" href="./ser-five-checkin-uat.html">Prøv ny innsjekk</a><p class="privacy-note">Versjonert, lagringsbar innsjekk innføres etter faglig og tilgangsmessig GO. Eldre aktive skjemaløsning er tilgjengelig nedenfor.</p></article>
+      <details id="legacyCheckin" class="panel-card" style="margin:12px 0;padding:14px 18px"><summary style="cursor:pointer;font-weight:700;color:#124844">Eldre innsjekk · 7 spørsmål (aktiv testflyt)</summary><p class="privacy-note">Denne eldre skalaen 0–10 er fortsatt koblet til eksisterende lagring og tilgangskontroll. Bruk kun autoriserte fiktive testdata.</p>
       <form id="checkinForm" class="panel-card form-card">
         <div class="form-row three"><label><span>Deltaker</span><select id="checkParticipant" required></select></label><label><span>Dato</span><input id="checkDate" type="date" required></label><label><span>Dagsstatus</span><select id="dayStatus"><option value="GREEN">Grønn</option><option value="YELLOW">Gul</option><option value="RED">Rød</option></select></label></div>
         <div id="sliderGrid" class="slider-grid"></div>
         <label><span>Kort notat</span><textarea id="checkNote" rows="3" placeholder="Bare det som er nødvendig for oppfølging."></textarea></label>
         <div class="form-actions"><button class="primary" type="submit">Lagre innsjekk</button></div><p id="checkinMessage" class="message"></p>
       </form>
+      </details>
     </section>
 
     <section class="view" id="view-analysis">
