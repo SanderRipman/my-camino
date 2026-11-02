@@ -82,6 +82,7 @@ function standaloneFromSnapshot(nav,meta){
 function normalizeStandalone(){
   if(document.querySelector('#mainNav'))return false;
   const sidebar=document.querySelector('.sidebar'),nav=sidebar?.querySelector('nav');if(!nav)return false;
+  if(page==='admin'&&nav.dataset.navigationPersistent==='admin'){nav.dataset.navigationIa=NAV_IA_VERSION;nav.setAttribute('aria-label','Navigasjon og gjeldende arbeidsflate');return true}
   const oldActive=nav.querySelector('.nav-item.active,[aria-current="page"]');
   const meta=PAGE_META[page]||{num:oldActive?.querySelector('.nav-num')?.textContent?.trim()||'•',label:navLabel(oldActive)||document.querySelector('h1')?.textContent?.trim()||'Arbeidsflate'};
   if(standaloneFromSnapshot(nav,meta))return true;
