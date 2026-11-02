@@ -37,6 +37,21 @@ html.embedded-report main{max-width:none;padding:4px 6px 12px}
 html.embedded-report header.top,html.embedded-report main>h1,html.embedded-report p.intro{display:none}
 html.embedded-report .panel{box-shadow:none}
 html.embedded-report .notice{margin:5px 0 10px}
+
+.date-filter-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:12px 0 6px}
+.date-filter-controls input,.date-filter-controls select{width:100%;min-width:0}
+.relative-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:13px 0 8px}
+.relative-actions button[aria-pressed="true"]{background:var(--teal);color:#fff}
+.relative-plot-scroll{overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;padding-bottom:4px}
+.relative-plot-scroll svg{display:block;width:100%;height:auto;min-height:200px}
+.relative-plot-scroll.wide svg{min-width:850px;max-width:none}
+.relative-plot-scroll circle{cursor:pointer}
+.relative-plot-scroll circle:focus-visible{outline:0;stroke:#14212b;stroke-width:3px}
+#relative-point-detail{background:#f4f8f5;border:1px solid #d8e1da;border-radius:10px;padding:9px 12px;margin-top:10px;min-height:42px;font-size:13px}
+.timeline{gap:1px}
+.timeline .time-tick{flex:1;min-width:0;text-align:center;display:grid;gap:1px}
+.timeline .date-label{font-size:10px;color:#52615f;font-variant-numeric:tabular-nums}
+@media(max-width:710px){.date-filter-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.date-filter-controls .field:last-child{grid-column:1/-1}.relative-plot-scroll.wide svg{min-height:290px}.relative-plot-scroll:not(.wide) svg{min-height:160px}.timeline .date-label{font-size:9px}.relative-actions button{min-height:44px}}
 @media print{@page{size:A4 portrait;margin:13mm}body{background:#fff;color:#111;font:11pt/1.35 Arial,sans-serif}main{padding:0;max-width:none}.no-print,button,select,.filters,.metric-grid,.metrics{display:none!important}.print-only{display:block}.panel{margin:12px 0;padding:10px 0;border:0;box-shadow:none;break-inside:avoid}.notice{border:1px solid #ddd;padding:8px;font-size:10pt}.plot{grid-template-columns:160px 1fr;break-inside:avoid}.plot svg{max-height:95px}.table-wrap{overflow:visible}table{font-size:9pt}th,td{padding:6px 4px}.report-grid{grid-template-columns:repeat(3,1fr)}h1{font-size:24pt}h2{font-size:16pt}.sources{font-size:9pt}.print-note{color:#555}.table-panel{break-inside:auto}.top a{display:none}}
 </style>
 </head>
@@ -52,6 +67,17 @@ html.embedded-report .notice{margin:5px 0 10px}
 <label class="field">Datavisning<select id="scope"><option value="single">Eksempeldeltaker P-003</option><option value="group">Syntetisk gruppe (8 personer)</option></select></label>
 <label class="field">Tidsrom<select id="period"><option value="all">Hele løpet: VÍA → SER → VIDA</option><option value="via">VÍA · før</option><option value="ser">SER · under</option><option value="vida">VIDA · etter</option></select></label>
 </div>
+<div class="date-filter-controls no-print" aria-label="Valgfritt datointervall">
+  <label class="field">Fra dato <input type="date" id="date-from" aria-label="Vis målinger fra dato"></label>
+  <label class="field">Til dato <input type="date" id="date-to" aria-label="Vis målinger til dato"></label>
+  <label class="field">AidMe/fag: grafskala
+    <select id="score-view" aria-label="Velg visning for AidMe og fagobservasjon">
+      <option value="rescaled">0–100 visning (0–10 × 10)</option>
+      <option value="original">Original 0–10</option>
+    </select>
+  </label>
+</div>
+<p id="date-selection-note" class="small no-print">Fase og valgfritt dato-utvalg virker samtidig. Alle datoer er fiktive.</p>
 <fieldset class="metrics"><legend>Hvilke målinger skal vises?</legend><div class="metric-grid">
 <label><input type="checkbox" value="who5" checked> WHO-5</label>
 <label><input type="checkbox" value="agency" checked> Mestringstro</label>
@@ -67,7 +93,11 @@ html.embedded-report .notice{margin:5px 0 10px}
 <details id="relative-panel" class="no-print" style="margin-top:20px;border-top:1px solid #dce4de;padding-top:15px">
 <summary style="font-weight:750;cursor:pointer">Utforsk relativ endring på én sammenligningsgraf</summary>
 <p class="small">Forskningsvisning: Hver måling får indeks 100 ved første tilgjengelige verdi i valgt tidsrom. Prosentendringer kan sammenlignes som retning og tidspunkt, <strong>ikke</strong> som likeverdige helse- eller WHO-5-skårer. Høyere hvilepuls betyr ikke nødvendigvis bedring. Stiplede forbindelser over manglende tidspunkt er ikke faktiske observasjoner.</p>
-<div id="relative-chart" role="img" aria-label="Sammenligning av relativ endring fra individuelle startverdier"></div>
+<div class="relative-actions">
+  <button id="wide-chart" type="button" aria-pressed="false">Bred graf · sveip sidelengs</button>
+  <span class="small">For mobil: velg bred graf eller drei telefonen. Trykk på et punkt for dato og verdi.</span>
+</div>
+<div id="relative-chart" aria-label="Sammenligning av relativ endring fra individuelle startverdier"></div>
 </details>
 <p class="small">Hver rad beholder sin egen måleenhet. Stiplede forbindelser viser bare rekkefølgen mellom faktiske målinger, ikke estimerte mellomverdier. «Ikke målt» betyr ikke null. WHO-5 er kun selvrapportert og har tilbakeblikk på 14 dager.</p>
 </section>
@@ -134,6 +164,12 @@ const options=[...document.querySelectorAll(".metric-grid input")];
 const formatDate=s=>{const [y,m,d]=s.split("-");return d+"."+m+"."+y};
 const fmt=(v,m)=>v===null?"–":(Number.isInteger(v)?String(v):v.toFixed(1).replace(".",","))+m.unit;
 const dataFor=(m,group)=>group?m.group:m.values;
+// Original 0–10 is retained in the model and export's provenance. ×10 is display-only,
+// never a WHO-5 conversion or a change to stored 0–10 responses.
+const displayAs100=()=>$("score-view").value==="rescaled";
+const scaled=(m,v)=>v===null?null:(displayAs100()&&(m.key==="agency"||m.key==="staff")?Math.round(v*100)/10:v);
+const displayMetric=m=>displayAs100()&&(m.key==="agency"||m.key==="staff")?{...m,min:0,max:100,unit:"/100"}:m;
+for(const id of ["date-from","date-to"]){$(id).min=events[0].date;$(id).max=events[events.length-1].date}
 const selected=()=>metrics.filter(m=>options.find(x=>x.value===m.key)?.checked);
 const seriesPoints=(m,indices,group)=>{
  const arr=dataFor(m,group);return indices.map((j,i)=>({x:16+i*(indices.length>1?364/(indices.length-1):0),y:110-(arr[j]-m.min)/(m.max-m.min)*92,value:arr[j],i,j})).filter(p=>p.value!==null);
@@ -152,7 +188,7 @@ const renderRelative=(indices,active,group)=>{
  if(!valid.length){root.textContent="Ingen sammenlignbare startmålinger i valgt periode.";return}
  const all=valid.flatMap(x=>x.observations.map(p=>p.index));
  const low=Math.min(90,...all),high=Math.max(110,...all),pad=Math.max(4,(high-low)*.12),min=low-pad,max=high+pad;
- const W=740,H=270,left=58,right=720,top=22,bottom=213;
+ const W=740,H=295,left=58,right=720,top=22,bottom=213;
  const x=i=>left+(indices.length===1?0:i*(right-left)/(indices.length-1));
  const y=v=>bottom-(v-min)/(max-min)*(bottom-top);
  const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");
@@ -167,10 +203,34 @@ const renderRelative=(indices,active,group)=>{
  for(const d of valid){
   const pts=d.observations;
   for(let i=1;i<pts.length;i++)line(x(pts[i-1].i),y(pts[i-1].index),x(pts[i].i),y(pts[i].index),d.metric.color,false);
-  for(const p of pts){const c=document.createElementNS(ns,"circle");c.setAttribute("cx",String(x(p.i)));c.setAttribute("cy",String(y(p.index)));c.setAttribute("r","4.5");c.setAttribute("fill",d.metric.color);const label=document.createElementNS(ns,"title");label.textContent=d.metric.short+": "+p.index.toFixed(1)+"% av første måling";c.append(label);svg.append(c)}
+  for(const p of pts){const c=document.createElementNS(ns,"circle");c.setAttribute("cx",String(x(p.i)));c.setAttribute("cy",String(y(p.index)));c.setAttribute("r","4.5");c.setAttribute("fill",d.metric.color);c.setAttribute("tabindex","0");c.setAttribute("role","button");c.setAttribute("data-point",d.metric.key+":"+p.i);c.setAttribute("aria-label",d.metric.short+" "+formatDate(events[indices[p.i]].date)+" indeks "+p.index.toFixed(1));const label=document.createElementNS(ns,"title");label.textContent=d.metric.short+": "+p.index.toFixed(1)+"% av første måling · "+formatDate(events[indices[p.i]].date);c.append(label);svg.append(c)}
+ }
+ // Include the actual calendar date on the horizontal axis, while preserving the phase.
+ for(let i=0;i<indices.length;i++){
+  const d=events[indices[i]];
+  const tick=document.createElementNS(ns,"text");
+  tick.setAttribute("x",String(x(i)));tick.setAttribute("y","244");tick.setAttribute("text-anchor","middle");tick.setAttribute("font-size","11");tick.setAttribute("fill","#52615f");
+  tick.textContent=d.date.slice(8)+"."+d.date.slice(5,7);svg.append(tick);
+  const phase=document.createElementNS(ns,"text");phase.setAttribute("x",String(x(i)));phase.setAttribute("y","262");phase.setAttribute("text-anchor","middle");phase.setAttribute("font-size","11");phase.setAttribute("fill","#52615f");phase.textContent=d.stage.toUpperCase()==="VIA"?"VÍA":d.stage.toUpperCase();svg.append(phase);
+ }
+ const scroll=document.createElement("div");scroll.className="relative-plot-scroll";
+ scroll.classList.toggle("wide",$("wide-chart").getAttribute("aria-pressed")==="true");
+ scroll.append(svg);
+ const detail=document.createElement("p");detail.id="relative-point-detail";detail.setAttribute("role","status");detail.setAttribute("aria-live","polite");
+ detail.textContent="Trykk på et målepunkt for dato, fase, originalverdi og relativ indeks.";
+ for(const d of valid)for(const p of d.observations){
+  const date=events[indices[p.i]];
+  const point=Array.from(svg.querySelectorAll("circle")).find(c=>c.getAttribute("data-point")===(d.metric.key+":"+p.i));
+  if(!point)continue;
+  const describe=()=>{
+   const original=dataFor(d.metric,group)[indices[p.i]];
+   detail.textContent=formatDate(date.date)+" · "+date.phase+" · "+d.metric.short+": "+fmt(original,d.metric)+" · indeks "+p.index.toFixed(1).replace(".",",")+" (100 = egen start).";
+  };
+  point.addEventListener("click",describe);
+  point.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();describe()}});
  }
  const el=document.createElement("div");el.className="legendline";el.style.marginTop="10px";for(const d of valid){const span=document.createElement("span");span.textContent="● "+d.metric.short+" (100 = egen start)";span.style.color=d.metric.color;el.append(span)}
- root.append(svg,el);
+ root.append(scroll,detail,el);
  const note=document.createElement("p");note.className="small";note.textContent="Prosentindeks viser kun relativ utvikling. Hvert mål starter på sin første observerte dato – og høyere er ikke alltid bedre.";root.append(note);
 };
 const ROLES={
@@ -187,7 +247,11 @@ const renderRole=()=>{
 $("role-lens").addEventListener("change",renderRole);renderRole();
 
 const render=()=>{
- const period=$("period").value,group=$("scope").value==="group",subset=events.map((e,i)=>({...e,i})).filter(e=>period==="all"||e.stage===period);
+ const period=$("period").value,group=$("scope").value==="group";
+ const from=$("date-from").value,to=$("date-to").value;
+ const validDates=!from||!to||from<=to;
+ const subset=validDates?events.map((e,i)=>({...e,i})).filter(e=>(period==="all"||e.stage===period)&&(!from||e.date>=from)&&(!to||e.date<=to)):[];
+ $("date-selection-note").textContent=validDates?"Fase og datointervall virker samtidig. "+(subset.length?subset.length+" måledatoer i utvalget.":"Ingen fiktive måledatoer i valget.")+" Skalaen 0–100 for AidMe og fag er kun 0–10 × 10; ikke WHO-5.":"Fra-dato må være før eller lik til-dato. Velg et gyldig intervall." ;
  const indices=subset.map(e=>e.i),active=selected();
  $("period-description").textContent=(group?"Syntetisk gruppe (n=8)":"Syntetisk P-003")+" · "+(subset.length?formatDate(subset[0].date)+" – "+formatDate(subset[subset.length-1].date):"Ingen datoer")+" · VÍA → SER → VIDA. Punkter målt på ulike tidspunkter.";
  $("report-description").textContent="Datakilde: oppdiktede eksempler · Utvalg: "+(group?"8 fiktive personer, illustrativt gjennomsnitt":"én fiktiv deltaker")+" · periode: "+$("period").selectedOptions[0].textContent+".";
@@ -195,19 +259,19 @@ const render=()=>{
  if(!active.length){const empty=document.createElement("p");empty.className="empty";empty.textContent="Velg minst én måling for å vise kurver.";host.appendChild(empty)}
  let n=0;
  for(const metric of active){
-  const points=seriesPoints(metric,indices,group);n+=points.length;
+  const points=seriesPoints(metric,indices,group);n+=points.length;const dm=displayMetric(metric);
   const row=document.createElement("div");row.className="plot";
   const left=document.createElement("div"),title=document.createElement("h3"),sub=document.createElement("div"),last=document.createElement("p");
-  title.textContent=metric.name;sub.className="subtitle";sub.textContent=metric.source+" · "+metric.min+"–"+metric.max+(metric.unit.startsWith("/")?"":metric.unit)+" · "+points.length+" av "+subset.length+" målepunkter";
-  last.className="latest";last.textContent=points.length?"Sist målt: "+fmt(points[points.length-1].value,metric)+" · "+formatDate(events[points[points.length-1].j].date):"Ingen målinger i valgt periode";
+  title.textContent=metric.name;sub.className="subtitle";sub.textContent=metric.source+" · "+dm.min+"–"+dm.max+(dm.unit.startsWith("/")?"":dm.unit)+(dm!==metric?" (×10 visning; original 0–10)":"")+" · "+points.length+" av "+subset.length+" målepunkter";
+  last.className="latest";last.textContent=points.length?"Sist målt: "+fmt(scaled(metric,points[points.length-1].value),dm)+" · "+formatDate(events[points[points.length-1].j].date):"Ingen målinger i valgt periode";
   left.append(title,sub,last);
   const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 396 127");svg.setAttribute("role","img");
-  svg.setAttribute("aria-label",metric.name+" – "+subset.map(e=>formatDate(e.date)+": "+fmt(dataFor(metric,group)[e.i],metric)).join(", "));
+  svg.setAttribute("aria-label",metric.name+" – "+subset.map(e=>formatDate(e.date)+": "+fmt(scaled(metric,dataFor(metric,group)[e.i]),dm)).join(", "));
   const grid=document.createElementNS("http://www.w3.org/2000/svg","path");grid.setAttribute("d","M16 18H380 M16 64H380 M16 110H380");grid.setAttribute("fill","none");grid.setAttribute("stroke","#dce4de");svg.append(grid);
   if(points.length>1){const line=document.createElementNS("http://www.w3.org/2000/svg","polyline");line.setAttribute("points",points.map(p=>p.x.toFixed(1)+","+p.y.toFixed(1)).join(" "));line.setAttribute("stroke",metric.color);line.setAttribute("stroke-width","3");line.setAttribute("fill","none");line.setAttribute("stroke-linecap","round");line.setAttribute("stroke-dasharray","5 4");svg.append(line)}
-  for(const p of points){const circle=document.createElementNS("http://www.w3.org/2000/svg","circle");circle.setAttribute("cx",p.x.toFixed(1));circle.setAttribute("cy",p.y.toFixed(1));circle.setAttribute("r","5.1");circle.setAttribute("fill",metric.color);circle.setAttribute("stroke","#fff");circle.setAttribute("stroke-width","2");const titleNode=document.createElementNS("http://www.w3.org/2000/svg","title");titleNode.textContent=events[p.j].phase+": "+fmt(p.value,metric);circle.append(titleNode);svg.append(circle)}
+  for(const p of points){const circle=document.createElementNS("http://www.w3.org/2000/svg","circle");circle.setAttribute("cx",p.x.toFixed(1));circle.setAttribute("cy",p.y.toFixed(1));circle.setAttribute("r","5.1");circle.setAttribute("fill",metric.color);circle.setAttribute("stroke","#fff");circle.setAttribute("stroke-width","2");const titleNode=document.createElementNS("http://www.w3.org/2000/svg","title");titleNode.textContent=formatDate(events[p.j].date)+" · "+events[p.j].phase+": "+fmt(scaled(metric,p.value),dm)+" (original "+fmt(p.value,metric)+")";circle.append(titleNode);svg.append(circle)}
   const time=document.createElement("div");time.appendChild(svg);const axis=document.createElement("div");axis.className="timeline";
-  for(const e of subset){const span=document.createElement("span");span.textContent=e.phase.split(" · ")[0];span.title=formatDate(e.date)+" "+e.phase;axis.appendChild(span)}
+  for(const e of subset){const span=document.createElement("span");span.className="time-tick";const phase=document.createElement("span");phase.textContent=e.phase.split(" · ")[0];const date=document.createElement("span");date.className="date-label";date.textContent=e.date.slice(8)+"."+e.date.slice(5,7);span.append(phase,date);span.title=formatDate(e.date)+" "+e.phase;axis.appendChild(span)}
   time.append(axis);row.append(left,time);host.append(row);
  }
  $("perspectives").textContent=new Set(active.map(x=>x.source)).size+" av 3";
@@ -216,14 +280,17 @@ const render=()=>{
  renderRelative(indices,active,group);
  const head=$("table-head"),body=$("table-body");head.replaceChildren();body.replaceChildren();
  const tr=document.createElement("tr");
- for(const h of ["Dato","Fase",...active.map(m=>m.short+" ("+m.unit.trim()+")")]){const th=document.createElement("th");th.textContent=h;tr.append(th)}head.append(tr);
- for(const e of subset){const row=document.createElement("tr");for(const value of [formatDate(e.date),e.phase,...active.map(m=>{const v=dataFor(m,group)[e.i];return v===null?"–":Number.isInteger(v)?String(v):v.toFixed(1).replace(".",",")})]){const cell=document.createElement("td");cell.textContent=value;row.append(cell)}body.append(row)}
+ for(const h of ["Dato","Fase",...active.map(m=>m.short+" ("+displayMetric(m).unit.trim()+(displayMetric(m)!==m?" · ×10":"")+")")]){const th=document.createElement("th");th.textContent=h;tr.append(th)}head.append(tr);
+ for(const e of subset){const row=document.createElement("tr");for(const value of [formatDate(e.date),e.phase,...active.map(m=>{const v=dataFor(m,group)[e.i];return v===null?"–":Number.isInteger(scaled(m,v))?String(scaled(m,v)):scaled(m,v).toFixed(1).replace(".",",")})]){const cell=document.createElement("td");cell.textContent=value;row.append(cell)}body.append(row)}
 };
 $("scope").addEventListener("change",render);
 $("period").addEventListener("change",render);
+for(const id of ["date-from","date-to","score-view"])$(id).addEventListener("change",render);
+$("wide-chart").addEventListener("click",()=>{const b=$("wide-chart"),on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",String(on));b.textContent=on?"Kompakt graf · tilpass bredden":"Bred graf · sveip sidelengs";render()});
+if(window.matchMedia?.("(max-width:710px)").matches){$("wide-chart").setAttribute("aria-pressed","true");$("wide-chart").textContent="Kompakt graf · tilpass bredden"}
 options.forEach(x=>x.addEventListener("change",render));
 $("print").addEventListener("click",()=>window.print());
-$("reset").addEventListener("click",()=>{$("scope").value="single";$("period").value="all";options.forEach(x=>{x.checked=x.value!=="pulse"});render()});
+$("reset").addEventListener("click",()=>{$("scope").value="single";$("period").value="all";$("date-from").value="";$("date-to").value="";$("score-view").value="rescaled";options.forEach(x=>{x.checked=x.value!=="pulse"});render()});
 render();
 })();
 </script>
