@@ -59,6 +59,7 @@ function secondaryToolLinks(roles){
   const demo=document.querySelector('#demoJourneyNav');addToolLink(items,seen,'Demo-reise (LAB)','./demo-journey.html',!!demo&&!demo.classList.contains('hidden'));
   const audit=document.querySelector('#auditNav');addToolLink(items,seen,'Revisjon','./audit.html',!!audit&&!audit.classList.contains('hidden'));
   const admin=document.querySelector('#adminLink');addToolLink(items,seen,'Administrasjon','./admin.html',roles.includes('system_admin')||!!admin&&!admin.classList.contains('hidden'));
+  addToolLink(items,seen,'QA-tilganger','./qa-role-pack.html',roles.includes('system_admin'));
   const crm=document.querySelector('#crmNav');addToolLink(items,seen,'Mini CRM','./crm.html',!!crm&&!crm.classList.contains('hidden'));
   return items.join('');
 }
