@@ -33,4 +33,18 @@ assert(html.includes('const ROLES='),'Defined role ownership scenarios missing')
 assert(html.includes('Ingen generell tilgang'),'SER staff must not receive broad WHO-5 read');
 assert(html.includes('72t, 14/30/90'),'Named VIDA handover must retain scheduled milestones');
 assert(!html.includes('WHO-5 fra smartbånd'),'No wearable-to-WHO-5 mapping allowed');
+// Mobile UAT readback: responsive horizontal layout, exact dates, touch/focus points and safe presentation-only scale.
+for(const id of ['date-from','date-to','score-view','wide-chart','date-selection-note','relative-point-detail'])
+  assert(html.includes(id), 'Missing mobile UX control: '+id);
+assert(html.includes('relative-plot-scroll.wide svg'), 'Wide horizontal scroll missing');
+assert(html.includes('const scaled=(m,v)=>'), 'Source-preserving visualization scale missing');
+assert(html.includes('Math.round(v*100)/10'), 'AidMe 0-10 to 0-100 display must be x10');
+assert(html.includes('0–10 × 10'), 'Visible provenance of rescaling required');
+assert(html.includes('for(const id of ["date-from","date-to","score-view"])'), 'Date/scale selection must rerender');
+assert(html.includes('e.date>=from')&&html.includes('e.date<=to'), 'Date range must filter actual event dates');
+assert(html.includes('date.className="date-label"'), 'Dates under VÍA/SER/VIDA missing');
+assert(html.includes('event.key==="Enter"||event.key===" "'), 'Keyboard/touch chart point details missing');
+assert(html.includes('detail.setAttribute("aria-live","polite")'), 'Touch point detail status missing');
+assert(html.includes('Math.min(8500,payload.height)')===false,'Report should not touch portal iframe height validation');
+
 console.log('Demo three-source timeline/report no-write smoke: OK');
