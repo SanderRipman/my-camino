@@ -11,6 +11,7 @@ assert(html.includes('id="activeRoleScope"'),'Show scope-aware actual role conte
 assert(html.includes('form-runner-uat-20261102.css'),'Isolated nav stylesheet missing');
 assert(css.includes('max-width:800px')&&css.includes('.app-shell>.sidebar'),'No duplicate mobile navigation');
 assert(runner.includes('function formRoleContext()'),'Role context missing');
+assert(runner.includes('Ingen tildelte skjema for denne rollen')&&runner.includes('En syntetisk testrolle kan ha utløpt'),'Expired QA rolepack must give actionable blocked state');
 assert(runner.includes('g.participant_id===person?.id')&&runner.includes('g.pilot_id===pilot?.id'),'Context must check participant+pilot scoped roles');
 assert(runner.includes('const s=new Set(ownParticipant()?participantAllowedKeys():[])'),'One person may be participant plus staff role');
 assert(runner.includes('if(!currentVersion||!contextOk())return'),'Save must be blocked for out-of-scope context');
