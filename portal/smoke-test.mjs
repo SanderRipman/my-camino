@@ -50,3 +50,6 @@ new vm.Script(formA11y,{filename:'portal-form-accessibility.js'});
 new vm.Script(formCapture,{filename:'portal-form-auth-return-capture.js'});
 new vm.Script(appAuthReturn,{filename:'portal-app-auth-return.js'});
 console.log('Clean portal bundle compiles with active-grant onboarding guard, secure tasks, auth recovery, protected return context, denied-context routing, metadata-first form history, accessible forms, mobile UX, contextual drill-down and role onboarding.');
+
+// Guard SER5 demo-only no-write boundary in the existing Portal smoke workflow.
+await import('./ser-five-storage-gate-smoke.mjs');
