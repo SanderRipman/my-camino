@@ -50,3 +50,6 @@ new vm.Script(formA11y,{filename:'portal-form-accessibility.js'});
 new vm.Script(formCapture,{filename:'portal-form-auth-return-capture.js'});
 new vm.Script(appAuthReturn,{filename:'portal-app-auth-return.js'});
 console.log('Clean portal bundle compiles with active-grant onboarding guard, secure tasks, auth recovery, protected return context, denied-context routing, metadata-first form history, accessible forms, mobile UX, contextual drill-down and role onboarding.');
+
+// Assert demo staff-task and interest cards remain actionable and source-safe.
+await import('./demo-card-ux-smoke.mjs');
