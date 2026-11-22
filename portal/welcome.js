@@ -18,7 +18,7 @@ function fill(data){
   $('#displayName').value=suggestedName;
   $('#phone').value=data.identity?.phone||data.staff?.phone||'';$('#locale').value=data.profile?.locale||'nb';
   const participant=data.accountType==='participant';
-  const givenName=participant?String(suggestedName||'').trim().split(/\\s+/)[0].trim():''; 
+  const givenName=participant?String(suggestedName||'').trim().split(/\s+/)[0].trim():''; 
   const safeGivenName=givenName&&!/[+@]/.test(givenName)&&givenName.length<=60?givenName:'';
   $('#welcomeTitle').textContent=participant
     ?(safeGivenName?'Velkommen til AidMe, '+safeGivenName+'!':'Velkommen til AidMe!')
