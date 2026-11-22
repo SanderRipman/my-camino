@@ -23,8 +23,14 @@ async function verifySessionStillPresent(){
 }
 function polishSecurityChoice(){
   const blocked=document.querySelector('#blocked'),text=document.querySelector('#blockedText'),link=blocked?.querySelector('a.primary');if(!blocked||!text||blocked.classList.contains('hidden'))return;
-  if(/Authenticator|tofaktor|AAL2/i.test(text.textContent||''))text.textContent='Dette steget krever ekstra sikkerhetsbekreftelse. Gå til Sikkerhet og bruk metoden som er tilgjengelig for kontoen din.';
-  if(link){link.href='./#security';link.textContent='Velg sikker bekreftelse'}
+  if(/Authenticator|tofaktor|AAL2/i.test(text.textContent||'')){
+    const message='Dette steget krever ekstra sikkerhetsbekreftelse. Gå til Sikkerhet og bruk metoden som er tilgjengelig for kontoen din.';
+    if(text.textContent!==message)text.textContent=message;
+  }
+  if(link){
+    if(link.getAttribute('href')!=='./#security')link.setAttribute('href','./#security');
+    if(link.textContent!=='Velg sikker bekreftelse')link.textContent='Velg sikker bekreftelse';
+  }
 }
 
 client.auth.onAuthStateChange((event,nextSession)=>{if(event==='SIGNED_OUT'||!nextSession)leaveForAuthentication()});
