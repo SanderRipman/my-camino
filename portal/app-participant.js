@@ -153,6 +153,16 @@ function adaptParticipantChrome(){
   $('#analysisParticipants')?.classList.add('hidden');$('#showAverage')?.closest('label')?.classList.add('hidden');
   const formsHead=$('#view-forms .section-head');if(formsHead){formsHead.querySelector('.eyebrow').textContent='Din reise';formsHead.querySelector('h2').textContent='Dine steg og skjemaer';formsHead.querySelector('p').textContent=base==='SER'?'Under SER bruker du den korte Innsjekk-flaten. Den daglige operative SER-loggen tilhører teamet.':'Bare det som er relevant i fasen din vises her.'}
   $('#view-forms .reference-card')?.classList.add('hidden');
+  // A participant only needs one security heading and their own account actions.
+  // Staff retain the full role/scope explanation; access control is unchanged.
+  $('#view-security .section-head')?.classList.add('hidden');
+  $('#securityAccessPrinciple')?.classList.add('hidden');
+  const passwordTitle=$('#changePasswordTitle');if(passwordTitle)passwordTitle.textContent='Opprett eller endre passord';
+  const passwordHelp=$('#changePasswordHelp');
+  if(passwordHelp)passwordHelp.textContent='Velg minst 12 tegn og skriv passordet to ganger. Bekreft først Authenticator for å lagre det.';
+  const passwordButton=$('#changePasswordForm button[type="submit"]');
+  if(passwordButton)passwordButton.textContent='Lagre passord';
+
   const checkNav=$('.nav-item[data-view="checkin"]');if(checkNav)checkNav.classList.toggle('hidden',base!=='SER');
   const checkStatus=$('#dayStatus')?.closest('label');checkStatus?.classList.add('hidden');
   const checkHead=$('#view-checkin .section-head');if(checkHead){checkHead.querySelector('.eyebrow').textContent='SER · din korte innsjekk';checkHead.querySelector('h2').textContent='Hvordan er dagen din?';checkHead.querySelector('p').textContent='Kort egen innsjekk for støtte og tilpasning. Dette er ikke teamets operative SER-logg, og ingen enkelt skår avgjør sikkerhet eller videre deltakelse.'}
