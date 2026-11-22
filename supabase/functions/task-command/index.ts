@@ -8,11 +8,86 @@ function cors(req: Request) {
 function decodeClaims(token:string){const part=token.split('.')[1];if(!part)return{} as Record<string,unknown>;const normalized=part.replace(/-/g,'+').replace(/_/g,'/');const padded=normalized+'='.repeat((4-normalized.length%4)%4);return JSON.parse(atob(padded)) as Record<string,unknown>}
 const transitions:Record<string,Set<string>>={OPEN:new Set(['IN_PROGRESS','WAITING','DONE']),IN_PROGRESS:new Set(['WAITING','DONE']),WAITING:new Set(['IN_PROGRESS','DONE'])}
 function serOperational(task:any){return ['SER_DAILY','SER','SOS','INCIDENT'].includes(String(task.task_type||''))||String(task.workflow_key||'').startsWith('ser_')||String(task.workflow_key||'').startsWith('sos:')}
+
+function activeReviewGrant(g:any,task:any,now:string){
+ return !g.revoked_at
+   &&(!g.valid_from||g.valid_from<=now)
+   &&(!g.valid_until||g.valid_until>now)
+   &&(!g.participant_id||g.participant_id===task.participant_id)
+   &&(!g.pilot_id||g.pilot_id===task.pilot_id)
+}
+const uuidPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 Deno.serve(async(req:Request)=>{const headers=cors(req);if(req.method==='OPTIONS')return new Response('ok',{headers});if(req.method!=='POST')return new Response(JSON.stringify({error:'METHOD_NOT_ALLOWED'}),{status:405,headers});try{
  const authHeader=req.headers.get('Authorization')??'',token=authHeader.replace(/^Bearer\s+/i,'');if(!token)return new Response(JSON.stringify({error:'UNAUTHORIZED'}),{status:401,headers});if(decodeClaims(token).aal!=='aal2')return new Response(JSON.stringify({error:'MFA_REQUIRED'}),{status:403,headers});
  const publishable=JSON.parse(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS')??'{}').default,secret=JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS')??'{}').default;if(!publishable||!secret)throw new Error('Missing Supabase function keys');
  const userClient=createClient(Deno.env.get('SUPABASE_URL')!,publishable,{global:{headers:{Authorization:authHeader}},auth:{persistSession:false}}),admin=createClient(Deno.env.get('SUPABASE_URL')!,secret,{auth:{persistSession:false}});const {data:userData,error:userError}=await userClient.auth.getUser(token);if(userError||!userData.user)return new Response(JSON.stringify({error:'UNAUTHORIZED'}),{status:401,headers});
- const body=await req.json(),taskId=String(body?.taskId??'').trim(),nextStatus=String(body?.status??'').trim().toUpperCase();if(!taskId||!['IN_PROGRESS','WAITING','DONE'].includes(nextStatus))return new Response(JSON.stringify({error:'INVALID_INPUT'}),{status:400,headers});
+ const body=await req.json(),taskId=String(body?.taskId??'').trim(),action=String(body?.action??'').trim().toUpperCase(),nextStatus=String(body?.status??'').trim().toUpperCase();
+ if(action==='REASSIGN_VIA_REVIEW'){
+   const targetUserId=String(body?.targetUserId??'').trim(),reason=String(body?.reason??'').trim();
+   if(!uuidPattern.test(taskId)||!uuidPattern.test(targetUserId)||reason.length<12||reason.length>200)
+     return new Response(JSON.stringify({error:'INVALID_REVIEW_REASSIGNMENT_INPUT'}),{status:400,headers});
+   const {data:task,error:te}=await admin.from('tasks')
+     .select('id,organization_id,participant_id,pilot_id,status,assignee_user_id,workflow_key,audience,updated_at')
+     .eq('id',taskId).maybeSingle();
+   if(te)throw te;
+   if(!task||task.workflow_key!=='via_go_review'||task.audience!=='STAFF'||task.status!=='OPEN'||!task.participant_id)
+     return new Response(JSON.stringify({error:'NOT_OPEN_VIA_REVIEW'}),{status:409,headers});
+   const now=new Date().toISOString();
+   const {data:callerGrants,error:ce}=await admin.from('role_grants')
+     .select('role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at')
+     .eq('organization_id',task.organization_id).eq('user_id',userData.user.id);
+   if(ce)throw ce;
+   const callerRoles=[...new Set((callerGrants??[]).filter((g:any)=>activeReviewGrant(g,task,now)).map((g:any)=>g.role_code))];
+   if(!callerRoles.length)return new Response(JSON.stringify({error:'FORBIDDEN'}),{status:403,headers});
+   const {data:callerPermissions,error:cpe}=await admin.from('role_permissions')
+     .select('role_code').in('role_code',callerRoles).eq('capability','manage_tasks');
+   if(cpe)throw cpe;
+   if(!(callerPermissions??[]).length)return new Response(JSON.stringify({error:'FORBIDDEN'}),{status:403,headers});
+   const {data:targetGrants,error:tge}=await admin.from('role_grants')
+     .select('role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at')
+     .eq('organization_id',task.organization_id).eq('user_id',targetUserId)
+     .in('role_code',['via_owner','clinical_professional']);
+   if(tge)throw tge;
+   const targetRoles=[...new Set((targetGrants??[]).filter((g:any)=>activeReviewGrant(g,task,now)).map((g:any)=>g.role_code))];
+   if(!targetRoles.length)return new Response(JSON.stringify({error:'TARGET_MISSING_SCOPED_VIA_ROLE'}),{status:409,headers});
+   const {data:targetPermissions,error:tpe}=await admin.from('role_permissions')
+     .select('role_code').in('role_code',targetRoles).eq('capability','edit_via');
+   if(tpe)throw tpe;
+   if(!(targetPermissions??[]).length)return new Response(JSON.stringify({error:'TARGET_MISSING_EDIT_VIA'}),{status:409,headers});
+   const {data:targetStaff,error:tse}=await admin.from('staff_profiles')
+     .select('user_id').eq('user_id',targetUserId).eq('active',true).maybeSingle();
+   if(tse)throw tse;
+   if(!targetStaff)return new Response(JSON.stringify({error:'TARGET_NOT_ACTIVE_STAFF'}),{status:409,headers});
+   if(task.assignee_user_id===targetUserId)
+     return new Response(JSON.stringify({ok:true,unchanged:true,task:{id:task.id,status:task.status,assignee_user_id:targetUserId}}),{status:200,headers});
+   // Intent is committed before the privileged assignment. If a later write fails,
+   // the attempt is still reconstructible without leaking participant answers.
+   const {error:ie}=await admin.from('workflow_events').insert({
+      organization_id:task.organization_id,participant_id:task.participant_id,pilot_id:task.pilot_id,
+      actor_user_id:userData.user.id,event_type:'VIA_REVIEW_REASSIGNMENT_REQUESTED',
+      source_type:'task',source_id:task.id,
+      metadata:{previous_assignee_user_id:task.assignee_user_id,target_user_id:targetUserId,reason}
+   });
+   if(ie)throw ie;
+   let update=admin.from('tasks')
+     .update({assignee_user_id:targetUserId,updated_at:now})
+     .eq('id',task.id).eq('status','OPEN').eq('updated_at',task.updated_at);
+   update=task.assignee_user_id?update.eq('assignee_user_id',task.assignee_user_id):update.is('assignee_user_id',null);
+   const {data:updated,error:ue}=await update
+     .select('id,status,assignee_user_id,updated_at').maybeSingle();
+   if(ue)throw ue;
+   if(!updated)return new Response(JSON.stringify({error:'STALE_TASK_REASSIGNMENT'}),{status:409,headers});
+   const {error:ae}=await admin.from('workflow_events').insert({
+      organization_id:task.organization_id,participant_id:task.participant_id,pilot_id:task.pilot_id,
+      actor_user_id:userData.user.id,event_type:'VIA_REVIEW_REASSIGNED',
+      source_type:'task',source_id:task.id,
+      metadata:{previous_assignee_user_id:task.assignee_user_id,target_user_id:targetUserId,reason}
+   });
+   if(ae)return new Response(JSON.stringify({error:'AUDIT_FINISH_FAILED',intentRecorded:true,assignmentChanged:true,taskId:task.id}),{status:500,headers});
+   return new Response(JSON.stringify({ok:true,task:updated}),{status:200,headers});
+ }
+ if(!taskId||!['IN_PROGRESS','WAITING','DONE'].includes(nextStatus))
+   return new Response(JSON.stringify({error:'INVALID_INPUT'}),{status:400,headers});
  const {data:task,error:taskError}=await admin.from('tasks').select('id,organization_id,participant_id,pilot_id,status,assignee_user_id,title,task_type,workflow_key,updated_at').eq('id',taskId).maybeSingle();if(taskError||!task)return new Response(JSON.stringify({error:'TASK_NOT_FOUND'}),{status:404,headers});
  let authorized=task.assignee_user_id===userData.user.id;if(!authorized){const now=new Date().toISOString();const {data:grants,error:grantsError}=await admin.from('role_grants').select('role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at').eq('user_id',userData.user.id).eq('organization_id',task.organization_id);if(grantsError)throw grantsError;const roleCodes=[...new Set((grants??[]).filter((g:any)=>!g.revoked_at&&(!g.valid_from||g.valid_from<=now)&&(!g.valid_until||g.valid_until>now)&&(!g.participant_id||g.participant_id===task.participant_id)&&(!g.pilot_id||g.pilot_id===task.pilot_id)).map((g:any)=>g.role_code))];if(roleCodes.length){const caps=['manage_tasks',...(serOperational(task)?['manage_ser_tasks']:[])];const {data:perms,error:permsError}=await admin.from('role_permissions').select('capability').in('role_code',roleCodes).in('capability',caps);if(permsError)throw permsError;authorized=(perms??[]).length>0}}
  if(!authorized)return new Response(JSON.stringify({error:'FORBIDDEN'}),{status:403,headers});
