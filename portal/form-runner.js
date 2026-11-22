@@ -18,6 +18,24 @@ const PILOT_LEVEL_KEYS=new Set(['pilot_go','pilot_evaluation']);
 const PARTICIPANT_REQUIRED_KEYS=new Set(['info_before_via','interest_referral','via_roadmap','individual_go_no_go','participant_agreement','ser_daily','vida_plan']);
 function esc(v=''){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt',"'":'&#39;','"':'&quot;'}[c]))}
 function active(g){const n=new Date();return !g.revoked_at&&(!g.valid_from||new Date(g.valid_from)<=n)&&(!g.valid_until||new Date(g.valid_until)>n)}
+// PGRST303 is a transient PostgREST JWT-claims rejection, not evidence of a
+// missing participant or form. Never turn a failed read into an empty role list.
+async function retryFormRead(read,wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))){
+  let result=await read();
+  for(const delay of [900,1700,2500]){
+    if(result?.status!==401||result?.error?.code!=='PGRST303')break;
+    await wait(delay);
+    result=await read();
+  }
+  return result;
+}
+function formDataUnavailable(){
+  $('#runner').classList.add('hidden');
+  const blocked=$('#blocked');blocked.classList.remove('hidden');
+  blocked.querySelector('h2').textContent='Vi kunne ikke hente skjematilgangen nå';
+  $('#blockedText').textContent='Innsjekk av kontoen eller deltakerreisen feilet midlertidig. Ingen opplysninger er endret. Gå tilbake til Min reise og prøv igjen om litt.';
+  const link=blocked.querySelector('a.primary');if(link){link.href='./';link.textContent='Tilbake til min reise'}
+}
 function ownParticipant(){return participants.find(p=>p.user_id===session?.user?.id)||null}
 function isStaff(){return grants.some(active)}
 function participantAllowedKeys(){
@@ -52,13 +70,14 @@ async function init(){
   const {data:{session:s}}=await client.auth.getSession();if(seq!==initSeq)return;session=s;if(!session){location.replace('./');return}
   const aal=await client.auth.mfa.getAuthenticatorAssuranceLevel();if(seq!==initSeq)return;const aal2=aal.data?.currentLevel==='aal2';$('#securityPill').textContent=aal2?'AAL2 · bekreftet':'AAL1 · utilstrekkelig';$('#securityPill').classList.toggle('secure',aal2);$('#securityPill').classList.toggle('attention',!aal2);if(!aal2){$('#blocked').classList.remove('hidden');$('#blockedText').textContent='Versjonerte programskjema krever at denne innloggingen er bekreftet med Authenticator.';return}
   const uid=session.user.id;const [pRes,gRes,dRes,vRes,pilotRes,ppRes]=await Promise.all([
-   client.from('participants').select('id,organization_id,code_name,stage,user_id,active').eq('active',true),
-   client.from('role_grants').select('id,organization_id,role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at').eq('user_id',uid),
-   client.from('form_definitions').select('id,key,title_no,scope').order('created_at'),
-   client.from('form_versions').select('id,form_definition_id,version,schema_json,published_at,retired_at').order('version',{ascending:false}),
-   client.from('pilots').select('id,organization_id,name,status,route_name,start_date,end_date').order('start_date',{ascending:false}),
-   client.from('pilot_participants').select('pilot_id,participant_id,status')
+   retryFormRead(()=>client.from('participants').select('id,organization_id,code_name,stage,user_id,active').eq('active',true)),
+   retryFormRead(()=>client.from('role_grants').select('id,organization_id,role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at').eq('user_id',uid)),
+   retryFormRead(()=>client.from('form_definitions').select('id,key,title_no,scope').order('created_at')),
+   retryFormRead(()=>client.from('form_versions').select('id,form_definition_id,version,schema_json,published_at,retired_at').order('version',{ascending:false})),
+   retryFormRead(()=>client.from('pilots').select('id,organization_id,name,status,route_name,start_date,end_date').order('start_date',{ascending:false})),
+   retryFormRead(()=>client.from('pilot_participants').select('pilot_id,participant_id,status'))
   ]);if(seq!==initSeq)return;
+  if([pRes,gRes,dRes,vRes,pilotRes,ppRes].some(res=>res.error)){formDataUnavailable();return}
   participants=pRes.data||[];grants=gRes.data||[];definitions=dRes.data||[];versions=vRes.data||[];pilots=pilotRes.data||[];pilotParticipants=ppRes.data||[];
   $('#runner').classList.remove('hidden');fillParticipants();fillPilots();fillForms();if(!applyQuery())return;syncPilotFromParticipant();await chooseForm();
  })();
@@ -78,7 +97,12 @@ function fillForms(){
   const link=blocked.querySelector('a.primary');if(link){link.href='./#tasks';link.textContent='Tilbake til oppgaver'}
  }
 }
-function applyQuery(){const q=new URLSearchParams(location.search),key=q.get('key'),participant=q.get('participant'),pilot=q.get('pilot');if(key){const d=definitions.find(x=>x.key===key);if(!d||!optionHas($('#formSelect'),d.id))return blockUnavailableRequestedContext(q);$('#formSelect').value=d.id}if(participant){if(!optionHas($('#participantSelect'),participant))return blockUnavailableRequestedContext(q);$('#participantSelect').value=participant}if(pilot){if(!optionHas($('#pilotSelect'),pilot))return blockUnavailableRequestedContext(q);$('#pilotSelect').value=pilot}return true}
+function applyQuery(){
+ const q=new URLSearchParams(location.search);
+ // Hash-only participant route never puts the participant UUID in a navigation
+ // URL; we derive it from the authenticated, RLS-visible current participant.
+ const selfVia=location.hash==='#my-via-roadmap'&&!!ownParticipant();
+ const key=selfVia?'via_roadmap':q.get('key'),participant=selfVia?ownParticipant().id:q.get('participant'),pilot=q.get('pilot');if(key){const d=definitions.find(x=>x.key===key);if(!d||!optionHas($('#formSelect'),d.id))return blockUnavailableRequestedContext(q);$('#formSelect').value=d.id}if(participant){if(!optionHas($('#participantSelect'),participant))return blockUnavailableRequestedContext(q);$('#participantSelect').value=participant}if(pilot){if(!optionHas($('#pilotSelect'),pilot))return blockUnavailableRequestedContext(q);$('#pilotSelect').value=pilot}return true}
 function syncPilotFromParticipant(){if($('#pilotSelect').value)return;const pp=participantPilot($('#participantSelect').value);if(pp&&[...$('#pilotSelect').options].some(o=>o.value===pp.id))$('#pilotSelect').value=pp.id}
 function formRoleContext(){
  const person=selectedParticipant(),pilot=selectedPilot();

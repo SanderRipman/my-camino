@@ -93,7 +93,7 @@ assert(adminCreateParticipant.includes("workflow_key:'participant_via_start'"),'
 assert(adminCreateParticipant.includes("eq('workflow_key','participant_via_start')")&&adminCreateParticipant.includes("eq('assignee_user_id',targetUserId)"),'VÍA start task must be duplicate-guarded for the linked participant account');
 assert(adminCreateParticipant.includes("title:'Din VÍA er klar'"),'The linked participant must receive a safe notification for the first VÍA step');
 assert(participantNextJs.includes('participant_via_start')&&participantNextJs.includes('Start mitt VÍA-veikart'),'Participant task dialog must expose the VÍA roadmap as the first action');
-assert(participantNextJs.includes('key=via_roadmap'),'Participant VÍA action must route to the participant-facing roadmap, not staff GO/NO-GO');
+assert(participantNextJs.includes('form-runner.html#my-via-roadmap')&&formJs.includes("selfVia?'via_roadmap':q.get('key')"),'Participant VÍA action must route to the own RLS-checked VÍA roadmap, never staff GO/NO-GO');
 assert(participantNextJs.includes('Dette er ikke en GO/NO-GO-beslutning'),'Participant copy must separate VÍA clarification from the formal staff decision gate');
 assert(participantNextJs.includes("if(isStaff())return"),'Participant next-action layer must not alter staff task-gate behavior');
 

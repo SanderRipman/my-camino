@@ -80,7 +80,7 @@ ok(!intakeContact.includes('client.from(')&&!intakeContact.includes('.from(')&&!
 
 ok(formHtml.includes('form-role-gate-guidance.js?v=20260916a'),'Role/gate explanation module is not loaded');
 ok(formHtml.includes('id="formBoot"')&&formHtml.includes('form-entry-guard.js?v=20260925a'),'Direct form entry must have a visible boot state and fail-safe guard');
-ok(formHtml.indexOf('form-entry-guard.js?v=20260925a')<formHtml.indexOf('form-runner.js?v=20260913a'),'Form entry guard must load before the runner bootstrap');
+ok(formHtml.indexOf('form-entry-guard.js?v=20260925a')<formHtml.indexOf('form-runner.js?v=20261122c'),'Form entry guard must load before the runner bootstrap');
 ok(formHtml.includes('form-workflow-feedback.js?v=20260925a'),'Form completion workflow feedback is not loaded');
 ok(formGuard.includes('MutationObserver')&&formGuard.includes('observer.disconnect()')&&formGuard.includes('12000')&&formGuard.includes('Prøv igjen'),'Form entry guard must be bounded and self-cleaning');
 ok(!formGuard.includes('setInterval('),'Form entry guard must not add polling loops');
