@@ -29,6 +29,7 @@ const mfaBrandingPath=path.join(dir,'app-mfa-branding.js');
 const accessStatePath=path.join(dir,'app-access-state.js');
 const participantCompletionClarityPath=path.join(dir,'app-participant-completion-clarity.js');
 const participantPhaseTimelinePath=path.join(dir,'app-participant-phase-timeline.js');
+const viaStaffReviewWorklistPath=path.join(dir,'app-via-staff-review-worklist.js');
 const outPath=path.join(dir,'app.js');
 let code=fs.readFileSync(sourcePath,'utf8');
 const ops=fs.readFileSync(opsPath,'utf8');
@@ -56,6 +57,7 @@ const mfaBranding=fs.readFileSync(mfaBrandingPath,'utf8');
 const accessState=fs.readFileSync(accessStatePath,'utf8');
 const participantCompletionClarity=fs.readFileSync(participantCompletionClarityPath,'utf8');
 const participantPhaseTimeline=fs.readFileSync(participantPhaseTimelinePath,'utf8');
+const viaStaffReviewWorklist=fs.readFileSync(viaStaffReviewWorklistPath,'utf8');
 
 function replaceOnce(label,needle,replacement){
  const first=code.indexOf(needle);if(first<0)throw new Error(`${label}: source pattern missing`);if(code.indexOf(needle,first+1)>=0)throw new Error(`${label}: source pattern is not unique`);code=code.replace(needle,replacement);
@@ -124,5 +126,6 @@ code += '\n\n/* TOTP branding is presentation metadata only: stable AidMe issuer
 code += '\n\n/* Revoked/expired staff sessions fail closed instead of falling back to participant presentation. */\n'+accessState+'\n';
 code += '\n\n/* Participant task completion clarity: read-only completion copy. */\n'+participantCompletionClarity+'\n';
 code += '\n\n/* Participant phase task history is the final participant presentation layer. */\n'+participantPhaseTimeline+'\n';
+code += '\n\n/* Staff-owned VÍA reviews: presentation from the existing authorized task collection only, no sensitive data queries or new workflow state. */\n'+viaStaffReviewWorklist+'\n';
 fs.writeFileSync(outPath,code,'utf8');
 console.log(`Built ${path.relative(process.cwd(),outPath)} (${code.length} bytes)`);
