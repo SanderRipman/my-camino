@@ -49,6 +49,6 @@ assert.match(latest.callQ,/returnTask=synthetic-task/);
 const requested=simulate('?key=via_roadmap&participant=synthetic&submission=one');
 assert.equal(requested.denied,true);
 assert.ok(html.indexOf('setTimeout(()=>{')<html.indexOf('cdn.jsdelivr.net/npm/@supabase/supabase-js@2'),'Dependency watchdog must begin before CDN can block the parser');
-assert.ok(html.includes('Skjemaet kunne ikke åpnes')&&html.includes('data-form-rescue'));
+assert.ok(html.includes('Skjemaet kunne ikke åpnes')&&html.includes("actions.dataset.formRescue='1'"));
 assert.ok(html.includes('form-entry-guard.js?v=20260925a'),'Original entry guard must remain');
 console.log('UAT3Y scoped staff VÍA form boot, read-only fail-closed, and CDN rescue source checks PASS');
