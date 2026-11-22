@@ -101,6 +101,13 @@ async function bootstrap(){
     participants=[{id:ctx.participant.id,organization_id:org,code_name:ctx.participant.code_name,stage:ctx.participant.stage,user_id:null,active:true}];
     if(ctx.pilot?.id&&!pilotParticipants.some(x=>x.participant_id===requestedParticipant&&x.pilot_id===ctx.pilot.id&&x.status==='ACTIVE'))pilotParticipants.push({pilot_id:ctx.pilot.id,participant_id:requestedParticipant,status:'ACTIVE'});
 
+    // Never expose form-edit actions for a submitted VÍA review, even while the
+    // read-only history panel is still loading through the caller's RLS.
+    if(scopedViaReadOnly){
+      document.querySelector('.runner-card')?.classList.add('hidden');
+      document.querySelector('#saveDraft')?.setAttribute('disabled','');
+      document.querySelector('#dynamicForm button[type="submit"]')?.setAttribute('disabled','');
+    }
     $('#runner').classList.remove('hidden');$('#blocked').classList.add('hidden');
     fillParticipants();fillPilots();fillForms();if(!applyQuery()){marker?.classList.add('hidden');return}
     syncPilotFromParticipant();await bounded(chooseForm(),12000);if(seq!==initSeq)return;
