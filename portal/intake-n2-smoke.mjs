@@ -75,4 +75,31 @@ for(let i=0;i<10&&pendingMutations>0;i++){
 if(pendingMutations||totalWrites!==3)throw Error('N2 demo observer did not settle after initial text updates ('+totalWrites+' writes)');
 console.log('N2 demo MutationObserver idempotence runtime regression PASS');
 
+
+// Persistent, synthetic N1→N2 UAT contract: the demo origin, enum, source and
+// read/triage scope must agree with the real Supabase schema/command.
+const demoFunction=fs.readFileSync(path.join(dir,'../supabase/functions/demo-create-interest/index.ts'),'utf8');
+const intakeCommand=fs.readFileSync(path.join(dir,'../supabase/functions/intake-command/index.ts'),'utf8');
+const demoJourney=fs.readFileSync(path.join(dir,'demo-journey.js'),'utf8');
+const demoHtml=fs.readFileSync(path.join(dir,'demo-journey.html'),'utf8');
+const matches=(text,label,re)=>{if(!re.test(text))throw new Error('Demo UAT E2E: '+label)};
+matches(demoFunction,'demo origin CORS',/['"]https:\/\/demo\.aidme\.no['"]/);
+matches(demoFunction,'existing production origin',/['"]https:\/\/my\.aidme\.no['"]/);
+matches(demoFunction,'require AAL2',/aal!=='aal2'/);
+matches(demoFunction,'org-scoped grants',/\.eq\('organization_id',org\.id\)/);
+matches(demoFunction,'participant and pilot scopes excluded',/!g\.participant_id&&!g\.pilot_id/);
+matches(demoFunction,'valid database type',/interest_type:'PARTICIPANT'/);
+matches(demoFunction,'test source defined',/DEMO_SOURCE='demo_uat_n1'/);
+matches(demoFunction,'test source used',/source:DEMO_SOURCE/);
+matches(demoFunction,'synthetic identity only',/DEMO_NAME='Mina Test'/);
+matches(demoFunction,'undeliverable email only',/DEMO_EMAIL='mina\.test@example\.invalid'/);
+matches(demoFunction,'known scenarios only',/scenarios\.has\(requested\)/);
+matches(intakeCommand,'demo list scoped to demo source',/\.like\('source','demo%'\)/);
+matches(intakeCommand,'demo actions scoped to demo source',/\^demo\(\?:_\|\-\)/);
+matches(demoJourney,'return direct to recorded N2 intake',/intake\.html\?intake=/);
+matches(demoJourney,'prevent duplicate submit',/if\(submitting\|\|created\)return/);
+matches(demoHtml,'show synthetic Mina',/Mina Test/);
+matches(js,'show persisted-demo source label',/DEMO_UAT_N1:/);
+console.log('Persisted N1→N2 demo origin / constraints / scope / deep-link regression PASS');
+
 console.log('N2 intake / first-avklaring invariants OK, including PII-safe N2→N3 handoff URL.');
