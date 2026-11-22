@@ -3,7 +3,8 @@
 const page=(location.pathname.split('/').filter(Boolean).pop()||'index.html').replace('.html','');
 if(page!=='kontakt')return;
 const params=new URLSearchParams(location.search);
-const noStore=params.get('previewIntake')==='1'||['localhost','127.0.0.1','aidme.no','www.aidme.no','dev.aidme.no'].includes(location.hostname);
+const noStore=params.get('previewIntake')==='1'||['localhost','127.0.0.1'].includes(location.hostname);
+let initialAnchorPending=location.hash==='#deltaker-interesse';
 const bi=(no,en)=>`<span class="lang-no">${no}</span><span class="lang-en">${en}</span>`;
 const chosen=()=>{const raw=String(params.get('spor')||'').toUpperCase();return raw==='PARTNER'?'PARTNER':raw==='DELTAKER'||raw==='PARTICIPANT'?'PARTICIPANT':raw==='HENVISER'||raw==='REFERRAL'?'REFERRAL':''};
 
@@ -15,6 +16,8 @@ function style(){
  .n1-interest-card>.eyebrow{display:none!important}
  .n1-interest-form .n1-contact-context{grid-column:1/-1;display:grid;gap:6px}
  .n1-interest-form .n1-direct-link{white-space:nowrap}
+ .n1-preview-banner{margin:12px 0 18px;padding:11px 14px;border:1px solid #b5cfc6;border-left:4px solid var(--teal);border-radius:9px;background:#eef6f2;color:var(--navy);font-size:14px;line-height:1.45}
+ .n1-preview-banner strong{font-weight:800}
  .n1-interest-form .n1-form-actions{align-items:center;flex-wrap:wrap}
  .contact-card#direkte-kontakt{scroll-margin-top:90px}
  @media(max-width:650px){.n1-interest-form .n1-form-actions{justify-content:flex-start}.n1-interest-form .n1-form-actions small{flex-basis:100%}}
@@ -29,8 +32,30 @@ function topCards(){
    let a=panel.querySelector('a.btn');
    if(!a){a=document.createElement('a');a.className='btn teal n1-contact-choice';panel.appendChild(a)}
    a.classList.add('n1-contact-choice');
-   a.href=`?spor=${kind==='PARTNER'?'partner':'deltaker'}&fra=kontakt-kort#deltaker-interesse`;
+   a.href='#deltaker-interesse';
+   a.dataset.contactInterestType=kind;
    a.innerHTML=bi('Meld interesse','Express interest');
+   if(a.dataset.contactInterestBound!=='1'){
+     a.dataset.contactInterestBound='1';
+     a.addEventListener('click',event=>{
+       const target=document.getElementById('deltaker-interesse');
+       if(!target){initialAnchorPending=true;return} // wait for dynamically injected form
+       event.preventDefault();
+       const type=a.dataset.contactInterestType;
+       const select=target.querySelector('[name="inquiry_type"]');
+       if(select&&[...select.options].some(option=>option.value===type)){
+         select.value=type;
+         select.dispatchEvent(new Event('change',{bubbles:true}));
+       }
+       const url=new URL(location.href);
+       url.searchParams.set('spor',type==='PARTNER'?'partner':'deltaker');
+       url.searchParams.set('fra','kontakt-kort');
+       url.hash='deltaker-interesse';
+       history.replaceState(history.state,'',url);
+       initialAnchorPending=false;
+       target.scrollIntoView({behavior:'smooth',block:'start'});
+     });
+   }
  };
  ensure(partner,'PARTNER');ensure(participant,'PARTICIPANT');
 }
@@ -88,9 +113,25 @@ function copy(form){
  if(note&&type==='PARTNER')note.innerHTML=bi(`<strong>Ikke oppgi sensitive personopplysninger.</strong> Første kontakt handler bare om virksomheten, behovet og hvordan vi kan svare.${noStore?' Ingen persondata lagres eller sendes i denne testen.':''}`,`<strong>Do not enter sensitive personal data.</strong> The first contact is only about the organisation, the need and how we can reply.${noStore?' No personal data is stored or sent in this test.':''}`);
  if(note&&type==='PARTICIPANT'&&noStore)note.innerHTML=bi('<strong>Ikke skriv helseopplysninger eller andre sensitive personopplysninger her.</strong> Dette er bare første kontakt. Ingen persondata lagres eller sendes i denne testen.','<strong>Do not enter health information or other sensitive personal data here.</strong> This is only the first contact. No personal data is stored or sent in this test.');
 }
+function ensurePreviewBanner(form){
+ if(!noStore)return;
+ const card=form.closest('.n1-interest-card');
+ if(!card||card.querySelector('.n1-preview-banner'))return;
+ const banner=document.createElement('p');
+ banner.className='n1-preview-banner';banner.setAttribute('role','status');
+ banner.innerHTML=bi('<strong>Testmodus – ingen lagring.</strong> Skjemaet simulerer en henvendelse, uten å sende personopplysninger.', '<strong>Preview – no storage.</strong> This form simulates an enquiry without sending personal data.');
+ card.insertBefore(banner,form);
+}
+function restoreDeepLinkOnce(){
+ if(!initialAnchorPending)return;
+ const target=document.getElementById('deltaker-interesse');
+ if(!target)return;
+ initialAnchorPending=false;
+ requestAnimationFrame(()=>target.scrollIntoView({behavior:'auto',block:'start'}));
+}
 function enhanceForm(){
  const form=document.querySelector('form.n1-interest-form');if(!form)return false;
- ensureInquiry(form.querySelector('[name="inquiry_type"]'));contextField(form);formActions(form);copy(form);
+ ensureInquiry(form.querySelector('[name="inquiry_type"]'));contextField(form);formActions(form);copy(form);ensurePreviewBanner(form);
  if(form.dataset.contactPolishBound!=='1'){
    form.dataset.contactPolishBound='1';
    form.addEventListener('change',()=>setTimeout(()=>{contextField(form);formActions(form);copy(form)},0));
@@ -98,7 +139,7 @@ function enhanceForm(){
  }
  return true;
 }
-function apply(){style();topCards();directContact();enhanceForm()}
+function apply(){style();topCards();directContact();enhanceForm();restoreDeepLinkOnce()}
 apply();
 for(const delay of [0,80,240,700,1400])setTimeout(apply,delay);
 window.addEventListener('load',apply,{once:true});

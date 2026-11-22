@@ -23,6 +23,7 @@ jobs:
           CONTEXT=deploy-preview URL='https://dev.aidme.no' node seo-build.mjs
           grep -q 'X-Robots-Tag: noindex, nofollow' _site/_headers
           grep -q "previewMode" n1-intake-safe.js
+          node --check contact-polish-20260902.js
           grep -q "post-cutover-live.js" site.js
 
       - name: Exercise N1 participant partner and referral interaction
@@ -101,6 +102,20 @@ jobs:
             if(participant?.textContent.trim()!=='Deltaker – for meg selv') return {ok:false,error:'participant compact label wrong',label:participant?.textContent};
             if(partner?.textContent.trim()!=='Partner / samarbeid') return {ok:false,error:'partner option missing/wrong',label:partner?.textContent};
             if(referral?.textContent.trim()!=='Henviser – for en annen') return {ok:false,error:'referral compact label wrong',label:referral?.textContent};
+
+            const previewBanner=document.querySelector('.n1-preview-banner');
+            if(!previewBanner||!previewBanner.textContent.includes('Testmodus')||!previewBanner.textContent.includes('ingen lagring')) return {ok:false,error:'visible no-storage preview banner missing'};
+            const contactCards=[...document.querySelectorAll('.split .panel')];
+            const partnerLink=contactCards.find(p=>p.textContent.includes('Partnerdialog'))?.querySelector('a.n1-contact-choice');
+            const participantLink=contactCards.find(p=>p.textContent.includes('Interesse som deltaker'))?.querySelector('a.n1-contact-choice');
+            if(partnerLink?.getAttribute('href')!=='#deltaker-interesse'||participantLink?.getAttribute('href')!=='#deltaker-interesse') return {ok:false,error:'contact CTA still reloads same page instead of direct anchor'};
+            const initialForm=form;
+            partnerLink.click();
+            await new Promise(resolve=>setTimeout(resolve,40));
+            if(document.querySelector('form.n1-interest-form')!==initialForm||new URLSearchParams(location.search).get('spor')!=='partner'||inquiry.value!=='PARTNER')return {ok:false,error:'partner CTA fails one-click state change without navigation'};
+            participantLink.click();
+            await new Promise(resolve=>setTimeout(resolve,40));
+            if(document.querySelector('form.n1-interest-form')!==initialForm||new URLSearchParams(location.search).get('spor')!=='deltaker'||inquiry.value!=='PARTICIPANT')return {ok:false,error:'participant CTA fails one-click state change without navigation'};
 
             inquiry.value='PARTICIPANT';
             inquiry.dispatchEvent(new Event('change',{bubbles:true}));
