@@ -5,6 +5,17 @@ const allowedRoles = new Set(['system_admin','project_owner','program_lead','via
 function cors(req: Request){const o=req.headers.get('origin')??'';return {'Access-Control-Allow-Origin':allowedOrigin(o)?o:'https://my.aidme.no','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json','Vary':'Origin','Cache-Control':'no-store'}}
 function decodeClaims(token:string){const p=token.split('.')[1];if(!p)return{};const n=p.replace(/-/g,'+').replace(/_/g,'/');return JSON.parse(atob(n+'='.repeat((4-n.length%4)%4)))}
 
+// Independent staff-review grants may have the same role in different, non-overlapping contexts.
+type ScopeGrant={participant_id:string|null;pilot_id:string|null;valid_until:string|null;revoked_at:string|null}
+function hasActiveScopeConflict(grants:ScopeGrant[]|null,participantId:string|null,pilotId:string|null,now:string){
+  return (grants??[]).some(g=>{
+    if(g.revoked_at||(g.valid_until&&new Date(g.valid_until).getTime()<=new Date(now).getTime()))return false
+    const oldParticipant=g.participant_id??null,oldPilot=g.pilot_id??null
+    return (oldParticipant===null||participantId===null||oldParticipant===participantId)
+      &&(oldPilot===null||pilotId===null||oldPilot===pilotId)
+  })
+}
+
 Deno.serve(async(req:Request)=>{
   const headers=cors(req)
   if(req.method==='OPTIONS')return new Response('ok',{headers})
@@ -32,14 +43,47 @@ Deno.serve(async(req:Request)=>{
     const participantId=body?.participantId?String(body.participantId):null
     const pilotId=body?.pilotId?String(body.pilotId):null
     const reason=body?.reason?String(body.reason).trim():null
-    const validUntil=body?.validUntil?new Date(body.validUntil).toISOString():null
+    let validUntil:string|null=null
+    if(body?.validUntil){
+      const expiry=new Date(body.validUntil)
+      if(Number.isNaN(expiry.getTime())||expiry<=new Date())return new Response(JSON.stringify({error:'INVALID_EXPIRY'}),{status:400,headers})
+      validUntil=expiry.toISOString()
+    }
     if(!targetUserId||!allowedRoles.has(roleCode))return new Response(JSON.stringify({error:'INVALID_INPUT'}),{status:400,headers})
     if(roleCode==='break_glass'&&(!reason||!validUntil))return new Response(JSON.stringify({error:'BREAK_GLASS_REQUIRES_REASON_AND_EXPIRY'}),{status:400,headers})
+    if(roleCode==='system_admin'&&(participantId||pilotId))return new Response(JSON.stringify({error:'SYSTEM_ADMIN_MUST_BE_UNSCOPED'}),{status:400,headers})
+    // Narrow VÍA/clinical grants are review capabilities: require an accountable staff identity,
+    // audit reason, and bounded expiry. Do not change legacy unscoped role provisioning.
+    const scopedSensitive=!!participantId&&['via_owner','clinical_professional'].includes(roleCode)
+    if(scopedSensitive&&(!reason||reason.length<12||!validUntil||Date.parse(validUntil)>Date.now()+30*86400000))
+      return new Response(JSON.stringify({error:'SCOPED_VIA_REQUIRES_REASON_AND_EXPIRY'}),{status:400,headers})
+
 
     const {data:org,error:orgError}=await admin.from('organizations').select('id').eq('name','AidMe VIDA').limit(1).maybeSingle()
     if(orgError||!org)throw orgError??new Error('Organization not found')
-    const {data:existing}=await admin.from('role_grants').select('id').eq('organization_id',org.id).eq('user_id',targetUserId).eq('role_code',roleCode).is('revoked_at',null).limit(1)
-    if((existing??[]).length)return new Response(JSON.stringify({error:'ACTIVE_GRANT_EXISTS'}),{status:409,headers})
+    // Validate requested scope against this organization before any privileged write.
+    if(participantId){
+      const {data:p,error:e}=await admin.from('participants').select('id').eq('id',participantId).eq('organization_id',org.id).maybeSingle()
+      if(e)throw e
+      if(!p)return new Response(JSON.stringify({error:'PARTICIPANT_SCOPE_INVALID'}),{status:400,headers})
+    }
+    if(pilotId){
+      const {data:p,error:e}=await admin.from('pilots').select('id').eq('id',pilotId).eq('organization_id',org.id).maybeSingle()
+      if(e)throw e
+      if(!p)return new Response(JSON.stringify({error:'PILOT_SCOPE_INVALID'}),{status:400,headers})
+    }
+    if(scopedSensitive){
+      const {data:staff,error:staffError}=await admin.from('staff_profiles')
+        .select('user_id').eq('user_id',targetUserId).eq('organization_id',org.id).eq('active',true).maybeSingle()
+      if(staffError)throw staffError
+      if(!staff)return new Response(JSON.stringify({error:'SCOPED_VIA_TARGET_NOT_ACTIVE_STAFF'}),{status:403,headers})
+    }
+    const {data:existing,error:existingError}=await admin.from('role_grants')
+      .select('id,participant_id,pilot_id,valid_until,revoked_at')
+      .eq('organization_id',org.id).eq('user_id',targetUserId).eq('role_code',roleCode)
+    if(existingError)throw existingError
+    if(hasActiveScopeConflict(existing,participantId,pilotId,now))
+      return new Response(JSON.stringify({error:'ACTIVE_GRANT_EXISTS'}),{status:409,headers})
 
     const {data,error}=await admin.from('role_grants').insert({organization_id:org.id,user_id:targetUserId,role_code:roleCode,participant_id:participantId,pilot_id:pilotId,reason,valid_until:validUntil,granted_by:userData.user.id}).select('id,role_code,participant_id,pilot_id,valid_until').single()
     if(error)throw error
