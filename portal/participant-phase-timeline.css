@@ -1,0 +1,71 @@
+/* Participant progress navigation – presentation only, never a formal gate. */
+#view-participants.participant-journey-single .participant-layout{grid-template-columns:minmax(0,1fr)}
+#view-participants.participant-journey-single #participantList{display:none}
+#view-participants.participant-journey-single .participant-detail{min-height:0}
+#view-participants.participant-journey-single #participantsIntro{max-width:100%}
+
+.participant-milestone{margin:15px 0 16px;padding:18px 20px;border:1px solid #a3cdb5;border-left:5px solid #208351;background:#eff8f1;border-radius:16px}
+.participant-milestone strong{display:block;font:700 clamp(19px,2.2vw,25px) Georgia,serif;color:#155432;line-height:1.2}
+.participant-milestone p{margin:8px 0 12px;color:#21483c;line-height:1.5;max-width:850px}
+.participant-milestone-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.participant-milestone-actions .link-btn{display:inline-flex;align-items:center;min-height:42px;padding:10px 16px;background:#145f3d;color:white;border-radius:999px;border:1px solid #145f3d;font-weight:750;text-decoration:none;white-space:normal}
+.participant-milestone-actions .link-btn:hover{background:#0c4930;color:#fff}
+.participant-milestone-wait{display:inline-block;color:#40544e;font-weight:700;font-size:12px}
+#view-participants .participant-heading-progress{margin-top:12px}
+
+.participant-phase-step{appearance:none;font:inherit;text-align:left;width:100%;color:var(--ink,#152f37);background:#f3f1ed;border:1px solid transparent;border-radius:13px;cursor:pointer;display:flex;gap:12px;align-items:center;justify-content:space-between;min-height:64px;padding:12px 15px}
+.participant-phase-step .participant-phase-name{font:700 20px Georgia,serif;display:block;color:#153347}
+.participant-phase-step .participant-phase-sub{display:block;font-size:11px;line-height:1.3;color:#53646b;margin-top:3px}
+.participant-phase-step .participant-phase-meta{display:flex;gap:7px;justify-content:flex-end;align-items:center;flex-wrap:wrap}
+.participant-phase-step .participant-phase-badge{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;font-size:11px;line-height:1.15;border-radius:999px;font-weight:800;white-space:nowrap;border:1px solid #cdd4d2;background:#fff;color:#47605f}
+.participant-phase-step.is-current{background:#e7f2ed;border-color:#2d7d67;box-shadow:inset 4px 0 0 #2d7d67}
+.participant-phase-step.is-current .participant-phase-badge.current{background:#135c43;color:#fff;border-color:#135c43}
+.participant-phase-step.is-past{background:#eff6f1;border-color:#b2d2bf}
+.participant-phase-step.is-past .participant-phase-badge.done,.participant-phase-step .participant-phase-badge.done{background:#d7eddb;color:#155c32;border-color:#9bc5a8}
+.participant-phase-step.is-future{background:#f1f0ec;color:#6b7779;border-color:#e1dfd7}
+.participant-phase-step.is-future .participant-phase-badge{background:#e9e7e2;color:#565f62;border-color:#d5d1c9}
+.participant-phase-step:hover{filter:brightness(.975);border-color:#2f806c}
+.participant-phase-step:focus-visible{outline:3px solid #c39a48;outline-offset:3px}
+#journeyMini .participant-phase-step{min-width:0;white-space:normal}
+#journeyMini .participant-phase-name{font-size:17px}
+#journeyMini .participant-phase-meta{gap:5px}
+#journeyMini .participant-phase-badge{font-size:10px;padding:5px 8px}
+.participant-phase-message{margin:8px 0 4px;padding:11px 14px;background:#f3f1eb;color:#3f5056;border-left:3px solid #b59c6e;border-radius:10px;font-weight:600;font-size:13px}
+.participant-task-row{grid-template-columns:22px minmax(0,1fr) auto!important;gap:12px;align-items:center!important;padding:15px 11px!important;margin:2px 0;border:1px solid #e5e0d6!important;border-radius:13px;cursor:pointer;background:#fffdf9!important}
+.participant-task-row:hover{background:#f6f8f5!important;border-color:#adc4b6!important}
+.participant-task-row .participant-task-icon{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:900;background:#f5ebcf;color:#8b651e}
+.participant-task-row.is-done{background:#f0f8f2!important;border-color:#9bceb2!important}
+.participant-task-row.is-done .participant-task-icon{background:#207f4e;color:white}
+.participant-task-row .participant-task-copy b{font-size:14px}
+.participant-task-row .participant-task-copy small{color:#53656b}
+.participant-task-row .task-meta{display:flex;gap:6px;justify-content:flex-end;align-items:center}
+.participant-task-row .participant-status-pill,.participant-task-row .participant-phase-pill{padding:6px 9px;border-radius:999px;font-size:11px;font-weight:850;line-height:1.15;border:1px solid transparent;white-space:nowrap}
+.participant-task-row .participant-status-pill.is-done{background:#18814d;color:#fff;border-color:#18814d}
+.participant-task-row .participant-status-pill.is-pending{background:#f6e6be;color:#694910;border-color:#ddb975}
+.participant-task-row .participant-status-pill.is-progress{background:#dbece7;color:#195b4b;border-color:#a4c8bc}
+.participant-task-row .participant-status-pill.is-waiting{background:#e5eaf0;color:#3a5267;border-color:#b7c6d4}
+.participant-task-row .participant-status-pill.is-overdue{background:#f4d8d4;color:#812c2b;border-color:#da9d92}
+.participant-task-row .participant-phase-pill{background:#f8f5eb;color:#5b4c2d;border-color:#d3c29b}
+.participant-task-row .participant-task-date{font-size:10px;color:#56646b;white-space:nowrap}
+.participant-task-navigation{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:0 0 14px;padding:11px 13px;background:#eff4f2;border:1px solid #bbd0c8;border-radius:13px}
+.participant-task-navigation .participant-return{background:#fffdf8;color:#164f43;border:1px solid #b1c6bf;padding:9px 13px;border-radius:999px;font-weight:750;cursor:pointer;min-height:40px}
+.participant-task-navigation .participant-return:hover{border-color:#16624d}
+.participant-task-navigation .participant-phase-focus{font-size:13px;font-weight:800;color:#284b42}
+.participant-task-navigation .participant-all-phases{border:0;background:none;color:#155b48;text-decoration:underline;font-weight:700;cursor:pointer;padding:8px}
+.participant-optional-info{border-radius:13px;border:1px solid #c3d5e4;background:#f3f8fb;padding:12px 14px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.participant-optional-info strong{color:#294f6b}
+.participant-optional-info p{margin:3px 0 0;font-size:12px;color:#3c5a6a}
+.participant-optional-info button{border:1px solid #a3bfd2;background:white;border-radius:999px;padding:9px 13px;color:#244f68;font-weight:750;cursor:pointer}
+.participant-task-empty{font-weight:650;padding:18px 10px;color:#4c6366}
+@media(max-width:740px){
+ .participant-task-row{grid-template-columns:22px minmax(0,1fr)!important}
+ .participant-task-row .task-meta{grid-column:2;justify-content:flex-start}
+ .participant-phase-step{padding:11px;gap:7px;min-height:66px}
+ .participant-phase-step .participant-phase-meta{max-width:52%}
+ .participant-phase-step .participant-phase-name{font-size:18px}
+ .participant-phase-step .participant-phase-badge{font-size:10px}
+ .participant-task-navigation{align-items:stretch}
+ .participant-milestone{padding:15px}
+ .participant-milestone-actions .link-btn{width:100%;justify-content:center}
+}
+@media(prefers-reduced-motion:reduce){.participant-phase-step,.participant-task-row{transition:none!important}}
