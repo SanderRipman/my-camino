@@ -14,7 +14,7 @@ function render(){
   label='Åpne mine oppgaver';text='Arbeid fra tildelte oppgaver og gjeldende deltaker-/pilotscope. Flere fagroller gir ikke automatisk bredere innsyn.';view='tasks';
  } else{
   const stage=stageValue(person);
-  if(['VIA','READY_FOR_GO','INTEREST','NEW_VIA'].includes(stage)){label='Fortsett mitt VÍA-veikart';text='Retning, ressurser og forberedelser. Beslutning om GO/NO-GO tas separat.';href='./form-runner.html?key=via_roadmap&participant='+encodeURIComponent(person.id)}
+  if(['VIA','READY_FOR_GO','INTEREST','NEW_VIA'].includes(stage)){label='Fortsett mitt VÍA-veikart';text='Retning, ressurser og forberedelser. Beslutning om GO/NO-GO tas separat.';href='./form-runner.html#my-via-roadmap'}
   else if(['GO','GO_WITH_CONDITIONS'].includes(stage)){label='Les og bekreft avtalen';text='Vilkår og sikkerhet må være avklart før SER.';href='./form-runner.html?key=participant_agreement&participant='+encodeURIComponent(person.id)}
   else if(stage==='SER'){label='Gå til dagens innsjekk';text='Kort daglig egenrapport. Den nye femspørsmålsutgaven er foreløpig syntetisk UAT uten lagring.';view='checkin'}
   else if(stage==='VIDA'){label='Se min VIDA-plan';text='Én levende handlingsplan med navngitt oppfølging.';href='./form-runner.html?key=vida_plan&participant='+encodeURIComponent(person.id)}
