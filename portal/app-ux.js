@@ -125,7 +125,7 @@ function installDrilldowns(){
   makeCardInteractive(document.querySelector('#metricOpen')?.closest('.metric'),'Åpne alle oppgaver',()=>openTaskFocus('ALL'));
   makeCardInteractive(document.querySelector('#metricRed')?.closest('.metric'),'Åpne kritiske og forfalte oppgaver',()=>openTaskFocus('RED'));
   makeCardInteractive(document.querySelector('#metricYellow')?.closest('.metric'),'Åpne oppgaver som trenger avklaring',()=>openTaskFocus('YELLOW'));
-  makeCardInteractive(document.querySelector('#metricParticipants')?.closest('.metric'),'Åpne aktive deltakere',()=>show('participants'));
+  makeCardInteractive(document.querySelector('#metricParticipants')?.closest('.metric'),isStaff()?'Åpne aktive deltakere':'Se frivillig informasjon og skjemaer',()=>show(isStaff()?'participants':'forms'));
 }
 
 function logicalGateFor(p){

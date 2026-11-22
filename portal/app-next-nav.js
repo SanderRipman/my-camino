@@ -17,9 +17,12 @@ try{updateMobileAttention=()=>{}}catch{}
 let metricRefreshToken=0;
 async function renderConsistentParticipantMetric(){
   const token=++metricRefreshToken;
+  // The fourth participant KPI is optional information, not all active participants.
+  // Never let a staff-specific async count overwrite that participant KPI.
+  if(typeof isStaff==='function'&&!isStaff())return;
   try{
     const {data,error}=await client.from('participants').select('stage').eq('active',true);
-    if(error||token!==metricRefreshToken||!Array.isArray(data))return;
+    if(error||token!==metricRefreshToken||!Array.isArray(data)||(typeof isStaff==='function'&&!isStaff()))return;
     const buckets={via:0,ser:0,vida:0};
     for(const p of data){
       const raw=String(p?.stage||'').toUpperCase();
