@@ -99,4 +99,13 @@ const privilegedWrite=reviewTaskCommand.indexOf('.update({assignee_user_id:targe
 assert(beforeWrite>=0&&privilegedWrite>beforeWrite,'Audit intent must precede privileged assignment');
 assert(!reviewTaskCommand.includes("admin.from('role_grants').insert("),'Task assignment must not grant a new role');
 assert(!reviewTaskCommand.includes("status:'DONE'"),'Review reassignment must not complete or approve the task');
+for(const unchanged of [
+ "if(action==='CONTEXT')",
+ "event_type:'TASK_DECISION_NOTE'",
+ "error:'DECISION_NOTE_REQUIRED'",
+ "error:'INVALID_ACTION'",
+ "error:'STALE_TASK'",
+ "'INCIDENT_FOLLOWUP'",
+ "task:{id:task.id,title:task.title,description:task.description,severity:task.severity,status:task.status}"
+])assert(reviewTaskCommand.includes(unchanged),'Shared deployed task-command live behavior must survive UAT 3R: '+unchanged);
 console.log('UAT 3Q audited scope-checked VÍA review reassignment invariants passed');
