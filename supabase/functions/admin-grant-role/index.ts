@@ -8,7 +8,7 @@ function decodeClaims(token:string){const p=token.split('.')[1];if(!p)return{};c
 // Independent staff-review grants may have the same role in different, non-overlapping contexts.
 function hasActiveScopeConflict(grants,participantId,pilotId,now){
   return (grants??[]).some(g=>{
-    if(g.revoked_at||(g.valid_until&&g.valid_until<=now))return false
+    if(g.revoked_at||(g.valid_until&&new Date(g.valid_until).getTime()<=new Date(now).getTime()))return false
     const oldParticipant=g.participant_id??null,oldPilot=g.pilot_id??null
     return (oldParticipant===null||participantId===null||oldParticipant===participantId)
       &&(oldPilot===null||pilotId===null||oldPilot===pilotId)
@@ -70,7 +70,7 @@ Deno.serve(async(req:Request)=>{
       .eq('organization_id',org.id).eq('user_id',targetUserId).eq('role_code',roleCode)
     if(existingError)throw existingError
     if(hasActiveScopeConflict(existing,participantId,pilotId,now))
-      return new Response(JSON.stringify({error:'ACTIVE_GRANT_EXISTS_IN_OVERLAPPING_SCOPE'}),{status:409,headers})
+      return new Response(JSON.stringify({error:'ACTIVE_GRANT_EXISTS'}),{status:409,headers})
 
     const {data,error}=await admin.from('role_grants').insert({organization_id:org.id,user_id:targetUserId,role_code:roleCode,participant_id:participantId,pilot_id:pilotId,reason,valid_until:validUntil,granted_by:userData.user.id}).select('id,role_code,participant_id,pilot_id,valid_until').single()
     if(error)throw error
