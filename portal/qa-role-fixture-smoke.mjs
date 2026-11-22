@@ -37,7 +37,8 @@ const adminGrant=read('../supabase/functions/admin-grant-role/index.ts');
 const scopeFnStart=adminGrant.indexOf('function hasActiveScopeConflict(');
 const scopeFnEnd=adminGrant.indexOf('\n}',scopeFnStart)+2;
 assert(scopeFnStart>=0&&scopeFnEnd>scopeFnStart,'Admin grants must be scope-aware');
-const hasActiveScopeConflict=vm.runInNewContext('('+adminGrant.slice(scopeFnStart,scopeFnEnd)+')');
+const pureHelper=adminGrant.slice(scopeFnStart,scopeFnEnd).replace('grants:ScopeGrant[]|null,participantId:string|null,pilotId:string|null,now:string','grants,participantId,pilotId,now');
+const hasActiveScopeConflict=vm.runInNewContext('('+pureHelper+')');
 const now='2026-11-22T20:00:00Z',future='2026-12-07T20:00:00Z',past='2026-11-20T20:00:00Z';
 const grant=(participant_id,pilot_id,extra={})=>({participant_id,pilot_id,valid_until:future,revoked_at:null,...extra});
 const scenarios=[
