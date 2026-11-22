@@ -21,7 +21,7 @@ must(runner.includes('const TARGETED_CONTEXT=')&&runner.includes('if(!TARGETED_C
 must(runner.includes('if(TARGETED_CONTEXT)return'),'auth reinit must leave targeted routes under one bootstrap owner');
 
 must(runnerHtml.includes('form-runner-task-fastpath.js?v=20260913a'),'targeted form routes must load the current bounded bootstrap');
-must(runnerHtml.includes('form-runner.js?v=20260913a'),'targeted race fix must be cache-busted in the base runtime');
+must(runnerHtml.includes('form-runner.js?v=20261122c'),'targeted race fix must be cache-busted in the base runtime');
 must(taskFast.includes("client.functions.invoke('case-command'"),'staff targeted participant bootstrap must use server-side participant context instead of broad participant reads');
 must(taskFast.includes("action:'LIST_CONTEXT'"),'staff targeted participant bootstrap must resolve the exact requested participant context');
 must(taskFast.includes("requestedPilot=q.get('pilot')")&&taskFast.includes('if(!requestedParticipant&&requestedPilot)'),'pilot-level forms must have an exact targeted bootstrap and not depend on participant context');
