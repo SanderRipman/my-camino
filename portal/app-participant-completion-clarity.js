@@ -5,8 +5,7 @@ function ownCompletedTask(task){
   const self=typeof ownParticipant==='function'?ownParticipant():null;
   return !isStaff()&&!!self&&!!task&&task.status==='DONE'
     &&task.participant_id===self.id
-    &&task.assignee_user_id===session?.user?.id
-    &&(task.audience==='PARTICIPANT'||task.audience==='BOTH');
+    &&task.assignee_user_id===session?.user?.id;
 }
 function submittedViaForParticipant(person){
   return !isStaff()&&!!person&&typeof window.aidmeParticipantViaAwaitingReview==='function'
