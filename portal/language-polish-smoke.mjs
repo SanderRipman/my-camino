@@ -32,7 +32,10 @@ has(admin,'systemadministratorrolle (<code>system_admin</code>)');
 lacks(admin,'Ingen skjult adminmakt i nettleseren');
 
 // Onboarding: next action is explained from the user's perspective.
-has(welcome,'Etterpå viser vi neste steg ut fra om du er deltaker eller har en arbeidsrolle.');
+has(welcome,'Her gjør du profilen din klar. Etterpå viser vi deg dine neste steg.');
+has(welcome,'Fødselsår (valgfritt)');
+lacks(welcome,'arbeidsflaten din');
+lacks(welcome,'AidMe VIDA');
 has(welcome,'Etter at profilen er lagret, viser vi neste steg');
 
 // Ownership: do not hide the non-negotiable named VIDA-owner requirement behind internal gate/scope jargon.
