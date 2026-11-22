@@ -69,3 +69,4 @@
  .participant-milestone-actions .link-btn{width:100%;justify-content:center}
 }
 @media(prefers-reduced-motion:reduce){.participant-phase-step,.participant-task-row{transition:none!important}}
+#taskList .participant-phase-hidden{display:none!important}
