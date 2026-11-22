@@ -27,4 +27,33 @@ ok(!/(?:fetch\s*\(|localStorage|sessionStorage|indexedDB|XMLHttpRequest|sendBeac
 ok(!/(?:fetch\s*\(|localStorage|sessionStorage|XMLHttpRequest|supabase\.)/.test(js),'Presentation script must not touch auth/data');
 new Script(js,{filename:'analysis-hub-uat.js'});
 for(const [name,source] of [['report',report],['guide',guide]]){const scripts=[...source.matchAll(/<script>([\s\S]*?)<\/script>/g)];ok(scripts.length===1,'Expected a single '+name+' script');new Script(scripts[0][1],{filename:name+'.js'})}
+
+const participantJs=read('app-participant.js');
+for(const invariant of [
+ "if(name==='analysis'&&!isStaff())",
+ "analysisNav.classList.add('hidden')",
+ "analysisView.classList.remove('active')",
+ "analysisView.classList.add('hidden')",
+ "chart.classList.add('hidden')",
+ "syntheticFrame.setAttribute('src','about:blank')",
+ "if(!isStaff()){\n    analysisSelected.clear()"
+])ok(participantJs.includes(invariant),'P0 participant analysis isolation missing: '+invariant);
+const gateStart=participantJs.indexOf('const staffRenderAnalysis=renderAnalysis;');
+const gateEnd=participantJs.indexOf('\nfunction adaptParticipantChrome()',gateStart);
+ok(gateStart>0&&gateEnd>gateStart,'Privacy wrappers must exist before rendering participant chrome');
+let activeStaff=false,rendered=0,shown=null,cleared=0,overview=0;
+const selected=new Set(['OTHER_PARTICIPANT']);
+const stubCanvas={width:200,height:100,getContext:()=>({clearRect:()=>{cleared++}})};
+const ctx={
+ renderAnalysis:()=>{rendered++},renderOverviewChart:()=>{overview++},
+ show:(v)=>{shown=v},isStaff:()=>activeStaff,analysisSelected:selected,
+ $:(selector)=>({'#analysisChart':stubCanvas,'#overviewChart':stubCanvas,
+ '#analysisParticipants':{replaceChildren:()=>{}},'#overviewLegend':{replaceChildren:()=>{}}})[selector]||null
+};
+new Script(participantJs.slice(gateStart,gateEnd),{filename:'privacy-gates.js'}).runInNewContext(ctx);
+ctx.renderAnalysis();ctx.renderOverviewChart();ctx.show('analysis');
+ok(rendered===0&&overview===0&&shown==='overview'&&selected.size===0&&cleared===2,
+ 'Participant must never render any individual/group series or enter analysis');
+activeStaff=true;ctx.renderAnalysis();ctx.renderOverviewChart();ctx.show('analysis');
+ok(rendered===1&&overview===1&&shown==='analysis','Staff analysis functionality must remain available');
 console.log('Analysis integrated navigation + sandbox + synthetic UAT smoke: PASS');
