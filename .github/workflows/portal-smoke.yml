@@ -112,6 +112,8 @@ jobs:
         run: node portal/via-handoff-smoke.mjs
       - name: Verify UAT participant completion clarity and optional navigation
         run: node portal/participant-completion-clarity-smoke.mjs
+      - name: Verify UAT 3M participant timeline, history navigation and staff boundary
+        run: node portal/participant-phase-timeline-smoke.mjs
       - name: Verify GO decision and pre-SER journey invariants
         run: node portal/go-decision-journey-smoke.mjs
       - name: Verify pre-SER participant agreement/readiness v2 invariants

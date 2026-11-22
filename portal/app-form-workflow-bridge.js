@@ -32,6 +32,8 @@ function actionForTask(t,p){
   return null;
 }
 function addTaskBridge(id){
+  // Participant navigation already owns its own safe form hash links. Never append staff-oriented query links to participant dialogs.
+  if(!isStaff())return;
   const t=taskById(id),p=participantFor(t),body=document.querySelector('#taskDialogBody');if(!t||!p||!body)return;
   const action=actionForTask(t,p);if(!action)return;
   if(body.querySelector(`a[href*="form-runner.html?key=${CSS.escape(action.key)}"]`))return;
@@ -54,11 +56,15 @@ function participantActions(p){
 }
 function renderParticipantBridge(){
   document.querySelectorAll('[data-participant-form-bridge]').forEach(el=>el.remove());
+  // This redundant staff workflow module was regenerated asynchronously after participant completion UI removed it.
+  if(!isStaff())return;
   let p=null;try{p=isStaff()?participantById(selectedParticipantId):ownParticipant()}catch{}if(!p)return;
   const host=document.querySelector('#participantDetail');if(!host)return;const actions=participantActions(p);if(!actions.length)return;
   const box=document.createElement('section');box.dataset.participantFormBridge='1';box.className='panel-card';box.innerHTML=`<div class="card-head"><div><p class="eyebrow">Arbeidsflyt</p><h3>Skjema og neste handling</h3></div></div><p class="privacy-note">Åpne skjema herfra eller fra en oppgave. Da følger deltakerkonteksten med, og etter fullføring går du tilbake til riktig arbeidssteg.</p><div class="form-actions">${actions.map(a=>`<a class="ghost" href="${returnFormHref(a.key,p,null)}" title="${esc(a.hint)}">${esc(a.label)}</a>`).join('')}</div>`;host.appendChild(box);
 }
 function polishFormLibrary(){
+  // Participant library is an optional resource, not a duplicate staff workflow.
+  if(!isStaff())return;
   const view=document.querySelector('#view-forms'),head=view?.querySelector('.section-head');if(!view||!head||view.querySelector('[data-form-workflow-note]'))return;
   const note=document.createElement('article');note.dataset.formWorkflowNote='1';note.className='preview-strip';note.innerHTML='<strong>Arbeidsflyt først.</strong> Skjemaene er arbeidssteg i samme deltakerreise – ikke et separat dokumentbibliotek. Start helst fra <b>Deltakere</b> eller <b>Oppgaver</b>; da følger deltaker, fase og returpunkt automatisk med.';head.insertAdjacentElement('afterend',note);
 }

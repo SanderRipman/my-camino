@@ -28,6 +28,7 @@ const demoLensPath=path.join(dir,'app-demo-lens.js');
 const mfaBrandingPath=path.join(dir,'app-mfa-branding.js');
 const accessStatePath=path.join(dir,'app-access-state.js');
 const participantCompletionClarityPath=path.join(dir,'app-participant-completion-clarity.js');
+const participantPhaseTimelinePath=path.join(dir,'app-participant-phase-timeline.js');
 const outPath=path.join(dir,'app.js');
 let code=fs.readFileSync(sourcePath,'utf8');
 const ops=fs.readFileSync(opsPath,'utf8');
@@ -54,6 +55,7 @@ const demoLens=fs.readFileSync(demoLensPath,'utf8');
 const mfaBranding=fs.readFileSync(mfaBrandingPath,'utf8');
 const accessState=fs.readFileSync(accessStatePath,'utf8');
 const participantCompletionClarity=fs.readFileSync(participantCompletionClarityPath,'utf8');
+const participantPhaseTimeline=fs.readFileSync(participantPhaseTimelinePath,'utf8');
 
 function replaceOnce(label,needle,replacement){
  const first=code.indexOf(needle);if(first<0)throw new Error(`${label}: source pattern missing`);if(code.indexOf(needle,first+1)>=0)throw new Error(`${label}: source pattern is not unique`);code=code.replace(needle,replacement);
@@ -62,6 +64,11 @@ function replaceOnce(label,needle,replacement){
 replaceOnce('task sort',
  "const ordered=[...open].sort((a,b)=>({RED:0,YELLOW:1,GREEN:2}[severity(a)]-({RED:0,YELLOW:1,GREEN:2}[severity(b)])||new Date(a.due_at||'2999')-new Date(b.due_at||'2999'));",
  "const rank={RED:0,YELLOW:1,GREEN:2};const ordered=[...open].sort((a,b)=>(rank[severity(a)]-rank[severity(b)])||(new Date(a.due_at||'2999')-new Date(b.due_at||'2999')));"
+);
+
+replaceOnce('participant task ownership',
+ "const visible=staff?tasks:tasks.filter(t=>t.assignee_user_id===uid||(own&&t.participant_id===own.id));",
+ "const visible=staff?tasks:tasks.filter(t=>t.assignee_user_id===uid&&(!t.participant_id||(own&&t.participant_id===own.id)));"
 );
 
 replaceOnce('navigation priority counts',
@@ -115,6 +122,7 @@ code += '\n\n/* Return context preserves task -> form gate -> same task continui
 code += '\n\n/* Demo role lenses simplify testing presentation only; actual access remains grants/RLS/AAL2 and LAB owns physical role proof. */\n'+demoLens+'\n';
 code += '\n\n/* TOTP branding is presentation metadata only: stable AidMe issuer/friendly name, no auth/RLS bypass. */\n'+mfaBranding+'\n';
 code += '\n\n/* Revoked/expired staff sessions fail closed instead of falling back to participant presentation. */\n'+accessState+'\n';
-code += '\n\n/* Participant task completion clarity is final: presentation only, no staff/auth/DB changes. */\n'+participantCompletionClarity+'\n';
+code += '\n\n/* Participant task completion clarity: read-only completion copy. */\n'+participantCompletionClarity+'\n';
+code += '\n\n/* Participant phase task history is the final participant presentation layer. */\n'+participantPhaseTimeline+'\n';
 fs.writeFileSync(outPath,code,'utf8');
 console.log(`Built ${path.relative(process.cwd(),outPath)} (${code.length} bytes)`);

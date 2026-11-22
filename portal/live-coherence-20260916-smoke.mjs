@@ -42,7 +42,7 @@ ok(!access.includes("safeDemo.src='./app-demo-showcase-safe.js"),'Polling showca
 ok(!access.includes("finalDemo.src='./app-demo-final-stabilizer.js"),'P0 final stabilizer must remain disabled after loader freeze');
 ok(access.includes('app-mobile-swipe-finalize.js?v=20260925a'),'Current mobile swipe finalizer cache key is not loaded');
 ok(access.includes('app-intake-task-link.js?v=20260924b'),'Intake task routing layer must use the showcase cache key');
-ok(access.includes('app-form-workflow-bridge.js?v=20260925a'),'Participant/task to form workflow bridge must be loaded');
+ok(access.includes('app-form-workflow-bridge.js?v=20261122b'),'Current staff-only workflow bridge must load with cache-busted participant-safe source');
 
 ok(roster.includes("assurance?.currentLevel==='aal2'")&&roster.includes("hasRole('system_admin')"),'UAT roster must require AAL2 + system_admin');
 ok(roster.includes('synthetic_filter_enforced'),'Client must reject a UAT snapshot without server-side synthetic filtering proof');
