@@ -73,7 +73,7 @@ jobs:
           test "$(git hash-object "$ROOT/post-cutover-live.js")" = 'feb494f23f96c1955e841d97d3d764536bf0fa73'
           test "$(git hash-object "$ROOT/mobile-ux.css")" = '9512227a22ba281f94644887c5e723bedb8b02dd'
           test "$(git hash-object "$ROOT/kontakt.html")" = '679218b23c2913014b8480994fb0b376ad07d14c'
-          test "$(git hash-object "$ROOT/contact-polish-20260902.js")" = '7a38d8e87d52e400fa4ed237beecaca659656089'
+          test "$(git hash-object "$ROOT/contact-polish-20260902.js")" = '5915ccf51c0d454d58b8cd1964986e3ff39c3abf'
 
           python - <<'PY'
           from pathlib import Path
