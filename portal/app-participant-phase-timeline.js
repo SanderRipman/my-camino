@@ -79,7 +79,7 @@ taskRow=function(task){
     +'<span class="participant-task-icon" aria-hidden="true">'+(done?'✓':status==='IN_PROGRESS'?'•':'○')+'</span>'
     +'<span class="participant-task-copy"><b>'+escapeHtml(task.title)+'</b><small>'+escapeHtml(description)+'</small></span>'
     +'<span class="task-meta"><span class="participant-status-pill '+style+'">'+name+'</span>'
-    +(date?'<span class="participant-task-date">'+escapeHtml(datePrefix+date)+'</span>':'')
+    +(date?'<span class="participant-task-date-pill '+(done?'is-completed':overdue?'is-overdue':'')+'" title="'+escapeHtml(datePrefix+date)+'" aria-label="'+escapeHtml(datePrefix+date)+'">'+escapeHtml(date)+'</span>':'')
     +'<span class="participant-phase-pill">'+escapeHtml(phase)+'</span></span></button>';
 };
 function ensureReturnNavigation(){
@@ -206,7 +206,7 @@ function showPhaseNotYet(index,origin){
   if(existing?.classList.contains('participant-phase-message'))existing.remove();
   const note=document.createElement('p');note.className='participant-phase-message';note.setAttribute('role','status');note.setAttribute('aria-live','polite');
   const message=index===3?'Ny VÍA startes bare ved et nytt, avtalt veivalg etter VIDA.':'Dette steget åpnes senere, når de nødvendige avklaringene og beslutningene er gjennomført.';
-  note.textContent=PHASE_LABELS[index]+': '+message;
+  note.innerHTML='<strong>Ikke åpnet ennå · '+escapeHtml(PHASE_LABELS[index])+'</strong><span>'+escapeHtml(message)+'</span>';
   host.insertAdjacentElement('afterend',note);
 }
 function enterPhaseTasks(index,origin){

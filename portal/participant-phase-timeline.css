@@ -30,7 +30,7 @@
 #journeyMini .participant-phase-name{font-size:17px}
 #journeyMini .participant-phase-meta{gap:5px}
 #journeyMini .participant-phase-badge{font-size:10px;padding:5px 8px}
-.participant-phase-message{margin:8px 0 4px;padding:11px 14px;background:#f3f1eb;color:#3f5056;border-left:3px solid #b59c6e;border-radius:10px;font-weight:600;font-size:13px}
+.participant-phase-message{margin:10px 0 6px;padding:15px 17px;background:#fbece8;color:#783c35;border:1px solid #e1afa5;border-left:5px solid #b8564d;border-radius:12px;font-size:14px;line-height:1.5;box-shadow:0 1px 3px rgba(99,50,42,.06)}.participant-phase-message strong{display:block;color:#7b2c27;font-weight:850;margin-bottom:3px}.participant-phase-message span{display:block;font-weight:650}
 .participant-task-row{grid-template-columns:22px minmax(0,1fr) auto!important;gap:12px;align-items:center!important;padding:15px 11px!important;margin:2px 0;border:1px solid #e5e0d6!important;border-radius:13px;cursor:pointer;background:#fffdf9!important}
 .participant-task-row:hover{background:#f6f8f5!important;border-color:#adc4b6!important}
 .participant-task-row .participant-task-icon{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:900;background:#f5ebcf;color:#8b651e}
@@ -46,7 +46,7 @@
 .participant-task-row .participant-status-pill.is-waiting{background:#e5eaf0;color:#3a5267;border-color:#b7c6d4}
 .participant-task-row .participant-status-pill.is-overdue{background:#f4d8d4;color:#812c2b;border-color:#da9d92}
 .participant-task-row .participant-phase-pill{background:#f8f5eb;color:#5b4c2d;border-color:#d3c29b}
-.participant-task-row .participant-task-date{font-size:10px;color:#56646b;white-space:nowrap}
+.participant-task-row .participant-task-date-pill{display:inline-flex;align-items:center;justify-content:center;padding:6px 9px;border-radius:999px;background:#f0efec;border:1px solid #d2d0ca;color:#4c565b;font-size:11px;font-weight:800;line-height:1.15;white-space:nowrap}.participant-task-row .participant-task-date-pill.is-completed{background:#dcefe1;border-color:#9bc7aa;color:#1b5e38}.participant-task-row .participant-task-date-pill.is-overdue{background:#f6dfda;border-color:#deaea4;color:#843a31}
 .participant-task-navigation{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:0 0 14px;padding:11px 13px;background:#eff4f2;border:1px solid #bbd0c8;border-radius:13px}
 .participant-task-navigation .participant-return{background:#fffdf8;color:#164f43;border:1px solid #b1c6bf;padding:9px 13px;border-radius:999px;font-weight:750;cursor:pointer;min-height:40px}
 .participant-task-navigation .participant-return:hover{border-color:#16624d}
