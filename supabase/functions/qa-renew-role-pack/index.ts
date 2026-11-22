@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
-const allowedOrigins=new Set(['https://my.aidme.no','https://main--mycamino.netlify.app','http://localhost:8888','http://localhost:3000'])
+const allowedOrigins=new Set(['https://demo.aidme.no','https://my.aidme.no','https://main--mycamino.netlify.app','http://localhost:8888','http://localhost:3000'])
 const QA_REASON='SYNTHETIC_QA_ROLE_PACK'
 const WEEK_MS=7*24*60*60*1000
 
