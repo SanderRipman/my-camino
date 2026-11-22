@@ -34,6 +34,7 @@ ok(form.includes("client.functions.invoke('form-command'"),'Form save must conti
 ok(form.includes("returnQuery.get('returnTask')")&&form.includes('Tilbake til oppgaven og se oppdatert status'),'Form runner must expose explicit return to the originating task');
 ok(form.includes("return{href:'./',label:'Til Oversikt'}"),'Completed staff forms without return context must go back to Overview');
 ok(form.includes('showCompletionState(submission)')&&form.includes('Skjemaet er lagret')&&form.includes('Se fullført'),'Successful submission must enter an explicit completion state');
+ok(form.includes('return`${url.pathname}${url.search}${url.hash}`;'),'Completed form review link must preserve its owner-only hash context, otherwise the form runner falls back to an unrelated blank form');
 ok(form.includes('submitted-locked')&&form.includes("querySelectorAll('input,select,textarea,button')"),'Submitted form must be visibly locked against further editing');
 ok(css.includes('.form-completion-backdrop')&&css.includes('.form-completion-dialog'),'Completion state must use the standard styled dialog surface');
 ok(!form.includes("client.from('form_submissions').insert")&&!form.includes("client.from('form_submissions').update"),'Command client must not add a direct form_submissions write fallback');
