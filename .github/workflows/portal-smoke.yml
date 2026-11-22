@@ -90,6 +90,8 @@ jobs:
         run: node portal/measurement-comparison-preview-smoke.mjs
       - name: Verify integrated Analysis tabs and safe UAT
         run: node portal/analysis-hub-uat-smoke.mjs
+      - name: Verify scoped Gmail VÍA staff handoff without a duplicate review
+        run: node portal/admin-via-gmail-handoff-uat-smoke.mjs
       - name: Build clean portal bundle
         run: node portal/build-app.mjs
       - name: Check built app syntax
