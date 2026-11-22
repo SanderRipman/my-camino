@@ -17,7 +17,7 @@ assert(runner.includes('const s=new Set(ownParticipant()?participantAllowedKeys(
 assert(runner.includes('if(!currentVersion||!contextOk())return'),'Save must be blocked for out-of-scope context');
 assert(runner.includes("client.from('form_submissions')"),'Original versioned form submissions preserved');
 assert(portal.includes('id="participantNextNow"')&&portal.includes('participant-next-now-uat.js'),'Direct participant home action missing');
-assert(shortcut.includes("encodeURIComponent(person.id)")&&shortcut.includes('key=via_roadmap'),'Next VÍA action must retain participant context');
+assert(shortcut.includes("href='./form-runner.html#my-via-roadmap'")&&runner.includes("participant=selfVia?ownParticipant().id:q.get('participant')"),'Next VÍA action must derive participant identity from authenticated own journey');
 assert(shortcut.includes('view=\'checkin\''),'SER must point to existing check-in');
 assert(!/(?:fetch\s*\(|localStorage|sessionStorage|indexedDB|XMLHttpRequest|sendBeacon|supabase\.from)/.test(shortcut),'New quick entry must never read/write health data');
 console.log('UAT role/menu/form startup and read-only shortcut smoke: PASS');
