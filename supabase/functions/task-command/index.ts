@@ -36,7 +36,38 @@ Deno.serve(async(req:Request)=>{
 
   const body=await req.json().catch(()=>({}))
   const action=String(body?.action??'STATUS').trim().toUpperCase()
-  const taskId=String(body?.taskId??'').trim()
+  let taskId=String(body?.taskId??'').trim()
+  const requestedParticipantId=String(body?.participantId??'').trim()
+  // Administrative handoff by participant is narrow: it only resolves one OPEN VÍA review,
+  // requires a current, unscoped administrator grant in the same organization, and never
+  // exposes the participant's submitted form to the administrator.
+  if(action==='REASSIGN_VIA_REVIEW'&&!taskId){
+    if(!uuidPattern.test(requestedParticipantId))
+      return new Response(JSON.stringify({error:'INVALID_INPUT'}),{status:400,headers})
+    const {data:adminGrants,error:age}=await admin.from('role_grants')
+      .select('role_code,organization_id,participant_id,pilot_id,valid_from,valid_until,revoked_at')
+      .eq('user_id',userData.user.id).eq('role_code','system_admin')
+      .is('participant_id',null).is('pilot_id',null)
+    if(age)throw age
+    const now=new Date().toISOString()
+    const currentAdminGrants=(adminGrants??[]).filter((g:any)=>
+      !g.revoked_at&&(!g.valid_from||g.valid_from<=now)&&(!g.valid_until||g.valid_until>now))
+    if(!currentAdminGrants.length)return new Response(JSON.stringify({error:'FORBIDDEN'}),{status:403,headers})
+    const {data:participant,error:pe}=await admin.from('participants')
+      .select('id,organization_id').eq('id',requestedParticipantId).maybeSingle()
+    if(pe)throw pe
+    if(!participant)return new Response(JSON.stringify({error:'PARTICIPANT_NOT_FOUND'}),{status:404,headers})
+    if(!currentAdminGrants.some((g:any)=>g.organization_id===participant.organization_id))
+      return new Response(JSON.stringify({error:'FORBIDDEN'}),{status:403,headers})
+    const {data:reviewTasks,error:re}=await admin.from('tasks')
+      .select('id').eq('organization_id',participant.organization_id)
+      .eq('participant_id',participant.id).eq('workflow_key','via_go_review')
+      .eq('audience','STAFF').eq('status','OPEN').limit(2)
+    if(re)throw re
+    if((reviewTasks??[]).length!==1)
+      return new Response(JSON.stringify({error:'EXPECTED_ONE_OPEN_VIA_REVIEW',count:(reviewTasks??[]).length}),{status:409,headers})
+    taskId=reviewTasks[0].id
+  }
   if(!taskId)return new Response(JSON.stringify({error:'INVALID_INPUT'}),{status:400,headers})
 
   const {data:task,error:taskError}=await admin.from('tasks').select('id,organization_id,participant_id,pilot_id,status,assignee_user_id,title,description,severity,priority,task_type,workflow_key,audience,updated_at').eq('id',taskId).maybeSingle()
@@ -58,7 +89,12 @@ Deno.serve(async(req:Request)=>{
    const {data:callerPermissions,error:cpe}=await admin.from('role_permissions')
      .select('role_code').in('role_code',callerRoles).eq('capability','manage_tasks');
    if(cpe)throw cpe;
-   if(!(callerPermissions??[]).length)return new Response(JSON.stringify({error:'FORBIDDEN'}),{status:403,headers});
+   // A system administrator may route a review, but cannot read the VÍA answers
+   // or act as its clinical reviewer. All existing task status/GO gates remain separate.
+   const unscopedAdmin=(callerGrants??[]).some((g:any)=>
+     g.role_code==='system_admin'&&!g.participant_id&&!g.pilot_id&&activeReviewGrant(g,task,now))
+   if(!(callerPermissions??[]).length&&!unscopedAdmin)
+     return new Response(JSON.stringify({error:'FORBIDDEN'}),{status:403,headers});
    const {data:targetGrants,error:tge}=await admin.from('role_grants')
      .select('role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at')
      .eq('organization_id',task.organization_id).eq('user_id',targetUserId)
