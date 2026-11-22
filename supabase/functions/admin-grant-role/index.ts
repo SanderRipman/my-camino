@@ -6,7 +6,8 @@ function cors(req: Request){const o=req.headers.get('origin')??'';return {'Acces
 function decodeClaims(token:string){const p=token.split('.')[1];if(!p)return{};const n=p.replace(/-/g,'+').replace(/_/g,'/');return JSON.parse(atob(n+'='.repeat((4-n.length%4)%4)))}
 
 // Independent staff-review grants may have the same role in different, non-overlapping contexts.
-function hasActiveScopeConflict(grants,participantId,pilotId,now){
+type ScopeGrant={participant_id:string|null;pilot_id:string|null;valid_until:string|null;revoked_at:string|null}
+function hasActiveScopeConflict(grants:ScopeGrant[]|null,participantId:string|null,pilotId:string|null,now:string){
   return (grants??[]).some(g=>{
     if(g.revoked_at||(g.valid_until&&new Date(g.valid_until).getTime()<=new Date(now).getTime()))return false
     const oldParticipant=g.participant_id??null,oldPilot=g.pilot_id??null
