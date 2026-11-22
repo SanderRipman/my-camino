@@ -25,7 +25,7 @@ check(update.includes("action:'ROLE_UPDATED'")&&update.includes("auditLogged:!au
 const testStart=js.indexOf('const active=x=>'),testEnd=js.indexOf('function render(){',testStart);
 check(testStart>=0&&testEnd>testStart,'Standalone eligibility helpers missing');
 const ctx={Date,document:{querySelector:()=>null},setTimeout:()=>{},console};
-new Script(js.slice(testStart,testEnd)+'\nthis.pick=eligibility;', {filename:'eligibility.js'}).runInNewContext(ctx);
+new Script("const EXPECTED_PARTICIPANT='Mina-UAT-01';\n"+js.slice(testStart,testEnd)+'\nthis.pick=eligibility;', {filename:'eligibility.js'}).runInNewContext(ctx);
 const valid={id:'gmail',email:'zanderzeim+via@gmail.com',staff:{active:true},grants:[{id:'global',role_code:'via_owner',participant_id:null,pilot_id:null,revoked_at:null}]};
 const fake={id:'bad',email:'qa-via@example.invalid',staff:{active:true},grants:valid.grants};
 const p={id:'mina',code_name:'Mina-UAT-01'};
