@@ -72,6 +72,21 @@ assert(participantJs.includes("['#priorityQueue','#taskList']"),'Derived partici
 assert(participantJs.includes('participantAttentionSnapshot()'),'Participant open-step count must use the same attention model as navigation');
 assert(participantJs.includes('Info / valgfritt'),'Available supplementary forms must be visibly informational rather than mislabeled as completed green');
 
+// Regression UAT 3L: a submitted roadmap is a staff review, not another participant action.
+const helperSrc=participantJs.match(/function participantViaAwaitingReview\(p\)\{[\s\S]*?\n\}/)?.[0];
+assert(helperSrc,'Completed VÍA helper required');
+const completedVia=new Function('tasks','session',helperSrc+'; return participantViaAwaitingReview;')(
+  [{participant_id:'mina',assignee_user_id:'uid',workflow_key:'participant_via_start',status:'DONE'}],
+  {user:{id:'uid'}}
+);
+assert(completedVia({id:'mina',stage:'VIA'}),'Own completed VÍA must await staff');
+assert(!completedVia({id:'mina',stage:'NEW_VIA'}),'A genuine new VÍA must not inherit an old completion');
+assert(!completedVia({id:'other',stage:'VIA'}),'Other participant must not inherit completion');
+assert(participantJs.includes('if(participantViaAwaitingReview(p))return[]'),'Submitted VÍA must disappear from next-action counts');
+assert(participantJs.includes('VÍA-ansvarlig skal nå gå gjennom det'),'Participant must see staff handoff');
+assert(participantJs.includes('?latest=1#my-via-roadmap'),'Submitted VÍA remains viewable read-only');
+
+
 // Guided VÍA roadmap v2: low-pressure first clarification, historical v1 preserved, VIDA ownership stays staff-owned before SER.
 assert(viaRoadmapV2.includes("where key = 'via_roadmap'"),'VÍA v2 migration must resolve the canonical definition by key');
 assert(viaRoadmapV2.includes('values(def_id,2,desired_schema,now(),null)'),'VÍA v2 must publish a new version instead of mutating v1 in place');
