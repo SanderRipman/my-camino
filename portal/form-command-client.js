@@ -60,7 +60,9 @@ function completionReviewHref(submissionId){
   const url=new URL(location.href);
   url.searchParams.set('submission',submissionId);
   url.searchParams.delete('latest');
-  return`${url.pathname}${url.search}`;
+  // Preserve the owner-only hash route so a submitted VÍA form reopens in its
+  // exact, RLS-scoped read-only review instead of falling back to another form.
+  return`${url.pathname}${url.search}${url.hash}`;
 }
 function completionBackTarget(){
   if(returnTask)return{href:returnTaskHref(),label:'Tilbake til oppgaven'};
