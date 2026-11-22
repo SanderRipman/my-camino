@@ -6,6 +6,7 @@ function assert(ok,msg){if(!ok)throw new Error(msg)}
 const journey=read('./USER_JOURNEY.md');
 const e2e=read('./END_TO_END_ROLE_JOURNEY.md');
 const intakeHtml=read('./intake.html');
+const portalHtml=read('./index.html');
 const intakeJs=read('./intake.js');
 const participantJs=read('./app-participant.js');
 const participantNextJs=read('./app-participant-next.js');
@@ -149,5 +150,14 @@ assert(qaHtml.includes('Systemadministrator')&&qaHtml.includes('Break-glass'),'Q
 assert(crmJs.includes('crm_contacts'),'Mini CRM must use crm_contacts');
 assert(!crmJs.includes("client.from('participants')"),'Mini CRM must not become a participant registry');
 assert(e2e.includes('Mini CRM')&&e2e.includes('parallelt deltakerregister'),'End-to-end journey must document CRM boundary');
+
+
+// UAT 3E: simplify participant security text without weakening MFA or staff scopes.
+assert(portalHtml.includes('id="securityAccessPrinciple"'),'Staff access principle must remain in secure markup');
+assert(portalHtml.includes('id="changePasswordHelp"')&&portalHtml.includes('Bruk minst 12 tegn'),'Password hint must be short and match the existing minimum');
+assert(participantJs.includes("$('#securityAccessPrinciple')?.classList.add('hidden')"),'Only participant chrome may hide the staff access explanation');
+assert(participantJs.includes("$('#view-security .section-head')?.classList.add('hidden')"),'Duplicate participant security heading must be removed');
+assert(participantJs.includes('Bekreft først Authenticator for å lagre det.'),'Do not imply an AAL1 session can change its password under the current app');
+assert(formJs.includes("currentLevel==='aal2'"),'Protected form runner AAL2 boundary must remain');
 
 console.log('Holistic journey/role QA invariants passed');
