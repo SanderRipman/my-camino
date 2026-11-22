@@ -92,6 +92,8 @@ jobs:
         run: node portal/analysis-hub-uat-smoke.mjs
       - name: Verify staff-owned AAL2 VÍA review queue and scope
         run: node portal/via-staff-review-worklist-smoke.mjs
+      - name: Verify future VÍA submissions use scoped review and 7-day SLA
+        run: node portal/via-review-sla-safe-routing-smoke.mjs
       - name: Verify scoped Gmail VÍA staff handoff without a duplicate review
         run: node portal/admin-via-gmail-handoff-uat-smoke.mjs
       - name: Build clean portal bundle
