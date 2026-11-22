@@ -50,7 +50,7 @@ assert(participantJs.includes("if(stage==='GO'||stage==='GO_WITH_CONDITIONS')ret
 assert(participantJs.includes("if(stage==='POSTPONED'||stage==='NO_GO')return new Set()"),'Postponed/NO-GO paths must not expose unrelated forms');
 assert(e2e.includes('| 4. Individuell beslutning')&&e2e.includes('| 5. Før SER'),'End-to-end journey must keep individual decision before agreement/readiness');
 assert(participantJs.includes("$('#dayStatus')?.closest('label')")&&participantJs.includes("classList.add('hidden')"),'Participant must not be asked to set internal RAG day status');
-assert(participantJs.includes("$('#showAverage')")&&participantJs.includes('analysisParticipants')&&participantJs.includes("classList.add('hidden')"),'Participant analysis must not expose staff/group comparison controls');
+assert(participantJs.includes("if(name==='analysis'&&!isStaff())")&&participantJs.includes("analysisNav.classList.add('hidden')")&&participantJs.includes("analysisView.classList.add('hidden')")&&participantJs.includes("analysisSelected.clear()"),'Participant must not open any analytics or group comparison before a separate VIDA self-only security release');
 for(const text of ['Mine åpne steg','Må nå','Neste steg','Info / valgfritt','Din neste handling','Dine steg og skjemaer'])assert(participantJs.includes(text),`Participant-first copy missing: ${text}`);
 assert(!participantJs.includes("'Kritisk'"),'Participant-first layer must not label own tasks with internal critical wording');
 assert(participantJs.includes("if(isStaff())return staffRenderParticipants()"),'Staff participant workspace must remain unchanged by participant-first layer');
