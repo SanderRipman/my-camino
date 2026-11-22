@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import vm from 'node:vm';
 
 function read(path){return fs.readFileSync(new URL(path,import.meta.url),'utf8')}
 function assert(ok,msg){if(!ok)throw new Error(msg)}
@@ -50,3 +51,52 @@ assert(viaHandoff.includes('ikke et automatisk fjerde steg'),'New VÍA handoff m
 assert(build.includes("app-via-handoff.js")&&build.includes("+viaHandoff+'\\n'"),'VÍA handoff layer must be part of the production app bundle');
 
 console.log('VÍA roadmap, review→decision and new-VÍA handoff invariants passed');
+
+const reviewTaskCommand=read('../supabase/functions/task-command/index.ts');
+assert(reviewTaskCommand.includes("action==='REASSIGN_VIA_REVIEW'"),'VÍA review reassignment must be a separately named command');
+for(const required of [
+  "decodeClaims(token).aal!=='aal2'",
+  "task.workflow_key!=='via_go_review'",
+  "task.audience!=='STAFF'",
+  "task.status!=='OPEN'",
+  "capability','manage_tasks'",
+  "['via_owner','clinical_professional']",
+  "capability','edit_via'",
+  "from('staff_profiles')",
+  "error:'TARGET_MISSING_SCOPED_VIA_ROLE'",
+  "error:'TARGET_MISSING_EDIT_VIA'",
+  "error:'TARGET_NOT_ACTIVE_STAFF'",
+  "event_type:'VIA_REVIEW_REASSIGNMENT_REQUESTED'",
+  "event_type:'VIA_REVIEW_REASSIGNED'",
+  ".eq('updated_at',task.updated_at)",
+  "error:'STALE_TASK_REASSIGNMENT'"
+])assert(reviewTaskCommand.includes(required),'Missing VÍA review assignment gate: '+required);
+const helperStart=reviewTaskCommand.indexOf('function activeReviewGrant(');
+const helperEnd=reviewTaskCommand.indexOf('\n}',helperStart)+2;
+assert(helperStart>=0&&helperEnd>helperStart,'Expected active grant scope helper');
+const helperPure=reviewTaskCommand.slice(helperStart,helperEnd)
+  .replace('g:any,task:any,now:string','g,task,now');
+const activeReviewGrant=vm.runInNewContext('('+helperPure+')');
+const scopeTask={participant_id:'MINA',pilot_id:null};
+const qaNow='2026-11-22T20:00:00Z';
+const makeGrant=(participant_id,pilot_id=null,more={})=>({
+ role_code:'via_owner',participant_id,pilot_id,
+ valid_from:'2026-11-01T00:00:00Z',valid_until:'2026-12-07T00:00:00Z',revoked_at:null,...more
+});
+for(const [g,t,want,label] of [
+ [makeGrant('MINA'),scopeTask,true,'correct Mina scope'],
+ [makeGrant('OTHER'),scopeTask,false,'other participant denied'],
+ [makeGrant(null),scopeTask,true,'org-wide scope when explicitly granted'],
+ [makeGrant('MINA','OTHER_PILOT'),scopeTask,false,'different pilot denied'],
+ [makeGrant('MINA',null,{revoked_at:qaNow}),scopeTask,false,'revoked grant denied'],
+ [makeGrant('MINA',null,{valid_until:'2026-11-20T00:00:00Z'}),scopeTask,false,'expired grant denied'],
+ [makeGrant('MINA',null,{valid_from:'2026-12-01T00:00:00Z'}),scopeTask,false,'future grant denied'],
+ ]){
+   assert(activeReviewGrant(g,t,qaNow)===want,'Wrong role scope result: '+label)
+ }
+const beforeWrite=reviewTaskCommand.indexOf("event_type:'VIA_REVIEW_REASSIGNMENT_REQUESTED'");
+const privilegedWrite=reviewTaskCommand.indexOf('.update({assignee_user_id:targetUserId');
+assert(beforeWrite>=0&&privilegedWrite>beforeWrite,'Audit intent must precede privileged assignment');
+assert(!reviewTaskCommand.includes("admin.from('role_grants').insert("),'Task assignment must not grant a new role');
+assert(!reviewTaskCommand.includes("status:'DONE'"),'Review reassignment must not complete or approve the task');
+console.log('UAT 3Q audited scope-checked VÍA review reassignment invariants passed');
