@@ -6,7 +6,7 @@ function participantNextAction(participant,task){
   const stage=participant.stage,phase=stageLabel(stage);
   if(['VIA','READY_FOR_GO','INTEREST','NEW_VIA'].includes(stage))return{
     label:task?.workflow_key==='participant_via_start'?'Start mitt VÍA-veikart':'Åpne mitt VÍA-veikart',
-    href:`./form-runner.html?key=via_roadmap&participant=${encodeURIComponent(participant.id)}`,
+    href:'./form-runner.html#my-via-roadmap',
     hint:'Her avklarer du retning, ressurser og det som må være på plass før neste beslutning. Dette er ikke en GO/NO-GO-beslutning.'
   };
   if(stage==='GO'||stage==='GO_WITH_CONDITIONS')return{
