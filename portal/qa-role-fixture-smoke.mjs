@@ -5,6 +5,15 @@ function assert(ok,msg){if(!ok)throw new Error(msg)}
 
 const qaFunction=read('../supabase/functions/qa-create-role-pack/index.ts');
 const cleanupFunction=read('../supabase/functions/qa-cleanup-role-pack/index.ts');
+const renewFunction=read('../supabase/functions/qa-renew-role-pack/index.ts');
+// Demo has a separate Netlify origin but shares the same QA API as production.
+for (const [name, source] of [['create',qaFunction],['cleanup',cleanupFunction],['renew',renewFunction]]) {
+  assert(source.includes("'https://demo.aidme.no'"), `QA ${name} CORS must explicitly allow the canonical demo origin`);
+  assert(source.includes("'https://my.aidme.no'"), `QA ${name} CORS must preserve the production origin`);
+  assert(source.includes("'https://demo.aidme.no','https://my.aidme.no'"), `QA ${name} CORS must not use a wildcard instead of explicit origins`);
+  assert(source.includes("aal!=='aal2'"), `QA ${name} must still require AAL2`);
+}
+
 
 assert(qaFunction.includes("ensureQaParticipant('QA-ROLE-VIA-01','VIA')"),'QA role pack must reset a dedicated VÍA fixture to VIA');
 assert(qaFunction.includes("ensureQaParticipant('QA-ROLE-VIDA-01','VIDA')"),'QA role pack must reset a dedicated VIDA fixture to VIDA');
