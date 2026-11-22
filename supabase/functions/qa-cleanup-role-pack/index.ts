@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
-const allowedOrigins=new Set(['https://my.aidme.no','https://main--mycamino.netlify.app','http://localhost:8888','http://localhost:3000']);
+const allowedOrigins=new Set(['https://demo.aidme.no','https://my.aidme.no','https://main--mycamino.netlify.app','http://localhost:8888','http://localhost:3000']);
 const qaEmails=new Set(['qa-participant@example.invalid','qa-via@example.invalid','qa-fag@example.invalid','qa-ser@example.invalid','qa-vida@example.invalid','qa-logistics@example.invalid','qa-program@example.invalid','qa-project@example.invalid','qa-observer@example.invalid','qa-evaluator@example.invalid']);
 function headers(req:Request){const o=req.headers.get('origin')??'';return {'Access-Control-Allow-Origin':allowedOrigins.has(o)?o:'https://my.aidme.no','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json','Cache-Control':'no-store','Vary':'Origin'}}
 function claims(token:string){try{const p=token.split('.')[1];const n=p.replace(/-/g,'+').replace(/_/g,'/');return JSON.parse(atob(n+'='.repeat((4-n.length%4)%4)))}catch{return{}}}
