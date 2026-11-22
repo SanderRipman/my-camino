@@ -32,5 +32,8 @@ const p={id:'mina',code_name:'Mina-UAT-01'};
 const result=ctx.pick({users:[valid,fake],participants:[p]});
 check(result.p.id==='mina'&&result.users.length===1&&result.users[0].grant.id==='global','Gmail alias should be sole eligible target');
 check(ctx.pick({users:[{...valid,grants:[...valid.grants,{id:'other',role_code:'via_owner',participant_id:'other',pilot_id:null}]}],participants:[p]}).users[0].grant===null,'Do not mutate ambiguous multi-grant roles');
+const scoped={...valid,grants:[{...valid.grants[0],id:'scoped',participant_id:'mina',pilot_id:null,valid_until:new Date(Date.now()+7*86400000).toISOString()}]};
+check(ctx.pick({users:[scoped],participants:[p]}).users[0].grant.id==='scoped','Existing correctly scoped Gmail VÍA role can be transferred without redundant edit');
+check(ctx.pick({users:[{...scoped,grants:[{...scoped.grants[0],participant_id:'other'}]}],participants:[p]}).users[0].grant===null,'Different participant scope must fail closed');
 check(ctx.pick({users:[{...valid,staff:{active:false}}],participants:[p]}).users.length===0,'Inactive staff cannot receive transfer');
 console.log('Gmail-VÍA scoped existing-task handoff static + eligibility negative smoke: PASS');
