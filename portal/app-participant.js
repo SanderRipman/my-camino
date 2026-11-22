@@ -20,6 +20,12 @@ function participantStageCopy(stage){
   return'Før · retning, avklaring og forberedelse';
 }
 function participantOpenTasks(p){return tasks.filter(t=>t.participant_id===p?.id&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status))}
+function participantViaAwaitingReview(p){
+  // Preserve the difference between a completed VÍA and an explicitly opened NEW_VIA.
+  if(!p||!['VIA','READY_FOR_GO'].includes(String(p.stage||'').toUpperCase()))return false;
+  return tasks.some(t=>t.participant_id===p.id&&t.assignee_user_id===session?.user?.id&&t.workflow_key==='participant_via_start'&&t.status==='DONE');
+}
+window.aidmeParticipantViaAwaitingReview=participantViaAwaitingReview;
 function participantTaskAttention(t){
   const overdue=!!t?.due_at&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status)&&new Date(t.due_at)<new Date();
   if(overdue||severity(t)==='RED')return'RED';
@@ -43,6 +49,7 @@ function participantTaskCoveredForms(p){
 }
 function participantReadyForms(p){
   if(!p||assurance?.currentLevel!=='aal2')return[];
+  if(participantViaAwaitingReview(p))return[];
   const allowed=participantFormKeys(p.stage),covered=participantTaskCoveredForms(p);
   return formDefs.filter(f=>(f.scope==='participant'||f.scope==='participant_staff')&&allowed.has(f.key)&&!covered.has(f.key));
 }
@@ -120,17 +127,17 @@ const staffRenderParticipantDetail=renderParticipantDetail;
 renderParticipantDetail=function(){
   if(isStaff())return staffRenderParticipantDetail();
   const p=ownParticipant();if(!p){$('#participantDetail').innerHTML='<h3>Ingen aktiv reise ennå</h3>';return}
-  const base=stageLabel(p.stage),phase=participantPhaseLabel(p.stage),pilot=participantPilot(p.id),r=routeToday(pilot?.id),open=participantOpenTasks(p),actions=participantDerivedActions(p),ordered=[...open].sort((a,b)=>new Date(a.due_at||'2999')-new Date(b.due_at||'2999')),next=ordered[0],idx=stageIndex(p.stage),actionMarkup=actions.map(a=>participantDerivedActionMarkup(a,p)).join('');
-  $('#participantDetail').innerHTML=`<div class="card-head"><div><p class="eyebrow">${escapeHtml(phase)} · din reise</p><h2>${escapeHtml(p.code_name)}</h2></div><span class="pill">${escapeHtml(phase)}</span></div><p>${escapeHtml(participantStageCopy(p.stage))}</p><div class="detail-grid"><div class="detail-stat"><span>Fase</span><strong>${escapeHtml(phase)}</strong></div><div class="detail-stat"><span>Neste frist</span><strong>${escapeHtml(next?formatDate(next.due_at):'Ingen frist')}</strong></div><div class="detail-stat"><span>Åpne steg</span><strong>${open.length+actions.length}</strong></div><div class="detail-stat"><span>${base==='SER'?'Dagens etappe':'Gruppe / rute'}</span><strong>${escapeHtml(base==='SER'&&r?`${r.from_place} → ${r.to_place}`:(pilot?.route_name||'Avklares senere'))}</strong></div></div><h3>Din neste handling</h3><div class="task-list">${actionMarkup}${ordered.length?ordered.slice(0,4).map(taskRow).join(''):actions.length?'':'<p>Du har ingen åpne steg akkurat nå.</p>'}</div><h3>Hvor du er i reisen</h3><div class="process-flow">${processMarkup(idx)}</div>`;
+  const base=stageLabel(p.stage),phase=participantPhaseLabel(p.stage),pilot=participantPilot(p.id),r=routeToday(pilot?.id),open=participantOpenTasks(p),actions=participantDerivedActions(p),ordered=[...open].sort((a,b)=>new Date(a.due_at||'2999')-new Date(b.due_at||'2999')),next=ordered[0],idx=stageIndex(p.stage),actionMarkup=actions.map(a=>participantDerivedActionMarkup(a,p)).join(''),participantCopy=participantViaAwaitingReview(p)?'VÍA-veikartet ditt er sendt inn. VÍA-ansvarlig skal nå gå gjennom det sammen med deg. Du trenger ikke gjøre noe mer akkurat nå. Ingen GO/NO-GO er besluttet.':participantStageCopy(p.stage);
+  $('#participantDetail').innerHTML=`<div class="card-head"><div><p class="eyebrow">${escapeHtml(phase)} · din reise</p><h2>${escapeHtml(p.code_name)}</h2></div><span class="pill">${escapeHtml(phase)}</span></div><p>${escapeHtml(participantCopy)}</p><div class="detail-grid"><div class="detail-stat"><span>Fase</span><strong>${escapeHtml(phase)}</strong></div><div class="detail-stat"><span>Neste frist</span><strong>${escapeHtml(next?formatDate(next.due_at):'Ingen frist')}</strong></div><div class="detail-stat"><span>Åpne steg</span><strong>${open.length+actions.length}</strong></div><div class="detail-stat"><span>${base==='SER'?'Dagens etappe':'Gruppe / rute'}</span><strong>${escapeHtml(base==='SER'&&r?`${r.from_place} → ${r.to_place}`:(pilot?.route_name||'Avklares senere'))}</strong></div></div><h3>Din neste handling</h3><div class="task-list">${actionMarkup}${ordered.length?ordered.slice(0,4).map(taskRow).join(''):actions.length?'':'<p>Du har ingen åpne steg akkurat nå.</p>'}</div><h3>Hvor du er i reisen</h3><div class="process-flow">${processMarkup(idx)}</div>`;
   $$('#participantDetail .task-row[data-task-id]').forEach(b=>b.addEventListener('click',()=>openTask(b.dataset.taskId)));bindParticipantDerivedActions($('#participantDetail'));
 };
 
 const staffRenderForms=renderForms;
 renderForms=function(){
   if(isStaff())return staffRenderForms();
-  const p=ownParticipant(),keys=participantFormKeys(p?.stage),participant=p?.id||'';
+  const p=ownParticipant(),keys=participantFormKeys(p?.stage),participant=p?.id||'',awaitingVia=participantViaAwaitingReview(p);
   const defs=formDefs.filter(f=>(f.scope==='participant'||f.scope==='participant_staff')&&keys.has(f.key));
-  $('#formLibrary').innerHTML=defs.length?defs.map((f,i)=>`<a class="form-module" style="text-decoration:none;color:inherit" href="./form-runner.html?key=${encodeURIComponent(f.key)}${participant?'&participant='+encodeURIComponent(participant):''}"><span class="num">${String(i+1).padStart(2,'0')}</span><h3>${escapeHtml(f.title_no)}</h3><p>${escapeHtml(f.key==='info_before_via'?'Kort informasjon før du går videre.':f.key==='via_roadmap'?'Ditt veikart og neste avklaringer i VÍA.':f.key==='participant_agreement'?'Din egen bekreftelse av avtale, kontaktvalg og praktiske rammer før neste gate.':'Din levende VIDA-plan og neste handling hjemme.')}</p><div class="meta"><span>${escapeHtml(participantPhaseLabel(p?.stage||'VIA'))}</span><span>Åpne →</span></div></a>`).join(''):'<p>Ingen versjonerte skjemaer krever noe fra deg i denne fasen.</p>';
+  $('#formLibrary').innerHTML=defs.length?defs.map((f,i)=>`<a class="form-module" style="text-decoration:none;color:inherit" href="${awaitingVia&&f.key==='via_roadmap'?'./form-runner.html?latest=1#my-via-roadmap':`./form-runner.html?key=${encodeURIComponent(f.key)}${participant?'&participant='+encodeURIComponent(participant):''}`}"><span class="num">${String(i+1).padStart(2,'0')}</span><h3>${escapeHtml(f.title_no)}</h3><p>${escapeHtml(f.key==='info_before_via'?'Kort informasjon før du går videre.':f.key==='via_roadmap'?(awaitingVia?'Innsendt og skrivebeskyttet. VÍA-ansvarlig følger opp.':'Ditt veikart og neste avklaringer i VÍA.'):f.key==='participant_agreement'?'Din egen bekreftelse av avtale, kontaktvalg og praktiske rammer før neste gate.':'Din levende VIDA-plan og neste handling hjemme.')}</p><div class="meta"><span>${escapeHtml(participantPhaseLabel(p?.stage||'VIA'))}</span><span>${awaitingVia&&f.key==='via_roadmap'?'Se fullført →':'Åpne →'}</span></div></a>`).join(''):'<p>Ingen versjonerte skjemaer krever noe fra deg i denne fasen.</p>';
 };
 
 const staffRenderAnalysis=renderAnalysis;
