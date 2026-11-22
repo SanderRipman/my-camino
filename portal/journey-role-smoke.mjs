@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {Script} from 'node:vm';
 
 function read(path){return fs.readFileSync(new URL(path,import.meta.url),'utf8')}
 function assert(ok,msg){if(!ok)throw new Error(msg)}
@@ -50,7 +51,21 @@ assert(participantJs.includes("if(stage==='GO'||stage==='GO_WITH_CONDITIONS')ret
 assert(participantJs.includes("if(stage==='POSTPONED'||stage==='NO_GO')return new Set()"),'Postponed/NO-GO paths must not expose unrelated forms');
 assert(e2e.includes('| 4. Individuell beslutning')&&e2e.includes('| 5. Før SER'),'End-to-end journey must keep individual decision before agreement/readiness');
 assert(participantJs.includes("$('#dayStatus')?.closest('label')")&&participantJs.includes("classList.add('hidden')"),'Participant must not be asked to set internal RAG day status');
-assert(participantJs.includes("$('#showAverage')")&&participantJs.includes('analysisParticipants')&&participantJs.includes("classList.add('hidden')"),'Participant analysis must not expose staff/group comparison controls');
+assert(participantJs.includes("if(name==='analysis'&&!isStaff())")&&participantJs.includes("analysisNav.classList.add('hidden')")&&participantJs.includes("analysisView.classList.add('hidden')"),'Participant analytics must be denied entirely until explicit self-only release');
+const gateStart=participantJs.indexOf('const staffRenderAnalysis=renderAnalysis;');
+const gateEnd=participantJs.indexOf('function adaptParticipantChrome()',gateStart);
+assert(gateStart>=0&&gateEnd>gateStart,'Participant privacy wrappers missing');
+let staff=false,staffAnalysis=0,staffOverview=0,target=null,clears=0;
+const selected=new Set(['OTHER_PARTICIPANT']);
+const canvas={width:100,height:60,getContext:()=>({clearRect:()=>clears++})};
+const ctx={renderAnalysis:()=>staffAnalysis++,renderOverviewChart:()=>staffOverview++,
+ show:(v)=>{target=v},isStaff:()=>staff,analysisSelected:selected,
+ $:(key)=>({'#analysisChart':canvas,'#overviewChart':canvas,'#analysisParticipants':{replaceChildren:()=>{}},'#overviewLegend':{replaceChildren:()=>{}}})[key]||null};
+new Script(participantJs.slice(gateStart,gateEnd),{filename:'privacy-gate.js'}).runInNewContext(ctx);
+ctx.renderAnalysis();ctx.renderOverviewChart();ctx.show('analysis');
+assert(!staffAnalysis&&!staffOverview&&target==='overview'&&!selected.size&&clears===2,'Participant must never enter or render group charts');
+staff=true;ctx.renderAnalysis();ctx.renderOverviewChart();ctx.show('analysis');
+assert(staffAnalysis===1&&staffOverview===1&&target==='analysis','Scoped staff chart behavior must remain intact');
 for(const text of ['Mine åpne steg','Må nå','Neste steg','Info / valgfritt','Din neste handling','Dine steg og skjemaer'])assert(participantJs.includes(text),`Participant-first copy missing: ${text}`);
 assert(!participantJs.includes("'Kritisk'"),'Participant-first layer must not label own tasks with internal critical wording');
 assert(participantJs.includes("if(isStaff())return staffRenderParticipants()"),'Staff participant workspace must remain unchanged by participant-first layer');
