@@ -4,6 +4,7 @@
 function participantNextAction(participant,task){
   if(!participant)return null;
   const stage=participant.stage,phase=stageLabel(stage);
+  if(window.aidmeParticipantViaAwaitingReview?.(participant))return null;
   if(['VIA','READY_FOR_GO','INTEREST','NEW_VIA'].includes(stage))return{
     label:task?.workflow_key==='participant_via_start'?'Start mitt VÍA-veikart':'Åpne mitt VÍA-veikart',
     href:'./form-runner.html#my-via-roadmap',
