@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import vm from 'node:vm';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const dir=path.dirname(fileURLToPath(import.meta.url));
@@ -34,4 +35,44 @@ for(const forbidden of ["email:String(intake?.contact_email",'email:String(intak
   if(js.includes(forbidden))throw new Error('N2→N3 handoff must not put contact email in URL/query parameters.');
 }
 if(!js.includes("if(QA_MODE)"))throw new Error('N2 QA mode must be explicit and opt-in');
+// Regression: a live MutationObserver must not trigger itself endlessly via idempotent copy writes.
+const showcase=fs.readFileSync(path.join(dir,'intake-demo-showcase.js'),'utf8');
+let pendingMutations=0,observerCallback=null,totalWrites=0;
+function trackedNode(field,initial){
+  let current=initial;
+  return {
+    get [field](){return current;},
+    set [field](next){current=next;totalWrites++;pendingMutations++;}
+  };
+}
+const header=trackedNode('textContent','Tidligere overskrift');
+const blockedText=trackedNode('textContent','VÍA-triage');
+const bodyText=trackedNode('nodeValue','Aktiv triage');
+const root={};
+const previewDocument={
+  title:'',
+  querySelector(selector){return selector==='.workspace'?root:selector==='.topbar h1'?header:selector==='#blocked p'?blockedText:null;},
+  querySelectorAll(selector){return selector==='#workspace,#blocked'?[root]:[];},
+  createTreeWalker(){let yielded=false;return{currentNode:null,nextNode(){if(yielded)return false;yielded=true;this.currentNode=bodyText;return true}}}
+};
+class TrackedObserver{
+  constructor(callback){observerCallback=callback;}
+  observe(_root,options){if(!options.childList||!options.characterData)throw Error('UAT copy observer must track DOM text changes');}
+}
+vm.runInNewContext(showcase,{
+  location:{hostname:'demo.aidme.no',search:'?n2qa=1'},
+  document:previewDocument,
+  MutationObserver:TrackedObserver,
+  NodeFilter:{SHOW_TEXT:4},
+  URLSearchParams,
+  setTimeout:()=>0
+},{timeout:1000});
+if(!observerCallback)throw Error('UAT copy observer was not installed');
+for(let i=0;i<10&&pendingMutations>0;i++){
+  pendingMutations=0;observerCallback([]);
+  if(totalWrites>3)throw Error('N2 demo copy MutationObserver is retriggering itself');
+}
+if(pendingMutations||totalWrites!==3)throw Error('N2 demo observer did not settle after initial text updates ('+totalWrites+' writes)');
+console.log('N2 demo MutationObserver idempotence runtime regression PASS');
+
 console.log('N2 intake / first-avklaring invariants OK, including PII-safe N2→N3 handoff URL.');

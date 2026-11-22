@@ -5,12 +5,16 @@ function demoOrigin(){const h=location.hostname;return h==='demo.aidme.no'||h===
 function replaceCopy(){
   if(!demoOrigin())return;
   document.title='AidMe VIDA · Mottak og første avklaring';
-  const h1=document.querySelector('.topbar h1');if(h1)h1.textContent='Mottak og første avklaring';
-  const blocked=document.querySelector('#blocked p');if(blocked&&/inntakstriage|intake-tjenesten|triage/i.test(blocked.textContent||''))blocked.textContent=(blocked.textContent||'').replace(/VÍA-\/inntakstriage/gi,'mottak og første avklaring').replace(/autoriserte intake-tjenesten/gi,'autoriserte mottakstjenesten').replace(/triage/gi,'avklaring');
+  const h1=document.querySelector('.topbar h1');if(h1&&h1.textContent!=='Mottak og første avklaring')h1.textContent='Mottak og første avklaring';
+  const blocked=document.querySelector('#blocked p');if(blocked&&/inntakstriage|intake-tjenesten|triage/i.test(blocked.textContent||'')){
+    const previous=blocked.textContent||'';
+    const next=previous.replace(/VÍA-\/inntakstriage/gi,'mottak og første avklaring').replace(/autoriserte intake-tjenesten/gi,'autoriserte mottakstjenesten').replace(/triage/gi,'avklaring');
+    if(next!==previous)blocked.textContent=next;
+  }
   const summary=document.querySelector('.n2-summary');if(summary)summary.setAttribute('aria-label','Oversikt over første avklaring');
   for(const el of document.querySelectorAll('#workspace,#blocked')){
     const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
-    for(const node of nodes){const t=node.nodeValue||'';if(!/triage|intake-tjenesten/i.test(t))continue;node.nodeValue=t.replace(/VÍA-triage/gi,'Første avklaring').replace(/triageoppsummering/gi,'oppsummering').replace(/aktiv triage/gi,'aktiv avklaring').replace(/triage/gi,'avklaring').replace(/intake-tjenesten/gi,'mottakstjenesten')}
+    for(const node of nodes){const t=node.nodeValue||'';if(!/triage|intake-tjenesten/i.test(t))continue;const next=t.replace(/VÍA-triage/gi,'Første avklaring').replace(/triageoppsummering/gi,'oppsummering').replace(/aktiv triage/gi,'aktiv avklaring').replace(/triage/gi,'avklaring').replace(/intake-tjenesten/gi,'mottakstjenesten');if(next!==t)node.nodeValue=next}
   }
 }
 function selectRequested(){
