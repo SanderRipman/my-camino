@@ -38,6 +38,72 @@ Deno.serve(async(req:Request)=>{
   const action=String(body?.action??'STATUS').trim().toUpperCase()
   let taskId=String(body?.taskId??'').trim()
   const requestedParticipantId=String(body?.participantId??'').trim()
+  // UAT3X / #243: READ-ONLY generic joiner/mover/leaver preflight.
+  // Reuse this inventory in a future audited, per-task CAS transfer. This endpoint
+  // intentionally does not grant roles, transfer tasks, revoke access or read forms.
+  if(action==='PREVIEW_STAFF_HANDOVER'){
+    const orgId=String(body?.organizationId??''),sourceUserId=String(body?.sourceUserId??''),targetUserId=String(body?.targetUserId??'');
+    if(!uuidPattern.test(orgId)||!uuidPattern.test(sourceUserId)||!uuidPattern.test(targetUserId)||sourceUserId===targetUserId)
+      return new Response(JSON.stringify({error:'INVALID_HANDOVER_CONTEXT'}),{status:400,headers});
+    const now=new Date().toISOString();
+    // Only an unscoped, current administrator OF THIS organization can inspect its
+    // task inventory; program leads do not gain a back door into sensitive VÍA data.
+    const {data:admins,error:ae}=await admin.from('role_grants')
+      .select('role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at')
+      .eq('user_id',userData.user.id).eq('organization_id',orgId).eq('role_code','system_admin')
+      .is('participant_id',null).is('pilot_id',null);
+    if(ae)throw ae;
+    if(!(admins??[]).some((g:any)=>!g.revoked_at&&(!g.valid_from||g.valid_from<=now)&&(!g.valid_until||g.valid_until>now)))
+      return new Response(JSON.stringify({error:'FORBIDDEN'}),{status:403,headers});
+    const {data:sourceStaff,error:se}=await admin.from('staff_profiles')
+      .select('user_id').eq('user_id',sourceUserId).maybeSingle();
+    const {data:targetStaff,error:te}=await admin.from('staff_profiles')
+      .select('user_id,active').eq('user_id',targetUserId).maybeSingle();
+    if(se||te)throw se||te;
+    if(!sourceStaff||!targetStaff?.active)
+      return new Response(JSON.stringify({error:'INVALID_HANDOVER_STAFF'}),{status:409,headers});
+    // Fail closed on oversized batches: never silently truncate or claim total PASS.
+    const {data:openTasks,error:oe}=await admin.from('tasks')
+      .select('id,organization_id,participant_id,pilot_id,workflow_key,task_type,status,assignee_user_id,due_at,updated_at')
+      .eq('organization_id',orgId).eq('assignee_user_id',sourceUserId)
+      .in('status',['OPEN','IN_PROGRESS','WAITING']).order('created_at',{ascending:true}).limit(101);
+    if(oe)throw oe;
+    if((openTasks??[]).length>100)
+      return new Response(JSON.stringify({error:'HANDOVER_BATCH_TOO_LARGE',limit:100}),{status:409,headers});
+    const {data:grants,error:ge}=await admin.from('role_grants')
+      .select('role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at')
+      .eq('organization_id',orgId).eq('user_id',targetUserId);
+    if(ge)throw ge;
+    const valid=(grants??[]).filter((g:any)=>!g.revoked_at&&(!g.valid_from||g.valid_from<=now)&&(!g.valid_until||g.valid_until>now));
+    const codes=[...new Set(valid.map((g:any)=>String(g.role_code)))];
+    const {data:permissions,error:pe}=codes.length
+      ?await admin.from('role_permissions').select('role_code,capability').in('role_code',codes)
+      :{data:[],error:null};
+    if(pe)throw pe;
+    const permissionSet=new Set((permissions??[]).map((p:any)=>p.role_code+':'+p.capability));
+    const items=(openTasks??[]).map((task:any)=>{
+      // Require task-specific competence. Generic manage_tasks cannot substitute for
+      // edit_via, nor can organization scope replace participant/pilot scope.
+      const workflow=String(task.workflow_key||'');
+      const required=workflow==='via_go_review'||workflow==='via_roadmap_review'
+        ?'edit_via'
+        :workflow.startsWith('vida_')||task.task_type==='VIDA_OWNER_GATE'
+          ?'edit_vida'
+          :serOperational(task)?'manage_ser_tasks':'manage_tasks';
+      const eligible=valid.some((g:any)=>permissionSet.has(g.role_code+':'+required)
+        &&(!g.participant_id||g.participant_id===task.participant_id)
+        &&(!g.pilot_id||g.pilot_id===task.pilot_id));
+      return {id:task.id,participant_id:task.participant_id,pilot_id:task.pilot_id,
+        workflow_key:workflow,status:task.status,due_at:task.due_at,
+        expected_updated_at:task.updated_at,required_capability:required,
+        eligible,blocker:eligible?null:'TARGET_MISSING_CURRENT_SCOPED_CAPABILITY'};
+    });
+    return new Response(JSON.stringify({ok:true,readOnly:true,organizationId:orgId,
+      sourceUserId,targetUserId,taskCount:items.length,eligibleCount:items.filter(t=>t.eligible).length,
+      blockedCount:items.filter(t=>!t.eligible).length,tasks:items,
+      roleTransferPerformed:false,taskTransferPerformed:false,oldAccessRevoked:false
+    }),{status:200,headers});
+  }
   // Administrative handoff by participant is narrow: it only resolves one OPEN VÍA review,
   // requires a current, unscoped administrator grant in the same organization, and never
   // exposes the participant's submitted form to the administrator.
