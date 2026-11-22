@@ -138,4 +138,12 @@ result=await retryFn(async()=>{calls++;return {status:401,error:{code:'PGRST303'
 must(calls===4&&delays.length===3&&result.error.code==='PGRST303','Persistent auth validation error must be bounded and reported, not loop forever');
 console.log('Form PGRST303 recovery, negative RLS, and hash-only participant owner route: PASS');
 
+
+// When transient auth/form availability changes between consecutive reads, a
+// stale 'no assigned forms' denial must disappear only after the current form
+// and scope are actually valid. AAL2, context and save gates remain unchanged.
+must(runner.includes("const authorized=contextOk();if(authorized){$('#blocked').classList.add('hidden');$('#runner').classList.remove('hidden')}"),'A previously visible no-forms warning must be hidden after valid form and ownership are restored');
+must(runner.includes("if(!currentVersion||!contextOk())return"),'Saving still requires a current form version and verified matching scope');
+must(runner.includes("if(!aal2){$('#blocked').classList.remove('hidden')"),'AAL2 denial must still remain blocking');
+
 console.log('Form runner single-flight, sole-owner participant/pilot targeted bootstrap and simplified mobile IA invariants: PASS');
