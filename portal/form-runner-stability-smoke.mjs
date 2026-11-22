@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import vm from 'node:vm';
 const read=p=>fs.readFileSync(new URL(p,import.meta.url),'utf8');
 const must=(ok,msg)=>{if(!ok)throw new Error(msg)};
 
@@ -46,5 +47,68 @@ must(nav.includes("'aidme:navigation-snapshot:v6'"),'navigation IA must purge st
 must(mobile.includes("'aidme:navigation-snapshot:v5'"),'mobile shell must purge stale pre-v6 navigation snapshots');
 must(mobile.includes('function prefetchVisibleStandalone()'),'visible standalone primary pages should be prefetched');
 must(mobile.includes("nav.querySelectorAll('a.nav-item[href]')"),'prefetch must follow visible standalone nav links');
+
+
+const roleGuidance=read('./form-role-gate-guidance.js');
+const authContinuity=read('./form-auth-continuity.js');
+// Real callback execution regression: DOM writes observed under a childList
+// MutationObserver must settle after the first normalization. The old
+// unconditional textContent setters would re-trigger indefinitely.
+function simulateBlockedObserver({participant,roleCodes,authScript}){
+  let writes=0,pending=0,callback=null,noted=null;
+  const textNode=initial=>{
+    let value=initial;
+    return {get textContent(){return value},set textContent(v){value=v;writes++;pending++}};
+  };
+  const heading=textNode('Skjema er låst');
+  const details=textNode(authScript?'Versjonerte programskjema krever Authenticator.':'Ingen tilgang med denne rollen.');
+  const link=textNode('Bekreft Authenticator og fortsett');
+  let href='./';
+  link.getAttribute=name=>name==='href'?href:null;
+  link.setAttribute=(name,value)=>{if(name==='href'){href=value;writes++;pending++}};
+  const blocked={
+    classList:{contains:name=>name==='hidden'?false:false},
+    querySelector:sel=>sel==='h2'?heading:sel==='a.primary'?link:sel==='[data-via-ser-gate-note]'?noted:null,
+    appendChild:el=>{noted=el;writes++;pending++}
+  };
+  const doc={
+    body:{},hidden:false,
+    querySelector:sel=>sel==='#blocked'?blocked:sel==='#blockedText'?details:null,
+    createElement:()=>({dataset:{},className:'',innerHTML:''}),
+    addEventListener:()=>{}
+  };
+  const ctx={
+    location:{search:'?key=via_roadmap&participant=synthetic',pathname:'/portal/form-runner.html'},
+    document:doc,
+    URLSearchParams,
+    MutationObserver:class {constructor(fn){callback=fn} observe(){}},
+    setTimeout:fn=>{fn();return 1},
+    grants:roleCodes.map(role_code=>({role_code})),
+    active:()=>true,
+    ownParticipant:()=>participant?{id:'synthetic'}:null,
+    window:{addEventListener:()=>{}},
+    client:{auth:{onAuthStateChange:()=>{},getSession:async()=>({data:{session:{}}})}},
+    sessionStorage:{setItem:()=>{}},
+  };
+  vm.runInNewContext(authScript?authContinuity:roleGuidance,ctx,{timeout:1000});
+  for(let i=0;i<8&&pending>0;i++){
+    pending=0;
+    callback?.([]);
+    if(writes>4)throw Error('Self-triggered mutation observer loop in '+(authScript?'auth continuity':'role gate'));
+  }
+  must(pending===0,'Form guard observer must settle without additional DOM writes');
+  if(participant&&!authScript){
+    must(details.textContent==='Ingen tilgang med denne rollen.','Participant gate must preserve participant-specific denial');
+    must(writes===0,'Staff role guidance must never mutate participant error surfaces');
+  }
+  if(authScript){
+    must(link.textContent==='Velg sikker bekreftelse','MFA advice must link to security');
+    must(writes===3,'MFA link must be normalized exactly once');
+  }
+}
+simulateBlockedObserver({participant:false,roleCodes:['system_admin'],authScript:false});
+simulateBlockedObserver({participant:true,roleCodes:[],authScript:false});
+simulateBlockedObserver({participant:true,roleCodes:[],authScript:true});
+console.log('Form denial observer runtime / participant safety regression: PASS');
 
 console.log('Form runner single-flight, sole-owner participant/pilot targeted bootstrap and simplified mobile IA invariants: PASS');
