@@ -56,4 +56,7 @@ assert(adminGrant.includes("error:'PARTICIPANT_SCOPE_INVALID'")&&adminGrant.incl
 assert(adminGrant.includes("error:'SYSTEM_ADMIN_MUST_BE_UNSCOPED'"),'System-admin scope must not be narrowed/misrepresented');
 assert(adminGrant.includes("error:'INVALID_EXPIRY'"),'Expired and invalid new grants must fail closed');
 assert(!adminGrant.includes("select('id').eq('organization_id',org.id).eq('user_id',targetUserId).eq('role_code',roleCode)"),'Original global dedupe must be removed');
+assert(adminGrant.includes("error:'SCOPED_VIA_REQUIRES_REASON_AND_EXPIRY'"),'Scoped sensitive grants need purpose and bounded expiry');
+assert(adminGrant.includes("error:'SCOPED_VIA_TARGET_NOT_ACTIVE_STAFF'"),'Scoped sensitive grants cannot target inactive or unrelated accounts');
+assert(adminGrant.includes(".eq('organization_id',org.id).eq('active',true)"),'Scoped staff must belong to the same organization');
 console.log('UAT 3P scope-aware grant and negative privilege tests passed');
