@@ -19,7 +19,7 @@ function participantStageCopy(stage){
   if(s==='ny VÍA')return'Neste retning · ny avklaring når du er klar';
   return'Før · retning, avklaring og forberedelse';
 }
-function participantOpenTasks(p){return tasks.filter(t=>t.participant_id===p?.id&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status))}
+function participantOpenTasks(p){return tasks.filter(t=>t.participant_id===p?.id&&t.assignee_user_id===session?.user?.id&&['OPEN','IN_PROGRESS','WAITING'].includes(t.status))}
 function participantViaAwaitingReview(p){
   // Preserve the difference between a completed VÍA and an explicitly opened NEW_VIA.
   if(!p||!['VIA','READY_FOR_GO'].includes(String(p.stage||'').toUpperCase()))return false;
@@ -137,7 +137,7 @@ renderForms=function(){
   if(isStaff())return staffRenderForms();
   const p=ownParticipant(),keys=participantFormKeys(p?.stage),participant=p?.id||'',awaitingVia=participantViaAwaitingReview(p);
   const defs=formDefs.filter(f=>(f.scope==='participant'||f.scope==='participant_staff')&&keys.has(f.key));
-  $('#formLibrary').innerHTML=defs.length?defs.map((f,i)=>`<a class="form-module" style="text-decoration:none;color:inherit" href="${awaitingVia&&f.key==='via_roadmap'?'./form-runner.html?latest=1#my-via-roadmap':`./form-runner.html?key=${encodeURIComponent(f.key)}${participant?'&participant='+encodeURIComponent(participant):''}`}"><span class="num">${String(i+1).padStart(2,'0')}</span><h3>${escapeHtml(f.title_no)}</h3><p>${escapeHtml(f.key==='info_before_via'?'Kort informasjon før du går videre.':f.key==='via_roadmap'?(awaitingVia?'Innsendt og skrivebeskyttet. VÍA-ansvarlig følger opp.':'Ditt veikart og neste avklaringer i VÍA.'):f.key==='participant_agreement'?'Din egen bekreftelse av avtale, kontaktvalg og praktiske rammer før neste gate.':'Din levende VIDA-plan og neste handling hjemme.')}</p><div class="meta"><span>${escapeHtml(participantPhaseLabel(p?.stage||'VIA'))}</span><span>${awaitingVia&&f.key==='via_roadmap'?'Se fullført →':'Åpne →'}</span></div></a>`).join(''):'<p>Ingen versjonerte skjemaer krever noe fra deg i denne fasen.</p>';
+  $('#formLibrary').innerHTML=defs.length?defs.map((f,i)=>`<a class="form-module" style="text-decoration:none;color:inherit" href="${awaitingVia&&f.key==='via_roadmap'?'./form-runner.html?latest=1#my-via-roadmap':`./form-runner.html?key=${encodeURIComponent(f.key)}${participant&&f.key!=='info_before_via'?'&participant='+encodeURIComponent(participant):''}`}"><span class="num">${String(i+1).padStart(2,'0')}</span><h3>${escapeHtml(f.title_no)}</h3><p>${escapeHtml(f.key==='info_before_via'?'Kort informasjon før du går videre.':f.key==='via_roadmap'?(awaitingVia?'Innsendt og skrivebeskyttet. VÍA-ansvarlig følger opp.':'Ditt veikart og neste avklaringer i VÍA.'):f.key==='participant_agreement'?'Din egen bekreftelse av avtale, kontaktvalg og praktiske rammer før neste gate.':'Din levende VIDA-plan og neste handling hjemme.')}</p><div class="meta"><span>${escapeHtml(participantPhaseLabel(p?.stage||'VIA'))}</span><span>${awaitingVia&&f.key==='via_roadmap'?'Se fullført →':'Åpne →'}</span></div></a>`).join(''):'<p>Ingen versjonerte skjemaer krever noe fra deg i denne fasen.</p>';
 };
 
 const staffRenderAnalysis=renderAnalysis;
