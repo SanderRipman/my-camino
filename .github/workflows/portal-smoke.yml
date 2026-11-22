@@ -94,6 +94,8 @@ jobs:
         run: node portal/via-staff-review-worklist-smoke.mjs
       - name: Verify scoped Gmail VÍA staff handoff without a duplicate review
         run: node portal/admin-via-gmail-handoff-uat-smoke.mjs
+      - name: Verify JML read-only handover preflight security contract
+        run: node portal/staff-handover-readonly-preflight-smoke.mjs
       - name: Build clean portal bundle
         run: node portal/build-app.mjs
       - name: Check built app syntax
