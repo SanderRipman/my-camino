@@ -6,14 +6,14 @@
 const EXPECTED_PARTICIPANT='Mina-UAT-01';
 const EXPECTED_TASK='e29136cd-b4f7-4984-bd20-cd54c72e4a35';
 const active=x=>!x.revoked_at&&(!x.valid_from||new Date(x.valid_from)<=new Date())&&(!x.valid_until||new Date(x.valid_until)>new Date());
-const targetUser=u=>!!u.staff&&u.staff.active!==false&&/^[^@\s]+\+via@gmail\.com$/i.test(String(u.email||''));
+const targetUser=u=>!!u.staff&&u.staff.active!==false&&String(u.email||'').toLowerCase()==='zanderzeim+via@gmail.com';
 let running=false;
 
 function card(){
  let root=document.querySelector('#viaGmailHandoffUat');if(root)return root;
  const access=document.querySelector('.access-list-card');if(!access)return null;
  root=document.createElement('article');root.id='viaGmailHandoffUat';root.className='panel-card access-list-card';
- root.innerHTML='<p class="eyebrow">UAT · sikker medarbeiderovergang</p><h2>Gmail-VÍA: begrens rollen og flytt eksisterende vurdering</h2><p>Testkontoen har allerede innlogging. Denne handlingen snevrer inn dens eksisterende VÍA-rolle til bare Mina i sju dager, og flytter <strong>samme åpne vurderingsoppgave</strong>. Ingen ny invitasjon, skjema eller GO-beslutning.</p><label><span>Testmedarbeider</span><select id="viaGmailHandoffUser"></select></label><p class="privacy-note" id="viaGmailHandoffContext"></p><button class="primary" type="button" id="viaGmailHandoffStart" disabled>Begrens rolle og overfør Minas åpne vurdering</button><p class="message" id="viaGmailHandoffMessage" aria-live="polite"></p><small>Kun systemadministrator med AAL2. Den tidligere QA-rollens Mina-tilgang beholdes til overføringen er verifisert og kan deretter fjernes separat.</small>';
+ root.innerHTML='<p class="eyebrow">UAT · sikker medarbeiderovergang</p><h2>Gmail-VÍA: flytt eksisterende vurdering</h2><p>Testkontoen har allerede innlogging. Denne handlingen kontrollerer at VÍA-rollen er begrenset til Mina (og begrenser den hvis nødvendig), før den flytter <strong>samme åpne vurderingsoppgave</strong>. Ingen ny invitasjon, skjema eller GO-beslutning.</p><label><span>Testmedarbeider</span><select id="viaGmailHandoffUser"></select></label><p class="privacy-note" id="viaGmailHandoffContext"></p><button class="primary" type="button" id="viaGmailHandoffStart" disabled>Overfør Minas åpne vurdering</button><p class="message" id="viaGmailHandoffMessage" aria-live="polite"></p><small>Kun systemadministrator med AAL2. Den tidligere QA-rollens Mina-tilgang beholdes til overføringen er verifisert og kan deretter fjernes separat.</small>';
  access.insertAdjacentElement('beforebegin',root);
  root.querySelector('#viaGmailHandoffStart').addEventListener('click',start);
  return root;
@@ -22,8 +22,8 @@ function eligibility(data){
  const p=(data?.participants||[]).find(p=>p.code_name===EXPECTED_PARTICIPANT);
  const users=(data?.users||[]).filter(targetUser).map(u=>{
    const grants=(u.grants||[]).filter(g=>active(g)&&g.role_code==='via_owner');
-   const unscoped=grants.filter(g=>!g.participant_id&&!g.pilot_id);
-   return{user:u,grant:unscoped.length===1&&grants.length===1?unscoped[0]:null};
+   const eligible=grants.length===1&&(!grants[0].participant_id&&!grants[0].pilot_id||grants[0].participant_id===p?.id&&!grants[0].pilot_id&&!!grants[0].valid_until);
+   return{user:u,grant:eligible?grants[0]:null};
  });
  return{p,users};
 }
@@ -40,7 +40,7 @@ function render(){
  root.querySelector('#viaGmailHandoffStart').disabled=!available;
  root.querySelector('#viaGmailHandoffContext').textContent=available?
    'Mål: '+p.code_name+' · kun 7 dagers rolle · eksisterende OPEN-oppgave · ingen ny vurdering.':
-   'Ingen bred Gmail-VÍA-testrolle som kan begrenses her. Er rollen allerede avgrenset, skal handlingen IKKE gjentas.';
+   'Ingen gyldig Gmail-VÍA-testrolle for Mina. Kontroller rolle og deltakerscope før videre handling.';
 }
 function setState(message,ok=false){
  const el=document.querySelector('#viaGmailHandoffMessage');if(!el)return;
@@ -62,12 +62,16 @@ async function start(){
    const now=Date.now(),expires=new Date(now+7*86400000).toISOString();
    const reason='Syntetisk UAT: avgrens Gmail-VÍA til Mina før auditerbar oppgaveoverføring';
    const current=candidate.grant;
-   // Do NOT create a second grant or change a participant. Tighten the existing one.
-   const scoped=await client.functions.invoke('admin-update-role',{
-     body:{grantId:current.id,participantId:p.id,pilotId:null,validUntil:expires,reason}
-   });
-   if(scoped.error||scoped.data?.error)throw new Error('SCOPE_UPDATE_FAILED: '+(scoped.data?.error||scoped.error?.message||'ukjent'));
-   if(scoped.data?.auditLogged!==true)throw new Error('SCOPE_NARROWED_BUT_AUDIT_NOT_CONFIRMED_STOP');
+   // Keep an existing correctly scoped grant completely unchanged; otherwise tighten once.
+   if(!current.participant_id){
+     const scoped=await client.functions.invoke('admin-update-role',{
+       body:{grantId:current.id,participantId:p.id,pilotId:null,validUntil:expires,reason}
+     });
+     if(scoped.error||scoped.data?.error)throw new Error('SCOPE_UPDATE_FAILED: '+(scoped.data?.error||scoped.error?.message||'ukjent'));
+     if(scoped.data?.auditLogged!==true)throw new Error('SCOPE_NARROWED_BUT_AUDIT_NOT_CONFIRMED_STOP');
+   }else if(current.participant_id!==p.id||current.pilot_id||!current.valid_until){
+     throw new Error('EXISTING_SCOPE_INVALID_STOP');
+   }
    // Read back the scoped role from the authorized admin inventory before task write.
    const second=await client.functions.invoke('admin-list-access',{body:{}});
    if(second.error||second.data?.error||!second.data?.users)throw new Error('SCOPE_READBACK_FAILED_STOP');
@@ -78,7 +82,7 @@ async function start(){
       throw new Error('SCOPED_ROLE_READBACK_MISMATCH_STOP');
    if((actual.grants||[]).some(g=>active(g)&&g.role_code==='via_owner'&&!g.participant_id&&!g.pilot_id))
       throw new Error('GLOBAL_VIA_ROLE_STILL_ACTIVE_STOP');
-   setState('Rolle begrenset og loggført. Flytter nå nøyaktig én eksisterende OPEN-vurdering…');
+   setState('Mina-avgrenset rolle bekreftet. Flytter nå nøyaktig én eksisterende OPEN-vurdering…');
    const move=await client.functions.invoke('task-command',{body:{
      action:'REASSIGN_VIA_REVIEW',participantId:p.id,targetUserId:id,
      reason:'Overfør eksisterende Mina VÍA-review til Gmail VÍA-ansvarlig etter begrenset rolletildeling'
