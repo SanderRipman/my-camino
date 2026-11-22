@@ -58,7 +58,7 @@ must(participant.includes("role_code','system_admin'")&&participant.includes("MF
 must(participant.includes("workflow_key:'participant_via_start'")&&participant.includes("eq('workflow_key','participant_via_start')"),'N3 must create/reuse exactly the participant VÍA start workflow');
 must(participant.includes("eq('participant_id',participant.id)")&&participant.includes("eq('assignee_user_id',targetUserId)"),'VÍA start task must stay bound to the linked participant and invited account');
 must(participant.includes("PARTICIPANT_VIA_START_READY")&&participant.includes("title:'Din VÍA er klar'"),'N3 must audit and safely notify the first participant action');
-must(participantNext.includes('participant_via_start')&&participantNext.includes('key=via_roadmap'),'participant VÍA start must route to the canonical VÍA roadmap');
+must(participantNext.includes('participant_via_start')&&participantNext.includes('form-runner.html#my-via-roadmap')&&!participantNext.includes('key=via_roadmap'),'participant VÍA start must route to the canonical *own-participant* hash roadmap (no unsafe legacy query)');
 must(viaMigration.includes("workflow_key = 'participant_via_start'")&&viaMigration.includes("'PARTICIPANT_VIA_ROADMAP_COMPLETED'"),'roadmap completion must close/audit the N3 start task');
 must(viaMigration.includes("'via_go_review'")&&viaMigration.includes("'formal_go_no_go', false"),'roadmap completion must create staff review without prematurely deciding GO/NO-GO');
 must(viaHandoff.includes("['via_go_review','via_roadmap_review'].includes(task.workflow_key)")&&viaHandoff.includes('latest=1'),'staff review must open the completed roadmap before the decision gate');
