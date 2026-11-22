@@ -6,7 +6,7 @@ function badgeOverdue(task){return !!task?.due_at&&badgeOpenStatus(task.status)&
 function badgeTaskSeverity(task){return badgeOverdue(task)?'RED':severity(task)}
 function badgeVisibleTasks(){
   const uid=session?.user?.id,own=ownParticipant(),staff=isStaff();
-  return (tasks||[]).filter(t=>staff||t.assignee_user_id===uid||(own&&t.participant_id===own.id));
+  return (tasks||[]).filter(t=>staff||(t.assignee_user_id===uid&&(!t.participant_id||(own&&t.participant_id===own.id))));
 }
 function badgeParticipantSeverity(participant,openTasks){
   const related=openTasks.filter(t=>t.participant_id===participant.id);
