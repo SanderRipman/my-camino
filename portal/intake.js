@@ -7,7 +7,7 @@ let session=null,rows=[],selectedId=null,qaRows=[];
 
 function esc(v=''){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function statusLabel(status){return({NEW:'Ny',TRIAGE:'Trenger avklaring',REFERRED:'Anbefalt annen vei',CLOSED:'Avsluttet',CONVERTED:'VÍA opprettet'})[status]||status||'Ukjent'}
-function sourceLabel(source){return({PUBLIC_WEB:'aidme.no',WEB:'aidme.no',PARTNER:'Partner',NAV:'NAV / offentlig partner',SELF:'Egen interesse',STAFF:'Registrert av medarbeider'})[String(source||'').toUpperCase()]||source||'Ikke angitt'}
+function sourceLabel(source){return({DEMO_UAT_N1:'Demo · lagret test',PUBLIC_WEB:'aidme.no',WEB:'aidme.no',PARTNER:'Partner',NAV:'NAV / offentlig partner',SELF:'Egen interesse',STAFF:'Registrert av medarbeider'})[String(source||'').toUpperCase()]||source||'Ikke angitt'}
 function statusTone(status){return status==='NEW'?'YELLOW':status==='TRIAGE'?'GREEN':'neutral'}
 function receivedLabel(value){try{return new Intl.DateTimeFormat('nb-NO',{dateStyle:'short',timeStyle:'short'}).format(new Date(value))}catch{return'–'}}
 function receivedDate(value){try{return new Intl.DateTimeFormat('nb-NO',{dateStyle:'medium'}).format(new Date(value))}catch{return'–'}}
