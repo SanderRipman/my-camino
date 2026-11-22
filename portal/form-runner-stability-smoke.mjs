@@ -113,6 +113,10 @@ console.log('Form denial observer runtime / participant safety regression: PASS'
 
 
 const participantNext=read('./app-participant-next.js');
+const primaryHomeAction=read('./participant-next-now-uat.js');
+must(primaryHomeAction.includes("href='./form-runner.html#my-via-roadmap'"),'Participant homepage primary CTA must use own VIA hash route, not legacy query UUID');
+must(!primaryHomeAction.includes("form-runner.html?key=via_roadmap"),'No stale VIA direct query-link is allowed on the participant homepage');
+
 must(participantNext.includes("href:'./form-runner.html#my-via-roadmap'"),'Participant VIA action must not depend on problematic query-parameter document navigation');
 must(runner.includes("location.hash==='#my-via-roadmap'&&!!ownParticipant()"),'Queryless VIA target must only select the authenticated owner and preserve RLS');
 must(runner.includes("participant=selfVia?ownParticipant().id:q.get('participant')"),'Queryless VIA routing must derive participant ID exclusively from authenticated ownership');
