@@ -52,6 +52,12 @@ Deno.serve(async(req:Request)=>{
     if(!targetUserId||!allowedRoles.has(roleCode))return new Response(JSON.stringify({error:'INVALID_INPUT'}),{status:400,headers})
     if(roleCode==='break_glass'&&(!reason||!validUntil))return new Response(JSON.stringify({error:'BREAK_GLASS_REQUIRES_REASON_AND_EXPIRY'}),{status:400,headers})
     if(roleCode==='system_admin'&&(participantId||pilotId))return new Response(JSON.stringify({error:'SYSTEM_ADMIN_MUST_BE_UNSCOPED'}),{status:400,headers})
+    // Narrow VÍA/clinical grants are review capabilities: require an accountable staff identity,
+    // audit reason, and bounded expiry. Do not change legacy unscoped role provisioning.
+    const scopedSensitive=!!participantId&&['via_owner','clinical_professional'].includes(roleCode)
+    if(scopedSensitive&&(!reason||reason.length<12||!validUntil||Date.parse(validUntil)>Date.now()+30*86400000))
+      return new Response(JSON.stringify({error:'SCOPED_VIA_REQUIRES_REASON_AND_EXPIRY'}),{status:400,headers})
+
 
     const {data:org,error:orgError}=await admin.from('organizations').select('id').eq('name','AidMe VIDA').limit(1).maybeSingle()
     if(orgError||!org)throw orgError??new Error('Organization not found')
@@ -65,6 +71,12 @@ Deno.serve(async(req:Request)=>{
       const {data:p,error:e}=await admin.from('pilots').select('id').eq('id',pilotId).eq('organization_id',org.id).maybeSingle()
       if(e)throw e
       if(!p)return new Response(JSON.stringify({error:'PILOT_SCOPE_INVALID'}),{status:400,headers})
+    }
+    if(scopedSensitive){
+      const {data:staff,error:staffError}=await admin.from('staff_profiles')
+        .select('user_id').eq('user_id',targetUserId).eq('organization_id',org.id).eq('active',true).maybeSingle()
+      if(staffError)throw staffError
+      if(!staff)return new Response(JSON.stringify({error:'SCOPED_VIA_TARGET_NOT_ACTIVE_STAFF'}),{status:403,headers})
     }
     const {data:existing,error:existingError}=await admin.from('role_grants')
       .select('id,participant_id,pilot_id,valid_until,revoked_at')
