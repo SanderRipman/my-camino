@@ -43,7 +43,7 @@ function fixture(staff=false,stage='VIA'){
   isStaff:()=>staff,ownParticipant:()=>self,escapeHtml:escape,
   processMarkup:()=>'<div>STAFF PROCESS</div>',taskRow:t=>'<span>STAFF '+escape(t.title)+'</span>',
   renderTaskLists:()=>{},renderParticipantDetail:()=>{},renderAll:()=>{},
-  show:name=>shown.push(name),taskFilter:'OPEN',formatDate:()=> '22. nov.'
+  show:name=>shown.push(name),taskFilter:'OPEN',formatDate:v=>String(v).includes('2026-08-17')?'17. aug.':'22. nov.'
  };
  vm.runInNewContext(timeline,env,{timeout:1500});
  return {env,events,shown,self,ownTask,staffTask};
@@ -57,8 +57,15 @@ assert.match(rendered,/data-participant-phase="1"/);
 assert.match(rendered,/is-future/,'SER must not be made active just because the roadmap was submitted');
 assert.match(f.env.taskRow(f.ownTask),/✓ Utført/);
 assert.match(f.env.taskRow(f.ownTask),/participant-phase-pill">VÍA/);
+assert.match(f.env.taskRow(f.ownTask),/participant-task-date-pill is-completed/, 'Completed date is a green-toned bubble');
+assert.match(f.env.taskRow(f.ownTask),/aria-label="Registrert 22. nov."/, 'Completed date bubble has an accessible description');
+assert.match(css,/participant-phase-message\{[^}]*background:#fbece8/, 'Locked-phase explanation uses a readable red-toned panel');
+assert.match(timeline,/Ikke åpnet ennå ·/, 'Locked phase has an explicit status title');
 assert.doesNotMatch(f.env.taskRow(f.ownTask),/Neste steg|Frist /);
 assert.equal(f.env.taskRow(f.staffTask),'','Staff task cannot appear as a participant action');
+const overdue={...f.ownTask,id:'own-overdue',status:'OPEN',due_at:'2026-08-17T12:00:00Z'};
+assert.match(f.env.taskRow(overdue),/participant-task-date-pill is-overdue/, 'Overdue due date is a red-toned bubble');
+assert.match(f.env.taskRow(overdue),/aria-label="Frist passert 17. aug."/, 'Overdue date bubble has accessible meaning');
 assert.equal(f.env.window.AidMeParticipantTimelineUat.voluntaryInfoAvailable(f.self),true,'Info resource remains available after submission');
 f.env.renderAll();
 assert.equal(f.env.taskFilter,'ALL','Participant task history defaults to All');
