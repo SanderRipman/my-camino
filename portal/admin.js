@@ -4,6 +4,7 @@ const client=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 let accessData={users:[],participants:[],pilots:[]};
 let handoffApplied=false;
+let pendingViaReviewHandoff=null;
 const N2_HANDOFF=(()=>{const p=new URLSearchParams(location.search);if(p.get('from')!=='n2')return null;return{participantId:clean(p.get('participantId'))}})();
 const ROLE_INFO={
  project_owner:{title:'Prosjekteier',can:'Konsept, avtaler, økonomi, kvalitetssystem og partner-/forsikringsramme.',limit:'Skal ikke alene gjøre kliniske GO/NO-GO-vurderinger uten riktig kompetanse.'},
@@ -47,6 +48,47 @@ function renderAccessList(){
  const rows=accessData.users.filter(u=>u.participant||u.staff||(u.grants||[]).some(activeGrant));$('#accessList').innerHTML=rows.length?rows.map(u=>{const name=u.staff?.full_name||u.participant?.code_name||u.email||u.id,type=u.participant?'Deltaker':'Medarbeider',grants=(u.grants||[]).filter(activeGrant);return `<section class="access-person"><div class="access-person-head"><div><b>${escapeHtml(name)}</b><small>${escapeHtml(type)}${u.email?` · ${escapeHtml(u.email)}`:''}</small></div><span class="pill">${grants.length} rolle${grants.length===1?'':'r'}</span></div>${u.participant?`<div class="access-scope"><span class="pill GREEN">Egen reise · ${escapeHtml(u.participant.code_name)}</span></div>`:''}${grants.length?`<div class="grant-list">${grants.map(g=>`<div class="grant-row"><div><b>${escapeHtml(roleLabel(g.role_code))}</b><small>${escapeHtml([participantLabel(g.participant_id)&&`Deltaker: ${participantLabel(g.participant_id)}`,pilotLabel(g.pilot_id)&&`Pilot: ${pilotLabel(g.pilot_id)}`,g.valid_until&&`Til ${new Intl.DateTimeFormat('nb-NO').format(new Date(g.valid_until))}`].filter(Boolean).join(' · ')||'Generelt omfang')}</small></div><button class="ghost revoke-access" data-grant-id="${g.id}">Fjern</button></div>`).join('')}</div>`:'<p class="privacy-note">Ingen aktiv arbeidsrolle.</p>'}</section>`}).join(''):'<p>Ingen brukere å vise.</p>';
  $$('.revoke-access').forEach(b=>b.addEventListener('click',()=>revokeGrant(b.dataset.grantId)));
 }
+function maybeDefaultScopedViaFields(){
+ const role=$('#roleCode').value,participantId=$('#participantId').value||null;
+ if(!participantId||!['via_owner','clinical_professional'].includes(role))return;
+ const label=participantLabel(participantId)||'valgt deltaker';
+ if(!clean($('#reason').value))$('#reason').value='VÍA-vurdering og tidsavgrenset fagansvar for '+label;
+ if(!$('#validUntil').value){
+   const when=new Date(Date.now()+7*86400000);
+   $('#validUntil').value=new Date(when.getTime()-when.getTimezoneOffset()*60000).toISOString().slice(0,16);
+ }
+}
+function offerViaReviewHandoff(context){
+ pendingViaReviewHandoff=context;
+ const panel=$('#viaReviewAssignment');
+ if(!context){panel.classList.add('hidden');return}
+ const staff=accessData.users.find(u=>u.id===context.targetUserId);
+ const name=staff?.staff?.full_name||staff?.email||'Valgt medarbeider';
+ const participant=participantLabel(context.participantId)||'valgt deltaker';
+ $('#viaReviewSummary').textContent=`${participant}: ${name} har fått en tidsavgrenset VÍA-/fagrolle. Du kan nå flytte den åpne vurderingsoppgaven til vedkommende.`;
+ $('#assignViaReview').disabled=false;
+ msg('#viaReviewMessage','Tilgangen er gitt. Oppgaven er ikke flyttet ennå.');
+ panel.classList.remove('hidden');
+}
+async function assignViaReview(){
+ const c=pendingViaReviewHandoff;if(!c)return;
+ const button=$('#assignViaReview');button.disabled=true;
+ msg('#viaReviewMessage','Kontrollerer rettigheter og overfører eksisterende VÍA-vurdering…');
+ try{
+   const {data,error}=await client.functions.invoke('task-command',{
+     body:{action:'REASSIGN_VIA_REVIEW',participantId:c.participantId,targetUserId:c.targetUserId,reason:c.reason}
+   });
+   if(error||data?.error){
+     msg('#viaReviewMessage','Ingen oppgave ble bekreftet overført: '+(data?.error||error?.message||'Ukjent feil')+'. Kontroller oppgaven før ny handling.');
+     button.disabled=false;return;
+   }
+   msg('#viaReviewMessage',data?.unchanged?'VÍA-vurderingen var allerede tildelt riktig medarbeider.':'VÍA-vurderingen er tildelt medarbeideren. Ingen GO/NO-GO er besluttet.',true);
+   await loadAccess();
+ }catch{
+   msg('#viaReviewMessage','Kunne ikke bekrefte overføring. Kontroller oppgaven før ny handling.');
+   button.disabled=false;
+ }
+}
 function renderRoleInfo(){const code=$('#roleCode').value,info=ROLE_INFO[code];if(!info){$('#roleDescription').innerHTML='<strong>Velg en rolle</strong><p>Her vises hva rollen er ment å gjøre – og hva den ikke skal gjøre alene.</p>';return}$('#roleDescription').innerHTML=`<strong>${escapeHtml(info.title)}</strong><p><b>Kan:</b> ${escapeHtml(info.can)}</p><p><b>Grense:</b> ${escapeHtml(info.limit)}</p>`}
 function toggleInviteFields(){const participant=$('#inviteType').value==='participant';$('#participantInviteFields').classList.toggle('hidden',!participant);$('#inviteCodeName').required=participant&&!$('#existingParticipantId').value}
 function applyN2Handoff(){
@@ -68,8 +110,20 @@ $('#inviteForm').addEventListener('submit',async e=>{
 });
 
 $('#grantForm').addEventListener('submit',async e=>{
- e.preventDefault();const targetUserId=$('#targetUserSelect').value,roleCode=$('#roleCode').value;if(!targetUserId||!roleCode){msg('#grantMessage','Velg både medarbeider og rolle.');return}const body={targetUserId,roleCode,participantId:$('#participantId').value||null,pilotId:$('#pilotId').value||null,reason:clean($('#reason').value)||null,validUntil:isoOrNull($('#validUntil').value)};if(roleCode==='break_glass'&&(!body.reason||!body.validUntil)){msg('#grantMessage','Midlertidig nødtilgang krever begrunnelse og utløpstid.');return}msg('#grantMessage','Tildeler tilgang…');const {data,error}=await client.functions.invoke('admin-grant-role',{body});if(error||data?.error){msg('#grantMessage',`Tilgangen ble ikke tildelt: ${data?.error||error?.message||'ukjent feil'}`);return}msg('#grantMessage','Arbeidsrollen er tildelt med valgt omfang.',true);$('#grantForm').reset();renderRoleInfo();await loadAccess();
+ e.preventDefault();const targetUserId=$('#targetUserSelect').value,roleCode=$('#roleCode').value;if(!targetUserId||!roleCode){msg('#grantMessage','Velg både medarbeider og rolle.');return}const body={targetUserId,roleCode,participantId:$('#participantId').value||null,pilotId:$('#pilotId').value||null,reason:clean($('#reason').value)||null,validUntil:isoOrNull($('#validUntil').value)};
+ const scopedVia=!!body.participantId&&['via_owner','clinical_professional'].includes(roleCode);
+ if((roleCode==='break_glass'||scopedVia)&&(!body.reason||!body.validUntil)){
+   msg('#grantMessage',scopedVia?'Avgrenset VÍA-/fagrolle krever begrunnelse og utløp (maks 30 dager).':'Midlertidig nødtilgang krever begrunnelse og utløpstid.');return;
+ }
+ if(scopedVia&&Date.parse(body.validUntil)>Date.now()+30*86400000){
+   msg('#grantMessage','VÍA-/fagrollen kan maksimalt vare i 30 dager.');return;
+ }msg('#grantMessage','Tildeler tilgang…');const {data,error}=await client.functions.invoke('admin-grant-role',{body});if(error||data?.error){msg('#grantMessage',`Tilgangen ble ikke tildelt: ${data?.error||error?.message||'ukjent feil'}`);return}msg('#grantMessage','Arbeidsrollen er tildelt med valgt omfang.',true);
+ const handoffContext=scopedVia?{participantId:body.participantId,targetUserId,reason:'Tildeler åpen VÍA-vurdering etter avgrenset rollegrant for '+(participantLabel(body.participantId)||'deltaker')}:null;
+ $('#grantForm').reset();renderRoleInfo();await loadAccess();
+ offerViaReviewHandoff(handoffContext);
 });
 async function revokeGrant(grantId){const reason=prompt('Kort begrunnelse for å fjerne tilgangen:');if(!reason)return;const {data,error}=await client.functions.invoke('admin-revoke-role',{body:{grantId,reason:clean(reason)}});if(error||data?.error){alert(`Kunne ikke fjerne tilgang: ${data?.error||error?.message||'ukjent feil'}`);return}await loadAccess()}
 
-$('#roleCode').addEventListener('change',renderRoleInfo);$('#inviteType').addEventListener('change',toggleInviteFields);$('#refreshAccess').addEventListener('click',loadAccess);$('#logout').addEventListener('click',async()=>{await client.auth.signOut();location.replace('./')});toggleInviteFields();renderRoleInfo();requireAdmin();
+$('#roleCode').addEventListener('change',()=>{renderRoleInfo();maybeDefaultScopedViaFields()});
+$('#participantId').addEventListener('change',maybeDefaultScopedViaFields);
+$('#assignViaReview').addEventListener('click',assignViaReview);$('#inviteType').addEventListener('change',toggleInviteFields);$('#refreshAccess').addEventListener('click',loadAccess);$('#logout').addEventListener('click',async()=>{await client.auth.signOut();location.replace('./')});toggleInviteFields();renderRoleInfo();requireAdmin();
