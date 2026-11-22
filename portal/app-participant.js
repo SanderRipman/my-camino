@@ -140,12 +140,33 @@ renderForms=function(){
   $('#formLibrary').innerHTML=defs.length?defs.map((f,i)=>`<a class="form-module" style="text-decoration:none;color:inherit" href="${awaitingVia&&f.key==='via_roadmap'?'./form-runner.html?latest=1#my-via-roadmap':`./form-runner.html?key=${encodeURIComponent(f.key)}${participant&&f.key!=='info_before_via'?'&participant='+encodeURIComponent(participant):''}`}"><span class="num">${String(i+1).padStart(2,'0')}</span><h3>${escapeHtml(f.title_no)}</h3><p>${escapeHtml(f.key==='info_before_via'?'Kort informasjon før du går videre.':f.key==='via_roadmap'?(awaitingVia?'Innsendt og skrivebeskyttet. VÍA-ansvarlig følger opp.':'Ditt veikart og neste avklaringer i VÍA.'):f.key==='participant_agreement'?'Din egen bekreftelse av avtale, kontaktvalg og praktiske rammer før neste gate.':'Din levende VIDA-plan og neste handling hjemme.')}</p><div class="meta"><span>${escapeHtml(participantPhaseLabel(p?.stage||'VIA'))}</span><span>${awaitingVia&&f.key==='via_roadmap'?'Se fullført →':'Åpne →'}</span></div></a>`).join(''):'<p>Ingen versjonerte skjemaer krever noe fra deg i denne fasen.</p>';
 };
 
+// P0 privacy gate: personal analytics are not released to participant accounts in any
+// phase yet. This is intentionally stricter than "from VIDA" until the product decision,
+// data minimisation, and positive/negative RLS E2E have been verified.
 const staffRenderAnalysis=renderAnalysis;
 renderAnalysis=function(){
-  if(isStaff())return staffRenderAnalysis();
-  const avg=$('#showAverage');if(avg)avg.checked=false;
-  staffRenderAnalysis();
-  $('#analysisParticipants')?.classList.add('hidden');avg?.closest('label')?.classList.add('hidden');
+  if(!isStaff()){
+    analysisSelected.clear();
+    $('#analysisParticipants')?.replaceChildren();
+    const canvas=$('#analysisChart');
+    if(canvas)canvas.getContext('2d')?.clearRect(0,0,canvas.width,canvas.height);
+    return;
+  }
+  return staffRenderAnalysis();
+};
+
+const staffRenderOverviewChart=renderOverviewChart;
+renderOverviewChart=function(){
+  if(isStaff())return staffRenderOverviewChart();
+  const canvas=$('#overviewChart');
+  if(canvas)canvas.getContext('2d')?.clearRect(0,0,canvas.width,canvas.height);
+  $('#overviewLegend')?.replaceChildren();
+};
+
+const staffShowBeforeAnalyticsGate=show;
+show=function(name){
+  if(name==='analysis'&&!isStaff())return staffShowBeforeAnalyticsGate('overview');
+  return staffShowBeforeAnalyticsGate(name);
 };
 
 function adaptParticipantChrome(){
@@ -155,9 +176,16 @@ function adaptParticipantChrome(){
   const setCard=(i,label,value,hint)=>{const c=cards[i];if(!c)return;c.querySelector('span').textContent=label;c.querySelector('strong').textContent=value;c.querySelector('small').textContent=hint};
   setCard(0,'Mine åpne steg',snap.total,'det du kan gjøre eller må avklare');setCard(1,'Må nå',snap.red.length,'blokkerer / forfalt');setCard(2,'Neste steg',snap.yellow.length,'krever handling');setCard(3,'Info / valgfritt',snap.blue.length,'nyttig, men ikke fremdriftskrav');
   const pulse=$('#groupPulse')?.closest('.panel-card');if(pulse){pulse.querySelector('.eyebrow').textContent='Din rytme';pulse.querySelector('h3').textContent='Siste status'}
-  const chart=$('#overviewChart')?.closest('.panel-card');if(chart){chart.querySelector('.eyebrow').textContent='Din utvikling';chart.querySelector('h3').textContent='Siste 30 dager';const b=chart.querySelector('[data-go="analysis"]');if(b)b.textContent='Se min utvikling'}
-  const analysis=$('#view-analysis .section-head');if(analysis){analysis.querySelector('.eyebrow').textContent='Dine målinger';analysis.querySelector('h2').textContent='Din utvikling over tid';analysis.querySelector('p').textContent='Se dine egne målinger som støtte for refleksjon og samtale. En skår er ikke en diagnose eller en automatisk beslutning.'}
-  $('#analysisParticipants')?.classList.add('hidden');$('#showAverage')?.closest('label')?.classList.add('hidden');
+  // No participant analysis before an explicit, tested VIDA/self-only release gate.
+  const chart=$('#overviewChart')?.closest('.panel-card');
+  if(chart){chart.classList.add('hidden');chart.setAttribute('aria-hidden','true')}
+  const analysisNav=$('.nav-item[data-view="analysis"]');
+  if(analysisNav){analysisNav.classList.add('hidden');analysisNav.setAttribute('aria-hidden','true');analysisNav.tabIndex=-1}
+  const analysisView=$('#view-analysis');
+  if(analysisView){analysisView.classList.remove('active');analysisView.classList.add('hidden');analysisView.setAttribute('aria-hidden','true')}
+  // This iframe is a *public, synthetic-only* legacy prototype; still do not load it in a participant session.
+  const syntheticFrame=$('#analysisEmbeddedFrame');
+  if(syntheticFrame)syntheticFrame.setAttribute('src','about:blank');
   const formsHead=$('#view-forms .section-head');if(formsHead){formsHead.querySelector('.eyebrow').textContent='Din reise';formsHead.querySelector('h2').textContent='Dine steg og skjemaer';formsHead.querySelector('p').textContent=base==='SER'?'Under SER bruker du den korte Innsjekk-flaten. Den daglige operative SER-loggen tilhører teamet.':'Bare det som er relevant i fasen din vises her.'}
   $('#view-forms .reference-card')?.classList.add('hidden');
   const checkNav=$('.nav-item[data-view="checkin"]');if(checkNav)checkNav.classList.toggle('hidden',base!=='SER');
