@@ -111,4 +111,27 @@ simulateBlockedObserver({participant:true,roleCodes:[],authScript:false});
 simulateBlockedObserver({participant:true,roleCodes:[],authScript:true});
 console.log('Form denial observer runtime / participant safety regression: PASS');
 
+
+const participantNext=read('./app-participant-next.js');
+must(participantNext.includes("href:'./form-runner.html#my-via-roadmap'"),'Participant VIA action must not depend on problematic query-parameter document navigation');
+must(runner.includes("location.hash==='#my-via-roadmap'&&!!ownParticipant()"),'Queryless VIA target must only select the authenticated owner and preserve RLS');
+must(runner.includes("participant=selfVia?ownParticipant().id:q.get('participant')"),'Queryless VIA routing must derive participant ID exclusively from authenticated ownership');
+must(runner.includes('if([pRes,gRes,dRes,vRes,pilotRes,ppRes].some(res=>res.error)){formDataUnavailable();return}'),'Failed reads must never silently become empty role/form datasets');
+must(runner.includes("$('#blockedText').textContent='Innsjekk av kontoen"),'Temporary identity/read failure must have its own safe failure explanation');
+const retryStart=runner.indexOf('async function retryFormRead(');
+const retryEnd=runner.indexOf('\nfunction formDataUnavailable()',retryStart);
+must(retryStart>0&&retryEnd>retryStart,'Bounded JWT retry must exist as independently testable helper');
+const retryFn=vm.runInNewContext(runner.slice(retryStart,retryEnd)+'\nretryFormRead',{Promise,setTimeout},{timeout:1000});
+let calls=0,delays=[];
+let result=await retryFn(async()=>{calls++;return calls===1?{status:401,error:{code:'PGRST303'}}:{status:200,error:null,data:['own participant']}},
+  async ms=>{delays.push(ms)});
+must(calls===2&&delays.length===1&&result.data?.[0]==='own participant','Transient PGRST303 must recover without dropping owner');
+calls=0;delays=[];
+result=await retryFn(async()=>{calls++;return {status:403,error:{code:'42501'}}},async ms=>{delays.push(ms)});
+must(calls===1&&delays.length===0&&result.status===403,'Actual RLS denial must fail closed without auth retry');
+calls=0;delays=[];
+result=await retryFn(async()=>{calls++;return {status:401,error:{code:'PGRST303'}}},async ms=>{delays.push(ms)});
+must(calls===4&&delays.length===3&&result.error.code==='PGRST303','Persistent auth validation error must be bounded and reported, not loop forever');
+console.log('Form PGRST303 recovery, negative RLS, and hash-only participant owner route: PASS');
+
 console.log('Form runner single-flight, sole-owner participant/pilot targeted bootstrap and simplified mobile IA invariants: PASS');
