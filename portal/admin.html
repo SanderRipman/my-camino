@@ -71,10 +71,17 @@
             <fieldset class="scope-box"><legend>Tilgangsomfang</legend><p>La begge stå på «hele relevant arbeidsflate» dersom rollen er generell. Velg deltaker eller pilot bare når tilgangen faktisk skal begrenses.</p>
               <div class="admin-subgrid"><label><span>Kun denne deltakeren</span><select id="participantId"><option value="">Hele relevant arbeidsflate</option></select></label><label><span>Kun denne piloten/gruppen</span><select id="pilotId"><option value="">Hele relevant arbeidsflate</option></select></label></div>
             </fieldset>
-            <div class="admin-subgrid"><label><span>Begrunnelse / mandat (valgfritt)</span><input id="reason" autocomplete="off" placeholder="Kort hvorfor tilgangen gis"></label><label><span>Utløper (valgfritt)</span><input id="validUntil" type="datetime-local"><small>Påkrevd ved midlertidig nødtilgang.</small></label></div>
+            <div class="admin-subgrid"><label><span>Begrunnelse / mandat</span><input id="reason" autocomplete="off" placeholder="Kort hvorfor tilgangen gis"></label><label><span>Utløper</span><input id="validUntil" type="datetime-local"><small>Ved deltakerspesifikk VÍA-/fagrolle: påkrevd, maksimalt 30 dager.</small></label></div>
             <button class="primary" type="submit">Tildel arbeidsrolle</button>
           </form>
           <p id="grantMessage" class="message" aria-live="polite"></p>
+          <div id="viaReviewAssignment" class="admin-journey-context hidden" aria-live="polite">
+            <strong>Tilgang klar – tildel VÍA-vurderingen</strong>
+            <p id="viaReviewSummary">Velg medarbeiderens eksisterende åpne VÍA-vurdering.</p>
+            <button id="assignViaReview" class="primary" type="button">Tildel åpen VÍA-vurdering</button>
+            <p id="viaReviewMessage" class="message" aria-live="polite"></p>
+            <small>Flytter bare en eksisterende åpen oppgave. Verken skjema, faglig vurdering eller GO/NO-GO endres.</small>
+          </div>
         </article>
       </div>
 
@@ -88,6 +95,6 @@
     </section>
   </main>
 </div>
-<script src="./admin.js?v=20260822a"></script><script src="./admin-early-uat.js?v=20260909a"></script><script src="./admin-preflight-20260917.js?v=20260917a"></script><script src="./app-mobile.js?v=20260906a"></script>
+<script src="./admin.js?v=20261122uat3s"></script><script src="./admin-early-uat.js?v=20260909a"></script><script src="./admin-preflight-20260917.js?v=20260917a"></script><script src="./app-mobile.js?v=20260906a"></script>
 </body>
 </html>

@@ -108,4 +108,29 @@ for(const unchanged of [
  "'INCIDENT_FOLLOWUP'",
  "task:{id:task.id,title:task.title,description:task.description,severity:task.severity,status:task.status}"
 ])assert(reviewTaskCommand.includes(unchanged),'Shared deployed task-command live behavior must survive UAT 3R: '+unchanged);
+for(const required of [
+ "action==='REASSIGN_VIA_REVIEW'&&!taskId",
+ ".eq('role_code','system_admin')",
+ ".is('participant_id',null).is('pilot_id',null)",
+ "error:'EXPECTED_ONE_OPEN_VIA_REVIEW'",
+ "g.organization_id===participant.organization_id",
+ "taskId=reviewTasks[0].id",
+ "const unscopedAdmin=",
+ "if(!(callerPermissions??[]).length&&!unscopedAdmin)"
+])assert(reviewTaskCommand.includes(required),'Safe administrative handoff precondition absent: '+required);
+const adminUiSource=read('admin.js'),adminUiHtml=read('admin.html');
+new vm.Script(adminUiSource,{filename:'portal/admin.js'});
+for(const required of [
+ "id=\"viaReviewAssignment\"",
+ "id=\"assignViaReview\"",
+ "admin.js?v=20261122uat3s"
+])assert(adminUiHtml.includes(required),'Admin handoff UI missing: '+required);
+for(const required of [
+ "action:'REASSIGN_VIA_REVIEW'",
+ "offerViaReviewHandoff(handoffContext)",
+ "const scopedVia=",
+ "if(scopedVia&&Date.parse(body.validUntil)>",
+ "await loadAccess()"
+])assert(adminUiSource.includes(required),'Admin handoff client missing: '+required);
+assert(adminUiSource.indexOf("offerViaReviewHandoff(handoffContext)")>adminUiSource.indexOf("msg('#grantMessage','Arbeidsrollen er tildelt"),'Review assignment cannot be offered before confirmed scoped grant');
 console.log('UAT 3Q audited scope-checked VÍA review reassignment invariants passed');
