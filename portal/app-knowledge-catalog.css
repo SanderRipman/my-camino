@@ -1,0 +1,4 @@
+/* Non-intrusive utility affordance for the current form cards. */
+#formLibrary .form-knowledge-catalog-link{margin-top:auto;padding:10px 0 0;border-top:1px solid #e4ddd2}
+#formLibrary .form-knowledge-catalog-link a{font-weight:700;color:#154a45;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+#formLibrary .form-knowledge-catalog-link a:focus-visible{outline:2px solid #c8a45d;outline-offset:3px}
