@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#123f3d">
+<title>AidMe VIDA · Les og bekreft rolleansvar</title>
+<link rel="stylesheet" href="./styles.css?v=20260817b"><link rel="stylesheet" href="./ux.css?v=20260817a"><link rel="stylesheet" href="./onboarding.css?v=20261123j">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body><div class="simple-shell app-shell">
+<aside class="simple-sidebar sidebar">
+<a class="brand" href="./"><img src="/vida/assets/AIDME_Logo-original-web.webp" alt="AidMe"><div><strong>AidMe VIDA</strong><span>Ve. Sé. Vive.</span></div></a>
+<nav><a class="nav-item" href="./"><span class="nav-num">01</span><b>Oversikt</b></a><a class="nav-item active" href="./onboarding.html"><span class="nav-num">00</span><b>Rolleintroduksjon</b></a><a class="nav-item" href="./sos.html"><span class="nav-num">10</span><b>Hjelp & SOS</b></a></nav>
+<p class="demo-note">Faglig innføring · ikke et nytt deltakerskjema. Sensitiv informasjon deles ikke her.</p>
+</aside>
+<main class="simple-main workspace">
+<header class="simple-top"><div><p class="eyebrow">Rolleintroduksjon · faglig lesing</p><h1 id="readTitle">Åpner relevant informasjon …</h1><p id="readRole">Dette er ikke et GO/NO-GO-skjema eller en behandlingsavtale.</p></div><span id="aalPill" class="security-pill">Kontrollerer…</span></header>
+<a id="backIntro" class="context-link" href="./onboarding.html">← Tilbake til samme punkt i rolleintroduksjonen</a>
+<article id="readMessage" class="panel-card hidden" role="alert"></article>
+<article id="readCard" class="panel-card read-card hidden">
+ <p class="eyebrow">Det du må kjenne til</p>
+ <p id="readLead" class="read-lead"></p>
+ <ul id="readPoints" class="read-points"></ul>
+ <aside class="read-note"><strong>Avgrensning</strong><p>Dette er en kort digital arbeidsreferanse til allerede eksisterende materiale. Dersom mandat, responstid eller ansvar ikke er avklart i din virksomhet, skal dette avklares med riktig leder før handling. Lesebekreftelse er ikke en faglig godkjenning eller en beslutning om deltakerens reise.</p></aside>
+ <div class="read-sources"><h2>Eksisterende kilder og skjema</h2><p>Kildene ligger i SharePoint og kan kreve egen dokumenttilgang. De viktigste prinsippene er gjengitt over; du behøver ikke fylle ut et skjema eller logge inn i SharePoint for å bekrefte introduksjonen.</p><div id="sourceLinks"></div></div>
+ <form id="readConfirm" class="read-confirm">
+  <label class="ack-row"><input type="checkbox" id="readChecked" required><span>Jeg bekrefter at jeg har lest dette, forstår ansvarsgrensene og vil avklare eventuelt uklart mandat før jeg utfører oppgaver.</span></label>
+  <button id="readSubmit" class="primary" type="submit" disabled>Bekreft lest og gå tilbake</button>
+  <p id="saveStatus" role="status" aria-live="polite"></p>
+ </form>
+ <div id="alreadyDone" class="read-done hidden"><strong>Dette punktet er allerede fullført.</strong><p>Du kan lese informasjonen på nytt. Det endrer ikke den registrerte bekreftelsen.</p><a class="ghost" id="doneBack" href="./onboarding.html">Tilbake til rolleintroduksjonen</a></div>
+</article>
+</main></div>
+<script src="./onboarding-read-content.js?v=20261123j"></script>
+<script src="./onboarding-read.js?v=20261123j"></script>
+<script src="./app-mobile.js?v=20260906b"></script>
+</body></html>
