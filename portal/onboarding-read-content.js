@@ -13,7 +13,7 @@ const role={
  system_admin:{can:'Administrere brukere, roller, omfang og revisjonslogger.',cannot:'Ikke lese sensitive fagopplysninger bare fordi du har teknisk tilgang.',owner:'Teknisk systemeierskap; faglige beslutninger har en annen ansvarslinje.'},
  project_owner:{can:'Eie konsept, avtaler, økonomi, kvalitetssystem og overordnet pilotramme.',cannot:'Ikke fatte individuelle kliniske GO/NO-GO uten riktig fagmandat.',owner:'Programansvarlig og formelt definert faglig beslutningsansvarlig må samordnes.'},
  program_lead:{can:'Koordinere hele før–under–etter-løpet, arbeidsoppgaver og eiere.',cannot:'Ikke overstyre faglige sikkerhetsvurderinger eller lese sensitive VÍA-felt automatisk.',owner:'Sørge for navngitt beslutningslinje og VIDA-eier før SER.'},
- via_owner:{can:'Lede avklaring, ressurser, retning og trygg VÍA-forberedelse.',cannot:'Ikke love SER-plass før individuell vurdering og samlet Pilot-GO.',owner:'Hent faglig vurdering når mandat eller risiko krever det.'},
+ via_owner:{can:'Lede avklaring, ressurser, retning og trygg VÍA-forberedelse.',cannot:'Ikke love SER-plass før individuell vurdering og samlet Felles-GO.',owner:'Hent faglig vurdering når mandat eller risiko krever det.'},
  clinical_professional:{can:'Bidra med faglig risikovurderingsstøtte, metodeveiledning, kriseplan og debrief innen avklart mandat.',cannot:'Ikke påta deg uavklart behandlingsansvar, automatisk beslutningsmyndighet eller døgnberedskap.',owner:'Formell GO/NO-GO-beslutningsansvarlig skal være uttrykkelig avklart; faglig råd er ikke automatisk GO.'},
  ser_lead:{can:'Lede rute, gruppe, daglige sikkerhetstiltak, enkel metode og operativ eskalering.',cannot:'Ikke drive behandling, diagnostikk eller pålegge privat deling.',owner:'Dagens tur-/SER-leder beslutter umiddelbare sikkerhetstiltak innen avtalt ramme.'},
  vida_owner:{can:'Eie oppfølging etter 72 timer og 14/30/90 dager samt én levende handlingsplan.',cannot:'Ikke overta hele sensitiv VÍA-/SER-historikken uten nødvendig grunnlag.',owner:'En navngitt ansvarlig overtar VIDA før SER avsluttes.'},
@@ -45,7 +45,7 @@ const common={
  },
  via_workspace:{
   lead:'VÍA er en avklaring og dokumentert overgang, ikke et løfte om SER-deltakelse.',
-  points:['Bruk én eksisterende VÍA-veikart- og beredskapsprosess per deltaker; unngå duplikatskjemaer.','Når veikartet er sendt inn, følger faglig vurdering og individuell GO/GO MED VILKÅR/UTSETT/NO-GO NÅ gjennom autorisert beslutningsflyt.','Ingen SER før både minimum VÍA og samlet Pilot-GO er lukket, og VIDA-eier er navngitt.'],
+  points:['Bruk én eksisterende VÍA-veikart- og beredskapsprosess per deltaker; unngå duplikatskjemaer.','Når veikartet er sendt inn, følger faglig vurdering og individuell GO/GO MED VILKÅR/UTSETT/NO-GO NÅ gjennom autorisert beslutningsflyt.','Ingen SER før både minimum VÍA og samlet Felles-GO er lukket, og VIDA-eier er navngitt.'],
   sources:['mal','go','journey']
  },
  ser_workspace:{
@@ -75,12 +75,12 @@ const common={
  },
  program_flow:{
   lead:'En sammenhengende deltakerreise med tydelige eiere i hver fase.',
-  points:['Kontroller at hver åpen oppgave har rett ansvarlig og frist.','Koordiner VÍA- og faglig GO uten å overstyre fagansvarlig; ikke forveksle individuell GO og Pilot-GO.','Ingen SER uten navngitt VIDA-eier, forsvarlig bemanning og avbruddsberedskap.'],
+  points:['Kontroller at hver åpen oppgave har rett ansvarlig og frist.','Koordiner VÍA- og faglig GO uten å overstyre fagansvarlig; ikke forveksle individuell GO og Felles-GO.','Ingen SER uten navngitt VIDA-eier, forsvarlig bemanning og avbruddsberedskap.'],
   sources:['journey','roles','mal']
  },
  project_overview:{
   lead:'Kvalitets- og rammeansvar er ikke automatisk individuell fagmyndighet.',
-  points:['Eie overordnet kvalitet, finansiering, avtaler, forsikring og partnerramme.','Sørge for at bemanning, ansvar og pilot-GO er skriftlig definert.','Klinisk mandat, journalplikt og dataansvar avklares med rette fag- og virksomhetsansvarlige.'],
+  points:['Eie overordnet kvalitet, finansiering, avtaler, forsikring og partnerramme.','Sørge for at bemanning, ansvar og Felles-GO er skriftlig definert.','Klinisk mandat, journalplikt og dataansvar avklares med rette fag- og virksomhetsansvarlige.'],
   sources:['roles','mal','privacy']
  },
  admin_workspace:{
@@ -97,7 +97,7 @@ const common={
 const roleNotes={
  clinical_professional:'Faglig støtte gjelder kun innen eksplisitt avtalt mandat; det skal ikke oppstå implisitt behandlings- eller døgnberedskap.',
  ser_lead:'Deltakeren kan be om pause, transport eller avbrudd. Dagens turleder eier operative sikkerhetsvalg.',
- via_owner:'Ingen lovnad om SER før både individuell beslutning og samlet Pilot-GO.',
+ via_owner:'Ingen lovnad om SER før både individuell beslutning og samlet Felles-GO.',
  vida_owner:'Oppfølging hjemme må ha navngitt eier før SER avsluttes.',
  evaluator:'Søk aggregerte data; individuell helseinformasjon er ikke standard.',
  observer:'Observatør er ikke automatisk operativ sikkerhetsressurs.',
