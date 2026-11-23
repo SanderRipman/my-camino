@@ -25,9 +25,12 @@ assert.match(readJs,/data\?\.item\?\.status!=='DONE'/,'Verify successful server 
 assert.match(readJs,/!\$\('#readChecked'\)\.checked/,'Explicit acknowledgement required');
 assert.match(readJs,/onboarding\.html#item-/,'Return to exact source row');
 assert.doesNotMatch(readJs,/form-runner\.html\?key=/,'Reading must not create a form draft');
-assert.match(readJs,/rel="noopener noreferrer"/,'External SharePoint links are generated with noopener');
+assert.doesNotMatch(content,/sharepoint\\.com|_layouts\\/15\\/Doc\\.aspx|sourcedoc=/i,'Employee onboarding cannot expose direct internal SharePoint URLs');
+assert.match(readHtml,/knowledge-registry\\.js/,'One shared knowledge registry loaded for onboarding');
+assert.match(readJs,/aidme:knowledge:return:v1/,'Safe same-tab return context for internal reading');
 assert.match(css,/\.read-confirm/);
 const context={window:{}};
+vm.runInNewContext(read('./knowledge-registry.js'),context,{filename:'knowledge-registry.js'});
 vm.runInNewContext(content,context,{filename:'onboarding-read-content.js'});
 const ref=context.window.AIDME_ONBOARDING_REFERENCE;
 assert.ok(ref&&typeof ref.resolve==='function');
@@ -51,7 +54,7 @@ for(const [role,keys] of Object.entries(matrix)){
   assert.ok(v,role+' '+key+' missing');
   assert.ok(v.points.length>=3,role+' '+key+' lacks practical instruction');
   assert.ok(v.sourceDetails.length>=1,role+' '+key+' lacks canonically mapped source');
-  assert.ok(v.sourceDetails.every(x=>/^https:\/\/aidme911-my\.sharepoint\.com\//.test(x.url)));
+  assert.ok(v.sourceDetails.every(x=>/^\.\/knowledge\.html\?topic=/.test(x.url)),role+' '+key+' must link only into portal');
   total++;
  }
 }
