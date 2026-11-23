@@ -98,6 +98,8 @@ jobs:
         run: node portal/build-app.mjs
       - name: Check built app syntax
         run: node --check portal/app.js
+      - name: Verify active built SER critical task note and status safety contract
+        run: node portal/ser-critical-decision-note-uat-smoke.mjs
       - name: Verify clean bundle invariants
         run: node portal/smoke-test.mjs
       - name: Verify context drilldown invariants
