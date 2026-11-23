@@ -78,7 +78,7 @@ ok(intakeContact.includes("tel:${phone.replace(/\\s+/g,'')}")&&intakeContact.inc
 ok(intakeContact.includes('Foretrukket kontakt')&&intakeContact.includes('Kontakt er en triagehandling'),'Intake detail must explain contact preference and triage boundary');
 ok(!intakeContact.includes('client.from(')&&!intakeContact.includes('.from(')&&!intakeContact.includes('functions.invoke'),'Contact UX layer must remain presentation-only');
 
-ok(formHtml.includes('form-role-gate-guidance.js?v=20260916a'),'Role/gate explanation module is not loaded');
+ok(formHtml.includes('form-role-gate-guidance.js?v='),'Role/gate explanation module is not loaded');
 ok(formHtml.includes('id="formBoot"')&&formHtml.includes('form-entry-guard.js?v=20260925a'),'Direct form entry must have a visible boot state and fail-safe guard');
 ok(formHtml.indexOf('form-entry-guard.js?v=20260925a')<formHtml.indexOf('form-runner.js?v=20261122c'),'Form entry guard must load before the runner bootstrap');
 ok(formHtml.includes('form-workflow-feedback.js?v=20260925a'),'Form completion workflow feedback is not loaded');

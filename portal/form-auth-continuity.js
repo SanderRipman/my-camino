@@ -23,10 +23,12 @@ async function verifySessionStillPresent(){
 }
 function polishSecurityChoice(){
   const blocked=document.querySelector('#blocked'),text=document.querySelector('#blockedText'),link=blocked?.querySelector('a.primary');if(!blocked||!text||blocked.classList.contains('hidden'))return;
-  if(/Authenticator|tofaktor|AAL2/i.test(text.textContent||'')){
-    const message='Dette steget krever ekstra sikkerhetsbekreftelse. Gå til Sikkerhet og bruk metoden som er tilgjengelig for kontoen din.';
-    if(text.textContent!==message)text.textContent=message;
-  }
+  // Only an actual MFA/AAL2 denial may offer a security shortcut.
+  // All other denials (missing submitted history, scope, network, timeout)
+  // must keep the exact task-return action configured by their owner.
+  if(!/Authenticator|tofaktor|AAL2/i.test(text.textContent||''))return;
+  const message='Dette steget krever ekstra sikkerhetsbekreftelse. Gå til Sikkerhet og bruk metoden som er tilgjengelig for kontoen din.';
+  if(text.textContent!==message)text.textContent=message;
   if(link){
     if(link.getAttribute('href')!=='./#security')link.setAttribute('href','./#security');
     if(link.textContent!=='Velg sikker bekreftelse')link.textContent='Velg sikker bekreftelse';
