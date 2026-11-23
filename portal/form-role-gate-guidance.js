@@ -15,8 +15,16 @@ function apply(){
   if(self||!roles.length)return;
   const p=document.querySelector('#blockedText');
   if(/Authenticator|tofaktor|AAL2/i.test(p?.textContent||''))return;
+  const h=blocked.querySelector('h2');
+  // A missing SUBMITTED record or a transport/backend failure is not proof
+  // of a missing role. Preserve the original reason and safe task return.
+  const headingText=String(h?.textContent||'').trim();
+  const roleDenied=headingText==='Denne handlingen er ikke tilgjengelig for rollen din'
+    ||headingText==='Ingen tildelte skjema for denne rollen'
+    ||/Du har ikke en aktiv VÍA-fagrolle/.test(p?.textContent||'');
+  if(!roleDenied)return;
   const onlyAdmin=roles.every(r=>['system_admin','project_owner'].includes(r));
-  const h=blocked.querySelector('h2'),heading='Riktig rolle må overta dette beslutningspunktet';
+  const heading='Riktig rolle må overta dette beslutningspunktet';
   const explanation=onlyAdmin
     ?'Du er innlogget som systemadministrator/prosjekteier, men det gir ikke automatisk VÍA-faglig handlingsrett. Systemadministrator skal ikke være en skjult superrolle. Bruk en eksplisitt Programleder-, VÍA-ansvarlig- eller relevant fagrolle med riktig scope for individuell VÍA-vurdering.'
     :'Denne handlingen krever en eksplisitt rolle og riktig deltaker-/pilotscope. Portalen åpner ikke et annet skjema som reserve.';
