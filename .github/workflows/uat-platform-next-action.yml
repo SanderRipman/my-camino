@@ -1,0 +1,20 @@
+name: UAT platform next-action contract
+on:
+  pull_request:
+    branches: [demo-uat]
+    paths:
+      - 'portal/platform-next-action/**'
+      - '.github/workflows/uat-platform-next-action.yml'
+permissions:
+  contents: read
+jobs:
+  synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test portal/platform-next-action/next-action-contract.test.mjs
+      - run: echo 'Synthetic UI contract only; not wired into live UI, not RLS/AAL2 or physical UAT PASS.' >> "$GITHUB_STEP_SUMMARY"
