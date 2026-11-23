@@ -89,6 +89,18 @@ async function fetchReviewRows(){
   q=pilotId?q.eq('pilot_id',pilotId):q.is('pilot_id',null);
   const {data,error}=await q;if(error)return[];return data||[];
 }
+// A deep link to a submitted record is never permission to open an editable
+// blank form when the requested RLS-readable submission cannot be found.
+function denyMissingSubmittedReview(){
+  const q=new URLSearchParams(location.search);
+  if(q.get('latest')!=='1'&&!q.has('submission'))return false;
+  blockUnavailableRequestedContext(q);
+  const blocked=document.querySelector('#blocked');
+  if(blocked)blocked.querySelector('h2').textContent='Innsendt skjema er ikke tilgjengelig';
+  const message=document.querySelector('#blockedText');
+  if(message)message.textContent='Vi fant ikke en fullført registrering som denne rollen kan lese for valgt deltaker og skjemaversjon. Ingen data er endret. Gå tilbake til oppgaven.';
+  return true;
+}
 async function enhanceSubmissionHistory(){
   reviewRows=await fetchReviewRows();
   const list=$('#submissionList');if(!list)return;
@@ -102,7 +114,7 @@ async function enhanceSubmissionHistory(){
     if(historyTitle)historyTitle.textContent='Versjonshistorikk';
     if(historyEyebrow)historyEyebrow.textContent='Tidligere registreringer';
   }
-  if(!reviewRows.length){list.innerHTML='<p>Ingen registreringer for denne konteksten ennå.</p>';setFocusedReview(false);return}
+  if(!reviewRows.length){if(denyMissingSubmittedReview())return;list.innerHTML='<p>Ingen registreringer for denne konteksten ennå.</p>';setFocusedReview(false);return}
   const submittedRows=reviewRows.filter(r=>r.status==='SUBMITTED');
   list.innerHTML=reviewRows.map((row,index)=>{
     const submittedIndex=submittedRows.findIndex(r=>r.id===row.id);
@@ -118,7 +130,7 @@ async function enhanceSubmissionHistory(){
   if(lastAutoReviewKey===autoKey)return;
   const row=wanted?reviewRows.find(x=>x.id===wanted&&x.status==='SUBMITTED'):autoLatest?reviewRows.find(x=>x.status==='SUBMITTED'):vidaLatest?reviewRows.find(x=>x.status==='SUBMITTED'):null;
   if(row){lastAutoReviewKey=autoKey;await renderSubmissionReview(row,{focused:true})}
-  else setFocusedReview(false);
+  else if(!denyMissingSubmittedReview())setFocusedReview(false);
 }
 
 const baseLoadSubmissions=loadSubmissions;
