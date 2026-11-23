@@ -129,7 +129,7 @@ for(const required of [
  "action:'REASSIGN_VIA_REVIEW'",
  "offerViaReviewHandoff(handoffContext)",
  "const scopedVia=",
- "if(scopedVia&&Date.parse(body.validUntil)>",
+ "if(sensitiveRole&&Date.parse(body.validUntil)>",
  "await loadAccess()"
 ])assert(adminUiSource.includes(required),'Admin handoff client missing: '+required);
 assert(adminUiSource.indexOf("offerViaReviewHandoff(handoffContext)")>adminUiSource.indexOf("msg('#grantMessage','Arbeidsrollen er tildelt"),'Review assignment cannot be offered before confirmed scoped grant');

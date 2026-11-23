@@ -20,7 +20,7 @@ Deno.serve(async(req:Request)=>{
     if(userError||!userData.user)return new Response(JSON.stringify({error:'UNAUTHORIZED'}),{status:401,headers})
     if((decodeClaims(token) as any).aal!=='aal2')return new Response(JSON.stringify({error:'MFA_REQUIRED'}),{status:403,headers})
     const now=new Date().toISOString()
-    const {data:adminGrants,error:adminError}=await admin.from('role_grants').select('id,valid_from,valid_until,revoked_at').eq('user_id',userData.user.id).eq('role_code','system_admin')
+    const {data:adminGrants,error:adminError}=await admin.from('role_grants').select('id,organization_id,valid_from,valid_until,revoked_at').eq('user_id',userData.user.id).eq('role_code','system_admin')
     if(adminError)throw adminError
     const authorized=(adminGrants??[]).some((g:any)=>!g.revoked_at&&(!g.valid_from||g.valid_from<=now)&&(!g.valid_until||g.valid_until>now))
     if(!authorized)return new Response(JSON.stringify({error:'FORBIDDEN'}),{status:403,headers})
@@ -28,19 +28,23 @@ Deno.serve(async(req:Request)=>{
     const body=await req.json()
     const grantId=String(body?.grantId??'')
     const reason=String(body?.reason??'').trim()
-    if(!grantId||!reason)return new Response(JSON.stringify({error:'GRANT_ID_AND_REASON_REQUIRED'}),{status:400,headers})
+    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(grantId)||reason.length<3||reason.length>240)return new Response(JSON.stringify({error:'GRANT_ID_AND_REASON_REQUIRED'}),{status:400,headers})
 
     const {data:grant,error:grantError}=await admin.from('role_grants').select('id,user_id,organization_id,participant_id,pilot_id,role_code,revoked_at').eq('id',grantId).maybeSingle()
     if(grantError||!grant)return new Response(JSON.stringify({error:'GRANT_NOT_FOUND'}),{status:404,headers})
+    if(!(adminGrants??[]).some((g:any)=>g.organization_id===grant.organization_id&&!g.revoked_at&&(!g.valid_from||g.valid_from<=now)&&(!g.valid_until||g.valid_until>now)))
+      return new Response(JSON.stringify({error:'WRONG_ORGANIZATION'}),{status:403,headers})
     if(grant.revoked_at)return new Response(JSON.stringify({ok:true,alreadyRevoked:true,grantId}),{status:200,headers})
     if(grant.role_code==='system_admin'&&grant.user_id===userData.user.id){
-      const {count,error:countError}=await admin.from('role_grants').select('id',{count:'exact',head:true}).eq('role_code','system_admin').is('revoked_at',null)
+      const {count,error:countError}=await admin.from('role_grants').select('id',{count:'exact',head:true}).eq('organization_id',grant.organization_id).eq('role_code','system_admin').is('revoked_at',null)
       if(countError)throw countError
       if((count??0)<=1)return new Response(JSON.stringify({error:'CANNOT_REVOKE_LAST_SYSTEM_ADMIN'}),{status:409,headers})
     }
 
-    const {data,error}=await admin.from('role_grants').update({revoked_at:now,reason:`${grant.role_code}: revoked – ${reason}`}).eq('id',grantId).select('id,role_code,revoked_at').single()
+    const {data,error}=await admin.from('role_grants').update({revoked_at:now,reason:`${grant.role_code}: revoked – ${reason}`})
+      .eq('id',grantId).eq('organization_id',grant.organization_id).is('revoked_at',null).select('id,role_code,revoked_at').maybeSingle()
     if(error)throw error
+    if(!data)return new Response(JSON.stringify({error:'ROLE_CHANGED_CONCURRENTLY'}),{status:409,headers})
     const {error:auditError}=await admin.from('audit_events').insert({
       organization_id:grant.organization_id,
       actor_user_id:userData.user.id,

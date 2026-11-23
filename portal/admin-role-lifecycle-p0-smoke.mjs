@@ -1,0 +1,37 @@
+import { readFileSync } from 'node:fs';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+const read=p=>readFileSync(new URL(p,import.meta.url),'utf8');
+const admin=read('./admin.js');
+const early=read('./admin-early-uat.js');
+const revoke=read('../supabase/functions/admin-revoke-role/index.ts');
+const update=read('../supabase/functions/admin-update-role/index.ts');
+for(const [name,source] of [['admin',admin],['admin-early',early]]){
+ new vm.Script(source,{filename:name+'.js'});
+}
+assert.match(early,/id="editRoleCode"/,'Edit form must expose role type');
+assert.match(early,/roleCode,participantId,pilotId/,'Edit must pass role and scope together');
+assert.match(early,/roleCode!==oldRole/,'Edit must confirm role replacement');
+assert.match(early,/actual\.role_code!==roleCode/,'Edit must verify stored role from server');
+assert.match(early,/Lagre endring/);
+assert.match(early,/Legg til rolle/);
+assert.match(admin,/async function revokeGrant/);
+assert.match(admin,/async function adminErrorText/);
+assert.match(admin,/sensitiveRole&&!body\.participantId&&!body\.pilotId/,'No silent general clinical grants');
+assert.match(update,/role_code:roleCode/,'Backend update must modify current grant role type');
+assert.match(update,/\.eq\('id',grantId\).*\.eq\('organization_id',g\.organization_id\)/s,'Update must target exact existing grant');
+assert.doesNotMatch(update,/\.from\('role_grants'\)\.insert\(/,'Edit must not add a new grant');
+assert.match(update,/protectedRoles\.has\(g\.role_code\)/,'No privilege escalation via edit');
+assert.match(update,/WRONG_ORGANIZATION/);
+assert.match(update,/OVERLAPPING_ACTIVE_ROLE/);
+assert.match(update,/CLINICAL_ROLE_REQUIRES_EXPLICIT_SCOPE/);
+assert.match(update,/TRANSFER_OPEN_TASKS_BEFORE_ROLE_CHANGE/);
+assert.match(update,/narrowingExisting/);
+assert.match(update,/\.aal!=='aal2'/);
+assert.match(update,/\.auth\.getUser\(token\)/);
+assert.match(revoke,/\.aal!=='aal2'/);
+assert.match(revoke,/\.auth\.getUser\(token\)/);
+assert.match(revoke,/WRONG_ORGANIZATION/);
+assert.match(revoke,/\.is\('revoked_at',null\)/);
+assert.match(revoke,/ROLE_REVOKED/);
+console.log('P0 role admin: 24 syntax / authentication / replace-not-add / scope / revoke assertions PASS');
