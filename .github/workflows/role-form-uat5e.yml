@@ -1,0 +1,22 @@
+name: UAT 5E role form READ-ONLY contract
+on:
+  pull_request:
+    paths:
+      - 'portal/form-runner.js'
+      - 'portal/knowledge-registry.js'
+      - 'portal/role-form-readonly-uat5e-smoke.mjs'
+      - 'portal/ROLE_FORM_SCOPE_AUDIT_UAT5E.md'
+      - '.github/workflows/role-form-uat5e.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  static-role-form-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check portal/role-form-readonly-uat5e-smoke.mjs
+      - run: node portal/role-form-readonly-uat5e-smoke.mjs
