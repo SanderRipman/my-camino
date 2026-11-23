@@ -15,7 +15,7 @@ function backTarget(){
   const x=JSON.parse(sessionStorage.getItem(NAV_RETURN)||'null');
   if(!x||Date.now()-x.at>30*60*1000)return './';
   const u=new URL(x.path,location.origin);
-  if(u.origin!==location.origin||!/^\\/portal\\/(form-runner\\.html|onboarding-read\\.html|onboarding\\.html|index\\.html)?$/.test(u.pathname))return './';
+  if(u.origin!==location.origin||!['/portal/','/portal/index.html','/portal/form-runner.html','/portal/onboarding-read.html','/portal/onboarding.html'].includes(u.pathname))return './';
   return u.pathname+u.search+u.hash;
  }catch{return './'}
 }
