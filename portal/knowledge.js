@@ -6,6 +6,8 @@
 'use strict';
 const K=window.AIDME_KNOWLEDGE,$=s=>document.querySelector(s),q=new URLSearchParams(location.search);
 const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+const PREVIEW_OPTION_NB=Object.freeze({GO:'GO',GO_WITH_CONDITIONS:'GO med vilkår',POSTPONE:'Utsett',NO_GO_NOW:'NO-GO nå',YES:'Ja',NO:'Nei',UNKNOWN:'Ikke avklart',CONTINUE:'Fortsett',ADJUST:'Juster',PAUSE:'Pause',STOP:'Stopp'});
+const previewOptionNb=v=>PREVIEW_OPTION_NB[String(v)]||String(v||'Velg');
 const key=K?.getForm(q.get('form'))?q.get('form'):null;
 const topic=K?.getTopic(q.get('topic'))?q.get('topic'):null;
 const NAV_RETURN='aidme:knowledge:return:v1';
@@ -54,7 +56,7 @@ function editableField(field){
  if(field.type==='textarea'||field.type==='action'){el=document.createElement('textarea');el.rows=2;}
  else if(field.type==='select'||field.type==='tri_state'||field.type==='yes_no'||field.type==='multi_select'){
   el=document.createElement('select');let values=field.type==='tri_state'?['','YES','NO','UNKNOWN']:field.type==='yes_no'?['','YES','NO']:field.options||[];
-  if(!values.length)values=['','Eksempel'];for(const v of values){const opt=document.createElement('option');opt.value=String(v);opt.textContent=({YES:'Ja',NO:'Nei',UNKNOWN:'Ikke avklart'}[v]||v||'Velg');el.appendChild(opt)}
+  if(!values.length)values=['','Eksempel'];for(const v of values){const opt=document.createElement('option');opt.value=String(v);opt.textContent=previewOptionNb(v);el.appendChild(opt)}
  }else{el=document.createElement('input');el.type=field.type==='date'?'date':field.type==='datetime'?'datetime-local':'text'}
  el.setAttribute('aria-label',label.textContent);el.dataset.previewField='1';el.autocomplete='off';wrap.appendChild(el);
  const help=field.help;if(typeof help==='string'&&help){const small=document.createElement('small');small.textContent=help;wrap.appendChild(small)}
