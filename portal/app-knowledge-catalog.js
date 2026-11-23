@@ -14,6 +14,9 @@ function sync(){
   const key=defs[i]?.key,f=K.getForm(key);
   const prev=card.querySelector('[data-knowledge-card-link]');
   if(!f){prev?.remove();return}
+  // Public label only; DB still uses the stable pilot_go key.
+  const title=card.querySelector('h3');
+  if(key==='pilot_go'&&title?.textContent.includes('Pilot-GO'))title.textContent=title.textContent.replaceAll('Pilot-GO','Felles-GO');
   if(prev?.dataset.key===key)return;
   prev?.remove();
   const link=document.createElement('a');link.dataset.knowledgeCardLink='1';link.dataset.key=key;
