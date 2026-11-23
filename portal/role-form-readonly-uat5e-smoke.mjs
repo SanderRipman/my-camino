@@ -33,7 +33,7 @@ assert.ok(roles.ser_lead.includes('incident'));
 assert.ok(roles.vida_owner.includes('vida_plan'));
 assert.ok(!roles.system_admin,'No system_admin override in form runner');
 const usable=new Set([...Object.values(roles).flat(),...participant]);
-const disconnected=forms.filter(x=>!usable.has(x));
+const disconnected=[...forms].filter(x=>!usable.has(x));
 assert.deepEqual(disconnected,['vida_transition_prep'],'Known UAT 5E gap: unused VIDA transition is not silently declared operational');
 assert.ok(required.includes('ser_daily'),'Known UAT 5E modeling gap: SER teamlog is still incorrectly participant-required');
 assert.ok(pilot.includes('pilot_go'),'Shared group decision must remain group-scoped');
