@@ -13,7 +13,8 @@ function render(data){
  const v=window.AIDME_ONBOARDING_REFERENCE?.resolve(item);
  if(!v){problem('Innholdet mangler','Dette rollepunktet har ennå ikke et faglig godkjent lesekort. Det kan ikke bekreftes ferdig. Meld fra til administrator.');return}
  $('#readTitle').textContent=item.title_no;
- $('#readRole').textContent='Relevant informasjon for rollen din – '+(item.role_code||'')+'. Bare aktive, tildelte rollepunkt kan åpnes.';
+ const names={system_admin:'Systemadministrator',project_owner:'Prosjekteier',program_lead:'Programleder',via_owner:'VÍA-ansvarlig',clinical_professional:'Relevant fagperson',ser_lead:'SER-/turleder',vida_owner:'VIDA-eier',logistics:'Logistikk og beredskap',observer:'Observatør',evaluator:'Evaluator',break_glass:'Midlertidig nødtilgang'};
+ $('#readRole').textContent=(names[item.role_code]||'Arbeidsrolle')+' · '+(item.participant_id?'Avgrenset til én deltaker':item.pilot_id?'Avgrenset til én pilot':'Rolleavgrenset arbeidsflate')+'.';
  $('#readLead').textContent=v.lead;
  $('#readPoints').innerHTML=v.points.map(s=>'<li>'+esc(s)+'</li>').join('');
  const src=v.sourceDetails;
