@@ -1,0 +1,19 @@
+name: UAT 4J onboarding reading and acknowledgement
+on:
+  pull_request:
+    paths:
+      - 'portal/onboarding*'
+      - '.github/workflows/onboarding-source-review-4j.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  role-reading:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check portal/onboarding.js && node --check portal/onboarding-read.js && node --check portal/onboarding-read-content.js
+      - run: node portal/onboarding-source-uat4j-smoke.mjs
