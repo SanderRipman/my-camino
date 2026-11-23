@@ -29,7 +29,7 @@ assert.match(build,/actionButtons\.forEach\(button=>button\.disabled=true\)/);
 assert.match(build,/actionButtons\.forEach\(button=>button\.disabled=false\)/);
 const handler=built.match(/let taskStatusSaving=false;\nasync function updateTaskStatus\(status\)\{[\s\S]*?\n\}/)?.[0];
 assert.ok(handler,'Compiled SER status handler missing');
-const noteField={value:'Faglig vurdering dokumentert'};
+const noteField={value:'Faglig vurdering dokumentert',focused:false,focus(){this.focused=true}};
 const buttons=Object.fromEntries(['#taskStart','#taskWait','#taskDone'].map(key=>[key,{disabled:false}]));
 const message={textContent:''};
 const dialog={busy:false,closed:0,setAttribute(key,value){if(key==='aria-busy')this.busy=value==='true'},removeAttribute(key){if(key==='aria-busy')this.busy=false},close(){this.closed++}};
