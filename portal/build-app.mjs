@@ -90,22 +90,40 @@ code=code.replace(taskRowRe,`function taskRow(t){
 
 const updateRe=/async function updateTaskStatus\(status\)\{[\s\S]*?\n\}/;
 if(!updateRe.test(code))throw new Error('updateTaskStatus: function missing');
-code=code.replace(updateRe,`async function updateTaskStatus(status){
-  const t=tasks.find(x=>x.id===selectedTaskId);if(!t)return;$('#taskDialogMessage').textContent='Lagrer…';
+code=code.replace(updateRe,`let taskStatusSaving=false;
+async function updateTaskStatus(status){
+  const t=tasks.find(x=>x.id===selectedTaskId);
+  if(!t||taskStatusSaving)return;
   const note=String(document.querySelector('#taskDecisionNote')?.value||'').trim().replace(/\\s+/g,' ').slice(0,800);
   const critical=String(t.severity||'').toUpperCase()==='RED';
   if(critical&&['WAITING','DONE'].includes(status)&&note.length<3){
     $('#taskDialogMessage').textContent='Kritisk oppgave krever en kort beslutningsmerknad før den settes på vent eller fullføres.';
     document.querySelector('#taskDecisionNote')?.focus();return;
   }
-  const {data,error}=await client.functions.invoke('task-command',{body:{taskId:t.id,status,note}});
-  if(error||data?.error){
-    $('#taskDialogMessage').textContent=data?.error==='DECISION_NOTE_REQUIRED'
-      ?'Beslutningsmerknad er påkrevd for denne kritiske oppgaven.'
-      :'Kunne ikke oppdatere oppgaven. Kontroller din oppgaverolle og forsøk igjen.';
-    return;
+  taskStatusSaving=true;
+  const actionButtons=['#taskStart','#taskWait','#taskDone'].map(selector=>$(selector)).filter(Boolean);
+  actionButtons.forEach(button=>button.disabled=true);
+  const dialog=$('#taskDialog'),message=$('#taskDialogMessage');
+  dialog.setAttribute('aria-busy','true');
+  message.textContent='Lagrer oppgavestatus…';
+  try{
+    const {data,error}=await client.functions.invoke('task-command',{body:{taskId:t.id,status,note}});
+    if(error||data?.error){
+      message.textContent=data?.error==='DECISION_NOTE_REQUIRED'
+        ?'Beslutningsmerknad er påkrevd for denne kritiske oppgaven.'
+        :'Status ble ikke bekreftet. Kontroller tilgangen og oppgaven før du forsøker igjen.';
+      return;
+    }
+    t.status=data?.task?.status||status;
+    dialog.close();
+    renderAll();
+  }catch(_error){
+    message.textContent='Tilkoblingen feilet. Kontroller oppgavestatus før du prøver igjen.';
+  }finally{
+    taskStatusSaving=false;
+    actionButtons.forEach(button=>button.disabled=false);
+    dialog.removeAttribute('aria-busy');
   }
-  t.status=data?.task?.status||status;$('#taskDialog').close();renderAll();
 }`);
 
 const renderFormsRe=/function renderForms\(\)\{[^\n]*\}/;
