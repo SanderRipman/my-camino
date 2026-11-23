@@ -11,14 +11,14 @@ const GUIDE_BY_FORM={
   participant_agreement:{
     eyebrow:'Spør og fortell · før SER',
     question:'Betyr individuell GO at SER allerede er bestemt?',
-    answer:'Nei. GO betyr at VÍA-vurderingen kan gå videre. Før SER må du selv kjenne og bekrefte rammene, kontaktvalgene og beredskapen, og den samlede Pilot-GO-gaten må være lukket.',
+    answer:'Nei. GO betyr at VÍA-vurderingen kan gå videre. Før SER må du selv kjenne og bekrefte rammene, kontaktvalgene og beredskapen, og den samlede Felles-GO-gaten må være lukket.',
     next:'Neste steg her er å lese hvert punkt i ro og bekrefte bare det du faktisk forstår og er enig i. Be om avklaring før du fullfører hvis noe er uklart.'
   },
   pilot_go:{
     eyebrow:'Spør og fortell · siste gate før SER',
-    question:'Er Pilot-GO bare en oppsummering av individuell GO?',
-    answer:'Nei. Pilot-GO er en egen samlet operativ gate. Individuell GO, deltakeravtale, navngitt VIDA-eier, praktisk beredskap og eventuelle vilkår må fortsatt være på plass.',
-    next:'Neste lovlige handling etter en godkjent Pilot-GO er siste SER-oppstartskontroll. Selve SER-starten skjer fortsatt gjennom den eksisterende servergaten.'
+    question:'Er Felles-GO bare en oppsummering av individuell GO?',
+    answer:'Nei. Felles-GO er en egen samlet sikkerhets- og gjennomføringsbeslutning. Det er ikke en avstemning blant deltakerne. Individuell GO, deltakeravtale, navngitt VIDA-eier, praktisk beredskap og eventuelle vilkår må fortsatt være på plass.',
+    next:'Neste lovlige handling etter en godkjent Felles-GO er siste SER-oppstartskontroll. Selve SER-starten skjer fortsatt gjennom den eksisterende servergaten.'
   },
   ser_daily:{
     eyebrow:'Spør og fortell · SER',
