@@ -1,0 +1,8 @@
+/* UAT 5A: valgfri info uten å forlate et mulig uferdig skjema */
+.form-knowledge-quick{margin:12px 0 8px;max-width:760px}
+.form-knowledge-quick summary{display:inline-flex;min-height:35px;align-items:center;cursor:pointer;font-size:14px;font-weight:700;color:#174b46;text-decoration:underline;text-underline-offset:3px}
+.form-knowledge-quick summary:focus-visible{outline:2px solid #c8a45d;outline-offset:4px}
+.form-knowledge-body{border:1px solid #ded6c6;border-radius:12px;background:#f6f2ea;padding:15px 18px;margin:9px 0 0}
+.form-knowledge-body p{line-height:1.6;font-size:14px}.form-knowledge-body h4{margin:14px 0 5px}
+.form-knowledge-body ul{padding-left:20px;line-height:1.6}.form-knowledge-body li{margin:5px 0}
+.form-knowledge-body a{font-weight:700;display:inline-block;padding:7px 0}
