@@ -32,19 +32,60 @@ function localInputValue(value){if(!value)return'';const d=new Date(value);if(Nu
 function ensureEditDialog(){
   let dialog=document.querySelector('#editRoleDialog');if(dialog)return dialog;
   dialog=document.createElement('dialog');dialog.id='editRoleDialog';dialog.className='task-dialog';
-  dialog.innerHTML='<form id="editRoleForm" class="dialog-shell"><div class="dialog-head"><div><p class="eyebrow">Tilgang</p><h2 id="editRoleTitle">Endre rolle</h2></div><button type="button" class="icon-btn" data-close aria-label="Lukk">×</button></div><p id="editRoleScope" class="privacy-note"></p><label><span>Kun denne deltakeren</span><select id="editParticipant"><option value="">Hele relevant arbeidsflate</option></select></label><label><span>Kun denne piloten/gruppen</span><select id="editPilot"><option value="">Hele relevant arbeidsflate</option></select></label><label><span>Utløper</span><input id="editValidUntil" type="datetime-local"><small>La stå tom for ingen utløpsdato. Midlertidig nødtilgang må ha frist.</small></label><label><span>Begrunnelse for endring</span><input id="editReason" required maxlength="240" placeholder="Kort hvorfor rolle/scope/fristen endres"></label><div class="dialog-actions"><button class="primary" type="submit">Lagre endring</button><button class="ghost" type="button" data-close>Avbryt</button></div><p id="editRoleMessage" class="message"></p></form>';
+  dialog.innerHTML='<form id="editRoleForm" class="dialog-shell"><div class="dialog-head"><div><p class="eyebrow">Tilgang</p><h2 id="editRoleTitle">Endre rolle</h2></div><button type="button" class="icon-btn" data-close aria-label="Lukk">×</button></div><p id="editRoleScope" class="privacy-note"></p><label><span>Arbeidsrolle</span><select id="editRoleCode" required></select><small>Endre erstatter rolletype i denne eksisterende tildelingen. Bruk «Legg til rolle» for flere samtidige roller.</small></label><label><span>Kun denne deltakeren</span><select id="editParticipant"><option value="">Hele relevant arbeidsflate</option></select></label><label><span>Kun denne piloten/gruppen</span><select id="editPilot"><option value="">Hele relevant arbeidsflate</option></select></label><label><span>Utløper</span><input id="editValidUntil" type="datetime-local"><small>La stå tom for ingen utløpsdato. Midlertidig nødtilgang må ha frist.</small></label><label><span>Begrunnelse for endring</span><input id="editReason" required maxlength="240" placeholder="Kort hvorfor rolle/scope/fristen endres"></label><div class="dialog-actions"><button class="primary" type="submit">Lagre endring</button><button class="ghost" type="button" data-close>Avbryt</button></div><p id="editRoleMessage" class="message"></p></form>';
   document.body.appendChild(dialog);dialog.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>dialog.close()));
-  dialog.querySelector('#editRoleForm').addEventListener('submit',async e=>{e.preventDefault();const reason=document.querySelector('#editReason').value.trim();if(reason.length<3){document.querySelector('#editRoleMessage').textContent='Skriv en kort begrunnelse.';return}const raw=document.querySelector('#editValidUntil').value,body={grantId:editingGrantId,participantId:document.querySelector('#editParticipant').value||null,pilotId:document.querySelector('#editPilot').value||null,validUntil:raw?new Date(raw).toISOString():null,reason};document.querySelector('#editRoleMessage').textContent='Lagrer…';const {data,error}=await client.functions.invoke('admin-update-role',{body});if(error||data?.error){document.querySelector('#editRoleMessage').textContent=`Endringen ble ikke lagret: ${data?.error||error?.message||'ukjent feil'}`;return}dialog.close();await loadAccess()});
+  dialog.querySelector('#editRoleForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const message=document.querySelector('#editRoleMessage'),submit=document.querySelector('#editRoleForm button[type=submit]');
+    const reason=document.querySelector('#editReason').value.trim(),roleSelect=document.querySelector('#editRoleCode');
+    const roleCode=roleSelect.value,oldRole=roleSelect.dataset.previousRole||'';
+    const participantId=document.querySelector('#editParticipant').value||null,pilotId=document.querySelector('#editPilot').value||null;
+    const raw=document.querySelector('#editValidUntil').value;
+    if(reason.length<12){message.textContent='Skriv en konkret begrunnelse på minst 12 tegn.';return}
+    if(['via_owner','clinical_professional'].includes(roleCode)&&(!raw||(!participantId&&!pilotId))){
+      message.textContent='VÍA-/fagrolle må ha tidsfrist og være begrenset til deltaker eller pilot.';return;
+    }
+    const previousParticipant=document.querySelector('#editParticipant').dataset.previousScope||'';
+    const previousPilot=document.querySelector('#editPilot').dataset.previousScope||'';
+    const broadening=(!participantId&&!!previousParticipant)||(!pilotId&&!!previousPilot);
+    const roleChange=roleCode!==oldRole;
+    if((roleChange||broadening)&&!confirm('Bekreft at eksisterende rolle '+(oldRole||'')+' skal endres til '+roleCode+' med valgt omfang. Dette erstatter rollen og gir ikke en ekstra rolle.'))return;
+    const body={grantId:editingGrantId,roleCode,participantId,pilotId,validUntil:raw?new Date(raw).toISOString():null,reason,confirmBroaderScope:broadening};
+    message.textContent='Kontrollerer rolle og lagrer …';submit.disabled=true;
+    try{
+      const {data,error}=await client.functions.invoke('admin-update-role',{body});
+      if(error||data?.error){message.textContent='Endringen ble ikke lagret: '+await adminErrorText(error,data);return}
+      const actual=data?.grant;
+      if(!actual||actual.role_code!==roleCode||(actual.participant_id||null)!==participantId||(actual.pilot_id||null)!==pilotId){
+        message.textContent='Serveren bekreftet ikke riktig rolle/omfang. Ingen ny handling før kontroll.';return;
+      }
+      await loadAccess();
+      dialog.close();
+      const notice=document.querySelector('#grantMessage');
+      if(notice)notice.textContent='Eksisterende rolle endret og kontrollert: '+roleLabel(roleCode)+' – '+(participantId?'kun valgt deltaker':pilotId?'kun valgt pilot':'generelt omfang')+'. Ingen ekstra rolle opprettet.';
+    }catch(err){message.textContent='Endringen ble ikke bekreftet: '+(err?.message||'ukjent feil')}
+    finally{submit.disabled=false}
+  });
   return dialog;
 }
 function openGrantEditor(user,grant){
   const dialog=ensureEditDialog();editingGrantId=grant.id;
   document.querySelector('#editRoleTitle').textContent=`Endre ${roleLabel(grant.role_code)}`;
-  document.querySelector('#editRoleScope').textContent=`${user.staff?.full_name||user.email||'Medarbeider'} · eksisterende rolle beholdes; bare omfang/fristen endres.`;
+  document.querySelector('#editRoleScope').textContent=`${user.staff?.full_name||user.email||'Medarbeider'} · endringen gjelder denne ene eksisterende rolletildelingen; andre roller påvirkes ikke.`;
+  const permitted=new Set(['program_lead','via_owner','clinical_professional','ser_lead','vida_owner','logistics','observer','evaluator']);
+  const roleSelect=document.querySelector('#editRoleCode');
+  roleSelect.innerHTML=[...document.querySelectorAll('#roleCode option')].filter(o=>permitted.has(o.value))
+    .map(o=>`<option value="${escapeHtml(o.value)}">${escapeHtml(o.textContent||o.value)}</option>`).join('');
+  roleSelect.value=grant.role_code;roleSelect.dataset.previousRole=grant.role_code;
   document.querySelector('#editParticipant').innerHTML='<option value="">Hele relevant arbeidsflate</option>'+(accessData.participants||[]).map(p=>`<option value="${p.id}">${escapeHtml(p.code_name)} · ${escapeHtml(p.stage)}</option>`).join('');
   document.querySelector('#editPilot').innerHTML='<option value="">Hele relevant arbeidsflate</option>'+(accessData.pilots||[]).map(p=>`<option value="${p.id}">${escapeHtml(p.name)}${p.route_name?` · ${escapeHtml(p.route_name)}`:''}</option>`).join('');
-  document.querySelector('#editParticipant').value=grant.participant_id||'';document.querySelector('#editPilot').value=grant.pilot_id||'';document.querySelector('#editValidUntil').value=localInputValue(grant.valid_until);document.querySelector('#editReason').value='';document.querySelector('#editRoleMessage').textContent='';
-  const systemAdmin=grant.role_code==='system_admin';document.querySelector('#editParticipant').disabled=systemAdmin;document.querySelector('#editPilot').disabled=systemAdmin;
+  document.querySelector('#editParticipant').value=grant.participant_id||'';document.querySelector('#editPilot').value=grant.pilot_id||'';document.querySelector('#editParticipant').dataset.previousScope=grant.participant_id||'';document.querySelector('#editPilot').dataset.previousScope=grant.pilot_id||'';document.querySelector('#editValidUntil').value=localInputValue(grant.valid_until);document.querySelector('#editReason').value='';document.querySelector('#editRoleMessage').textContent='';
+  const protectedRole=!permitted.has(grant.role_code);
+  document.querySelector('#editParticipant').disabled=protectedRole;
+  document.querySelector('#editPilot').disabled=protectedRole;
+  roleSelect.disabled=protectedRole;
+  document.querySelector('#editRoleForm button[type=submit]').disabled=protectedRole;
+  if(protectedRole)document.querySelector('#editRoleMessage').textContent='Denne privilegerte rollen kan ikke endres i vanlig redigeringsflyt.';
   dialog.showModal();
 }
 function enhanceAccessList(){
