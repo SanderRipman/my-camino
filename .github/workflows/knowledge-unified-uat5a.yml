@@ -5,6 +5,9 @@ on:
       - 'portal/knowledge*'
       - 'portal/app-knowledge-catalog*'
       - 'portal/form-knowledge-link*'
+      - 'portal/form-option-labels-nb.js'
+      - 'portal/form-qna-guidance.js'
+      - 'portal/felles-go-copy-uat5d-smoke.mjs'
       - 'portal/onboarding-read*'
       - 'portal/form-runner.html'
       - 'portal/index.html'
@@ -25,5 +28,6 @@ jobs:
           node-version: '22'
       - run: node --check portal/knowledge-registry.js && node --check portal/knowledge.js && node --check portal/form-knowledge-link.js && node --check portal/app-knowledge-catalog.js && node --check portal/onboarding-read-content.js && node --check portal/onboarding-read.js
       - run: node portal/knowledge-unified-smoke.mjs
+      - run: node portal/felles-go-copy-uat5d-smoke.mjs
       - run: node portal/knowledge-runtime-uat5a-smoke.mjs
       - run: node portal/onboarding-source-uat4j-smoke.mjs
