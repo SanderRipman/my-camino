@@ -25,7 +25,7 @@ assert.match(readJs,/data\?\.item\?\.status!=='DONE'/,'Verify successful server 
 assert.match(readJs,/!\$\('#readChecked'\)\.checked/,'Explicit acknowledgement required');
 assert.match(readJs,/onboarding\.html#item-/,'Return to exact source row');
 assert.doesNotMatch(readJs,/form-runner\.html\?key=/,'Reading must not create a form draft');
-assert.match(readHtml,/rel="noopener noreferrer"/);
+assert.match(readJs,/rel="noopener noreferrer"/,'External SharePoint links are generated with noopener');
 assert.match(css,/\.read-confirm/);
 const context={window:{}};
 vm.runInNewContext(content,context,{filename:'onboarding-read-content.js'});
