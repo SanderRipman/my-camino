@@ -111,18 +111,60 @@ $('#inviteForm').addEventListener('submit',async e=>{
 
 $('#grantForm').addEventListener('submit',async e=>{
  e.preventDefault();const targetUserId=$('#targetUserSelect').value,roleCode=$('#roleCode').value;if(!targetUserId||!roleCode){msg('#grantMessage','Velg både medarbeider og rolle.');return}const body={targetUserId,roleCode,participantId:$('#participantId').value||null,pilotId:$('#pilotId').value||null,reason:clean($('#reason').value)||null,validUntil:isoOrNull($('#validUntil').value)};
- const scopedVia=!!body.participantId&&['via_owner','clinical_professional'].includes(roleCode);
- if((roleCode==='break_glass'||scopedVia)&&(!body.reason||!body.validUntil)){
+ const sensitiveRole=['via_owner','clinical_professional'].includes(roleCode);
+ if(sensitiveRole&&!body.participantId&&!body.pilotId){
+   msg('#grantMessage','Velg en konkret deltaker eller pilot for VÍA-/fagrolle. Generell tilgang krever en separat godkjent prosess.');
+   return;
+ }
+ const scopedVia=!!body.participantId&&sensitiveRole;
+ if((roleCode==='break_glass'||sensitiveRole)&&(!body.reason||!body.validUntil)){
    msg('#grantMessage',scopedVia?'Avgrenset VÍA-/fagrolle krever begrunnelse og utløp (maks 30 dager).':'Midlertidig nødtilgang krever begrunnelse og utløpstid.');return;
  }
- if(scopedVia&&Date.parse(body.validUntil)>Date.now()+30*86400000){
+ if(sensitiveRole&&Date.parse(body.validUntil)>Date.now()+30*86400000){
    msg('#grantMessage','VÍA-/fagrollen kan maksimalt vare i 30 dager.');return;
  }msg('#grantMessage','Tildeler tilgang…');const {data,error}=await client.functions.invoke('admin-grant-role',{body});if(error||data?.error){msg('#grantMessage',`Tilgangen ble ikke tildelt: ${data?.error||error?.message||'ukjent feil'}`);return}msg('#grantMessage','Arbeidsrollen er tildelt med valgt omfang.',true);
  const handoffContext=scopedVia?{participantId:body.participantId,targetUserId,reason:'Tildeler åpen VÍA-vurdering etter avgrenset rollegrant for '+(participantLabel(body.participantId)||'deltaker')}:null;
  $('#grantForm').reset();renderRoleInfo();await loadAccess();
  offerViaReviewHandoff(handoffContext);
 });
-async function revokeGrant(grantId){const reason=prompt('Kort begrunnelse for å fjerne tilgangen:');if(!reason)return;const {data,error}=await client.functions.invoke('admin-revoke-role',{body:{grantId,reason:clean(reason)}});if(error||data?.error){alert(`Kunne ikke fjerne tilgang: ${data?.error||error?.message||'ukjent feil'}`);return}await loadAccess()}
+async function adminErrorText(error,data){
+ const codes={
+   UNAUTHORIZED:'Innloggingen ble ikke godtatt. Kontroller økten og tofaktor.',
+   MFA_REQUIRED:'Bekreft tofaktor for denne endringen.',
+   FORBIDDEN:'Administratorrollen mangler eller er utløpt.',
+   WRONG_ORGANIZATION:'Du har ikke administratorrettigheter i denne organisasjonen.',
+   ROLE_CHANGED_CONCURRENTLY:'Rollen er endret samtidig. Oppdater listen før ny handling.',
+   OVERLAPPING_ACTIVE_ROLE:'Denne rollen finnes allerede med overlappende tilgang.',
+   CLINICAL_ROLE_REQUIRES_EXPLICIT_SCOPE:'Velg deltaker eller pilot, ikke generell tilgang.',
+   TRANSFER_OPEN_TASKS_BEFORE_ROLE_CHANGE:'Overfør åpne arbeidsoppgaver før rolletype endres.'
+ };
+ let code=data?.error||'';
+ const response=error?.context;
+ if(!code&&response&&typeof response.clone==='function'){
+  try{const body=await response.clone().json();code=body?.error||''}catch{}
+ }
+ if(code)return codes[code]||code;
+ const status=response?.status;
+ if(status===401)return 'Avvist (401). Den autoriserte økten ble ikke godtatt av sikkerhetslaget.';
+ return error?.message||'Ukjent feil';
+}
+async function revokeGrant(grantId){
+ const reason=prompt('Kort begrunnelse for å fjerne tilgangen:');
+ if(!reason)return;
+ if(reason.trim().length<3){alert('Skriv en konkret begrunnelse.');return}
+ const button=[...document.querySelectorAll('.revoke-access')].find(b=>b.dataset.grantId===grantId);
+ if(button)button.disabled=true;
+ try{
+   const {data,error}=await client.functions.invoke('admin-revoke-role',{body:{grantId,reason:clean(reason)}});
+   if(error||data?.error||!data?.ok){
+     alert('Tilgangen ble ikke fjernet: '+await adminErrorText(error,data));return;
+   }
+   await loadAccess();
+   const note=document.querySelector('#grantMessage');
+   if(note)note.textContent='Arbeidsrollen er tilbakekalt. Oppdatert tilgangsliste er hentet fra serveren.';
+ }catch(error){alert('Kunne ikke bekrefte tilbakekalling: '+(error?.message||'ukjent feil'))}
+ finally{if(button&&button.isConnected)button.disabled=false}
+}
 
 $('#roleCode').addEventListener('change',()=>{renderRoleInfo();maybeDefaultScopedViaFields()});
 $('#participantId').addEventListener('change',maybeDefaultScopedViaFields);
