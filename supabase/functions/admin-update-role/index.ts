@@ -37,9 +37,16 @@ Deno.serve(async(req:Request)=>{
     return new Response(JSON.stringify({error:'CLINICAL_ROLE_REQUIRES_REASON_AND_30D_EXPIRY'}),{status:400,headers})
    if(!participantId&&!pilotId&&b.confirmBroadSensitiveScope!==true)
     return new Response(JSON.stringify({error:'CLINICAL_ROLE_REQUIRES_EXPLICIT_SCOPE'}),{status:400,headers})
-   const {data:staff,error:se}=await admin.from('staff_profiles').select('user_id').eq('user_id',g.user_id).eq('organization_id',g.organization_id).eq('active',true).maybeSingle()
-   if(se)throw se
-   if(!staff)return new Response(JSON.stringify({error:'TARGET_NOT_ACTIVE_STAFF'}),{status:403,headers})
+   // An invited staff user's staff_profiles row may be created only at first sign-in.
+   // Narrowing an existing grant never expands the user's permissions.
+   const narrowingExisting=roleCode===g.role_code
+     &&(!g.participant_id||g.participant_id===participantId)
+     &&(!g.pilot_id||g.pilot_id===pilotId)
+   if(!narrowingExisting){
+    const {data:staff,error:se}=await admin.from('staff_profiles').select('user_id').eq('user_id',g.user_id).eq('organization_id',g.organization_id).eq('active',true).maybeSingle()
+    if(se)throw se
+    if(!staff)return new Response(JSON.stringify({error:'TARGET_NOT_ACTIVE_STAFF'}),{status:403,headers})
+   }
   }
   if(roleCode!==g.role_code){
    const {count,error:te}=await admin.from('tasks').select('id',{count:'exact',head:true}).eq('assignee_user_id',g.user_id).eq('audience','STAFF').in('status',['OPEN','IN_PROGRESS','WAITING'])
