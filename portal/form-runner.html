@@ -5,6 +5,16 @@
 <title>AidMe VIDA · Skjema</title>
 <link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./form-runner.css?v=20260903c"><link rel="stylesheet" href="./form-review.css?v=20260906a"><link rel="stylesheet" href="./form-runner-uat-20261102.css?v=1">
 
+<script>
+/* Targeted staff submitted VÍA review uses a small independent read-only page.
+   Redirect before the large multi-script form boot; all other forms stay as-is. */
+(()=>{
+  const q=new URLSearchParams(location.search);
+  if(q.get('key')==='via_roadmap'&&q.get('latest')==='1'&&q.get('participant')&&q.get('returnTask')){
+    location.replace('./via-submitted-readonly.html'+location.search);
+  }
+})();
+</script>
 </head>
 <body>
 <div class="app-shell">
