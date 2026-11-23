@@ -7,6 +7,27 @@ let state=null,factor=null;
 function esc(v=''){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function show(title,text){const m=$('#message');m.classList.remove('hidden');m.innerHTML=`<h3>${esc(title)}</h3><p>${esc(text)}</p>`}
 function hideMessage(){$('#message').classList.add('hidden')}
+function showInviteRecovery(){
+  const message=$('#message');
+  const form=document.createElement('form');
+  form.id='inviteRecoveryForm';
+  form.className='admin-form';
+  form.innerHTML='<p>Du kan få en ny sikker innloggingslenke til samme konto. Rollen og eksisterende tilgang blir ikke endret.</p><label><span>E-postadressen du ble invitert med</span><input id="recoveryEmail" type="email" required autocomplete="email" placeholder="navn@eksempel.no"></label><button class="primary" type="submit">Send ny sikker innloggingslenke</button><p id="recoveryStatus" class="message" role="status" aria-live="polite"></p><p class="privacy-note">Lenken er for en allerede invitert konto. Ingen ny bruker eller arbeidsrolle opprettes.</p><a href="./">Tilbake til AidMe VIDA-innlogging</a>';
+  message.append(form);
+  form.addEventListener('submit',async(event)=>{
+    event.preventDefault();
+    const input=form.querySelector('#recoveryEmail'),btn=form.querySelector('button[type=submit]'),status=form.querySelector('#recoveryStatus');
+    const email=String(input?.value||'').trim().toLowerCase();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){status.textContent='Oppgi en gyldig e-postadresse.';return}
+    btn.disabled=true;status.textContent='Sender ny sikker innloggingslenke…';
+    try{
+      const {error}=await client.auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:`${location.origin}/portal/welcome.html`}});
+      status.textContent=error?'Kunne ikke sende nå. Prøv vanlig innlogging eller kontakt administrator.':'Hvis adressen er registrert, kommer en ny lenke i e-posten. Åpne den nyeste lenken i dette miljøet.';
+    }catch{
+      status.textContent='Kunne ikke sende nå. Prøv vanlig innlogging eller kontakt administrator.';
+    }finally{btn.disabled=false}
+  });
+}
 async function invoke(body){const {data,error}=await client.functions.invoke('account-setup-command',{body});if(error||data?.error)throw new Error(data?.error||error?.message||'REQUEST_FAILED');return data}
 function fill(data){
   state=data;$('#setup').classList.remove('hidden');$('#sessionPill').textContent='Invitasjon · bekreftet';$('#sessionPill').classList.add('secure');$('#displayName').value=data.profile?.display_name||data.identity?.legal_name||data.staff?.full_name||'';$('#phone').value=data.identity?.phone||data.staff?.phone||'';$('#locale').value=data.profile?.locale||'nb';
@@ -38,5 +59,5 @@ async function refreshMfa(){
 async function startMfa(){const area=$('#mfaArea');const {data,error}=await client.auth.mfa.enroll({factorType:'totp',friendlyName:'AidMe VIDA',issuer:'AidMe'});if(error){show('Kunne ikke starte tofaktor',error.message);return}factor={id:data.id,existing:false};area.innerHTML=`<div class="mfa-box"><h3>Skann i Authenticator</h3><p>Skann QR-koden eller legg inn nøkkelen manuelt. Skriv deretter inn seks-sifret kode.</p><img src="${esc(data.totp.qr_code)}" alt="QR-kode for AidMe VIDA Authenticator"><code>${esc(data.totp.secret)}</code><div class="mfa-row"><label><span>Kode</span><input id="mfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label><button id="verifyMfa" class="primary" type="button">Aktiver</button></div><p id="mfaMessage" class="message"></p></div>`;$('#verifyMfa').addEventListener('click',verifyMfa)}
 async function verifyMfa(){const code=String($('#mfaCode')?.value||'').replace(/\s/g,'');const msg=$('#mfaMessage');if(!/^\d{6}$/.test(code)){msg.textContent='Skriv inn seks sifre.';return}msg.textContent='Bekrefter…';const challenge=await client.auth.mfa.challenge({factorId:factor.id});if(challenge.error){msg.textContent='Kunne ikke opprette sikkerhetskontroll.';return}const verify=await client.auth.mfa.verify({factorId:factor.id,challengeId:challenge.data.id,code});if(verify.error){msg.textContent='Koden ble ikke godkjent. Prøv neste kode fra Authenticator.';return}await refreshMfa()}
 $('#profileForm').addEventListener('submit',async e=>{e.preventDefault();hideMessage();const btn=e.submitter;btn.disabled=true;btn.textContent='Lagrer…';try{const body={action:'UPDATE',display_name:$('#displayName').value,phone:$('#phone').value,locale:$('#locale').value};if(state.accountType==='participant'){body.birth_year=$('#birthYear').value||null;body.preferred_contact_method=$('#preferredContact').value}else body.job_title=$('#jobTitle').value;const result=await invoke(body);$('#profileMessage').textContent='Profilen er lagret.';await init(true);if(result.next==='ACCESS_PENDING')show('Profilen er klar','Administrator må tildele arbeidsrolle før arbeidsflaten åpnes.')}catch(err){$('#profileMessage').textContent=`Kunne ikke lagre: ${err.message}`}finally{btn.disabled=false;btn.textContent='Lagre og fortsett'}});
-async function init(quiet=false){const {data:{session}}=await client.auth.getSession();if(!session){$('#sessionPill').textContent='Invitasjon · mangler økt';show('Invitasjonslenken kan ikke brukes','Denne lenken er utløpt, allerede brukt eller mangler en gyldig innloggingsøkt. Be om en ny invitasjon eller gå tilbake til AidMe VIDA-innloggingen for dette miljøet.');return}try{const data=await invoke({action:'GET'});fill(data);if(!quiet&&location.hash)history.replaceState(null,'',location.pathname+location.search)}catch(err){show('Kunne ikke åpne profilen','Økten er gyldig, men profilen kunne ikke klargjøres. Ingen opplysninger er endret.')}}
+async function init(quiet=false){const {data:{session}}=await client.auth.getSession();if(!session){$('#sessionPill').textContent='Invitasjon · mangler økt';show('Invitasjonslenken kan ikke brukes','Den opprinnelige innloggingslenken gir ikke lenger tilgang. Bruk den sikre gjenopprettingen under for eksisterende konto.');showInviteRecovery();return}try{const data=await invoke({action:'GET'});fill(data);if(!quiet&&location.hash)history.replaceState(null,'',location.pathname+location.search)}catch(err){show('Kunne ikke åpne profilen','Økten er gyldig, men profilen kunne ikke klargjøres. Ingen opplysninger er endret.')}}
 init();
