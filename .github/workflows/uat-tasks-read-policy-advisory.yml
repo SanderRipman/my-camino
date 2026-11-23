@@ -1,0 +1,25 @@
+# Read-only test for a static RLS risk heuristic; not a live RLS security gate.
+name: UAT tasks_read policy advisory
+on:
+  pull_request:
+    branches: [demo-uat]
+    paths:
+      - 'scripts/security/audit-tasks-read-policy*.mjs'
+      - '.github/workflows/uat-tasks-read-policy-advisory.yml'
+permissions:
+  contents: read
+jobs:
+  source-fixtures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate synthetic tasks_read risk fixtures
+        run: node --test scripts/security/audit-tasks-read-policy.test.mjs
+      - name: State security gate accurately
+        run: |
+          echo 'Static heuristic tests only. PASS does not mean live RLS is safe.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'GitHub #249 still needs authenticated AAL1/AAL2, grant-revocation and scope-negative tests before DB remediation.' >> "$GITHUB_STEP_SUMMARY"
