@@ -1,0 +1,24 @@
+name: UAT PR overlap advisory
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+    branches: [demo-uat]
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  report-overlapping-files:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify pure changed-path overlap detection
+        run: node --test .github/scripts/uat-pr-overlap.test.mjs
+      - name: Report open demo-uat PRs with shared changed paths
+        run: node .github/scripts/uat-pr-overlap.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
