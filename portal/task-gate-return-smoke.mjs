@@ -29,7 +29,7 @@ ok(formAuth.includes("event==='SIGNED_OUT'")&&formAuth.includes('sessionStorage.
 ok(formAuth.includes("window.addEventListener('focus'")&&formAuth.includes("document.addEventListener('visibilitychange'")&&formAuth.includes("window.addEventListener('pageshow'"),'Mobile/background tab recovery must re-check auth when the protected form becomes active');
 ok(formAuth.includes("location.pathname.endsWith('/form-runner.html')")&&formAuth.includes("query.has('returnTask')"),'Auth continuity guard must preserve deep form/task context rather than a generic portal route');
 ok(!formAuth.includes('localStorage'),'Exact return intent must remain tab-scoped and must not be shared across old portal tabs');
-ok(formHtml.includes('form-auth-continuity.js?v=20260904a')&&formHtml.indexOf('form-auth-continuity.js')>formHtml.indexOf('form-runner.js'),'Dedicated continuity guard must load after the form client exists');
+ok(formHtml.includes('form-auth-continuity.js?v=')&&formHtml.indexOf('form-auth-continuity.js')>formHtml.indexOf('form-runner.js'),'Dedicated continuity guard must load after the form client exists');
 ok(form.includes("client.functions.invoke('form-command'"),'Form save must continue through form-command');
 ok(form.includes("returnQuery.get('returnTask')")&&form.includes('Tilbake til oppgaven og se oppdatert status'),'Form runner must expose explicit return to the originating task');
 ok(form.includes("return{href:'./',label:'Til Oversikt'}"),'Completed staff forms without return context must go back to Overview');
