@@ -40,6 +40,7 @@ function renderItem(){
  const related=f?K.topicForForm(key):null;
  if(related){$('#relatedKnowledge').classList.remove('hidden');$('#relatedKnowledgeLead').textContent=related.title+' · '+related.why;appendList($('#relatedKnowledgePoints'),related.points)}
  $('#knowledgeBack').href=backTarget();
+ if($('#knowledgeBack').getAttribute('href')==='./')$('#knowledgeBack').textContent='← Tilbake til portalen';
  if(f){
   const a=document.createElement('button');a.type='button';a.className='ghost';a.textContent='Forhåndsvis feltene med fiktive data';a.id='openFieldPreview';
   a.hidden=true;$('#knowledgeActions').appendChild(a);
@@ -59,9 +60,9 @@ function editableField(field){
  const help=field.help;if(typeof help==='string'&&help){const small=document.createElement('small');small.textContent=help;wrap.appendChild(small)}
  return wrap;
 }
-async function preview(){
+async function preview(userId){
  const btn=$('#openFieldPreview');if(!btn)return;
- const {data:roleRows,error:e}=await client.from('role_grants').select('role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at').is('revoked_at',null);
+ const {data:roleRows,error:e}=await client.from('role_grants').select('role_code,participant_id,pilot_id,valid_from,valid_until,revoked_at').eq('user_id',userId).is('revoked_at',null);
  if(e)return;
  const now=Date.now();
  const allowed=(roleRows||[]).some(x=>['system_admin','project_owner'].includes(x.role_code)&&!x.participant_id&&!x.pilot_id&&(!x.valid_from||new Date(x.valid_from).getTime()<=now)&&(!x.valid_until||new Date(x.valid_until).getTime()>now));
@@ -94,7 +95,7 @@ async function init(){
  const {data:aal,error:e}=await client.auth.mfa.getAuthenticatorAssuranceLevel();
  if(e||aal?.currentLevel!=='aal2'){ $('#knowledgeAal').textContent='AAL2 kreves';error('Bekreft tofaktor','Bekreft Authenticator i portalen før du leser den interne veiledningen.');return}
  $('#knowledgeAal').textContent='AAL2 · bekreftet';$('#knowledgeAal').classList.add('secure');
- renderItem();if(key)await preview();
+ renderItem();if(key)await preview(session.user.id);
 }
 init();
 })();
