@@ -2,19 +2,13 @@
 // Faglig autoritet: aktiv SharePoint-styring, fagroller v0.3 (UTKAST) og operativ malpakke v0.3.
 // Enhver endring i normativt mandat krever faglig godkjenning; disse kortene gir ikke ny myndighet.
 (function(){
-const base='https://aidme911-my.sharepoint.com/personal/sander_aidme_no';
-const sources={
- roles:{label:'Fagroller, ansvar og etiske grenser v0.3 – arbeidsutkast',url:base+'/_layouts/15/Doc.aspx?sourcedoc=%7BE2F458EA-9661-486E-8AC7-FDD659EA76A7%7D&file=Fagroller_ansvar_og_etiske_grenser_v0_3_UTKAST.docx&action=default'},
- journey:{label:'Intern rolle- og brukerreise v0.1 – intern pedagogisk referanse',url:base+'/_layouts/15/Doc.aspx?sourcedoc=%7BE863F7CD-5744-49CD-AF10-899834B99C0B%7D&file=AidMe_VIDA_intern_rolle_og_brukerreise_v0_1_2026-09-04.docx&action=default'},
- mal:{label:'Operativ malpakke VÍA–SER–VIDA v0.3 – aktiv arbeidsreferanse',url:base+'/Documents/Camino/09_Dokumentasjon_og_evaluering/Maler_og_skjema/00_AKTIV_MALPAKKE/Operativ_malpakke_VIA_SER_VIDA_v0_3_A4.pdf'},
- go:{label:'Aktivt skjema 03 – Individuell GO / NO-GO (PDF-referanse)',url:base+'/Documents/Camino/09_Dokumentasjon_og_evaluering/Maler_og_skjema/00_AKTIV_MALPAKKE/Enkeltfiler_PDF/AidMe_VIDA_NO_Skjema_03_Individuell_GO_NO-GO_v0_3_A4.pdf'},
- incident:{label:'Aktivt skjema 07 – Hendelses- og avvikslogg (PDF-referanse)',url:base+'/Documents/Camino/09_Dokumentasjon_og_evaluering/Maler_og_skjema/00_AKTIV_MALPAKKE/Enkeltfiler_PDF/AidMe_VIDA_NO_Skjema_07_Hendelses_og_avvikslogg_v0_3_A4.pdf'},
- vida:{label:'Aktivt skjema 08 – VIDA-handlings-/aktivitetsplan (PDF-referanse)',url:base+'/Documents/Camino/09_Dokumentasjon_og_evaluering/Maler_og_skjema/00_AKTIV_MALPAKKE/Enkeltfiler_PDF/AidMe_VIDA_NO_Skjema_08_VIDA_handlings_og_aktivitetsplan_v0_3_A4.pdf'},
- ser:{label:'Aktivt skjema 06 – Daglig SER-operativlogg (PDF-referanse)',url:base+'/Documents/Camino/09_Dokumentasjon_og_evaluering/Maler_og_skjema/00_AKTIV_MALPAKKE/Enkeltfiler_PDF/AidMe_VIDA_NO_Skjema_06_Daglig_SER-operativlogg_v0_3_A4.pdf'},
- safety:{label:'Bemanning, avbrudd og beslutningsprotokoll v0.1 – arbeidsutkast',url:base+'/_layouts/15/Doc.aspx?sourcedoc=%7B90DCEB41-6AE9-4E21-9F13-7B09F49BE8AC%7D&file=11_Bemanning_avbrudd_og_beslutningsprotokoll_v0_1_UTKAST.docx&action=default'},
- privacy:{label:'Personvern, dataflyt og systemvalg v0.1 – arbeidsutkast',url:base+'/_layouts/15/Doc.aspx?sourcedoc=%7B74804602-5861-4758-AD80-AA0AC05D64EC%7D&file=12_Personvern_dataflyt_og_systemvalg_v0_1_UTKAST.docx&action=default'},
- evaluation:{label:'Aktiv operativ malpakke – Pilotevaluering (del 9)',url:base+'/Documents/Camino/09_Dokumentasjon_og_evaluering/Maler_og_skjema/00_AKTIV_MALPAKKE/Operativ_malpakke_VIA_SER_VIDA_v0_3_A4.pdf'}
-};
+// The exact same operational knowledge topics used by daily forms. Never link
+// directly to SharePoint from the employee portal: grants are not document ACLs.
+const K=window.AIDME_KNOWLEDGE;
+const sources=Object.fromEntries((K?.topicKeys||[]).map(k=>{
+ const topic=K.getTopic(k);
+ return [k,{label:topic.title+' · intern portalveiledning',url:K.hrefForTopic(k)}];
+}));
 const role={
  system_admin:{can:'Administrere brukere, roller, omfang og revisjonslogger.',cannot:'Ikke lese sensitive fagopplysninger bare fordi du har teknisk tilgang.',owner:'Teknisk systemeierskap; faglige beslutninger har en annen ansvarslinje.'},
  project_owner:{can:'Eie konsept, avtaler, økonomi, kvalitetssystem og overordnet pilotramme.',cannot:'Ikke fatte individuelle kliniske GO/NO-GO uten riktig fagmandat.',owner:'Programansvarlig og formelt definert faglig beslutningsansvarlig må samordnes.'},

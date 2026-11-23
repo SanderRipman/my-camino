@@ -1,0 +1,29 @@
+name: UAT 5A unified knowledge and safe preview
+on:
+  pull_request:
+    paths:
+      - 'portal/knowledge*'
+      - 'portal/app-knowledge-catalog*'
+      - 'portal/form-knowledge-link*'
+      - 'portal/onboarding-read*'
+      - 'portal/form-runner.html'
+      - 'portal/index.html'
+      - 'portal/onboarding-source-uat4j-smoke.mjs'
+      - 'portal/knowledge-unified-smoke.mjs'
+      - 'portal/knowledge-runtime-uat5a-smoke.mjs'
+      - '.github/workflows/knowledge-unified-uat5a.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  shared-knowledge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check portal/knowledge-registry.js && node --check portal/knowledge.js && node --check portal/form-knowledge-link.js && node --check portal/app-knowledge-catalog.js && node --check portal/onboarding-read-content.js && node --check portal/onboarding-read.js
+      - run: node portal/knowledge-unified-smoke.mjs
+      - run: node portal/knowledge-runtime-uat5a-smoke.mjs
+      - run: node portal/onboarding-source-uat4j-smoke.mjs

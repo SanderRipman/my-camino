@@ -18,7 +18,8 @@ function render(data){
  $('#readLead').textContent=v.lead;
  $('#readPoints').innerHTML=v.points.map(s=>'<li>'+esc(s)+'</li>').join('');
  const src=v.sourceDetails;
- $('#sourceLinks').innerHTML=src.map(s=>'<a class="context-link" target="_blank" rel="noopener noreferrer" href="'+esc(s.url)+'">'+esc(s.label)+' ↗</a>').join('');
+ $('#sourceLinks').innerHTML=src.map(s=>'<a class="context-link" href="'+esc(s.url)+'">'+esc(s.label)+' →</a>').join('');
+ $('#sourceLinks').querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{try{sessionStorage.setItem('aidme:knowledge:return:v1',JSON.stringify({path:location.pathname+location.search+location.hash,at:Date.now()}))}catch{}}));
  $('#readCard').classList.remove('hidden');
  if(item.status==='DONE'){
   $('#readConfirm').classList.add('hidden');$('#alreadyDone').classList.remove('hidden');

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#123f3d">
+<title>AidMe VIDA · Veiledning og skjemaforhåndsvisning</title>
+<link rel="stylesheet" href="./styles.css?v=20260817b"><link rel="stylesheet" href="./ux.css?v=20260817a">
+<link rel="stylesheet" href="./knowledge.css?v=20261123a">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body><div class="simple-shell app-shell">
+<aside class="simple-sidebar sidebar">
+<a class="brand" href="./"><img src="/vida/assets/AIDME_Logo-original-web.webp" alt="AidMe"><div><strong>AidMe VIDA</strong><span>Ve. Sé. Vive.</span></div></a>
+<nav><a class="nav-item" href="./"><span class="nav-num">01</span><b>Oversikt</b></a><a class="nav-item" href="./#tasks"><span class="nav-num">03</span><b>Oppgaver</b></a><a class="nav-item active" href="./knowledge.html"><span class="nav-num">06</span><b>Veiledning</b></a></nav>
+<p class="demo-note">Veiledning er ikke en faglig beslutning. Bruk riktige oppgaver for lagring.</p>
+</aside>
+<main class="simple-main workspace">
+<header class="simple-top"><div><p class="eyebrow">AidMe VIDA · Én kunnskapskilde</p><h1 id="knowledgeTitle">Åpner veiledning …</h1><p id="knowledgeLead">Hjelp til riktig skjema og ansvar, uten å åpne deltakersaker.</p></div><span id="knowledgeAal" class="security-pill">Kontrollerer…</span></header>
+<div class="knowledge-nav"><a id="knowledgeBack" class="context-link" href="./">← Tilbake til det du holdt på med</a></div>
+<article id="knowledgeError" class="panel-card hidden" role="alert"></article>
+<article id="knowledgeCard" class="panel-card knowledge-card hidden">
+ <div class="knowledge-meta"><span id="knowledgePhase" class="eyebrow">Fase</span><span class="knowledge-status">Arbeidsreferanse · faglig revisjon pågår</span></div>
+ <section id="knowledgeBasics"><h2 id="knowledgeWhy">Hensikt</h2><p id="knowledgeWhen"></p><p id="knowledgeWho"></p><p id="knowledgeRepeat"></p></section>
+ <section><h2>Viktig å vite</h2><ul id="knowledgePoints"></ul></section>
+ <section class="knowledge-next"><h2>Hva skjer videre?</h2><p id="knowledgeNext"></p></section>
+ <section id="relatedKnowledge" class="knowledge-related hidden"><h2>Relevant faglig sammenheng</h2><p id="relatedKnowledgeLead"></p><ul id="relatedKnowledgePoints"></ul></section>
+ <p class="knowledge-caveat">Informasjonen bygger på eksisterende AidMe-arbeidsmateriell. Den erstatter ikke beslutningsmandat, sikkerhetsprosedyre, nødvendig faglig vurdering eller separat samtykke. Kildeversjon og endelig faglig godkjenning er ikke bekreftet her.</p>
+ <div id="knowledgeActions" class="knowledge-actions"></div>
+</article>
+<article id="previewCard" class="panel-card knowledge-card hidden">
+ <p class="eyebrow">Systemadministrator / prosjekteier · kun syntetisk forhåndsvisning</p>
+ <h2>Samme publiserte skjemaversjon – uten deltakersak</h2>
+ <p>Feltene lastes fra de aktive skjemadefinisjonene i Supabase. Dette er en lokal visning for utprøving – ingen ekte eller fiktive svar sendes eller lagres.</p>
+ <p id="previewStatus" role="status"></p>
+ <div id="previewSections"></div>
+ <div class="knowledge-actions"><button type="button" id="previewDemo" class="ghost">Fyll fiktive eksempler lokalt</button><button type="button" id="previewClear" class="ghost">Tøm eksemplene</button></div>
+</article>
+</main></div>
+<script src="./knowledge-registry.js?v=20261123a"></script>
+<script src="./knowledge.js?v=20261123a"></script>
+<script src="./app-mobile.js?v=20260906b"></script>
+</body></html>
