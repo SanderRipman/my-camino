@@ -15,6 +15,7 @@ function applyPublicGoTitles(root=document){
   const formSelect=document.querySelector('#formSelect');
   for(const option of formSelect?.options||[]){
     if(option.textContent.includes('Pilot-GO')) option.textContent=option.textContent.replaceAll('Pilot-GO','Felles-GO');
+    if(option.textContent.includes('Pilotevaluering')) option.textContent=option.textContent.replaceAll('Pilotevaluering','Felles evaluering');
   }
   const title=document.querySelector('#formTitle');
   if(title?.textContent.includes('Pilot-GO')) title.textContent=title.textContent.replaceAll('Pilot-GO','Felles-GO');
