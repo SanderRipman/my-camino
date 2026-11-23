@@ -14,7 +14,7 @@ assert.match(early,/roleCode,participantId,pilotId/,'Edit must pass role and sco
 assert.match(early,/roleCode!==oldRole/,'Edit must confirm role replacement');
 assert.match(early,/actual\.role_code!==roleCode/,'Edit must verify stored role from server');
 assert.match(early,/Lagre endring/);
-assert.match(admin,/Legg til rolle/);
+assert.match(early,/Legg til rolle/);
 assert.match(admin,/async function revokeGrant/);
 assert.match(admin,/async function adminErrorText/);
 assert.match(admin,/sensitiveRole&&!body\.participantId&&!body\.pilotId/,'No silent general clinical grants');
