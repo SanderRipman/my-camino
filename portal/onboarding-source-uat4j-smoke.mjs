@@ -25,8 +25,8 @@ assert.match(readJs,/data\?\.item\?\.status!=='DONE'/,'Verify successful server 
 assert.match(readJs,/!\$\('#readChecked'\)\.checked/,'Explicit acknowledgement required');
 assert.match(readJs,/onboarding\.html#item-/,'Return to exact source row');
 assert.doesNotMatch(readJs,/form-runner\.html\?key=/,'Reading must not create a form draft');
-assert.doesNotMatch(content,/sharepoint\\.com|_layouts\\/15\\/Doc\\.aspx|sourcedoc=/i,'Employee onboarding cannot expose direct internal SharePoint URLs');
-assert.match(readHtml,/knowledge-registry\\.js/,'One shared knowledge registry loaded for onboarding');
+assert.equal(content.includes('sharepoint.com')||content.includes('sourcedoc='),false,'No direct internal SharePoint source URLs');
+assert.ok(readHtml.includes('knowledge-registry.js'),'Shared catalog loads for onboarding');
 assert.match(readJs,/aidme:knowledge:return:v1/,'Safe same-tab return context for internal reading');
 assert.match(css,/\.read-confirm/);
 const context={window:{}};
